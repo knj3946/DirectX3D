@@ -107,18 +107,20 @@ ModelAnimationScene::ModelAnimationScene()
 //	model = new ModelAnimator("character1");
 
 	//V2,V4,V5 사용할것
-	only_model = new Model("building_V4");
+	only_model = new Model("building_V2");
 	only_model->SetTag("see");
 	only_model->Scale() = { 100,100,100 };
-	//only_model->Pos() = {-500,500,500};
+	only_model->Pos() = { 0,0,0};
 	only_model->Rot() = { XM_PIDIV2,0,0 };
 	only_model->UpdateWorld();
 	boxCollider[0] = new BoxCollider;
+
+	int offset = 15;
 	string str = "Collider";
 	str += to_string(0);
 	boxCollider[0]->SetTag(str);
 	boxCollider[0]->SetParent(only_model);
-	boxCollider[0]->Pos() = { -11.f,-1.6f,-1.5f };
+	boxCollider[0]->Pos() = { -11.f+ offset,-1.6f,-1.5f };
 	boxCollider[0]->Scale() = { 0.4f,1.9f,3.f };
 	boxCollider[0]->UpdateWorld();
 
@@ -127,7 +129,7 @@ ModelAnimationScene::ModelAnimationScene()
 	str += to_string(1);
 	boxCollider[1]->SetTag(str);
 	boxCollider[1]->SetParent(only_model);
-	boxCollider[1]->Pos() = { -11.f,1.6f,-1.5f };
+	boxCollider[1]->Pos() = { -11.f+ offset,1.6f,-1.5f };
 	boxCollider[1]->Scale() = { 0.4f,1.9f,3.f };
 	boxCollider[1]->UpdateWorld();
 	boxCollider[2] = new BoxCollider;
@@ -135,7 +137,7 @@ ModelAnimationScene::ModelAnimationScene()
 	str += to_string(2);
 	boxCollider[2]->SetTag(str);
 	boxCollider[2]->SetParent(only_model);
-	boxCollider[2]->Pos() = { -15.f,0.f,-2.7f };
+	boxCollider[2]->Pos() = { -15.f+ offset,0.f,-2.7f };
 	boxCollider[2]->Scale() = { 8.5f,5.1f,0.9f };
 	boxCollider[2]->UpdateWorld();
 	boxCollider[3] = new BoxCollider;
@@ -143,7 +145,7 @@ ModelAnimationScene::ModelAnimationScene()
 	str += to_string(3);
 	boxCollider[3]->SetTag(str);
 	boxCollider[3]->SetParent(only_model);
-	boxCollider[3]->Pos() = { -14.7f,2.5f,-1.5f };
+	boxCollider[3]->Pos() = { -14.7f+ offset,2.5f,-1.5f };
 	boxCollider[3]->Scale() = { 7.7f,0.2f,3.f };
 	boxCollider[3]->UpdateWorld();
 	boxCollider[4] = new BoxCollider;
@@ -151,7 +153,7 @@ ModelAnimationScene::ModelAnimationScene()
 	str += to_string(4);
 	boxCollider[4]->SetTag(str);
 	boxCollider[4]->SetParent(only_model);
-	boxCollider[4]->Pos() = { -18.9f,0.f,-1.5f };
+	boxCollider[4]->Pos() = { -18.9f+ offset,0.f,-1.5f };
 	boxCollider[4]->Scale() = { 0.6f,5.1f,3.2f };
 	boxCollider[4]->UpdateWorld();
 	boxCollider[5] = new BoxCollider;
@@ -159,7 +161,7 @@ ModelAnimationScene::ModelAnimationScene()
 	str += to_string(5);
 	boxCollider[5]->SetTag(str);
 	boxCollider[5]->SetParent(only_model);
-	boxCollider[5]->Pos() = { -18.6f,-2.4f,-1.5f };
+	boxCollider[5]->Pos() = { -18.6f+ offset,-2.4f,-1.5f };
 	boxCollider[5]->Scale() = { 1.1f,0.4f,3.f };
 	boxCollider[5]->UpdateWorld();
 	boxCollider[6] = new BoxCollider;
@@ -167,11 +169,11 @@ ModelAnimationScene::ModelAnimationScene()
 	str += to_string(6);
 	boxCollider[6]->SetTag(str);
 	boxCollider[6]->SetParent(only_model);
-	boxCollider[6]->Pos() = { -13.7f,-2.4f,-1.5f };
+	boxCollider[6]->Pos() = { -13.7f+ offset,-2.4f,-1.5f };
 	boxCollider[6]->Scale() = { 5.8f,0.4f,3.f };
 	boxCollider[6]->UpdateWorld();
 
-
+	/*
 	only_model2 = new Model("building_V2");
 	only_model2->Scale() = { 100,100,100 };
 	only_model2->Pos() = { -1500,0,0 };
@@ -181,7 +183,7 @@ ModelAnimationScene::ModelAnimationScene()
 	only_model3->Scale() = { 100,100,100 };
 	only_model3->Pos() = { 1500,0,0 };
 	only_model3->Rot() = { XM_PI,0,0 };
-
+	*/
 //	for (string clipName : clipNames)
 //	{
 //		model->ReadClip(clipName);
@@ -219,9 +221,13 @@ ModelAnimationScene::~ModelAnimationScene()
 void ModelAnimationScene::Update()
 {
 	//terrainEditor->Update();
-	if (KEY_DOWN('W')) {
-		only_model->GlobalPos() -= {1.f, 0.f, 0.f};
+	if (KEY_PRESS('W')) {
+		only_model->Pos() -= {1.f, 0.f, 0.f};
 
+	}
+	else if (KEY_PRESS('S'))
+	{
+		only_model->Pos() += {1.f, 0.f, 0.f};
 	}
 	FOR(7)
 	{
@@ -229,8 +235,8 @@ void ModelAnimationScene::Update()
 	}
 
 	only_model->UpdateWorld();
-	only_model2->UpdateWorld();
-	only_model3->UpdateWorld();
+	//only_model2->UpdateWorld();
+	//only_model3->UpdateWorld();
 	
 	//model->Update();
 	/*
@@ -319,8 +325,8 @@ void ModelAnimationScene::Render()
 	//terrainEditor->Render();
 //	model->Render();
 	only_model->Render();
-	only_model2->Render();
-	only_model3->Render();
+	//only_model2->Render();
+	//only_model3->Render();
 	FOR(7)
 	{
 		boxCollider[i]->Render();
@@ -336,7 +342,7 @@ void ModelAnimationScene::GUIRender()
 	//terrainEditor->GUIRender();
 //	model->GUIRender();
 	only_model->GUIRender();
-	only_model2->GUIRender(); only_model3->GUIRender();
+	//only_model2->GUIRender(); only_model3->GUIRender();
 	FOR(7)
 	{
 		boxCollider[i]->GUIRender();
