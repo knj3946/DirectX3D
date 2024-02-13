@@ -140,6 +140,7 @@ using namespace Utility;
 #include "Framework/Model/ModelAnimator.h"
 #include "Framework/Model/ModelInstancing.h"
 #include "Framework/Model/ModelAnimatorInstancing.h"
+#include "Framework/Model/ColliderModel.h"
 
 using namespace GameMath;
 
