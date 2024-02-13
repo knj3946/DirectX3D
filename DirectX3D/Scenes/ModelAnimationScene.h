@@ -17,6 +17,14 @@ private:
 	ModelAnimator* model2;
 	ModelAnimator* model3;
 	Model* only_model;
+	Model* only_model2;
+	Model* only_model3;
+
+	BoxCollider* boxCollider[7];
+
+
+
+
 	TerrainEditor* terrainEditor;
 
 	Vector3 prevMousePos;
