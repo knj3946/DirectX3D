@@ -1,0 +1,10 @@
+<Material Name="Ch45_Body">
+    <Shader Vertex="" Pixel=""/>
+    <Texture Diffuse="Textures/Model/crypto/Ch45_1001_Diffuse.png" Specular="Textures/Model/crypto/Ch45_1001_Specular.png" Normal="Textures/Model/crypto/Ch45_1001_Normal.png"/>
+    <Property Shininess="20" HasNormalMap="1">
+        <Diffuse R="0.80000001" G="0.80000001" B="0.80000001" A="1"/>
+        <Specular R="0.5" G="0.5" B="0.5" A="1"/>
+        <Ambient R="0" G="0" B="0" A="1"/>
+        <Emissive R="0.5" G="0.5" B="0.5" A="1"/>
+    </Property>
+</Material>
