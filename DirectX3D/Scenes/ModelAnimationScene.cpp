@@ -110,7 +110,7 @@ ModelAnimationScene::ModelAnimationScene()
 	only_model = new Model("building_V2");
 	only_model->SetTag("see");
 	only_model->Scale() = { 100,100,100 };
-	only_model->Pos() = { 1500,0,0};
+	only_model->Pos() = { 500,0,0};
 	only_model->Rot() = { XM_PIDIV2,0,0 };
 	only_model->UpdateWorld();
 	boxCollider[0] = new BoxCollider;
