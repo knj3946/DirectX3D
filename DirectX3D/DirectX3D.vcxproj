@@ -145,6 +145,7 @@
     <ClInclude Include="Framework\Model\ColliderModel.h" />
     <ClInclude Include="Framework\Shader\DomainShader.h" />
     <ClInclude Include="Framework\Shader\HullShader.h" />
+    <ClInclude Include="Scenes\GameMapScene.h" />
     <ClInclude Include="Objects\Particle\ParticleSystem.h" />
     <ClInclude Include="Objects\Landscape\QuadTreeTerrain.h" />
     <ClInclude Include="Scenes\QuadTreeScene.h" />
@@ -263,6 +264,7 @@
     <ClCompile Include="Framework\Model\ColliderModel.cpp" />
     <ClCompile Include="Framework\Shader\DomainShader.cpp" />
     <ClCompile Include="Framework\Shader\HullShader.cpp" />
+    <ClCompile Include="Scenes\GameMapScene.cpp" />
     <ClCompile Include="Objects\Particle\ParticleSystem.cpp" />
     <ClCompile Include="Objects\Landscape\QuadTreeTerrain.cpp" />
     <ClCompile Include="Scenes\QuadTreeScene.cpp" />

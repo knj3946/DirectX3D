@@ -19,6 +19,7 @@
 #include "Scenes/ParticleConfigScene.h"
 #include "Scenes/HumanScene.h"
 #include "Scenes/QuadTreeScene.h"
+#include "Scenes/GameMapScene.h"
 
 // 연휴가 끝나면 : 실시간 지형 LOD
 
@@ -39,7 +40,7 @@ GameManager::GameManager()
    // SceneManager::Get()->Create("Terrain", new TerrainEditorScene());
     //SceneManager::Get()->Create("Collision", new CollisionScene());
     //SceneManager::Get()->Create("ModelRender", new ModelRenderScene());
-    SceneManager::Get()->Create("ModelAnimation", new ModelAnimationScene());
+    //SceneManager::Get()->Create("ModelAnimation", new ModelAnimationScene());
     //SceneManager::Get()->Create("Instancing", new IntancingScene());
     //SceneManager::Get()->Create("Game", new GameScene());
     ///SceneManager::Get()->Create("BillboardScene", new BillboardScene());
@@ -51,7 +52,7 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("ParticleConfig", new ParticleConfigScene());
     //SceneManager::Get()->Create("Human", new HumanScene());
     //SceneManager::Get()->Create("QuadTree", new QuadTreeScene());
-
+    SceneManager::Get()->Create("GameMap", new GameMapScene());
 
     SceneManager::Get()->Add("Grid");
     //SceneManager::Get()->Add("Cube");
@@ -60,7 +61,7 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("ModelExport");
     //SceneManager::Get()->Add("Collision");
     //SceneManager::Get()->Add("ModelRender");
-    SceneManager::Get()->Add("ModelAnimation");
+    //SceneManager::Get()->Add("ModelAnimation");
     //SceneManager::Get()->Add("Instancing");
     //SceneManager::Get()->Add("Game");
     //SceneManager::Get()->Add("BillboardScene");
@@ -72,6 +73,7 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("ParticleConfig");
     //SceneManager::Get()->Add("Human");
     //SceneManager::Get()->Add("QuadTree");
+    SceneManager::Get()->Add("GameMap");
 }
 
 GameManager::~GameManager()
@@ -85,7 +87,6 @@ void GameManager::Update()
     Timer::Get()->Update();    
 
     SceneManager::Get()->Update();
-
     Environment::Get()->Update();
 }
 

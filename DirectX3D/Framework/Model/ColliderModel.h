@@ -8,8 +8,11 @@ public:
     void Render();
     void GUIRender();
 
+    void UpdateWorld();
+
     void SetShader(wstring file);
 
+    void AddCollider(Collider* collider);
 private:
     void ReadMaterial();
     void ReadMesh();
@@ -25,4 +28,6 @@ protected:
     map<string, UINT> boneMap;
 
     WorldBuffer* worldBuffer;
+
+    vector<Collider*> colliders;
 };
