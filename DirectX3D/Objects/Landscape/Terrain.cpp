@@ -7,8 +7,8 @@ Terrain::Terrain()
     //material->SetSpecularMap(L"Textures/Landscape/Fieldstone_SM.tga");
     //material->SetNormalMap(L"Textures/Landscape/Fieldstone_NM.tga");
       
-    heightMap = Texture::Add(L"Textures/HeightMaps/TestMap.png");
-    //heightMap = Texture::Add(L"Textures/Color/Black.png"); // <- 가장 낮은 평지(높이 0)
+    //heightMap = Texture::Add(L"Textures/HeightMaps/TestMap.png");
+    heightMap = Texture::Add(L"Textures/Color/Black.png"); // <- 가장 낮은 평지(높이 0)
     alphaMap = Texture::Add(L"Textures/AlphaMaps/TestAlphaMap.png");
     secondMap = Texture::Add(L"Textures/Landscape/Dirt.png");
     thirdMap = Texture::Add(L"Textures/Landscape/Dirt3.png");
@@ -17,6 +17,23 @@ Terrain::Terrain()
     MakeMesh();
     MakeNormal();
     MakeTangent();
+    mesh->CreateMesh();
+}
+
+Terrain::Terrain(UINT _width, UINT _height) : GameObject(L"Landscape/Terrain.hlsl"), width(_width), height(_height)
+{
+    material->SetDiffuseMap(L"Textures/Landscape/Dirt2.png");
+    
+    heightMap = Texture::Add(L"Textures/Color/Black.png");
+    alphaMap = Texture::Add(L"Textures/AlphaMaps/TestAlphaMap.png");
+    secondMap = Texture::Add(L"Textures/Landscape/Dirt.png");
+    thirdMap = Texture::Add(L"Textures/Landscape/Dirt3.png");
+
+    mesh = new Mesh<VertexType>();
+    MakeMesh();
+    MakeNormal();
+    MakeTangent();
+
     mesh->CreateMesh();
 }
 
@@ -181,6 +198,20 @@ void Terrain::MakeTangent()
         vertices[index1].tangent += tangent;
         vertices[index2].tangent += tangent;
     }
+}
+
+void Terrain::SetHeightMap(wstring fileName)
+{
+    heightMap = Texture::Add(fileName);
+
+    if (mesh)
+        delete mesh;
+    mesh = new Mesh<VertexType>();
+    MakeMesh();
+    MakeNormal();
+    MakeTangent();
+
+    mesh->CreateMesh();
 }
 
 void Terrain::MakeMesh()

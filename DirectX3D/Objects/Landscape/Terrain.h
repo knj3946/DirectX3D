@@ -4,10 +4,11 @@ class Terrain : public GameObject
 {
 private:
     typedef VertexUVNormalTangent VertexType;
-    const float MAX_HEIGHT = 20.0f;
+    const float MAX_HEIGHT = 400.0f;
 
 public:
     Terrain();
+    Terrain(UINT width,UINT height);
     Terrain(string mapFile);
     ~Terrain();
 
@@ -18,6 +19,8 @@ public:
     Vector3 Picking();
 
     Vector2 GetSize() { return Vector2(width, height); } //가로 세로를 직접 받을 수 있게 추가
+
+    void SetHeightMap(wstring fileName);
 
 private:
     void MakeMesh();

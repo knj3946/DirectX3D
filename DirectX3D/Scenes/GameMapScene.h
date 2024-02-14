@@ -17,5 +17,11 @@ public:
 private:
 	vector<ColliderModel*> colliderModels;
 	ColliderModel* model;
+
+	Terrain* terrain;
+
+	SkyBox* skyBox;
+
+	BlendState* blendState[2];
 };
 

@@ -3,12 +3,25 @@
 
 GameMapScene::GameMapScene()
 {
+	skyBox = new SkyBox(L"Textures/Landscape/BlueSky.dds");
+
+	FOR(2)
+		blendState[i] = new BlendState();
+	blendState[1]->AlphaToCoverage(true); // 알파 혹은 지정된 배경색을 외부 픽셀과 결합할 것인가
+
+
+	terrain = new Terrain(256,256);
+	terrain->GetMaterial()->SetDiffuseMap(L"Textures/Landscape/Sand.png");
+	terrain->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
+	terrain->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
+	terrain->SetHeightMap(L"Textures/HeightMaps/HeightMapCustom.png");
+
 	{
 		string mName = "building_V2";
 		string mTag = "model1";
 		Vector3 mScale = { 3,3,3 };
 		Vector3 mRot = { 0,0,0 };
-		Vector3 mPos = { 0,0,0 };
+		Vector3 mPos = { 80,0,80 };
 
 		CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 	}
@@ -18,7 +31,7 @@ GameMapScene::GameMapScene()
 		string mTag = "model2";
 		Vector3 mScale = { 3,3,3 };
 		Vector3 mRot = { 0,0,0 };
-		Vector3 mPos = { 30,0,0 };
+		Vector3 mPos = { 160,0,80 };
 
 		CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 	}
@@ -28,7 +41,67 @@ GameMapScene::GameMapScene()
 		string mTag = "model3";
 		Vector3 mScale = { 3,3,3 };
 		Vector3 mRot = { 0,0,0 };
-		Vector3 mPos = { -30,0,0 };
+		Vector3 mPos = { 160,0,160 };
+
+		CreateColliderModel(mName, mTag, mScale, mRot, mPos);
+	}
+
+	{
+		string mName = "building_V4";
+		string mTag = "model4";
+		Vector3 mScale = { 3,3,3 };
+		Vector3 mRot = { 0,0,0 };
+		Vector3 mPos = { 80,0,150 };
+
+		CreateColliderModel(mName, mTag, mScale, mRot, mPos);
+	}
+
+	{
+		string mName = "building_V5";
+		string mTag = "model5";
+		Vector3 mScale = { 3,3,3 };
+		Vector3 mRot = { 0,0,0 };
+		Vector3 mPos = { 128,0,128 };
+
+		CreateColliderModel(mName, mTag, mScale, mRot, mPos);
+	}
+
+	{
+		string mName = "building_V2";
+		string mTag = "model6";
+		Vector3 mScale = { 3,3,3 };
+		Vector3 mRot = { 0,0,0 };
+		Vector3 mPos = { 80,0,215 };
+
+		CreateColliderModel(mName, mTag, mScale, mRot, mPos);
+	}
+
+	{
+		string mName = "building_V4";
+		string mTag = "model7";
+		Vector3 mScale = { 3,3,3 };
+		Vector3 mRot = { 0,0,0 };
+		Vector3 mPos = { 210,0,140 };
+
+		CreateColliderModel(mName, mTag, mScale, mRot, mPos);
+	}
+
+	{
+		string mName = "building_V5";
+		string mTag = "model8";
+		Vector3 mScale = { 3,3,3 };
+		Vector3 mRot = { 0,0,0 };
+		Vector3 mPos = { 200,0,80 };
+
+		CreateColliderModel(mName, mTag, mScale, mRot, mPos);
+	}
+
+	{
+		string mName = "building_V2";
+		string mTag = "model9";
+		Vector3 mScale = { 6,6,6 };
+		Vector3 mRot = { 0,0,0 };
+		Vector3 mPos = { 190,0,190 };
 
 		CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 	}
@@ -38,10 +111,23 @@ GameMapScene::GameMapScene()
 
 GameMapScene::~GameMapScene()
 {
+	for (ColliderModel* colliderModel : colliderModels)
+	{
+		delete colliderModel;
+	}
+	
+	delete model;
+	delete terrain;
+	delete skyBox;
+	
+	FOR(2)
+		delete blendState[i];
 }
 
 void GameMapScene::Update()
 {
+	terrain->UpdateWorld();
+
 	for (ColliderModel* cm : colliderModels)
 	{
 		cm->UpdateWorld();
@@ -83,6 +169,9 @@ void GameMapScene::PreRender()
 
 void GameMapScene::Render()
 {
+	skyBox->Render();
+	terrain->Render();
+
 	for (ColliderModel* cm : colliderModels)
 	{
 		cm->Render();
