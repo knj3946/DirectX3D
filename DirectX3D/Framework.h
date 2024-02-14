@@ -53,6 +53,8 @@
 #include <Assimp/scene.h>
 #include <Assimp/postprocess.h>
 #include <FMOD/fmod.hpp>
+#include <mmsystem.h>
+#include <dsound.h>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -63,6 +65,7 @@
 #pragma comment(lib, "dwrite.lib")
 #pragma comment(lib, "assimp-vc143-mtd.lib")
 #pragma comment(lib, "fmod_vc.lib")
+#pragma comment(lib, "dsound.lib")
 
 using namespace std;
 using namespace DirectX;

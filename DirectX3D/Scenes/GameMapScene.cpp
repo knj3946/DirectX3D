@@ -32,6 +32,8 @@ GameMapScene::GameMapScene()
 
 		CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 	}
+
+	Audio::Get()->Add("bgm1", "Sounds/dramatic-choir.wav", true, true, false);
 }
 
 GameMapScene::~GameMapScene()
@@ -43,6 +45,35 @@ void GameMapScene::Update()
 	for (ColliderModel* cm : colliderModels)
 	{
 		cm->UpdateWorld();
+	}
+	Audio::Get()->Update();
+
+	if (KEY_UP('1'))
+	{
+		if (Audio::Get()->IsPlaySound("bgm1")) // 1번사운드가 플레이 중이라면
+		{
+			Audio::Get()->Stop("bgm1"); // 플레이 중지
+		}
+		else
+		{
+			Audio::Get()->Play("bgm1", 2.0f); // 1번사운드 플레이
+		}
+	}
+
+	if (KEY_UP('P')) 
+	{
+		if (Audio::Get()->IsPlaySound("bgm1"))
+		{
+			Audio::Get()->Pause("bgm1"); // 일시정지
+		}
+	}
+
+	if (KEY_UP('R')) 
+	{
+		if (Audio::Get()->IsPlaySound("bgm1"))
+		{
+			Audio::Get()->Resume("bgm1"); // 일시정지된 지점부터 다시 재생
+		}
 	}
 }
 
