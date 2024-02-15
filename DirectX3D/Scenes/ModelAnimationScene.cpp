@@ -20,7 +20,7 @@ ModelAnimationScene::ModelAnimationScene()
 
 	/*
 	{
-		string modelName = "wolf_v1"; //모델의 이름
+		string modelName = "crypto"; //모델의 이름
 		string filePath = "Models/FBX/" + modelName + ".fbx";
 
 		ModelExporter* exporter = new ModelExporter(modelName, filePath);
@@ -30,70 +30,69 @@ ModelAnimationScene::ModelAnimationScene()
 		delete exporter;
 	}
 	*/
-
 	//클립 생성해두기 
-//	string modelName = "character1";
-//	string clipNames[] = {
-//		"character1@idle1"
-//		,"character1@idle2"
-//		,"character1@idle3"
-//		,"character1@idle4"
-//		,"character1@idle5"
-//		,"character1@jump"
-//		,"character1@run"
-//		,"character1@run2"
-//		,"character1@run3"
-//		,"character1@walk"
-//		,"character1@walk3"
-//		,"character1@walkshield"
-//		,"character1@atack1"
-//		,"character1@atack2"
-//		,"character1@atack3"
-//		,"character1@atack4"
-//		,"character1@atack5"
-//		,"character1@atack6"
-//		,"character1@atack7"
-//		,"character1@atack8"
-//		,"character1@atack9"
-//		,"character1@atack10"
-//		,"character1@atack11"
-//		,"character1@atack12"
-//		,"character1@atack13"
-//		,"character1@atack14"
-//		,"character1@atack15"
-//		,"character1@atack16"
-//		,"character1@atack17"
-//		,"character1@atack18"
-//		,"character1@atack19"
-//		,"character1@atack20"
-//		,"character1@atack21"
-//		,"character1@atack22"
-//		,"character1@atack23"
-//		,"character1@atack24"
-//		,"character1@atack25"
-//		,"character1@atack26"
-//		,"character1@backwalkshield"
-//		,"character1@sneakcrunchback"
-//		,"character1@sneakwalk"
-//		,"character1@sneakwalk2"
-//		,"character1@strafeleft"
-//		,"character1@straferight"
-//		,"character1@death1"
-//		,"character1@death2"
-//		,"character1@death3"
-//		,"character1@death4"
-//		,"character1@dodge"
-//		,"character1@gethit"
-//	};
-//	/*
-//	string modelName = "character1";
-//	string clipNames[] = {
-//		"Idle"
-//		,"kick"
-//		
-//	};
-//	*/
-//	clipSize = (sizeof(clipNames) / sizeof(*clipNames));
+	string modelName = "character1";
+	string clipNames[] = {
+		"character1@idle1"
+		,"character1@idle2"
+		,"character1@idle3"
+		,"character1@idle4"
+		,"character1@idle5"
+		,"character1@jump"
+		,"character1@run"
+		,"character1@run2"
+		,"character1@run3"
+		,"character1@walk"
+		,"character1@walk3"
+		,"character1@walkshield"
+		,"character1@atack1"
+		,"character1@atack2"
+		,"character1@atack3"
+		,"character1@atack4"
+		,"character1@atack5"
+		,"character1@atack6"
+		,"character1@atack7"
+		,"character1@atack8"
+		,"character1@atack9"
+		,"character1@atack10"
+		,"character1@atack11"
+		,"character1@atack12"
+		,"character1@atack13"
+		,"character1@atack14"
+		,"character1@atack15"
+		,"character1@atack16"
+		,"character1@atack17"
+		,"character1@atack18"
+		,"character1@atack19"
+		,"character1@atack20"
+		,"character1@atack21"
+		,"character1@atack22"
+		,"character1@atack23"
+		,"character1@atack24"
+		,"character1@atack25"
+		,"character1@atack26"
+		,"character1@backwalkshield"
+		,"character1@sneakcrunchback"
+		,"character1@sneakwalk"
+		,"character1@sneakwalk2"
+		,"character1@strafeleft"
+		,"character1@straferight"
+		,"character1@death1"
+		,"character1@death2"
+		,"character1@death3"
+		,"character1@death4"
+		,"character1@dodge"
+		,"character1@gethit"
+	};
+	/*
+	string modelName = "character1";
+	string clipNames[] = {
+		"Idle"
+		,"kick"
+		
+	};
+	*/
+	clipSize = (sizeof(clipNames) / sizeof(*clipNames));
 	/*
 	for(string clipName : clipNames)
 	{
@@ -103,92 +102,12 @@ ModelAnimationScene::ModelAnimationScene()
 		delete exporter;
 	}
 	*/
+	model = new ModelAnimator("character1");
+	for (string clipName : clipNames)
+	{
+		model->ReadClip(clipName);
+	}
 
-//	model = new ModelAnimator("character1");
-
-	//V2,V4,V5 사용할것
-	only_model = new Model("building_V2");
-	only_model->SetTag("see");
-	only_model->Scale() = { 100,100,100 };
-	only_model->Pos() = { 500,0,0};
-	only_model->Rot() = { XM_PIDIV2,0,0 };
-	only_model->UpdateWorld();
-	boxCollider[0] = new BoxCollider;
-
-	int offset = 15;
-	string str = "Collider";
-	str += to_string(0);
-	boxCollider[0]->SetTag(str);
-	boxCollider[0]->SetParent(only_model);
-	boxCollider[0]->Pos() = { -11.f+ offset,-1.6f,-1.5f };
-	boxCollider[0]->Scale() = { 0.4f,1.9f,3.f };
-	boxCollider[0]->UpdateWorld();
-
-	boxCollider[1] = new BoxCollider;
-	 str = "Collider";
-	str += to_string(1);
-	boxCollider[1]->SetTag(str);
-	boxCollider[1]->SetParent(only_model);
-	boxCollider[1]->Pos() = { -11.f+ offset,1.6f,-1.5f };
-	boxCollider[1]->Scale() = { 0.4f,1.9f,3.f };
-	boxCollider[1]->UpdateWorld();
-	boxCollider[2] = new BoxCollider;
-	 str = "Collider";
-	str += to_string(2);
-	boxCollider[2]->SetTag(str);
-	boxCollider[2]->SetParent(only_model);
-	boxCollider[2]->Pos() = { -15.f+ offset,0.f,-2.7f };
-	boxCollider[2]->Scale() = { 8.5f,5.1f,0.9f };
-	boxCollider[2]->UpdateWorld();
-	boxCollider[3] = new BoxCollider;
-	 str = "Collider";
-	str += to_string(3);
-	boxCollider[3]->SetTag(str);
-	boxCollider[3]->SetParent(only_model);
-	boxCollider[3]->Pos() = { -14.7f+ offset,2.5f,-1.5f };
-	boxCollider[3]->Scale() = { 7.7f,0.2f,3.f };
-	boxCollider[3]->UpdateWorld();
-	boxCollider[4] = new BoxCollider;
-	str = "Collider";
-	str += to_string(4);
-	boxCollider[4]->SetTag(str);
-	boxCollider[4]->SetParent(only_model);
-	boxCollider[4]->Pos() = { -18.9f+ offset,0.f,-1.5f };
-	boxCollider[4]->Scale() = { 0.6f,5.1f,3.2f };
-	boxCollider[4]->UpdateWorld();
-	boxCollider[5] = new BoxCollider;
-	 str = "Collider";
-	str += to_string(5);
-	boxCollider[5]->SetTag(str);
-	boxCollider[5]->SetParent(only_model);
-	boxCollider[5]->Pos() = { -18.6f+ offset,-2.4f,-1.5f };
-	boxCollider[5]->Scale() = { 1.1f,0.4f,3.f };
-	boxCollider[5]->UpdateWorld();
-	boxCollider[6] = new BoxCollider;
-	 str = "Collider";
-	str += to_string(6);
-	boxCollider[6]->SetTag(str);
-	boxCollider[6]->SetParent(only_model);
-	boxCollider[6]->Pos() = { -13.7f+ offset,-2.4f,-1.5f };
-	boxCollider[6]->Scale() = { 5.8f,0.4f,3.f };
-	boxCollider[6]->UpdateWorld();
-
-	/*
-	only_model2 = new Model("building_V2");
-	only_model2->Scale() = { 100,100,100 };
-	only_model2->Pos() = { -1500,0,0 };
-	only_model2->Rot() = { XM_PIDIV2,0,0 };
-
-	only_model3 = new Model("building_V5");
-	only_model3->Scale() = { 100,100,100 };
-	only_model3->Pos() = { 1500,0,0 };
-	only_model3->Rot() = { XM_PI,0,0 };
-	*/
-//	for (string clipName : clipNames)
-//	{
-//		model->ReadClip(clipName);
-//	}
-//
 	
 
 	//model = new ModelAnimator("Human");
@@ -205,22 +124,23 @@ ModelAnimationScene::ModelAnimationScene()
 
 ModelAnimationScene::~ModelAnimationScene()
 {
-//	delete model;
+	delete model;
 	delete only_model;
 	delete only_model2;
 	delete only_model3;
 	FOR(7) {
 		delete boxCollider[i];
 	}
-//	delete terrainEditor;
-//	delete background;
-//	delete skyBox;
+	delete terrainEditor;
+	delete background;
+	delete skyBox;
 
 }
 
 void ModelAnimationScene::Update()
 {
 	//terrainEditor->Update();
+	/*
 	if (KEY_PRESS('W')) {
 		only_model->Pos() -= {1.f, 0.f, 0.f};
 
@@ -233,12 +153,12 @@ void ModelAnimationScene::Update()
 	{
 		boxCollider[i]->UpdateWorld();
 	}
-
-	only_model->UpdateWorld();
+	*/
+	//only_model->UpdateWorld();
 	//only_model2->UpdateWorld();
 	//only_model3->UpdateWorld();
 	
-	//model->Update();
+	model->Update();
 	/*
 	bool idleFlag = true;
 
@@ -323,14 +243,16 @@ void ModelAnimationScene::Render()
 	//blendState[0]->SetState(); // 상태 복원하기
 
 	//terrainEditor->Render();
-//	model->Render();
-	only_model->Render();
+	model->Render();
+	//only_model->Render();
 	//only_model2->Render();
 	//only_model3->Render();
+	/*
 	FOR(7)
 	{
 		boxCollider[i]->Render();
 	}
+	*/
 }
 
 void ModelAnimationScene::PostRender()
@@ -340,13 +262,15 @@ void ModelAnimationScene::PostRender()
 void ModelAnimationScene::GUIRender()
 {
 	//terrainEditor->GUIRender();
-//	model->GUIRender();
-	only_model->GUIRender();
+	model->GUIRender();
+	//only_model->GUIRender();
 	//only_model2->GUIRender(); only_model3->GUIRender();
+	/*
 	FOR(7)
 	{
 		boxCollider[i]->GUIRender();
 	}
+	*/
 //	ImGui::SliderInt("Clip", &clip, 0, clipSize-1);
 //	if (ImGui::Button("Play"))
 //	{
