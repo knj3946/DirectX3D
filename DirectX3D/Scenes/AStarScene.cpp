@@ -3,7 +3,7 @@
 
 AStarScene::AStarScene()
 {
-    terrain = new Terrain();
+    terrain = new TerrainEditor();
     aStar = new AStar(20, 20);
     aStar->SetNode(terrain); //지형에 맞추어서 노드 설치
 
@@ -15,7 +15,7 @@ AStarScene::AStarScene()
     aStar2->SetNode(terrain);
 
     robot = new RobotA();
-    robot->SetTerrain(terrain);
+    //robot->SetTerrain(terrain);
     robot->SetAStar(aStar2);
     robot->SetTarget(fox);
 }

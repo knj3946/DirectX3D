@@ -85,6 +85,8 @@ public:
     void Render() override;
     void GUIRender() override;
 
+    float GetHeight(const Vector3& pos, Vector3* normal = nullptr);
+
     Vector3 Picking();
     bool ComputePicking(Vector3& pos);
 
@@ -109,7 +111,7 @@ private:
 private:
     string projectPath;
 
-    UINT width, height;    
+    UINT width, height;
     UINT triangleSize;
 
     float adjustValue = 10.0f;
@@ -120,17 +122,17 @@ private:
 
     Vector3 pickingPos;
 
-    Mesh<VertexType>* mesh;    
+    Mesh<VertexType>* mesh;
     BrushBuffer* brushBuffer;
     RayBuffer* rayBuffer;
     StructuredBuffer* structuredBuffer;
 
     vector<InputDesc> inputs;
     vector<OutputDesc> outputs;
-    
+
     Texture* heightMap;
     Texture* secondMap;
     Texture* thirdMap;
 
-    ComputeShader* computeShader;    
+    ComputeShader* computeShader;
 };

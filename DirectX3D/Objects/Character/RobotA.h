@@ -9,7 +9,6 @@ private:
     };
 
     typedef Terrain LevelData;
-    //typedef TerrainEditor LevelData;
 
 public:
     RobotA();

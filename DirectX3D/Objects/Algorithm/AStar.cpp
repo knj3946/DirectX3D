@@ -44,11 +44,11 @@ void AStar::Render()
         node->Render(); //노드에 충돌체 설정이 켜져 있으면 렌더
 }
 
-void AStar::SetNode(Terrain* terrain)
+void AStar::SetNode(TerrainEditor* terrain)
 {
     // 지형의 크기 (노드를 설치할 규모)
     //Vector2 mapSize = terrain->GetMaterial()->GetDiffuseMap()->GetSize(); //지도의 크기
-    Vector2 mapSize = terrain->GetSize(); //지형 클래스에 직접 지정된 가로세로 받기
+    Vector2 mapSize = terrain->GetMaterial()->GetDiffuseMap()->GetSize(); //지형 클래스에 직접 지정된 가로세로 받기
 
     // 노드 배치 간격 구하기
     interval.x = mapSize.x / width;
@@ -64,9 +64,9 @@ void AStar::SetNode(Terrain* terrain)
             Vector3 pos = Vector3(x * interval.x, 0, z * interval.y);
             //pos.y = 0; // 기본값
             pos.y = terrain->GetHeight(pos); // A*는 직선이동이 아니라 노드들을 경유하기 때문에
-                                             // 지형이 가지는 높이 변화에도 대응 가능
+            // 지형이 가지는 높이 변화에도 대응 가능
 
-            //노드 추가
+//노드 추가
             nodes.push_back(new Node(pos, nodes.size())); //위치와, 벡터의 현재 마지막 순번을 차례로 부여
             nodes.back()->Scale() = { interval.x, 50, interval.y }; //간격을 적용하고, 위아래로 길게
             nodes.back()->UpdateWorld();
@@ -139,10 +139,10 @@ void AStar::GetPath(IN int start, IN int end, OUT vector<Vector3>& path)
     //경로 계산 중에 사용할 지형 데이터도 준비하면서 초기화
     float _g = 0; //지형 데이터
     float _h = GetDiagonalManhattanDistance(start, end); // 휴리스틱
-                                // 여기서의 휴리스틱(판단기준) = 격자 좌표 공간에서
-                                // 목적지로 가는 직선 최단 경로 (가로, 세로, 격자 대각선 구성)
+    // 여기서의 휴리스틱(판단기준) = 격자 좌표 공간에서
+    // 목적지로 가는 직선 최단 경로 (가로, 세로, 격자 대각선 구성)
 
-    //시작지점의 노드 데이터 설정
+//시작지점의 노드 데이터 설정
     nodes[start]->f = _g + _h; //최종비용 = 지형 + 휴리스틱
     nodes[start]->g = _g;
     nodes[start]->h = _h;
@@ -153,16 +153,16 @@ void AStar::GetPath(IN int start, IN int end, OUT vector<Vector3>& path)
     heap->Insert(nodes[start]); // 노드 벡터의 "출발지"번째 요소를 힙에 추가
 
     while (nodes[end]->state != Node::CLOSED)
-            // 목적지의 상태가 연산종료(닫힘)이 될 때까지 경로 탐색
+        // 목적지의 상태가 연산종료(닫힘)이 될 때까지 경로 탐색
     {
         if (heap->Empty()) return; // 반복문 수행 중에(혹은 시작시) 힙이 비어 있으면 그대로 종료
-                                   // 
+        // 
 
         int curIndex = GetMinNode(); //주변에서 최소비용 노드 선택
 
         Extend(curIndex, end); //탐색 확장 (지금 찾은 최소비용 노드에서, 목적지를 향해)
         nodes[curIndex]->state = Node::CLOSED; // 반복문 중에 경로탐색을 수행한
-                                               // 이 노드를 탐색 종료 상태로
+        // 이 노드를 탐색 종료 상태로
     }
 
     // 여기까지 오면 -> 목적지까지 간 후 경로탐색이 끝난 상태이므로
@@ -174,7 +174,7 @@ void AStar::GetPath(IN int start, IN int end, OUT vector<Vector3>& path)
         nodes[curIndex]->state = Node::USING; // 경로로 사용됨
         path.push_back(nodes[curIndex]->GlobalPos()); // 노드들의 위치를 경로 벡터에 추가
         curIndex = nodes[curIndex]->via; //선택했던 노드의 경유지로 넘어가서 경로 추가 계속
-                                         // -> 경로 탐색 과정에서 경유지 설정까지 한다는 뜻
+        // -> 경로 탐색 과정에서 경유지 설정까지 한다는 뜻
     }
 
     // 아래 코드는 원형 알고리즘(데익스트라)의 잔재이지만 쓰진 않는다
@@ -243,7 +243,7 @@ void AStar::MakeDirectionPath(IN Vector3 start, IN Vector3 end, OUT vector<Vecto
     // 여기까지 오면
     // 위 반복문 중 조건문의 조건이 참(장애물에 부딪침)이면 -> 장애물에 안 부딪친 노드를 삭제
     // 조건이 거짓이면 -> 장애물에 부딪친 만큼의 노드를 삭제
-    
+
     // 어느 쪽이든 (장애물의 경로든, 장애물을 안 만난 경로든) 그 결과를
     // 이후 최초의 경로와 대조하면 두 가지 정보를 모두 얻을 수 있다
 
@@ -401,7 +401,7 @@ float AStar::GetManhattanDistance(int start, int end)
     Vector3 distance = endPos - startPos; //시작에서 끝으로 가는 벡터 그 자체
 
     return abs(distance.x) + abs(distance.z);
-            //경로 벡터의 x값과 z값을 그대로 더해서 직각 거리를 만든다
+    //경로 벡터의 x값과 z값을 그대로 더해서 직각 거리를 만든다
 }
 
 float AStar::GetDiagonalManhattanDistance(int start, int end)
@@ -421,5 +421,5 @@ float AStar::GetDiagonalManhattanDistance(int start, int end)
     float minDist = min(x, z); // 더 짧은 좌표 길이
 
     return (maxDist - minDist) + sqrt(minDist * minDist * 2);
-        //대각선을 낼 수 없는 부분의 직선 거리와 대각선 길이를 합친다
+    //대각선을 낼 수 없는 부분의 직선 거리와 대각선 길이를 합친다
 }

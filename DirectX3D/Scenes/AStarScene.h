@@ -13,12 +13,12 @@ public:
 
 private:
 
-    Terrain* terrain;
-    //TerrainEditor* terrain;
-    
+    //Terrain* terrain;
+    TerrainEditor* terrain;
+
     AStar* aStar;
     AStar* aStar2;
-    
+
     Fox* fox;
     RobotA* robot;
 };

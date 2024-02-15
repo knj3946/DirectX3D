@@ -145,6 +145,7 @@
     <ClInclude Include="Framework\Model\ColliderModel.h" />
     <ClInclude Include="Framework\Shader\DomainShader.h" />
     <ClInclude Include="Framework\Shader\HullShader.h" />
+    <ClInclude Include="Objects\Character\Orc.h" />
     <ClInclude Include="Scenes\GameMapScene.h" />
     <ClInclude Include="Objects\Particle\ParticleSystem.h" />
     <ClInclude Include="Objects\Landscape\QuadTreeTerrain.h" />
@@ -259,11 +260,13 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Objects\Particle\Trail.h" />
     <ClInclude Include="Objects\Landscape\TerrainData.h" />
+    <ClInclude Include="Scenes\TestNpcScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Framework\Model\ColliderModel.cpp" />
     <ClCompile Include="Framework\Shader\DomainShader.cpp" />
     <ClCompile Include="Framework\Shader\HullShader.cpp" />
+    <ClCompile Include="Objects\Character\Orc.cpp" />
     <ClCompile Include="Scenes\GameMapScene.cpp" />
     <ClCompile Include="Objects\Particle\ParticleSystem.cpp" />
     <ClCompile Include="Objects\Landscape\QuadTreeTerrain.cpp" />
@@ -370,6 +373,7 @@
     <ClCompile Include="Objects\Particle\Sprite.cpp" />
     <ClCompile Include="Objects\Particle\Trail.cpp" />
     <ClCompile Include="Objects\Landscape\TerrainData.cpp" />
+    <ClCompile Include="Scenes\TestNpcScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX3D.rc" />

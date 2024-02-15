@@ -32,21 +32,20 @@ void Fox::Render()
 void Fox::Control()
 {
     // 노드는 이미 만들어져 있으니 A*는 길만 찾으면 끝
-
-    if (KEY_DOWN(VK_LBUTTON)) // A*에서 안 쓴 쪽 마우스 버튼 쓰기
+    if (KEY_PRESS(VK_LSHIFT) && KEY_DOWN(VK_LBUTTON))
     {
-        destPos = terrain->Picking(); // 목적지 찾기
-                                      // 터레인 에디터 쓰는 사람은 컴퓨트픽킹으로
+        if (terrain->ComputePicking(destPos) == false) return;
+        // 터레인 에디터쓰려면 computePicking 으로
 
-        if (aStar->IsCollisionObstacle(GlobalPos(), destPos)) // 중간에 장애물이 있으면
+        if (aStar->IsCollisionObstacle(GlobalPos(), destPos))// 중간에 장애물이 있으면
         {
             SetPath(); // 구체적인 경로 내어서 가기
         }
-        else //장애물이 없는 경우
+        else
         {
-            path.clear(); //3D에서 장애물도 없는데 굳이 길찾기를 쓸 필요 없음
-            path.push_back(destPos); // 가야 할 곳만 경로 벡터에 집어넣기
-                                     // -> 그러면 여우는 Move()로 목적지를 찾아갈 것
+            path.clear(); // 굳이 장애물없는데 길찾기 필요 x
+            path.push_back(destPos); // 가야할 곳만 경로에 집어넣기
+            // ->여우는 Move로 목적지를 찾아갈 것
         }
     }
 }
@@ -66,7 +65,7 @@ void Fox::Move()
     Vector3 direction = dest - GlobalPos();
 
     direction.y = 0; // 필요하면 지형의 높이(굴곡) 반영을 해줄 수도 있고,
-                     // 역시 필요하면 그냥 좌우회전만 하는 걸로 (y 방향 일부러 주지 않음)
+    // 역시 필요하면 그냥 좌우회전만 하는 걸로 (y 방향 일부러 주지 않음)
 
     if (direction.Length() < 0.5f)
     {
@@ -127,7 +126,7 @@ void Fox::SetPath()
 
         //계산 결과 피드백
         path.clear();
-        path = tempPath; 
+        path = tempPath;
 
         //경로 벡터에 새로운 시작과 끝을 포함
         path.insert(path.begin(), end);

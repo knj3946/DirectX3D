@@ -189,6 +189,7 @@ using namespace GameMath;
 #include "Objects/Character/FoxD.h"
 #include "Objects/Character/Fox.h"
 #include "Objects/Character/RobotA.h"
+#include "Objects/Character/Orc.h"
 
 #include "Objects/Manager/BlockManager.h"
 #include "Objects/Manager/KunaiManager.h"

@@ -54,7 +54,7 @@ void RobotA::Control()
     }
     else
         searchCoolDown += DELTA;
-    
+
 }
 
 void RobotA::Move()

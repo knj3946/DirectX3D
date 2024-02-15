@@ -13,7 +13,7 @@ TerrainEditor::TerrainEditor()
     MakeNormal();
     MakeTangent();
     MakeComputeData();
-    mesh->CreateMesh();    
+    mesh->CreateMesh();
 
     computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
 
@@ -33,7 +33,7 @@ TerrainEditor::~TerrainEditor()
     delete mesh;
     delete brushBuffer;
     delete rayBuffer;
-    delete structuredBuffer;    
+    delete structuredBuffer;
 }
 
 void TerrainEditor::Update()
@@ -56,11 +56,11 @@ void TerrainEditor::Update()
             break;
         case TerrainEditor::ALPHA:
             AdjustAlpha();
-            break;        
-        }        
+            break;
+        }
     }
 
-    if(KEY_UP(VK_LBUTTON))
+    if (KEY_UP(VK_LBUTTON))
     {
         UpdateHeight();
     }
@@ -81,11 +81,11 @@ void TerrainEditor::GUIRender()
     ImGui::Text("TerrainEdit Option");
     //ImGui::Text("x : %.1f, y : %.1f, z : %.1f", pickingPos.x, pickingPos.y, pickingPos.z);
     if (ImGui::DragInt("Width", (int*)&width, 1.0f, 2, MAX_SIZE))
-        Resize();    
+        Resize();
     if (ImGui::DragInt("Height", (int*)&height, 1.0f, 2, MAX_SIZE))
         Resize();
 
-    const char* editList[] = { "Height", "Alpha"};
+    const char* editList[] = { "Height", "Alpha" };
     ImGui::Combo("EditType", (int*)&editType, editList, 2);
 
     const char* brushList[] = { "Circle", "SoftCircle", "Rect" };
@@ -105,6 +105,56 @@ void TerrainEditor::GUIRender()
     SaveAlphaMap();
     ImGui::SameLine();
     LoadAlphaMap();
+}
+
+float TerrainEditor::GetHeight(const Vector3& pos, Vector3* normal)
+{
+    int x = (int)pos.x;
+    int z = (int)(height - pos.z - 1);
+
+    if (x < 0 || x >= width - 1) return 0.0f;
+    if (z < 0 || z >= height - 1) return 0.0f;
+
+    UINT index[4];
+    index[0] = width * z + x;
+    index[1] = width * (z + 1) + x;
+    index[2] = width * z + x + 1;
+    index[3] = width * (z + 1) + x + 1;
+
+    vector<VertexType> vertices = mesh->GetVertices();
+
+    Vector3 p[4];
+    for (UINT i = 0; i < 4; i++)
+        p[i] = vertices[index[i]].pos;
+
+    float u = pos.x - p[0].x;
+    float v = pos.z - p[0].z;
+
+    Vector3 result;
+
+    if (u + v <= 1.0)
+    {
+        result = ((p[2] - p[0]) * u + (p[1] - p[0]) * v) + p[0];
+
+        if (normal)
+        {
+            (*normal) = GetNormalFromPolygon(p[0], p[1], p[2]);
+        }
+        return result.y;
+    }
+    else
+    {
+        u = 1.0f - u;
+        v = 1.0f - v;
+
+        result = ((p[1] - p[3]) * u + (p[2] - p[3]) * v) + p[3];
+
+        if (normal)
+        {
+            (*normal) = GetNormalFromPolygon(p[2], p[1], p[3]);
+        }
+        return result.y;
+    }
 }
 
 Vector3 TerrainEditor::Picking()
@@ -200,10 +250,10 @@ void TerrainEditor::MakeMesh()
         height = (UINT)heightMap->GetSize().y;
 
         heightMap->ReadPixels(pixels);
-    }    
+    }
 
     //Vertices
-    vector<VertexType>& vertices = mesh->GetVertices(); 
+    vector<VertexType>& vertices = mesh->GetVertices();
     vertices.clear();
 
     vertices.reserve(width * height);
@@ -309,7 +359,7 @@ void TerrainEditor::MakeTangent()
 void TerrainEditor::MakeComputeData()
 {
     vector<VertexType> vertices = mesh->GetVertices();
-    vector<UINT> indices = mesh->GetIndices();    
+    vector<UINT> indices = mesh->GetIndices();
 
     triangleSize = indices.size() / 3;
 
@@ -325,7 +375,7 @@ void TerrainEditor::MakeComputeData()
         inputs[i].v0 = vertices[index0].pos;
         inputs[i].v1 = vertices[index1].pos;
         inputs[i].v2 = vertices[index2].pos;
-    }    
+    }
 }
 
 void TerrainEditor::Resize()
@@ -353,7 +403,7 @@ void TerrainEditor::UpdateHeight()
     MakeTangent();
     MakeComputeData();
 
-    mesh->UpdateVertex();    
+    mesh->UpdateVertex();
     structuredBuffer->UpdateInput(inputs.data());
 }
 
@@ -419,7 +469,7 @@ void TerrainEditor::AdjustHeight()
             }
         }
     }
-        break;
+    break;
     }
 
     //UpdateHeight();

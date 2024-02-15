@@ -46,7 +46,7 @@ Robot::~Robot()
     // 객체 삭제
     delete collider;
     delete root;
-    
+
     // 임시 삭제
     delete transform;
 
@@ -205,8 +205,8 @@ void Robot::Move()
 void Robot::UpdateUI()
 {
     barPos = transform->Pos() + Vector3(0, 180, 0); // Y축 180 : 모델 크기에 맞춤
-                                                    //(모델이 바뀌면 이 숫자도 바꿀 것)
-    
+    //(모델이 바뀌면 이 숫자도 바꿀 것)
+
     if (!CAM->ContainPoint(barPos))
     {
         //hpBar->Scale() = {0, 0, 0};
@@ -218,13 +218,13 @@ void Robot::UpdateUI()
 
     // 뷰포트에 대한 함수를 호출하여 2D 이미지의 위치를 설정
     hpBar->Pos() = CAM->WorldToScreen(barPos); // 행렬 공간상의(=3D의) 물체를 뷰포트(=2D)에 투사
-                                               // 이런 출력을 캔버싱이라고 한다
+    // 이런 출력을 캔버싱이라고 한다
 
     float scale = 100 / velocity.Length(); // 임시 크기 변수를 지정해서, 표적과 트랜스폼의 거리에 따라
-                                           // UI 크기가 최대 100픽셀까지 조절되게 한다
+    // UI 크기가 최대 100픽셀까지 조절되게 한다
 
     scale = Clamp(0.1f, 1.0f, scale); // 최대 최소 범위를 다시 준다 (최대 범위 강제 가능)
-                                      // 최초 계산의 크기를 살리고 싶다면 두 번째 매개변수를 더 많이 주면 된다
+    // 최초 계산의 크기를 살리고 싶다면 두 번째 매개변수를 더 많이 주면 된다
 
     hpBar->Scale() = { scale, scale, scale }; //도출된 크기 변수를 체력바에 적용
 
