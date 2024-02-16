@@ -88,6 +88,7 @@ void GameManager::Update()
 {
     Keyboard::Get()->Update();
     Timer::Get()->Update();    
+    Audio::Get()->Update();
 
     SceneManager::Get()->Update();
     Environment::Get()->Update();
@@ -135,6 +136,7 @@ void GameManager::Create()
 {
     Keyboard::Get();
     Timer::Get();
+    Audio::Get();
     Device::Get();
     Environment::Get();
     Observer::Get();
@@ -164,6 +166,7 @@ void GameManager::Delete()
     Environment::Delete();    
     Observer::Delete();
     Font::Delete();
+    Audio::Delete();
     
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
