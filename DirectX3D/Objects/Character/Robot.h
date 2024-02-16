@@ -50,8 +50,21 @@ private:
     void Move();
     void UpdateUI(); //캐릭터 UI가 있으면 이후 업데이트
 
+    void CalculateEyeSight();
 
+    void Detection();
 private:
+    float eyeSightRange = 1000.f;
+    float eyeSightangle = 45.f;
+
+
+    bool bDetection = false;
+    bool bFind = false;
+
+    float DetectionStartTime = 0.f;
+
+    float DetectionEndTime = 3.f;
+
 
     Transform* transform;
     CapsuleCollider* collider;

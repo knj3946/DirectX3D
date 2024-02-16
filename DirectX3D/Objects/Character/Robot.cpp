@@ -60,7 +60,8 @@ void Robot::Update()
     if (!transform->Active()) return;
 
     velocity = target->GlobalPos() - transform->GlobalPos(); // 속력기준 : 표적과 자신의 거리
-
+    CalculateEyeSight();
+    Detection();
     ExecuteEvent(); // 이벤트가 터져야 하면 수행하기
     Move(); //움직이기
     UpdateUI(); //UI 업데이트
@@ -179,6 +180,7 @@ void Robot::Move()
     if (curState == HIT) return; // 맞고 있을 때는 움직이지 않음
     if (curState == DYING) return; //죽고 있을 때는 움직이지 않음
     if (velocity.Length() < 10) return; //표적과 완전히 달라붙으면 움직일 필요 없음
+    if (!bFind)return;
 
     //그리고 여기서 속력 기준을 갱신해야 맞지만....위 if에 이미 velocity를 써버려서
     //변수 갱신은 update에서 대신 한다
@@ -229,4 +231,104 @@ void Robot::UpdateUI()
     hpBar->Scale() = { scale, scale, scale }; //도출된 크기 변수를 체력바에 적용
 
     hpBar->UpdateWorld(); // 조정된 정점 업데이트
+}
+void Robot::CalculateEyeSight()
+{
+    float rad = XMConvertToRadians(eyeSightangle);
+    Vector3 front = Vector3(transform->Forward().x, 0, transform->Forward().z).GetNormalized();
+
+    Vector3 eyevector = Vector3(sinf(rad) + transform->GlobalPos().x, 0, cos(rad) + transform->GlobalPos().z);
+    Vector3 rightdir = eyevector * eyeSightRange;
+    Vector3 leftdir = -eyevector * eyeSightRange;
+
+    Vector3 direction = target->GlobalPos() - transform->GlobalPos();
+    direction.Normalize();
+
+
+    float degree = XMConvertToDegrees(transform->Rot().y);
+
+
+
+    float dirz = transform->Forward().z;
+    float rightdir1 = -(180.f - eyeSightangle) + degree + 360;
+
+    bool breverse = false;
+    float leftdir1 = (180.f - eyeSightangle) + degree;
+
+
+    if (leftdir1 < 0) {
+        leftdir1 += 360;
+        rightdir1 += 360;
+        breverse = true;
+    }
+
+
+
+    /*
+        -135    135
+        -135 -45 135-45
+        -180    90
+
+
+    */
+
+    //degree
+
+
+    float Enemytothisangle = XMConvertToDegrees(atan2(direction.x, direction.z));
+    if (Enemytothisangle < 0) {
+        Enemytothisangle += 360;
+    }
+
+
+    if (Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange) {
+
+        if (!breverse)
+            if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
+                //발각
+
+                bDetection = true;
+
+            }
+            else {
+                if (Enemytothisangle > 0) {
+                    Enemytothisangle += 360;
+                }
+
+                if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
+                    //발각
+
+
+                    bDetection = true;
+
+                }
+
+
+            }
+
+
+
+
+
+    }
+
+
+}
+
+void Robot::Detection()
+{
+    if (bDetection) {
+        DetectionStartTime += DELTA;
+    }
+    else {
+        if (DetectionStartTime > 0.f) {
+            DetectionStartTime -= DELTA;
+            if (DetectionStartTime <= 0.f) {
+                DetectionStartTime = 0.f;
+            }
+        }
+    }
+    if (DetectionEndTime <= DetectionStartTime) {
+        bFind = true;
+    }
 }
