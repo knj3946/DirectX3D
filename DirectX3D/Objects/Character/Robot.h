@@ -56,8 +56,6 @@ private:
 private:
     float eyeSightRange = 1000.f;
     float eyeSightangle = 45.f;
-
-
     bool bDetection = false;
     bool bFind = false;
 

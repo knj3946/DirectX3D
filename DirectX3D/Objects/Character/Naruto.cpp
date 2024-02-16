@@ -15,10 +15,11 @@ Naruto::Naruto()
     crosshair = new Quad(L"Textures/UI/cursor.png");
     crosshair->Pos() = { CENTER_X, CENTER_Y, 0 };
     crosshair->UpdateWorld();
+    Audio::Get()->Add("PlayerWalk", "Sounds/footstep.wav",false,false,true);
 
     ReadClip("Idle");
     ReadClip("Run");
-    ReadClip("RunBack");
+    ReadClip("RunBack");  
     ReadClip("RunLeft");
     ReadClip("RunRight");
     ReadClip("Throw");
@@ -116,9 +117,19 @@ void Naruto::Move()
         isMoveX = true;
     }
 
+
+
+
+
     // 속력 기준 값의 x,z (평면상의 xy) 값을 판단해서 방향을 구한다
     if (velocity.Length() > 1) velocity.Normalize(); // 정규화를 풀면? -> 속력이 빨라지는 것뿐만 아니라
                                                      // 대각선 입력에서 큰 가속이 일어나게 된다
+    if (velocity.x != 0 || velocity.z != 0) {
+        if (!Audio::Get()->IsPlaySound("PlayerWalk")) {
+            Audio::Get()->Play("PlayerWalk",GlobalPos());
+        }
+    }
+
 
     if (!isMoveZ) //전후 이동 중이 아닐 때는 속력 기준을 다시 내린다
         velocity.z = Lerp(velocity.z, 0, deceleration * DELTA); //보간으로 감속
