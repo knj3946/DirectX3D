@@ -14,8 +14,8 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     eventIters.resize(instancing->GetClipSize());
 
     //이벤트 세팅
-    SetEvent(Hit, bind(&Orc::EndHit, this), 0.9f);
-    SetEvent(Dying, bind(&Orc::EndDying, this), 0.9f);
+    SetEvent(HIT, bind(&Orc::EndHit, this), 0.9f);
+    SetEvent(DYING, bind(&Orc::EndDying, this), 0.99f);
 
     FOR(totalEvent.size())
     {
@@ -25,27 +25,61 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
 
 
     //충돌체
-    // TODO : 모델에 애니메이션 자체가 위치를 이동시킨다. 
-    collider = new CapsuleCollider(30, 160);
-    collider->SetParent(root);
+    collider = new CapsuleCollider(30, 120);
+    collider->SetParent(transform);
     //collider->Rot().z = XM_PIDIV2 - 0.2f;
-    collider->Pos() = { -15, 10, 0 };
+    collider->Pos() = { -15, 80, 0 };
     collider->SetActive(true);
+
+    // 무기 충돌체
+    mainHand = new Transform();
+    tmpCollider = new SphereCollider();
+    tmpCollider->Scale() *= 0.3;
+    tmpCollider->SetParent(mainHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
+
+
+    // hp UI
+    hpBar = new ProgressBar(L"Textures/UI/hp_bar.png", L"Textures/UI/hp_bar_BG.png");
+    hpBar->Scale() *= 0.6f;
+    hpBar->SetAmount(curHP / maxHp);
 }
 
 Orc::~Orc()
 {
+    delete mainHand;
+    delete tmpCollider;
+    delete collider;
+    delete terrain;
+    delete aStar;
+    /* delete target;
+     delete targetCollider;*/ // 다른곳에서 삭제
+    delete instancing;
+    delete motion;
+    delete root;
+    delete transform;
 }
 
 void Orc::Update()
 {
     if (!transform->Active()) return;
 
+    // TODO : 무기들 애니메이션 맞춰서 움직이게, 몸통콜라이더도
+    mainHand->SetWorld(instancing->GetTransformByNode(index, 30));
+    tmpCollider->UpdateWorld();
+
     velocity = target->GlobalPos() - transform->GlobalPos();
 
     ExecuteEvent();
+    if (!collider->Active())return;
+
     Control();
     Move();
+    UpdateUI();
+
+    if (collider->IsCapsuleCollision(targetCollider))
+    {
+        Hit();
+    }
 
     root->SetWorld(instancing->GetTransformByNode(index, 3));
     collider->UpdateWorld();
@@ -54,6 +88,27 @@ void Orc::Update()
 void Orc::Render()
 {
     collider->Render();
+    tmpCollider->Render();
+}
+
+void Orc::PostRender()
+{
+    hpBar->Render();
+}
+
+void Orc::Hit()
+{
+    curHP -= 50; // 임시로 데미지
+    hpBar->SetAmount(curHP / maxHp);
+    collider->SetActive(false);
+    if (curHP < 0)
+    {
+        SetState(DYING);
+
+        return;
+    }
+
+    SetState(HIT);
 }
 
 void Orc::Control()
@@ -70,7 +125,7 @@ void Orc::Control()
 
         if (dist.Length() < 25)
         {
-            SetState(Attack);
+            SetState(ATTACK);
             path.clear();
             return;
         }
@@ -95,13 +150,13 @@ void Orc::Move()
 {
     if (path.empty())  // 경로가 비어있는 경우
     {
-        if (curState == Attack)return;
-        SetState(Idle); // 가만히 있기
+        if (curState == ATTACK)return;
+        SetState(IDLE); // 가만히 있기
         return;
     }
 
     // 가야할 곳이 있다
-    SetState(Run);  // 움직이기 + 달리는 동작 실행
+    SetState(RUN);  // 움직이기 + 달리는 동작 실행
 
 
 
@@ -129,6 +184,23 @@ void Orc::Move()
 
     //transform->Pos() += velocity.GetNormalized() * speed * DELTA;
     transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI; // XY좌표 방향 + 전후반전(문워크 방지)
+}
+
+void Orc::UpdateUI()
+{
+    Vector3 barPos = transform->Pos() + Vector3(0, 20, 0);
+    if (!CAM->ContainPoint(barPos))
+    {
+        //hpBar->Scale() = {0, 0, 0};
+        hpBar->SetActive(false);
+        return;
+    }
+
+    if (!hpBar->Active()) hpBar->SetActive(true);
+    hpBar->Pos() = CAM->WorldToScreen(barPos);
+    /*curHP -= DELTA*3;
+    hpBar->SetAmount(curHP / maxHp);*/
+    hpBar->UpdateWorld();
 }
 
 
@@ -211,8 +283,12 @@ void Orc::ExecuteEvent()
 
 void Orc::EndHit()
 {
+    collider->SetActive(true);
 }
 
 void Orc::EndDying()
 {
+    hpBar->SetActive(false);
+    collider->SetActive(false);
+    transform->SetActive(false);
 }

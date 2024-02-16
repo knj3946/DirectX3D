@@ -6,8 +6,13 @@ Fox::Fox() : ModelAnimator("Fox")
     ReadClip("Run", 0, "FoxTransform");
 
     PlayClip(curState);
-    Pos() = { 5, 0, 5 };
+    Pos() = { 45, 0, 45 };
     Scale() *= 0.5f;
+
+    collider = new CapsuleCollider(2);
+    collider->SetParent(this);
+    collider->Pos() = { 0,15,0 };
+    collider->Scale() *= 5;
 }
 
 Fox::~Fox()
@@ -20,12 +25,14 @@ void Fox::Update()
     Control();
     Move();
     Rotate();
+    collider->UpdateWorld();
 
     ModelAnimator::Update();
 }
 
 void Fox::Render()
 {
+    collider->Render();
     ModelAnimator::Render();
 }
 

@@ -24,6 +24,8 @@ public:
     void SetTerrain(LevelData* terrain) { this->terrain = terrain; }
     void SetAStar(AStar* aStar) { this->aStar = aStar; }
 
+    CapsuleCollider* GetCollider() { return collider; }
+
 private:
     void Control();
     void Move();
@@ -33,6 +35,8 @@ private:
     void SetPath();
 
 private:
+
+    CapsuleCollider* collider;
 
     State curState = IDLE;
 
@@ -48,4 +52,3 @@ private:
     AStar* aStar;
 
 };
-

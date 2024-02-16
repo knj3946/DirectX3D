@@ -9,8 +9,8 @@ class Orc
 private:
     enum State
     {
-        Idle, Walk
-        , Run, Hit, Attack, Dying
+        IDLE, WALK
+        , RUN, HIT, ATTACK, DYING
     };
 
     typedef TerrainEditor LevelData;
@@ -21,18 +21,22 @@ public:
 
     void Update();
     void Render();
+    void PostRender();
 
     void SetTerrain(LevelData* terrain) { this->terrain = terrain; }
     void SetAStar(AStar* aStar) { this->aStar = aStar; }
     void SetTarget(Transform* target) { this->target = target; }
+    void SetTargetCollider(CapsuleCollider* collider) { targetCollider = collider; }
 
     Transform* GetTransform() { return transform; }
     CapsuleCollider* GetCollider() { return collider; }
 
+    void Hit();
+
 private:
     void Control();
     void Move();
-    //void Rotate();
+    void UpdateUI();
 
     void SetState(State state);
     void SetPath();
@@ -46,7 +50,7 @@ private:
 
 private:
 
-    State curState = Idle;
+    State curState = HIT;
 
     float moveSpeed = 25;
     float rotSpeed = 10;
@@ -61,6 +65,7 @@ private:
     float searchCoolDown = 0.0f;
 
     Transform* target;
+    CapsuleCollider* targetCollider;
 
     ModelAnimatorInstancing* instancing;
     ModelAnimatorInstancing::Motion* motion;
@@ -74,5 +79,11 @@ private:
     Transform* root;
     Transform* transform;
     CapsuleCollider* collider;
-};
 
+    ProgressBar* hpBar;
+    float curHP = 100, maxHp = 100;
+
+
+    Transform* mainHand; //주로 쓰는 손, 나루토의 경우 오른손
+    SphereCollider* tmpCollider;
+};

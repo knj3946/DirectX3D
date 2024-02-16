@@ -35,5 +35,8 @@ private:
 	UINT orcCount = 0;
 
 	ModelAnimatorInstancing* instancing;
-};
 
+	// 그림자 관련
+	//Shadow* shadow;
+	//LightBuffer::Light* light;
+};
