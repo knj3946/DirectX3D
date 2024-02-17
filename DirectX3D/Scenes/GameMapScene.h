@@ -18,10 +18,12 @@ private:
 	vector<ColliderModel*> colliderModels;
 	ColliderModel* model;
 
-	Terrain* terrain;
+	TerrainEditor* terrain;
 
 	SkyBox* skyBox;
 
 	BlendState* blendState[2];
+
+	ModelAnimator* player;
 };
 

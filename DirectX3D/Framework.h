@@ -194,6 +194,8 @@ using namespace GameMath;
 #include "Objects/Manager/BlockManager.h"
 #include "Objects/Manager/KunaiManager.h"
 #include "Objects/Manager/RobotManager.h"
+#include "Objects/Manager/MonsterManager.h"
+
 
 //Scene Header
 #include "Scenes/Scene.h"

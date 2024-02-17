@@ -19,6 +19,11 @@ public:
     void PostRender();
     void GUIRender();
 
+    void SetMoveSpeed(float speed) { this->moveSpeed = speed; }
+
+    Collider* GetCollider() { return collider; }
+    void Blocking(Collider* collider);
+
 private:
     void Control();
     void Move();
@@ -36,6 +41,7 @@ private:
     Transform* mainHand; //주로 쓰는 손, 나루토의 경우 오른손
     
     SphereCollider* tmpCollider; //임시 충돌체
+    CapsuleCollider* collider;
     
     Model* kunai; // <-별도 아이템으로 제작 후 사용
 

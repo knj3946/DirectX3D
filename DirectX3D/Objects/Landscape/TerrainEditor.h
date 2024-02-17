@@ -16,7 +16,7 @@ private:
     typedef VertexUVNormalTangentAlpha VertexType;
 
     const float MIN_HEIGHT = 0.0f;
-    const float MAX_HEIGHT = 20.0f;
+    const float MAX_HEIGHT = 400.0f;
 
     const UINT MAX_SIZE = 256;
 
@@ -79,6 +79,7 @@ private:
 
 public:
     TerrainEditor();
+    TerrainEditor(UINT width, UINT height);
     ~TerrainEditor();
 
     void Update();
@@ -89,6 +90,8 @@ public:
 
     Vector3 Picking();
     bool ComputePicking(Vector3& pos);
+
+    void SetHeightMap(wstring fileName);
 
 private:
     void MakeMesh();

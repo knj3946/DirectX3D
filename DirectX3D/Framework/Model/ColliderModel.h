@@ -13,6 +13,8 @@ public:
     void SetShader(wstring file);
 
     void AddCollider(Collider* collider);
+
+    vector<Collider*>& GetColliders();
 private:
     void ReadMaterial();
     void ReadMesh();

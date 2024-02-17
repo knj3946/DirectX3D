@@ -44,7 +44,7 @@ void AStar::Render()
         node->Render(); //노드에 충돌체 설정이 켜져 있으면 렌더
 }
 
-void AStar::SetNode(TerrainEditor* terrain)
+void AStar::SetNode(LevelData* terrain)
 {
     // 지형의 크기 (노드를 설치할 규모)
     //Vector2 mapSize = terrain->GetMaterial()->GetDiffuseMap()->GetSize(); //지도의 크기
@@ -66,14 +66,14 @@ void AStar::SetNode(TerrainEditor* terrain)
             pos.y = terrain->GetHeight(pos); // A*는 직선이동이 아니라 노드들을 경유하기 때문에
             // 지형이 가지는 높이 변화에도 대응 가능
 
-//노드 추가
+            //노드 추가
             nodes.push_back(new Node(pos, nodes.size())); //위치와, 벡터의 현재 마지막 순번을 차례로 부여
             nodes.back()->Scale() = { interval.x, 50, interval.y }; //간격을 적용하고, 위아래로 길게
             nodes.back()->UpdateWorld();
 
             // 높이에 변화가 있을 경우, 이 밑에 코드를 추가하면 된다
             // 샘플 시나리오 : 높은 곳은 곧 장애물이다
-            if (pos.y > 0)
+            if (pos.y > 5)
             {
                 nodes.back()->SetState(Node::OBSTACLE); //장애물로 설정하고
                 AddObstacle(nodes.back()); //장애물 추가 함수 호출
@@ -280,6 +280,18 @@ bool AStar::IsCollisionObstacle(Vector3 start, Vector3 end)
 void AStar::AddObstacle(Collider* collider)
 {
     obstacles.push_back(collider);
+}
+
+void AStar::AddObstacleObj(Collider* collider)
+{
+    for (Node* node : nodes)
+    {
+        if (collider->IsBoxCollision(node))
+        {
+            node->SetState(Node::OBSTACLE); //장애물로 설정하고
+            AddObstacle(node);
+        }
+    }
 }
 
 void AStar::SetEdge()

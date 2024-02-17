@@ -42,6 +42,11 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     hpBar = new ProgressBar(L"Textures/UI/hp_bar.png", L"Textures/UI/hp_bar_BG.png");
     hpBar->Scale() *= 0.6f;
     hpBar->SetAmount(curHP / maxHp);
+
+    //aStar = new AStar(512, 512); //문 통과할려면 이정도 되야함..
+    aStar = new AStar(256, 256);
+    aStar->SetNode();
+
 }
 
 Orc::~Orc()
@@ -69,17 +74,22 @@ void Orc::Update()
 
     velocity = target->GlobalPos() - transform->GlobalPos();
 
+    CalculateEyeSight();
+    Detection();
+
     ExecuteEvent();
     if (!collider->Active())return;
 
     Control();
     Move();
     UpdateUI();
-
+    
+    /*
     if (collider->IsCapsuleCollision(targetCollider))
     {
         Hit();
     }
+    */
 
     root->SetWorld(instancing->GetTransformByNode(index, 3));
     collider->UpdateWorld();
@@ -89,11 +99,27 @@ void Orc::Render()
 {
     collider->Render();
     tmpCollider->Render();
+    //aStar->Render();
 }
 
 void Orc::PostRender()
 {
     hpBar->Render();
+}
+
+void Orc::SetTerrain(LevelData* terrain)
+{
+    this->terrain = terrain;
+    aStar->SetNode(terrain);
+}
+
+void Orc::SetSRT(Vector3 scale, Vector3 rot, Vector3 pos)
+{
+    transform->Scale() = scale;
+    transform->Rot() = rot;
+    transform->Pos() = pos;
+
+    transform->UpdateWorld();
 }
 
 void Orc::Hit()
@@ -111,6 +137,19 @@ void Orc::Hit()
     SetState(HIT);
 }
 
+void Orc::Spawn(Vector3 pos)
+{
+    transform->SetActive(true); //비활성화였다면 활성화 시작
+    collider->SetActive(true);
+
+    SetState(IDLE); // 가볍게 산책
+
+    curHP = maxHp;
+    hpBar->SetAmount(curHP / maxHp);
+
+    transform->Pos() = pos;
+}
+
 void Orc::Control()
 {
     if (searchCoolDown > 1)
@@ -122,13 +161,14 @@ void Orc::Control()
             path.clear();
             return;
         }
-
-        if (dist.Length() < 25)
+        
+        if (dist.Length() < 5)
         {
             SetState(ATTACK);
             path.clear();
             return;
         }
+        
         if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
         {
             SetPath(); // 구체적인 경로 내어서 가기
@@ -139,7 +179,7 @@ void Orc::Control()
             path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
             // ->여우는 Move로 목적지를 찾아갈 것
         }
-
+        
         searchCoolDown -= 1;
     }
     else
@@ -147,43 +187,55 @@ void Orc::Control()
 }
 
 void Orc::Move()
-{
-    if (path.empty())  // 경로가 비어있는 경우
+{   
+    if (!bFind)
     {
-        if (curState == ATTACK)return;
-        SetState(IDLE); // 가만히 있기
+        SetState(IDLE);
         return;
     }
 
-    // 가야할 곳이 있다
-    SetState(RUN);  // 움직이기 + 달리는 동작 실행
-
-
-
-    //벡터로 들어온 경로를 하나씩 찾아가면서 움직이기
-
-    Vector3 dest = path.back(); // 나에게 이르는 경로의 마지막
-    // = 목적지로 가기 위해 가는 최초의 목적지
-    // 경로가 왜 거꾸로냐? -> 길찾기 알고리즘에서 
-    // 경로를 위한 데이터 작성은 처음부터, 
-    // 검산과 경로 추가는 뒤에서부터 했기 때문
-
-    Vector3 direction = dest - transform->Pos(); // 내 위치에서 목적지로 가기위한 벡터
-
-    direction.y = 0; // 필요하면 지형의높이 반영을 해줄 수도 있고,
-    // 역시 필요하면 그냥 좌우회전만 하는걸로 (y방향 일부러 주지 않음)
-
-    if (direction.Length() < 0.5f)  // 대충 다 왔으면 (업데이트 호출 과정에서 계속 갱신)
+    if (velocity.Length() >= 5 && curState == ATTACK)
     {
-        path.pop_back(); // 다 온 목적지를 벡터에서 빼기
+        SetState(RUN);
+        return;
     }
 
-    // 목적지로 가기 위한 실제 이동
-    velocity = direction.GetNormalized(); // 속력기준 (방향의 정규화)
-    transform->Pos() += velocity * moveSpeed * DELTA; // 속력기준 * 실제속력 * 시간경과
+    if (curState == IDLE) return; 
+    if (curState == ATTACK) return;
+    if (curState == HIT) return;
+    if (curState == DYING) return;
+    if (velocity.Length() < 5) return;
+    
+    if (path.size() > 0)
+    {
+        // 가야할 곳이 있다
+        //SetState(RUN);  // 움직이기 + 달리는 동작 실행
 
-    //transform->Pos() += velocity.GetNormalized() * speed * DELTA;
-    transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI; // XY좌표 방향 + 전후반전(문워크 방지)
+        //벡터로 들어온 경로를 하나씩 찾아가면서 움직이기
+
+        Vector3 dest = path.back(); // 나에게 이르는 경로의 마지막
+        // = 목적지로 가기 위해 가는 최초의 목적지
+        // 경로가 왜 거꾸로냐? -> 길찾기 알고리즘에서 
+        // 경로를 위한 데이터 작성은 처음부터, 
+        // 검산과 경로 추가는 뒤에서부터 했기 때문
+
+        Vector3 direction = dest - transform->Pos(); // 내 위치에서 목적지로 가기위한 벡터
+
+        direction.y = 0; // 필요하면 지형의높이 반영을 해줄 수도 있고,
+        // 역시 필요하면 그냥 좌우회전만 하는걸로 (y방향 일부러 주지 않음)
+
+        if (direction.Length() < 0.5f)  // 대충 다 왔으면 (업데이트 호출 과정에서 계속 갱신)
+        {
+            path.pop_back(); // 다 온 목적지를 벡터에서 빼기
+        }
+
+        // 목적지로 가기 위한 실제 이동
+        velocity = direction.GetNormalized(); // 속력기준 (방향의 정규화)
+        transform->Pos() += velocity * moveSpeed * DELTA; // 속력기준 * 실제속력 * 시간경과
+
+        //transform->Pos() += velocity.GetNormalized() * speed * DELTA;
+        transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI; // XY좌표 방향 + 전후반전(문워크 방지)
+    }
 }
 
 void Orc::UpdateUI()
@@ -291,4 +343,99 @@ void Orc::EndDying()
     hpBar->SetActive(false);
     collider->SetActive(false);
     transform->SetActive(false);
+}
+
+void Orc::CalculateEyeSight()
+{
+    float rad = XMConvertToRadians(eyeSightangle);
+    Vector3 front = Vector3(transform->Forward().x, 0, transform->Forward().z).GetNormalized();
+
+    Vector3 eyevector = Vector3(sinf(rad) + transform->GlobalPos().x, 0, cos(rad) + transform->GlobalPos().z);
+    Vector3 rightdir = eyevector * eyeSightRange;
+    Vector3 leftdir = -eyevector * eyeSightRange;
+
+    Vector3 direction = target->GlobalPos() - transform->GlobalPos();
+    direction.Normalize();
+
+
+    float degree = XMConvertToDegrees(transform->Rot().y);
+
+
+
+    float dirz = transform->Forward().z;
+    float rightdir1 = -(180.f - eyeSightangle) + degree + 360;
+
+    bool breverse = false;
+    float leftdir1 = (180.f - eyeSightangle) + degree;
+
+
+    if (leftdir1 < 0) {
+        leftdir1 += 360;
+        rightdir1 += 360;
+        breverse = true;
+    }
+
+
+
+    /*
+        -135    135
+        -135 -45 135-45
+        -180    90
+
+
+    */
+
+    //degree
+
+
+    float Enemytothisangle = XMConvertToDegrees(atan2(direction.x, direction.z));
+    if (Enemytothisangle < 0) {
+        Enemytothisangle += 360;
+    }
+
+
+    if (Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange) {
+
+        if (!breverse)
+            if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
+                //발각
+                bDetection = true;
+            }
+            else {
+                if (Enemytothisangle > 0) {
+                    Enemytothisangle += 360;
+                }
+
+                if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
+                    //발각
+                    bDetection = true;
+                    
+                }
+            }
+    }
+}
+
+void Orc::Detection()
+{
+    if (bDetection) {
+        DetectionStartTime += DELTA;
+    }
+    else {
+        if (DetectionStartTime > 0.f) {
+            DetectionStartTime -= DELTA;
+            if (DetectionStartTime <= 0.f) {
+                DetectionStartTime = 0.f;
+            }
+        }
+    }
+    if (DetectionEndTime <= DetectionStartTime) {
+        bFind = true;
+        if (curState == IDLE)
+            SetState(RUN);
+    }
+}
+
+void Orc::AddObstacleObj(Collider* collider)
+{
+    aStar->AddObstacleObj(collider);
 }

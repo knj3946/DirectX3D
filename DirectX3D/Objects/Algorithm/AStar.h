@@ -3,6 +3,9 @@
 class AStar
 {
     // A* 알고리즘 : 실제 길 찾기에 활용될 주 정렬-검색 알고리즘
+private:
+    //typedef Terrain LevelData;
+    typedef TerrainEditor LevelData;
 public:
 
     AStar(UINT width = 10, UINT height = 10); //규격을 받으면서 생성
@@ -12,7 +15,7 @@ public:
     void Render();
 
     void SetNode() {} // 기본형 (지형을 보지 않는 노드 설치) - 비워두기
-    void SetNode(class TerrainEditor* terrain); //지형을 당겨 받아 노드 설치 (지형 대응 함수) - 작성대상
+    void SetNode(LevelData* terrain); //지형을 당겨 받아 노드 설치 (지형 대응 함수) - 작성대상
     //왜 지형을 쓰려고 하느냐? -> 게임에서 쓸 생각이니까
     //왜 class냐? -> 지형도 씬에서 길찾기를 써야 하니까
     //가능성과 상관없이 상호참조를 막으려고.
@@ -30,6 +33,7 @@ public:
     //시작에서 끝까지 직선으로 이었을 때, 장애물과 부딪치는가?
 
     void AddObstacle(Collider* collider); //장애물 수동추가 (클래스 내 호출도 가능)
+    void AddObstacleObj(Collider* collider);
 
 private:
     void SetEdge(); // 인접지 추가

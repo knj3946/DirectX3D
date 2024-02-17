@@ -65,6 +65,11 @@ void ColliderModel::AddCollider(Collider* collider)
     colliders.push_back(collider);
 }
 
+vector<Collider*>& ColliderModel::GetColliders()
+{
+    return colliders;
+}
+
 void ColliderModel::ReadMaterial()
 {
     string file = "Models/Materials/" + name + "/" + name + ".mats";

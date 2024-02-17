@@ -9,8 +9,7 @@ GameMapScene::GameMapScene()
 		blendState[i] = new BlendState();
 	blendState[1]->AlphaToCoverage(true); // 알파 혹은 지정된 배경색을 외부 픽셀과 결합할 것인가
 
-
-	terrain = new Terrain(256,256);
+	terrain = new TerrainEditor(256,256);
 	terrain->GetMaterial()->SetDiffuseMap(L"Textures/Landscape/Sand.png");
 	terrain->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
 	terrain->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
@@ -107,6 +106,31 @@ GameMapScene::GameMapScene()
 	}
 
 	Audio::Get()->Add("bgm1", "Sounds/dramatic-choir.wav", true, true, false);
+
+
+
+	player = new Naruto();
+	player->Scale() = { 0.03f,0.03f,0.03f };
+	player->Pos() = { 60,0,90 };
+	MonsterManager::Get()->SetTarget(player); //싱글턴 생성 후, 표적 설정까지
+
+	MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(80, 0, 80));
+	MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(60, 0, 150));
+	MonsterManager::Get()->SetTerrain(terrain);
+
+	for (ColliderModel* colliderModel : colliderModels)
+	{
+		for (Collider* collider : colliderModel->GetColliders())
+		{
+			MonsterManager::Get()->AddOrcObstacleObj(collider);
+		}
+	}
+
+	static_cast<Naruto*>(player)->SetMoveSpeed(5);
+
+	CAM->SetTarget(player);
+	CAM->TargetOptionLoad("Naruto2");
+	CAM->LookAtTarget();
 }
 
 GameMapScene::~GameMapScene()
@@ -161,6 +185,19 @@ void GameMapScene::Update()
 			Audio::Get()->Resume("bgm1"); // 일시정지된 지점부터 다시 재생
 		}
 	}
+
+	static_cast<Naruto*>(player)->Update();
+	MonsterManager::Get()->Update();
+
+
+	for (ColliderModel* colliderModel : colliderModels)
+	{
+		for (Collider* collider : colliderModel->GetColliders())
+		{
+			static_cast<Naruto*>(player)->Blocking(collider);
+			MonsterManager::Get()->Blocking(collider);
+		}
+	}
 }
 
 void GameMapScene::PreRender()
@@ -176,6 +213,9 @@ void GameMapScene::Render()
 	{
 		cm->Render();
 	}
+
+	static_cast<Naruto*>(player)->Render();
+	MonsterManager::Get()->Render();
 }
 
 void GameMapScene::PostRender()
@@ -188,6 +228,8 @@ void GameMapScene::GUIRender()
 	{
 		cm->GUIRender();
 	}
+
+	CAM->GUIRender();
 }
 
 void GameMapScene::CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot, Vector3 mPos)

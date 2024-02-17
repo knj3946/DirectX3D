@@ -14,7 +14,7 @@ private:
     };
 
     typedef TerrainEditor LevelData;
-
+    //typedef Terrain LevelData;
 public:
     Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index);
     ~Orc();
@@ -23,15 +23,22 @@ public:
     void Render();
     void PostRender();
 
-    void SetTerrain(LevelData* terrain) { this->terrain = terrain; }
+    void SetTerrain(LevelData* terrain);
     void SetAStar(AStar* aStar) { this->aStar = aStar; }
     void SetTarget(Transform* target) { this->target = target; }
     void SetTargetCollider(CapsuleCollider* collider) { targetCollider = collider; }
+    void SetSRT(Vector3 scale, Vector3 rot, Vector3 transform);
 
     Transform* GetTransform() { return transform; }
     CapsuleCollider* GetCollider() { return collider; }
 
     void Hit();
+    void Spawn(Vector3 pos);
+
+    void CalculateEyeSight();
+    void Detection();
+
+    void AddObstacleObj(Collider* collider);
 
 private:
     void Control();
@@ -49,6 +56,14 @@ private:
 
 
 private:
+    float eyeSightRange = 1000.f;
+    float eyeSightangle = 45.f;
+    bool bDetection = false;
+    bool bFind = false;
+
+    float DetectionStartTime = 0.f;
+
+    float DetectionEndTime = 3.f;
 
     State curState = HIT;
 

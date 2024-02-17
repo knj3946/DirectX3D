@@ -28,6 +28,34 @@ TerrainEditor::TerrainEditor()
     projectPath = path;
 }
 
+TerrainEditor::TerrainEditor(UINT width, UINT height)
+    : GameObject(L"Landscape/TerrainEditor.hlsl"),
+    width(width), height(height)
+{
+    material->SetDiffuseMap(L"Textures/Landscape/Dirt2.png");
+    secondMap = Texture::Add(L"Textures/Landscape/Dirt.png");
+    thirdMap = Texture::Add(L"Textures/Landscape/Dirt3.png");
+
+    mesh = new Mesh<VertexType>();
+    MakeMesh();
+    MakeNormal();
+    MakeTangent();
+    MakeComputeData();
+    mesh->CreateMesh();
+
+    computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
+
+    brushBuffer = new BrushBuffer();
+    structuredBuffer = new StructuredBuffer(
+        inputs.data(), sizeof(InputDesc), triangleSize,
+        sizeof(OutputDesc), triangleSize);
+    rayBuffer = new RayBuffer();
+
+    char path[128];
+    GetCurrentDirectoryA(128, path);
+    projectPath = path;
+}
+
 TerrainEditor::~TerrainEditor()
 {
     delete mesh;
@@ -238,6 +266,20 @@ bool TerrainEditor::ComputePicking(Vector3& pos)
     }
 
     return false;
+}
+
+void TerrainEditor::SetHeightMap(wstring fileName)
+{
+    heightMap = Texture::Add(fileName);
+
+    if (mesh)
+        delete mesh;
+    mesh = new Mesh<VertexType>();
+    MakeMesh();
+    MakeNormal();
+    MakeTangent();
+
+    mesh->CreateMesh();
 }
 
 void TerrainEditor::MakeMesh()

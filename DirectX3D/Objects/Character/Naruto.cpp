@@ -7,6 +7,10 @@ Naruto::Naruto()
     ClientToScreen(hWnd, &clientCenterPos);
     SetCursorPos(clientCenterPos.x, clientCenterPos.y);
 
+    collider = new CapsuleCollider(50, 200); // <- 대충 높이 160
+    collider->SetParent(this);
+    collider->SetActive(true); //충돌체 보이기 싫을 때는 이 부분 false
+
     mainHand = new Transform();
     tmpCollider = new SphereCollider();
     tmpCollider->Scale() *= 0.1; // 임시로 10% 크기
@@ -60,12 +64,14 @@ void Naruto::Update()
 
     //TODO : 쿠나이가 공격 중에는 앞으로 나아가게
     //       (공격 중이 아닐 때는 사라지게)
+    collider->UpdateWorld(); //충돌체 업데이트
 }
 
 void Naruto::Render()
 {
     ModelAnimator::Render();
     tmpCollider->Render();
+    collider->Render();
 }
 
 void Naruto::PostRender()
@@ -77,6 +83,55 @@ void Naruto::GUIRender()
 {
     Model::GUIRender(); // 모델로서 GUI 렌더
                         // (나루토 안에는 애니메이터가, 애니메이터 안에는 모델이 있으니까)
+}
+
+void Naruto::Blocking(Collider* collider)
+{
+
+    if (collider->IsCollision(this->GetCollider()))
+    {
+        Vector3 dir = this->GetCollider()->GlobalPos() - collider->GlobalPos();
+
+        int maxIndex = 0;
+        float maxValue = 0;
+
+        for (int i = 0; i < 3; ++i)
+        {
+            if (abs(dir[i]) > maxValue)
+            {
+                maxIndex = i;
+                maxValue = abs(dir[i]);
+            }
+        }
+
+        switch (maxIndex)
+        {
+        case 0: // x
+            dir.x = dir.x > 0 ? 1.0f : -1.0f;
+            dir.y = 0;
+            dir.z = 0;
+            break;
+
+        case 1: // y
+            dir.x = 0;
+            dir.y = dir.y > 0 ? 1.0f : -1.0f;;
+            dir.z = 0;
+            break;
+
+        case 2: // z
+            dir.x = 0;
+            dir.y = 0;
+            dir.z = dir.z > 0 ? 1.0f : -1.0f;;
+            break;
+        }
+
+        dir.y = 0;
+
+        if (NearlyEqual(dir.y, 1.0f)) return; 
+
+        this->Pos() += dir * 50.0f * DELTA;
+
+    }
 }
 
 void Naruto::Control()
