@@ -6,7 +6,7 @@ Fox::Fox() : ModelAnimator("Fox")
     ReadClip("Run", 0, "FoxTransform");
 
     PlayClip(curState);
-    Pos() = { 45, 0, 45 };
+    Pos() = { 65, 0, 65 };
     Scale() *= 0.5f;
 
     collider = new CapsuleCollider(2);

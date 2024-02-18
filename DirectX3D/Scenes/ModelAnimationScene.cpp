@@ -32,7 +32,7 @@ ModelAnimationScene::ModelAnimationScene()
 	*/
 	//클립 생성해두기 
 	string modelName = "character1";
-	string clipNames[] = {
+	/*string clipNames[] = {
 		"character1@idle1"
 		,"character1@idle2"
 		,"character1@idle3"
@@ -83,6 +83,9 @@ ModelAnimationScene::ModelAnimationScene()
 		,"character1@death4"
 		,"character1@dodge"
 		,"character1@gethit"
+	};*/
+	string clipNames[] = {
+		"Orc_Hit"
 	};
 	/*
 	string modelName = "character1";
@@ -105,7 +108,7 @@ ModelAnimationScene::ModelAnimationScene()
 	model = new ModelAnimator("character1");
 	for (string clipName : clipNames)
 	{
-		model->ReadClip(clipName);
+		model->ReadClip(clipName,0);
 	}
 
 	

@@ -22,6 +22,7 @@ public:
     void Update();
     void Render();
     void PostRender();
+    void GUIRender();
 
     void SetTerrain(LevelData* terrain);
     void SetAStar(AStar* aStar) { this->aStar = aStar; }
@@ -41,12 +42,13 @@ public:
     void AddObstacleObj(Collider* collider);
 
 private:
-    void Control();
+    void Control1();
     void Move();
+    void IdleAIMove();
     void UpdateUI();
 
     void SetState(State state);
-    void SetPath();
+    void SetPath(Vector3 targetPos);
 
     void SetEvent(int clip, Event event, float timeRatio);
     void ExecuteEvent();
@@ -54,6 +56,8 @@ private:
     void EndHit();
     void EndDying();
 
+    void CalculateEyeSight1();
+    void Detection1();
 
 private:
     float eyeSightRange = 1000.f;
@@ -65,19 +69,19 @@ private:
 
     float DetectionEndTime = 3.f;
 
-    State curState = HIT;
+    State curState = IDLE;
 
     float moveSpeed = 25;
-    float rotSpeed = 10;
 
     Vector3 velocity;
 
     vector<Vector3> path;
+    Vector3 startPos = { 5,0,5 }; // 각자의 위치가 있다. -> 그 위치에서 플레이어를 발견 시 쫓아가는 것으로 한다.
+                        // 놓치면 다시 원래 위치로 복귀로 가정
+
 
     LevelData* terrain;
     AStar* aStar;
-
-    float searchCoolDown = 0.0f;
 
     Transform* target;
     CapsuleCollider* targetCollider;
@@ -97,8 +101,25 @@ private:
 
     ProgressBar* hpBar;
     float curHP = 100, maxHp = 100;
+    float destHP;
+    bool isHit = false;
 
+    Quad* questionMark;
+    Quad* exclamationMark;
 
-    Transform* mainHand; //주로 쓰는 손, 나루토의 경우 오른손
+    Transform* mainHand; 
     SphereCollider* tmpCollider;
+
+    float eyeSightRange = 80.f;
+    float eyeSightangle = 45.f;
+    bool bDetection = false;
+    bool bFind = false;
+    float DetectionStartTime = 0.f;
+    float DetectionEndTime = 2.f;
+    bool missTarget=false;
+    bool missTargetTrigger = false;
+    float missStartTime = 0.f;
+    float missEndTime = 1.0f;
+
+    bool isTracking = false;
 };

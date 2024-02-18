@@ -34,8 +34,6 @@ TestNpcScene::TestNpcScene()
     orc->SetTarget(fox);
     orc->SetTargetCollider(fox->GetCollider());
 
-
-
 //#pragma region ±×¸²ÀÚ
 //    shadow = new Shadow();
 //
@@ -77,7 +75,7 @@ void TestNpcScene::Update()
     fox->Update();
     orc->Update();
     instancing->Update();
-    orc->GetTransform()->Scale() *= 0.1f;
+    
     //if (KEY_DOWN('1')) light->type = 0;
 }
 
@@ -122,4 +120,6 @@ void TestNpcScene::PostRender()
 
 void TestNpcScene::GUIRender()
 {
+    instancing->GUIRender();
+    orc->GUIRender();
 }
