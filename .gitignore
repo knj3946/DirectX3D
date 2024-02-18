@@ -400,5 +400,5 @@ FodyWeavers.xsd
 *.srt
 imgui.ini
 
-**/*.vcxproj
-**/*.vcxproj.*
+**/*.vcxproj.filters
+**/*.vcxproj.user
