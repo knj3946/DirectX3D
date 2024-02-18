@@ -23,8 +23,6 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
         eventIters[i] = totalEvent[i].begin(); // 등록되어 있을 이벤트의 시작지점으로 반복자 설정
     }
 
-
-
     //충돌체
     collider = new CapsuleCollider(30, 120);
     collider->SetParent(transform);
@@ -82,22 +80,35 @@ void Orc::Update()
 
     CalculateEyeSight();
     Detection();
-
     ExecuteEvent();
     UpdateUI();
-    if (!collider->Active())return;
 
-    CalculateEyeSight1();
-    Detection1();
+    if (!collider->Active())return;
 
     if (isTracking==false)
         IdleAIMove();
     else
     {
-        Control1();
-        Move();
+        Control();
+        
+        switch (curState)
+        {
+            case ATTACK:
+            {
+                if (wateTime <= 0)
+                {
+                    Move();
+                    wateTime = 1.0f; //ATTACK 애니메이션이 끝나고 이동해야 하기 때문
+                }
+                break;
+            }
+            default:
+                Move();
+        }
+        wateTime -= DELTA;
     }
 
+    /*
     if (collider->IsCapsuleCollision(targetCollider))
     {
         Hit();
@@ -187,98 +198,86 @@ void Orc::Control()
     {
         Vector3 dist = target->Pos() - transform->GlobalPos();
 
-        if (dist.Length() > 100)// 너무 멀어지면 안쫓아가기
+        // 시야에 들어왔다면
+        if (bDetection)
         {
-            path.clear();
-            return;
+            // 발견한지 2초가 됐나
+            if (bFind)
+            {
+                // 공격 사정거리안에 들지 못하면
+                if (dist.Length() > 5.0f)
+                {
+
+                    if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
+                    {
+                        SetPath(target->Pos()); // 구체적인 경로 내어서 가기
+                    }
+                    else
+                    {
+                        path.clear(); // 굳이 장애물없는데 길찾기 필요 x
+                        path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
+                    }
+                    //Move();
+                }
+                else
+                {
+                    path.clear();
+                    SetState(ATTACK);
+                }
+
+            }
+            else
+            {
+                // 천천히 그쪽으로 걸어간다.
+                //Move();
+            }
         }
-        
-        if (dist.Length() < 5)
-        {
-            SetState(ATTACK);
-            path.clear();
-            return;
-        }
-        
-        if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
-        {
-            // 천천히 그쪽으로 걸어간다.
-            //Move();
-        }
+        // 시야에 안보인다면
         else
         {
-            path.clear(); // 굳이 장애물없는데 길찾기 필요 x
-            path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
-            // ->여우는 Move로 목적지를 찾아갈 것
+            // 보였던 target이 중간에 사라졌다.
+            if (bFind)
+            {
+                // 가장 최근 보였던 곳으로 이동
+                // 놔두면 자동으로 최근까지 이동한다. 
+                if (path.empty())
+                {
+                    // 경로가 비었다면 가장 최근 target 위치까지 이동한 것.
+                    if (!missTargetTrigger)
+                    {
+                        missTargetTrigger = true;
+                        DetectionStartTime = 2.0f;
+                    }
+
+                }
+                //else Move();
+            }
+            else
+            {
+                //path.clear();
+
+                if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
+                {
+                    SetPath(startPos);
+                }
+                else
+                {
+                    path.clear(); // 굳이 장애물없는데 길찾기 필요 x
+                    path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
+                }
+
+
+                //Move();
+                if (path.empty())
+                {
+                    isTracking = false;
+                }
+            }
         }
-        
         searchCoolDown -= 1;
     }
     else
         searchCoolDown += DELTA;
-}
-
-void Orc::Control1()
-{
-    Vector3 dist = target->Pos() - transform->GlobalPos();
-
-    // 시야에 들어왔다면
-    if (bDetection)
-    {
-        // 발견한지 2초가 됐나
-        if (bFind)
-        {
-            // 공격 사정거리안에 들지 못하면
-            if (dist.Length() > 25.0f)
-            {
-
-                SetPath(target->Pos());
-                //Move();
-            }
-            else
-            {
-                path.clear();
-                SetState(ATTACK);
-            }
-
-        }
-        else
-        {
-            // 천천히 그쪽으로 걸어간다.
-            //Move();
-        }
-    }
-    // 시야에 안보인다면
-    else
-    {
-        // 보였던 target이 중간에 사라졌다.
-        if (bFind)
-        {
-            // 가장 최근 보였던 곳으로 이동
-            // 놔두면 자동으로 최근까지 이동한다. 
-            if (path.empty())
-            {
-                // 경로가 비었다면 가장 최근 target 위치까지 이동한 것.
-                if (!missTargetTrigger)
-                {
-                    missTargetTrigger = true;
-                    DetectionStartTime = 2.0f;
-                }
-
-            }
-            //else Move();
-        }
-        else
-        {
-            //path.clear();
-            SetPath(startPos);
-            //Move();
-            if (path.empty())
-            {
-                isTracking = false;
-            }
-        }
-    }
 }
 
 void Orc::Move()
@@ -505,97 +504,6 @@ void Orc::EndDying()
     exclamationMark->SetActive(false);
 }
 
-void Orc::CalculateEyeSight1()
-{
-    float rad = XMConvertToRadians(eyeSightangle);
-    Vector3 front = Vector3(transform->Forward().x, 0, transform->Forward().z).GetNormalized();
-
-    Vector3 eyevector = Vector3(sinf(rad) + transform->GlobalPos().x, 0, cos(rad) + transform->GlobalPos().z);
-    Vector3 rightdir = eyevector * eyeSightRange;
-    Vector3 leftdir = -eyevector * eyeSightRange;
-
-    Vector3 direction = target->GlobalPos() - transform->GlobalPos();
-    direction.Normalize();
-
-    float degree = XMConvertToDegrees(transform->Rot().y);
-
-    float dirz = transform->Forward().z;
-    float rightdir1 = -(180.f - eyeSightangle) + degree + 360;
-
-    bool breverse = false;
-    float leftdir1 = (180.f - eyeSightangle) + degree;
-
-
-    if (leftdir1 < 0) {
-        leftdir1 += 360;
-        rightdir1 += 360;
-        breverse = true;
-    }
-
-    /*
-        -135    135
-        -135 -45 135-45
-        -180    90
-
-
-    */
-
-    //degree
-
-    float Enemytothisangle = XMConvertToDegrees(atan2(direction.x, direction.z));
-    if (Enemytothisangle < 0) {
-        Enemytothisangle += 360;
-    }
-
-    if (Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange) {
-
-        if (!breverse)
-            if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
-                //발각
-                bDetection = true;
-            }
-            else {
-                if (Enemytothisangle > 0) {
-                    Enemytothisangle += 360;
-                }
-
-                if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
-                    //발각
-
-                    bDetection = true;
-                }
-            }
-    }
-    else
-        bDetection = false;
-}
-
-void Orc::Detection1()
-{
-    if (bDetection) {
-        DetectionStartTime += DELTA;
-    }
-    else {
-        
-        if (DetectionStartTime > 0.f) {
-            if (missTargetTrigger)
-            {
-                DetectionStartTime -= DELTA * 2;
-            }
-            
-            if (DetectionStartTime <= 0.f) {
-                DetectionStartTime = 0.f;
-                bFind = false;
-                missTargetTrigger = false;
-            }
-        }
-    }
-    if (DetectionEndTime <= DetectionStartTime) {
-        bFind = true;
-        isTracking = true;
-    }
-}
-
 void Orc::CalculateEyeSight()
 {
     float rad = XMConvertToRadians(eyeSightangle);
@@ -608,10 +516,7 @@ void Orc::CalculateEyeSight()
     Vector3 direction = target->GlobalPos() - transform->GlobalPos();
     direction.Normalize();
 
-
     float degree = XMConvertToDegrees(transform->Rot().y);
-
-
 
     float dirz = transform->Forward().z;
     float rightdir1 = -(180.f - eyeSightangle) + degree + 360;
@@ -626,8 +531,6 @@ void Orc::CalculateEyeSight()
         breverse = true;
     }
 
-
-
     /*
         -135    135
         -135 -45 135-45
@@ -638,12 +541,10 @@ void Orc::CalculateEyeSight()
 
     //degree
 
-
     float Enemytothisangle = XMConvertToDegrees(atan2(direction.x, direction.z));
     if (Enemytothisangle < 0) {
         Enemytothisangle += 360;
     }
-
 
     if (Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange) {
 
@@ -660,10 +561,11 @@ void Orc::CalculateEyeSight()
                 if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
                     //발각
                     bDetection = true;
-
                 }
             }
     }
+    else
+        bDetection = false;
 }
 
 void Orc::Detection()
@@ -673,14 +575,20 @@ void Orc::Detection()
     }
     else {
         if (DetectionStartTime > 0.f) {
-            DetectionStartTime -= DELTA;
+            if (missTargetTrigger)
+            {
+                DetectionStartTime -= DELTA * 2;
+            }
             if (DetectionStartTime <= 0.f) {
                 DetectionStartTime = 0.f;
+                bFind = false;
+                missTargetTrigger = false;
             }
         }
     }
     if (DetectionEndTime <= DetectionStartTime) {
         bFind = true;
+        isTracking = true;
         if (curState == IDLE)
             SetState(RUN);
     }

@@ -126,7 +126,7 @@ GameMapScene::GameMapScene()
 		}
 	}
 
-	static_cast<Naruto*>(player)->SetMoveSpeed(5);
+	static_cast<Naruto*>(player)->SetMoveSpeed(50);
 
 	CAM->SetTarget(player);
 	CAM->TargetOptionLoad("Naruto2");
