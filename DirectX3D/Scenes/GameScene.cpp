@@ -41,7 +41,7 @@ GameScene::GameScene()
 
     skyBox = new SkyBox(L"Textures/Landscape/BlueSky.dds");
 
-    building = new Model("building_V1");
+    building = new Model("building_V2");
 
     building->Scale() = { 100,100,100 };
     building->Rot() = {XM_PIDIV2,0,0};
