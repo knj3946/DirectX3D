@@ -68,7 +68,7 @@ void AStar::SetNode(LevelData* terrain)
 
             //노드 추가
             nodes.push_back(new Node(pos, nodes.size())); //위치와, 벡터의 현재 마지막 순번을 차례로 부여
-            nodes.back()->Scale() = { interval.x, 50, interval.y }; //간격을 적용하고, 위아래로 길게
+            nodes.back()->Scale() = { interval.x, 5, interval.y }; //간격을 적용하고, 위아래로 길게
             nodes.back()->UpdateWorld();
 
             // 높이에 변화가 있을 경우, 이 밑에 코드를 추가하면 된다

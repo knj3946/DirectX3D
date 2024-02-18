@@ -118,14 +118,20 @@ void MonsterManager::Blocking(Collider* collider)
             Vector3 dir = orc->GetCollider()->GlobalPos() - collider->GlobalPos();
 
             int maxIndex = 0;
-            float maxValue = 0;
+            float maxValue = -99999.0f;
 
             for (int i = 0; i < 3; ++i)
             {
-                if (abs(dir[i]) > maxValue)
+
+                Vector3 halfSize = ((BoxCollider*)collider)->GetHalfSize();
+                
+                if (i != 1)
                 {
-                    maxIndex = i;
-                    maxValue = abs(dir[i]);
+                    if (abs(dir[i]) - abs(halfSize[i]) > maxValue)
+                    {
+                        maxIndex = i;
+                        maxValue = abs(dir[i]) - abs(halfSize[i]);
+                    }
                 }
             }
 

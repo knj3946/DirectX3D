@@ -43,7 +43,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     hpBar->Scale() *= 0.6f;
     hpBar->SetAmount(curHP / maxHp);
 
-    //aStar = new AStar(512, 512); //문 통과할려면 이정도 되야함..
+    //aStar = new AStar(512, 512);
     aStar = new AStar(256, 256);
     aStar->SetNode();
 

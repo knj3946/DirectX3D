@@ -56,6 +56,8 @@ public:
 
     static void RenderOnOff() { isRender = !isRender; }
 
+    virtual Vector3 GetHalfSize() { return Vector3(0, 0, 0); };
+
 private:
     virtual void MakeMesh() = 0;
 

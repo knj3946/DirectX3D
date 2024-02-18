@@ -22,6 +22,8 @@ public:
 
     void GetObb(ObbDesc& obbDesc);    
 
+    virtual Vector3 GetHalfSize() override;
+
 private:
     bool IsSeperateAxis(Vector3 D, Vector3 axis, ObbDesc box1, ObbDesc box2);
 
