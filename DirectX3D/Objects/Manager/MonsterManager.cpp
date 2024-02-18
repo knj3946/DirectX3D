@@ -91,6 +91,7 @@ bool MonsterManager::IsCollision(Ray ray, Vector3& hitPoint)
 void MonsterManager::SetOrcSRT(int index,Vector3 scale, Vector3 rot, Vector3 pos)
 {
     orcs[index]->SetSRT(scale,rot,pos);
+    orcs[index]->SetStartPos(pos);
 }
 
 void MonsterManager::AddOrcObstacleObj(Collider* collider)

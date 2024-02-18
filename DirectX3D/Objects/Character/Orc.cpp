@@ -256,14 +256,14 @@ void Orc::Control()
             {
                 //path.clear();
 
-                if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
+                if (aStar->IsCollisionObstacle(transform->GlobalPos(), startPos))// 중간에 장애물이 있으면
                 {
                     SetPath(startPos);
                 }
                 else
                 {
                     path.clear(); // 굳이 장애물없는데 길찾기 필요 x
-                    path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
+                    path.push_back(startPos); // 가야할 곳만 경로에 집어넣기
                 }
 
 
@@ -284,8 +284,16 @@ void Orc::Move()
 {   
     if (!bFind)
     {
-        SetState(IDLE);
-        return;
+        if (path.empty())
+        {
+            Vector3 dist = transform->Pos() - startPos;
+
+            if (dist.Length() <= 0.5f)
+            {
+                SetState(IDLE);
+                return;
+            }
+        }
     }
 
     if (velocity.Length() >= 5 && curState == ATTACK)

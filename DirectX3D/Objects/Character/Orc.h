@@ -29,6 +29,7 @@ public:
     void SetTarget(Transform* target) { this->target = target; }
     void SetTargetCollider(CapsuleCollider* collider) { targetCollider = collider; }
     void SetSRT(Vector3 scale, Vector3 rot, Vector3 transform);
+    void SetStartPos(Vector3 pos) { this->startPos = pos; }
 
     Transform* GetTransform() { return transform; }
     CapsuleCollider* GetCollider() { return collider; }
@@ -100,7 +101,7 @@ private:
     Transform* mainHand;
     SphereCollider* tmpCollider;
 
-    float eyeSightRange = 80.f;
+    float eyeSightRange = 40.f;
     float eyeSightangle = 45.f;
     bool bDetection = false;
     bool bFind = false;
