@@ -570,6 +570,15 @@ void Orc::CalculateEyeSight()
         if (!breverse)
             if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
                 //발각
+            //    for (UINT i = 0; i < RobotManager::Get()->GetCollider().size(); ++i) {
+            //        if (RobotManager::Get()->GetCollider()[i]->IsRayCollision(ray))
+            //        {
+            //            return;
+            //        }
+            //
+            //    }
+                // 추후 오크매니저에서 씬에 깔린 모든 벽들 체크해서 ray충돌페크
+                // behaviorstate = NPC_BehaviorState::DETECT;
                 bDetection = true;
             }
             else {
@@ -579,12 +588,54 @@ void Orc::CalculateEyeSight()
 
                 if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
                     //발각
+                    //    for (UINT i = 0; i < RobotManager::Get()->GetCollider().size(); ++i) {
+            //        if (RobotManager::Get()->GetCollider()[i]->IsRayCollision(ray))
+            //        {
+            //            return;
+            //        }
+            //
+            //    }
+                // 추후 오크매니저에서 씬에 깔린 모든 벽들 체크해서 ray충돌페크
+                    //  behaviorstate = NPC_BehaviorState::DETECT;
                     bDetection = true;
                 }
             }
     }
     else
         bDetection = false;
+}
+
+void Orc::CalculateEarSight()
+{
+    Vector3 pos;
+    float volume = -1.f;
+    float distance = -1.f;
+    if (Audio::Get()->IsPlaySound("PlayerWalk")) {
+
+        pos.x = Audio::Get()->GetSoundPos("PlayerWalk").x;
+        pos.y = Audio::Get()->GetSoundPos("PlayerWalk").y;
+        pos.z = Audio::Get()->GetSoundPos("PlayerWalk").z;
+        volume = Audio::Get()->GetVolume("PlayerWalk");
+        distance = Distance(transform->GlobalPos(), pos);
+
+        volume = Audio::Get()->GetVolume("PlayerWalk");
+    }
+    // 웅크리고 걷는 소리 ,암살소리  제외
+    // 플레이어 소리와 주위 시선 끄는 소리 추가
+
+
+
+
+    if (distance == -1.f)return;
+
+    if (distance < earRange * volume) {
+        behaviorstate = NPC_BehaviorState::CHECK;
+        CheckPoint = pos;
+        StorePos = transform->GlobalPos();
+        bFind = true;
+    }
+
+
 }
 
 void Orc::Detection()
@@ -611,6 +662,15 @@ void Orc::Detection()
         if (curState == IDLE)
             SetState(RUN);
     }
+}
+
+void Orc::SetRay(Vector3& _pos)
+{
+    ray.pos = transform->GlobalPos();
+    ray.pos.y += 100;
+
+    ray.dir = _pos - ray.pos;
+    ray.dir.Normalize();
 }
 
 void Orc::AddObstacleObj(Collider* collider)
