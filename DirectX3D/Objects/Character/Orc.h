@@ -39,6 +39,10 @@ public:
 
     void AddObstacleObj(Collider* collider);
 
+    bool IsFindTarget() { return bFind; };
+
+    void AttackTarget();
+
 private:
     void Control();
     void Move();

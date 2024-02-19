@@ -45,6 +45,26 @@ void MonsterManager::Update()
     
     for (Orc* orc : orcs)
         orc->Update();
+
+
+    for (Orc* orc : orcs)
+    {
+        if (orc->IsFindTarget()) // 오크가 발견상태라면
+        {
+            for (Orc* nearOrc : orcs)
+            {
+                if (orc != nearOrc) // 자기 자신 제외
+                {
+                    float dis = Distance(orc->GetTransform()->GlobalPos(), nearOrc->GetTransform()->GlobalPos());
+
+                    if (dis < 20.0f) // 거리가 20 미만이면
+                    {
+                        nearOrc->AttackTarget();
+                    }
+                }
+            }
+        }
+    }
         
 }
 

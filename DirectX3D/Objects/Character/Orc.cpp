@@ -192,6 +192,17 @@ void Orc::Spawn(Vector3 pos)
     transform->Pos() = pos;
 }
 
+void Orc::AttackTarget()
+{
+    if (!bFind)
+    {
+        bFind = true;
+        isTracking = true;
+        if (curState == IDLE)
+            SetState(RUN);
+    }
+}
+
 void Orc::Control()
 {
     if (searchCoolDown > 1)
