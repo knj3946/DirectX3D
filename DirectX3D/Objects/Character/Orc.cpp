@@ -121,7 +121,7 @@ void Orc::Update()
     */
 
     //root->SetWorld(instancing->GetTransformByNode(index, 3));
-    transform->SetWorld(instancing->GetTransformByNode(index, 3));
+    transform->SetWorld(instancing->GetTransformByNode(index, 5));
     collider->UpdateWorld();
     transform->UpdateWorld();
 
@@ -367,7 +367,8 @@ void Orc::Move()
 
 void Orc::IdleAIMove()
 {
-    return;
+    // WALK애니메이션 해결 -> Orc_Walk0.clip 대신 character1@walk30.clip 사용할 것
+
     if (IsAiCooldown)
     {
         if (isAIWaitCooldown)
@@ -400,7 +401,7 @@ void Orc::IdleAIMove()
 
         // 만약 벽 같은 곳에 부딪혔다면 바로 IsAiCooldown=true 로  
         aiCoolTime -= DELTA;
-        //transform->Pos() += DELTA * walkSpeed * transform->Back();
+        transform->Pos() += DELTA * walkSpeed * transform->Back();
     }
 }
 
@@ -482,9 +483,9 @@ void Orc::SetState(State state)
     if (state == curState) return; // 이미 그 상태라면 굳이 변환 필요 없음
 
     curState = state; //매개변수에 따라 상태 변화
-    if(state==WALK)
-        instancing->PlayClip(index, (int)state,0.5f); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
-    else 
+    //if(state==WALK)
+      //  instancing->PlayClip(index, (int)state,0.5f); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
+    //else 
         instancing->PlayClip(index, (int)state); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
     eventIters[state] = totalEvent[state].begin(); //이벤트 반복자도 등록된 이벤트 시작시점으로
 
