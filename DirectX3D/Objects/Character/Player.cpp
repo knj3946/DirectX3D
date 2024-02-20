@@ -132,6 +132,8 @@ void Player::Update()
 
     ModelAnimator::Update(); //모델 업데이트
 
+    
+
     if(targetObject != nullptr)
         targetObject->SetColor({ 1, 0, 0, 0 });
 }

@@ -15,6 +15,8 @@ public:
     ~Naruto();
 
     void Update();
+
+ 
     void Render();
     void PostRender();
     void GUIRender();
@@ -23,6 +25,9 @@ public:
 
     Collider* GetCollider() { return collider; }
     void Blocking(Collider* collider);
+
+    void PushCol(Cube* cube) { cubes.push_back(cube); }
+
 
 private:
     void Control();
@@ -35,8 +40,12 @@ private:
 
     void Throw();
     void EndThrow();
+    void MouseDirection();
 
+
+   
 private:
+    vector<Cube*> cubes;
 
     Transform* mainHand; //주로 쓰는 손, 나루토의 경우 오른손
     
@@ -59,5 +68,13 @@ private:
     POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- 연산자는 샘플
 
     Quad* crosshair;
+    
+    
+    float value=200;//임시 플레이어가 벽을 바라볼때 ray 거리
+
+
+
+
+  
 };
 
