@@ -53,8 +53,8 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("ParticleConfig", new ParticleConfigScene());
     //SceneManager::Get()->Create("Human", new HumanScene());
     //SceneManager::Get()->Create("QuadTree", new QuadTreeScene());
-    //SceneManager::Get()->Create("GameMap", new GameMapScene());
-    SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
+    SceneManager::Get()->Create("GameMap", new GameMapScene());
+    //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
 
     SceneManager::Get()->Add("Grid");
     //SceneManager::Get()->Add("Cube");
@@ -75,8 +75,8 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("ParticleConfig");
     //SceneManager::Get()->Add("Human");
     //SceneManager::Get()->Add("QuadTree");
-    //SceneManager::Get()->Add("GameMap");
-    SceneManager::Get()->Add("TestNpcScene");
+    SceneManager::Get()->Add("GameMap");
+    //SceneManager::Get()->Add("TestNpcScene");
 }
 
 GameManager::~GameManager()
