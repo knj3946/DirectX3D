@@ -97,7 +97,7 @@ void Orc::Update()
     }
     else
     {
-        if (isTracking == false)
+        if (isTracking == false && path.empty())
             IdleAIMove();
         else
         {
@@ -170,6 +170,18 @@ void Orc::GUIRender()
     ImGui::Text("bFind : %d", bFind);
     ImGui::Text("bDetection : %d", bDetection);
     ImGui::Text("isTracking : %d", isTracking);
+
+    if (!path.empty())
+    {
+        ImGui::Text("path.x : %f", path.back().x);
+        ImGui::Text("path.y : %f", path.back().y);
+        ImGui::Text("path.z : %f", path.back().z);
+
+        ImGui::Text("start.x : %f", startPos.x);
+        ImGui::Text("start.y : %f", startPos.y);
+        ImGui::Text("start.z : %f", startPos.z);
+    }
+    
 }
 
 void Orc::Hit()
@@ -257,11 +269,7 @@ void Orc::Control()
 
                     if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
                     {
-                        //이미 주어진 경로가 있다면 새로 내지 말고
-                        if (path.empty())
-                        {
-                            SetPath(target->Pos()); // 구체적인 경로 내어서 가기
-                        }
+                        SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
                     }
                     else
                     {
@@ -306,14 +314,18 @@ void Orc::Control()
             }
             else
             {
+                if (!missTargetTrigger)
+                {
+                    path.clear();
+                    missTargetTrigger = true;
+                    DetectionStartTime = 2.0f;
+                }
+
                 //path.clear();
 
                 if (aStar->IsCollisionObstacle(transform->GlobalPos(), startPos))// 중간에 장애물이 있으면
                 {
-                    if (path.empty())
-                    {
-                        SetPath(startPos); // 구체적인 경로 내어서 가기
-                    }
+                    SetPath(startPos); // 구체적인 경로 내어서 가기
                 }
                 else
                 {
@@ -324,6 +336,7 @@ void Orc::Control()
                 if (IsStartPos())
                 {
                     isTracking = false;
+                    SetState(IDLE);
                     path.clear();
                 }
             }

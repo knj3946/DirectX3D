@@ -79,6 +79,11 @@ void MonsterManager::PostRender()
     for (Orc* orc : orcs) orc->PostRender();
 }
 
+void MonsterManager::GUIRender()
+{
+    for (Orc* orc : orcs) orc->GUIRender();
+}
+
 void MonsterManager::SetTarget(Transform* target)
 {
     this->target = target;

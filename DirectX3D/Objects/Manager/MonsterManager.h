@@ -12,6 +12,7 @@ public:
     void Update();
     void Render();
     void PostRender();
+    void GUIRender();
 
     void SetTarget(Transform* target);
 

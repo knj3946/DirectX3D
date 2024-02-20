@@ -129,7 +129,7 @@ private:
     CapsuleCollider* leftWeaponCollider;
     CapsuleCollider* rightWeaponCollider;
 
-    float eyeSightRange = 60.f;
+    float eyeSightRange = 20.f;
     float eyeSightangle = 45.f;
     bool bDetection = false;
     bool bFind = false;

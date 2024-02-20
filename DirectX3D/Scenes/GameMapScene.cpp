@@ -228,14 +228,16 @@ void GameMapScene::PostRender()
 
 void GameMapScene::GUIRender()
 {
-	static_cast<Naruto*>(player)->GUIRender();
+	//static_cast<Naruto*>(player)->GUIRender();
 
 	for (ColliderModel* cm : colliderModels)
 	{
-		cm->GUIRender();
+		//cm->GUIRender();
 	}
 
-	CAM->GUIRender();
+	//CAM->GUIRender();
+
+	MonsterManager::Get()->GUIRender();
 }
 
 void GameMapScene::CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot, Vector3 mPos)
