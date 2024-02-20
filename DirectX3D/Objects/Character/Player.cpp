@@ -82,7 +82,7 @@ Player::Player()
     collider->SetParent(this);
     //collider->SetPivot({ 0, Pos().y + collider->Height() / 2.0f + collider->Radius(), 0 });
 
-    ReadClip("Idle"); // 동작이 0뒤에 1까지 있음
+    ReadClip("Standing Idle"); // 동작이 0뒤에 1까지 있음
 
     ReadClip("Medium Run");
     ReadClip("Medium Run");
@@ -327,7 +327,8 @@ void Player::SetAnimation()
 {
     //if (InTheAir()) return;
     if (curState == JUMP1 || curState == JUMP3 || Pos().y > 0.0f) return;   //높이가 바뀌는 경우가 생기기 때문에 Pos().y의 조건 값을 변수로 바꾸기
-    if (toCover) return;
+    if (toCover) 
+        return;
 
     if (velocity.z > 0.1f) // 속력 기준이 현재 앞으로 +면
         SetState(RUN_F);

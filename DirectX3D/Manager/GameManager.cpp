@@ -21,13 +21,7 @@
 #include "Scenes/QuadTreeScene.h"
 #include "Scenes/GameMapScene.h"
 #include "Scenes/TestNpcScene.h"
-
-// 연휴가 끝나면 : 실시간 지형 LOD
-
-//다음주 화요일까지 지금까지의 코딩을 복습하는 한편
-//LOD에 대한 부분도 짬짬이 알아봅시다. (한번 예습은 했지만)
-
-//->연휴 중에는 너무 무리하지 않고, 명절을 즐겁게 보냅시다
+#include "Scenes/PlayerScene.h"
 
 GameManager::GameManager()
 {
@@ -54,7 +48,8 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("Human", new HumanScene());
     //SceneManager::Get()->Create("QuadTree", new QuadTreeScene());
     //SceneManager::Get()->Create("GameMap", new GameMapScene());
-    SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
+    //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
+    SceneManager::Get()->Create("Player", new PlayerScene());
 
     SceneManager::Get()->Add("Grid");
     //SceneManager::Get()->Add("Cube");
@@ -76,7 +71,8 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("Human");
     //SceneManager::Get()->Add("QuadTree");
     //SceneManager::Get()->Add("GameMap");
-    SceneManager::Get()->Add("TestNpcScene");
+    //SceneManager::Get()->Add("TestNpcScene");
+    SceneManager::Get()->Add("Player");
 }
 
 GameManager::~GameManager()
