@@ -3,6 +3,11 @@
 
 PlayerScene::PlayerScene()
 {
+	CAM->Pos() = { -296.339 , 742.889 , -449.494 };
+	CAM->Rot() = { 70 , 90 , 0};
+
+	ColliderManager::Get();
+
 	player = new Player();
 
 	box1 = new BoxCollider();
@@ -25,6 +30,10 @@ PlayerScene::PlayerScene()
 
 	colliders.push_back(box1);
 	colliders.push_back(box2);
+
+	ColliderManager::Get()->SetPlayer(player, player->GetCollider());
+	ColliderManager::Get()->SetObstacles(box1);
+	ColliderManager::Get()->SetObstacles(box2);
 }
 
 PlayerScene::~PlayerScene()
@@ -37,8 +46,6 @@ PlayerScene::~PlayerScene()
 
 void PlayerScene::Update()
 {
-	//player->Wall(box);
-
 	player->Update();
 
 	FOR(2)
@@ -60,7 +67,7 @@ void PlayerScene::Update()
 	float minDistance = 100000000000.0f;
 	for(Collider* collider : colliders)
 	{
-		if(collider->IsRayCollision(player->GetRay(), &cont) && cont.distance < 500.0f && cont.distance < minDistance)
+		if(collider->IsRayCollision(player->GetRay(), &cont) && cont.distance < 80.0f && cont.distance < minDistance)
 		{
 			player->ResetTarget(collider, cont);
 			isSearching = true;

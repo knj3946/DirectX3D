@@ -14,11 +14,11 @@ ModelExportScene::ModelExportScene()
     delete exporter;*/
 
 
-    //clipName = "Cover Idle";
-    //file = "Models/Animations/" + name + "/" + clipName + ".fbx";
-    //exporter = new ModelExporter(name, file);
-    //exporter->ExportClip(clipName);
-    //delete exporter;
+    clipName = "Jump";
+    file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+    exporter = new ModelExporter(name, file);
+    exporter->ExportClip(clipName);
+    delete exporter;
 
     //clipName = "Crouch Turn To Stand";
     //file = "Models/Animations/" + name + "/" + clipName + ".fbx";
@@ -44,11 +44,11 @@ ModelExportScene::ModelExportScene()
     //exporter->ExportClip(clipName);
     //delete exporter;
 
-    clipName = "Standing Idle";
-    file = "Models/Animations/" + name + "/" + clipName + ".fbx";
-    exporter = new ModelExporter(name, file);
-    exporter->ExportClip(clipName);
-    delete exporter;
+    //clipName = "Standing Idle";
+    //file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+    //exporter = new ModelExporter(name, file);
+    //exporter->ExportClip(clipName);
+    //delete exporter;
 
     /*clipName = "IntheSky";
     file = "Models/Animations/" + name + "/" + clipName + ".fbx";
