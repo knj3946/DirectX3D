@@ -72,7 +72,10 @@
 Player::Player()
     : ModelAnimator("akai")
 {
-    tempTransform = new Transform();
+    CAM->Pos() = { -309.720, 742.889, -247.274 };
+    CAM->Rot() = { 75, 90, 0 };
+
+    targetTransform = new Transform();
     ray = Ray(Pos(), Back());
     //Scale() *= 0.1f;
     // 윈도우 핸들러의 정보값(중 윈도우 크기)을 두 번째 매개변수에 저장
@@ -85,9 +88,12 @@ Player::Player()
     ReadClip("Standing Idle"); // 동작이 0뒤에 1까지 있음
 
     ReadClip("Medium Run");
-    ReadClip("Medium Run");
-    ReadClip("Medium Run");
-    ReadClip("Medium Run");
+    ReadClip("Running Backward");
+    ReadClip("Left Strafe");
+    ReadClip("Right Strafe");
+
+    ReadClip("Jog Forward Diagonal Left");
+    ReadClip("Jog Forward Diagonal Right");
 
     ReadClip("Jumping"); // 동작이 0뒤에 1까지 있음
     ReadClip("IntheSky"); // 동작이 0뒤에 1까지 있음
@@ -99,19 +105,21 @@ Player::Player()
     ReadClip("Crouched Sneaking Left"); // 동작이 0뒤에 1까지 있음
     ReadClip("Crouch Turn To Stand"); // 동작이 0뒤에 1까지 있음
 
-    GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.2f);  //점프시작
+    GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.00001f);  //점프시작
     GetClip(JUMP1)->SetEvent(bind(&Player::EndJump, this), 0.20001f);   //하강
 
     GetClip(JUMP3)->SetEvent(bind(&Player::SetIdle, this), 0.0001f);   //착지
 
-    GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.10f);   //엄폐
+    GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //엄폐
     //GetClip(TO_COVER)->SetEvent(bind(&Player::Cover, this), 0.0001f);   //착지
 }
 
 Player::~Player()
 {
     delete collider;
-    delete tempTransform;
+
+    delete targetTransform;
+    delete targetObject;
 }
 
 void Player::Update()
@@ -196,12 +204,12 @@ void Player::Control()
 void Player::Move()
 {
     if (toCover) {
-        if (Distance(Pos(), tempTransform->Pos()) < teleport)
+        if (Distance(Pos(), targetTransform->Pos()) < teleport)
         {
             SetState(TO_COVER);
             return;
         }
-        Pos() += (tempTransform->Pos() - Pos()).GetNormalized() * DELTA * 400;
+        Pos() += (targetTransform->Pos() - Pos()).GetNormalized() * DELTA * 400;
         SetState(RUN_F);
         return;
     }
@@ -246,25 +254,41 @@ void Player::Walking()
 
     if (KEY_PRESS('W'))
     {
-        velocity.z += DELTA; //속력 기준에 시간 경과만큼 누적값 주기
+        if (velocity.z + DELTA * 4.0f < 0.0f)
+            velocity.z += DELTA * 4.0f;
+        else
+            velocity.z += DELTA; //속력 기준에 시간 경과만큼 누적값 주기
+
         isMoveZ = true; //전후 이동 중임
     }
 
     if (KEY_PRESS('S'))
     {
-        velocity.z -= DELTA;
+        if(velocity.z - DELTA * 4.0f > 0.0f)
+            velocity.z -= DELTA * 4.0f;
+        else
+            velocity.z -= DELTA;
+
         isMoveZ = true;
     }
 
     if (KEY_PRESS('A'))
     {
-        velocity.x -= DELTA;
+        if (velocity.x - DELTA * 4.0f > 0.0f)
+            velocity.x -= DELTA * 4.0f;
+        else
+            velocity.x -= DELTA;
+
         isMoveX = true;
     }
 
     if (KEY_PRESS('D'))
     {
-        velocity.x += DELTA;
+        if (velocity.x + DELTA * 4.0f < 0.0f)
+            velocity.x += DELTA * 4.0f;
+        else
+            velocity.x += DELTA; //속력 기준에 시간 경과만큼 누적값 주기
+
         isMoveX = true;
     }
 
@@ -281,6 +305,8 @@ void Player::Walking()
     //면적(=그 면적에서 나온 수직선)으로 된 회전 정보와 속력 기준을 합쳐서 만든 방향
     //=현재 회전 상황에서 속력 기준으로 향하기 위한 방향을 계산하는 벡터 보간
     Vector3 direction = XMVector3TransformCoord(velocity, rotY);
+
+    ColliderManager::Get()->ControlPlayer(&direction);
 
     Pos() += direction * moveSpeed * DELTA * -1; // 이동 수행
 }
@@ -330,7 +356,11 @@ void Player::SetAnimation()
     if (toCover) 
         return;
 
-    if (velocity.z > 0.1f) // 속력 기준이 현재 앞으로 +면
+    if (velocity.z > 0.01f && velocity.x < -0.1f)
+        SetState(RUN_DL);
+    else if (velocity.z > 0.01f && velocity.x > 0.1f)
+        SetState(RUN_DR);
+    else if (velocity.z > 0.1f) // 속력 기준이 현재 앞으로 +면
         SetState(RUN_F);
     else if (velocity.z < -0.1f) // 앞 기준 -면
         SetState(RUN_B);
@@ -360,8 +390,15 @@ void Player::Cover()
 {    
     toCover = true;
 
-    tempTransform->Pos() = { contact.hitPoint.x, Pos().y, contact.hitPoint.z };
-    tempTransform->Pos() -= Back() * 45;
+    targetTransform->Pos() = { contact.hitPoint.x, Pos().y, contact.hitPoint.z };
+
+    Vector3 objectPos = { targetObject->Pos().x, 0, targetObject->Pos().z };
+    Vector3 objectDir = Pos() - objectPos;
+    objectDir = objectDir.GetNormalized();
+
+    targetTransform->Rot().y = atan2(objectDir.x, objectDir.z) /*+ XM_PI*/;
+
+    targetTransform->Pos() -= Back() * 30;
 }
 
 bool Player::InTheAir() {
@@ -371,24 +408,10 @@ bool Player::InTheAir() {
 void Player::SetIdle()
 {
     if (curState == TO_COVER) {
+        Pos() = targetTransform->Pos();
+        Rot() = targetTransform->Rot();
+
         SetState(C_IDLE);
-
-        Pos() = tempTransform->Pos();
-
-        //Vector3 temp = contact.hitPoint.Forward();
-        //temp.y = 0;
-        //Vector3 objectDir = GlobalPos() - temp;
-        //objectDir = objectDir.GetNormalized();
-        //Rot().y = atan2(objectDir.x, objectDir.z); 
-
-        Vector3 objectPos = { contact.hitPoint.x, 0, contact.hitPoint.z };
-        Vector3 objectDir = GlobalPos() - objectPos;
-        objectDir = objectDir.GetNormalized();
-
-        Rot().y = atan2(objectDir.x, objectDir.z) - XM_PI;
-
-        //Pos() = { contact.hitPoint.x, Pos().y, contact.hitPoint.z };
-        //Pos() -= Back() * 45;
 
         toCover = false;
     }
