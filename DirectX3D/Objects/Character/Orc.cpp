@@ -6,7 +6,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     //클립 생성해두기 
     string modelName = "Orc";
 
-    root = new Transform();
+    //root = new Transform();
 
     transform->Pos() = startPos;
 
@@ -31,11 +31,17 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     collider->SetActive(true);
 
     // 무기 충돌체
-    mainHand = new Transform();
-    tmpCollider = new SphereCollider();
-    tmpCollider->Scale() *= 0.3;
-    tmpCollider->SetParent(mainHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
+    leftHand = new Transform();
+    leftWeaponCollider = new CapsuleCollider(8,50);
+    leftWeaponCollider->Pos().y += 20;
+    leftWeaponCollider->SetParent(leftHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
+    leftWeaponCollider->SetActive(true);
 
+    rightHand = new Transform();
+    rightWeaponCollider = new CapsuleCollider(6, 30);
+    //rightWeaponCollider->Pos().y += 20;
+    rightWeaponCollider->SetParent(rightHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
+    rightWeaponCollider->SetActive(true);
 
     // hp UI
     hpBar = new ProgressBar(L"Textures/UI/hp_bar.png", L"Textures/UI/hp_bar_BG.png");
@@ -48,21 +54,23 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     questionMark->Scale() *= 0.1f;
 
     //aStar = new AStar(512, 512);
-    aStar = new AStar(256, 256);
+    aStar = new AStar(10,10);
     aStar->SetNode();
 
 }
 
 Orc::~Orc()
 {
-    delete mainHand;
-    delete tmpCollider;
+    delete leftHand;
+    delete rightHand;
+    delete leftWeaponCollider;
+    delete rightWeaponCollider;
     delete collider;
     delete terrain;
     delete aStar;
     delete instancing;
     delete motion;
-    delete root;
+    //delete root;
     delete transform;
     delete exclamationMark;
     delete questionMark;
@@ -72,10 +80,7 @@ void Orc::Update()
 {
     if (!transform->Active()) return;
 
-    // TODO : 무기들 애니메이션 맞춰서 움직이게, 몸통콜라이더도
-    mainHand->SetWorld(instancing->GetTransformByNode(index, 5));
-    tmpCollider->UpdateWorld();
-
+    
     velocity = target->GlobalPos() - transform->GlobalPos();
 
     CalculateEyeSight();
@@ -115,15 +120,23 @@ void Orc::Update()
     }
     */
 
-    root->SetWorld(instancing->GetTransformByNode(index, 3));
+    //root->SetWorld(instancing->GetTransformByNode(index, 3));
+    transform->SetWorld(instancing->GetTransformByNode(index, 5));
     collider->UpdateWorld();
+    transform->UpdateWorld();
+
+    // TODO : 무기들 애니메이션 맞춰서 움직이게, 몸통콜라이더도
+    leftHand->SetWorld(instancing->GetTransformByNode(index, 170));
+    leftWeaponCollider->UpdateWorld();
+    rightHand->SetWorld(instancing->GetTransformByNode(index, 187)); 
+    rightWeaponCollider->UpdateWorld();
 }
 
 void Orc::Render()
 {
     collider->Render();
-    tmpCollider->Render();
-    //aStar->Render();
+    leftWeaponCollider->Render();
+    rightWeaponCollider->Render();
 }
 
 void Orc::PostRender()
@@ -198,7 +211,7 @@ void Orc::AttackTarget()
     {
         bFind = true;
         isTracking = true;
-        if (curState == IDLE)
+        //if (curState == IDLE)
             SetState(RUN);
     }
 }
@@ -241,6 +254,7 @@ void Orc::Control()
             {
                 // 천천히 그쪽으로 걸어간다.
                 //Move();
+                
             }
         }
         // 시야에 안보인다면
@@ -277,11 +291,10 @@ void Orc::Control()
                     path.push_back(startPos); // 가야할 곳만 경로에 집어넣기
                 }
 
-
-                //Move();
-                if (path.empty())
+                if (IsStartPos())
                 {
                     isTracking = false;
+                    path.clear();
                 }
             }
         }
@@ -322,7 +335,7 @@ void Orc::Move()
     if (path.size() > 0)
     {
         // 가야할 곳이 있다
-        //SetState(RUN);  // 움직이기 + 달리는 동작 실행
+        SetState(RUN);  // 움직이기 + 달리는 동작 실행
 
         //벡터로 들어온 경로를 하나씩 찾아가면서 움직이기
 
@@ -354,7 +367,42 @@ void Orc::Move()
 
 void Orc::IdleAIMove()
 {
+    // WALK애니메이션 해결 -> Orc_Walk0.clip 대신 character1@walk30.clip 사용할 것
 
+    if (IsAiCooldown)
+    {
+        if (isAIWaitCooldown)
+        {
+            float randY = Random(XM_PIDIV2, XM_PI) * 2;
+            transform->Rot().y = randY + XM_PI;
+            //XMMatrixRotationY(randY + XM_PI);
+            IsAiCooldown = false;
+            aiCoolTime = 3.f; // 나중에 랜덤으로
+            SetState(WALK);
+            isAIWaitCooldown = false;
+            aiWaitCoolTime = 1.5f;
+        }
+        else
+        {
+            aiWaitCoolTime -= DELTA;
+            if (aiWaitCoolTime <= 0)
+                isAIWaitCooldown = true;
+        }
+        
+    }
+    else
+    {
+        if (aiCoolTime <= 0)
+        {
+            IsAiCooldown = true;
+            SetState(IDLE);
+            return;
+        }
+
+        // 만약 벽 같은 곳에 부딪혔다면 바로 IsAiCooldown=true 로  
+        aiCoolTime -= DELTA;
+        transform->Pos() += DELTA * walkSpeed * transform->Back();
+    }
 }
 
 void Orc::UpdateUI()
@@ -435,7 +483,10 @@ void Orc::SetState(State state)
     if (state == curState) return; // 이미 그 상태라면 굳이 변환 필요 없음
 
     curState = state; //매개변수에 따라 상태 변화
-    instancing->PlayClip(index, (int)state); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
+    //if(state==WALK)
+      //  instancing->PlayClip(index, (int)state,0.5f); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
+    //else 
+        instancing->PlayClip(index, (int)state); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
     eventIters[state] = totalEvent[state].begin(); //이벤트 반복자도 등록된 이벤트 시작시점으로
 
     // ->이렇게 상태와 동작을 하나로 통합해두면
@@ -517,8 +568,8 @@ void Orc::EndDying()
     transform->SetActive(false);
     hpBar->SetActive(false);
     collider->SetActive(false);
-    mainHand->SetActive(false);
-    tmpCollider->SetActive(false);
+    leftHand->SetActive(false);
+    leftWeaponCollider->SetActive(false);
     questionMark->SetActive(false);
     exclamationMark->SetActive(false);
 }
@@ -570,6 +621,15 @@ void Orc::CalculateEyeSight()
         if (!breverse)
             if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
                 //발각
+            //    for (UINT i = 0; i < RobotManager::Get()->GetCollider().size(); ++i) {
+            //        if (RobotManager::Get()->GetCollider()[i]->IsRayCollision(ray))
+            //        {
+            //            return;
+            //        }
+            //
+            //    }
+                // 추후 오크매니저에서 씬에 깔린 모든 벽들 체크해서 ray충돌페크
+                // behaviorstate = NPC_BehaviorState::DETECT;
                 bDetection = true;
             }
             else {
@@ -579,12 +639,54 @@ void Orc::CalculateEyeSight()
 
                 if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
                     //발각
+                    //    for (UINT i = 0; i < RobotManager::Get()->GetCollider().size(); ++i) {
+            //        if (RobotManager::Get()->GetCollider()[i]->IsRayCollision(ray))
+            //        {
+            //            return;
+            //        }
+            //
+            //    }
+                // 추후 오크매니저에서 씬에 깔린 모든 벽들 체크해서 ray충돌페크
+                    //  behaviorstate = NPC_BehaviorState::DETECT;
                     bDetection = true;
                 }
             }
     }
     else
         bDetection = false;
+}
+
+void Orc::CalculateEarSight()
+{
+    Vector3 pos;
+    float volume = -1.f;
+    float distance = -1.f;
+    if (Audio::Get()->IsPlaySound("PlayerWalk")) {
+
+        pos.x = Audio::Get()->GetSoundPos("PlayerWalk").x;
+        pos.y = Audio::Get()->GetSoundPos("PlayerWalk").y;
+        pos.z = Audio::Get()->GetSoundPos("PlayerWalk").z;
+        volume = Audio::Get()->GetVolume("PlayerWalk");
+        distance = Distance(transform->GlobalPos(), pos);
+
+        volume = Audio::Get()->GetVolume("PlayerWalk");
+    }
+    // 웅크리고 걷는 소리 ,암살소리  제외
+    // 플레이어 소리와 주위 시선 끄는 소리 추가
+
+
+
+
+    if (distance == -1.f)return;
+
+    if (distance < earRange * volume) {
+        behaviorstate = NPC_BehaviorState::CHECK;
+        CheckPoint = pos;
+        StorePos = transform->GlobalPos();
+        bFind = true;
+    }
+
+
 }
 
 void Orc::Detection()
@@ -601,6 +703,7 @@ void Orc::Detection()
             if (DetectionStartTime <= 0.f) {
                 DetectionStartTime = 0.f;
                 bFind = false;
+                
                 missTargetTrigger = false;
             }
         }
@@ -611,6 +714,24 @@ void Orc::Detection()
         if (curState == IDLE)
             SetState(RUN);
     }
+}
+
+void Orc::SetRay(Vector3& _pos)
+{
+    ray.pos = transform->GlobalPos();
+    ray.pos.y += 100;
+
+    ray.dir = _pos - ray.pos;
+    ray.dir.Normalize();
+}
+
+bool Orc::IsStartPos()
+{
+    
+    if (startPos.x + 1.0f > transform->Pos().x && startPos.x - 1.0f < transform->Pos().x &&
+        startPos.z + 1.0f > transform->Pos().z && startPos.z - 1.0f < transform->Pos().z)
+        return true;
+    else return false;
 }
 
 void Orc::AddObstacleObj(Collider* collider)

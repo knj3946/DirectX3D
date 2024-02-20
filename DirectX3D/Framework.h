@@ -190,6 +190,7 @@ using namespace GameMath;
 #include "Objects/Character/Fox.h"
 #include "Objects/Character/RobotA.h"
 #include "Objects/Character/Orc.h"
+#include "Objects/Character/Player.h"
 
 #include "Objects/Manager/BlockManager.h"
 #include "Objects/Manager/KunaiManager.h"
@@ -202,6 +203,7 @@ using namespace GameMath;
 
 #include "Manager/SceneManager.h"
 #include "Manager/GameManager.h"
+#include "Manager/ColliderManager.h"
 
 extern HWND hWnd;
 extern Vector3 mousePos;
