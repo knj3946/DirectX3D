@@ -190,6 +190,32 @@ void MonsterManager::Blocking(Collider* collider)
     
 }
 
+void MonsterManager::Fight(Naruto* player)
+{
+    for (Collider* collider : static_cast<Naruto*>(player)->GetWeaponColliders())
+    {
+        for (Orc* orc : orcs)
+        {
+            //몬스터가 맞을때
+            if (collider)
+            {
+                if (collider->IsCapsuleCollision(orc->GetCollider()) && player->GetCurAttackCoolTime() == 0) //손 충돌체가 타겟이랑 겹칠때 //어택 동작 하나당 한번의 타격만 해야함
+                {
+                    player->SetAttackCoolDown();
+                    orc->Hit();
+                }
+                else
+                {
+                    player->FillAttackCoolTime();
+                }
+            }
+            
+        }
+    }
+
+
+}
+
 void MonsterManager::Collision()
 {
     for (Orc* orc : orcs)
