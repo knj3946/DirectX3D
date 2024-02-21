@@ -205,7 +205,7 @@ void Naruto::FillAttackCoolTime()
 void Naruto::Control()
 {
     Rotate();
-    MouseDirection();
+    //MouseDirection();
     Move();
     Attack();
     

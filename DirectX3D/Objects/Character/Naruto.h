@@ -28,6 +28,7 @@ public:
     Collider* GetCollider() { return collider; }
     void Blocking(Collider* collider);
 
+    void PushCol(Cube* cube) { cubes.push_back(cube); }
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
 
     float GetCurAttackCoolTime();
