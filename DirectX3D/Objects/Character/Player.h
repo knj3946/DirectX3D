@@ -6,6 +6,7 @@ private:
     {
         IDLE, 
         RUN_F, RUN_B, RUN_L, RUN_R, 
+        RUN_DL, RUN_DR,
         JUMP1, JUMP2, JUMP3, 
         TO_COVER, C_IDLE, C_R, C_L, TO_STAND
     };
@@ -22,7 +23,11 @@ public:
     Ray GetRay() { return ray; }
     void Wall(BoxCollider* other);
 
+    Vector3 GetVelocity() { return velocity; }
+    CapsuleCollider* GetCollider() { return collider; }
+
     void ResetTarget(Collider* collider, Contact contact) { targetObject = collider; this->contact = contact;  }
+
 
 private:
     void Control();
@@ -54,7 +59,7 @@ private:
 
     float moveSpeed = 200;
     float rotSpeed = 1;
-    float deceleration = 5; //감속
+    float deceleration = 10; //감속
     
     float jumpVel = 0;
     int jumpN = 0;
@@ -76,9 +81,14 @@ private:
 
     Collider* targetObject;
     Contact contact;
-    Transform* tempTransform;
+    Transform* targetTransform;
 
     bool toCover = false;
 
     float teleport = 110.000f;
+
+    bool w = true;
+    bool s = true;
+    bool a = true;
+    bool d = true;
 };

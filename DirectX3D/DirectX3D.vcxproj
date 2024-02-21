@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Manager\ColliderManager.h" />
     <ClInclude Include="Framework\Model\ColliderModel.h" />
     <ClInclude Include="Framework\Shader\DomainShader.h" />
     <ClInclude Include="Framework\Shader\HullShader.h" />
@@ -266,6 +267,7 @@
     <ClInclude Include="Scenes\TestNpcScene.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Manager\ColliderManager.cpp" />
     <ClCompile Include="Framework\Model\ColliderModel.cpp" />
     <ClCompile Include="Framework\Shader\DomainShader.cpp" />
     <ClCompile Include="Framework\Shader\HullShader.cpp" />

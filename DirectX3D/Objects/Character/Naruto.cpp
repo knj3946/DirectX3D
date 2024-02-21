@@ -13,17 +13,20 @@ Naruto::Naruto()
 
     mainHand = new Transform();
     tmpCollider = new SphereCollider();
-    tmpCollider->Scale() *= 0.1; // 임시로 10% 크기
+    tmpCollider->Scale() *= 10; // 임시로 10% 크기
     tmpCollider->SetParent(mainHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
+    tmpCollider->SetActive(true);
+
+    weaponColliders.push_back(tmpCollider);
 
     crosshair = new Quad(L"Textures/UI/cursor.png");
     crosshair->Pos() = { CENTER_X, CENTER_Y, 0 };
     crosshair->UpdateWorld();
-    Audio::Get()->Add("PlayerWalk", "Sounds/footstep.wav",false,false,true);
+    Audio::Get()->Add("PlayerWalk", "Sounds/footstep.wav", false, false, true);
 
     ReadClip("Idle");
     ReadClip("Run");
-    ReadClip("RunBack");  
+    ReadClip("RunBack");
     ReadClip("RunLeft");
     ReadClip("RunRight");
     ReadClip("Throw");
@@ -36,11 +39,21 @@ Naruto::Naruto()
     //GetClip(THROW)->SetEvent(bind(&Naruto::Throw, this), 1.0f / 33.0f * 스킬계수);
     GetClip(THROW)->SetEvent(bind(&Naruto::Throw, this), 0.7f);
     GetClip(THROW)->SetEvent(bind(&Naruto::EndThrow, this), 0.9f);
+
+
+    // hp UI
+    hpBar = new ProgressBar(L"Textures/UI/hp_bar.png", L"Textures/UI/hp_bar_BG.png");
+    hpBar->Scale() *= 0.6f;
+    hpBar->SetAmount(curHP / maxHp);
 }
 
 Naruto::~Naruto()
 {
-    delete mainHand;
+    for (Collider* collider : weaponColliders)
+    {
+        delete collider;
+    }
+    delete collider;
     delete kunai;
 }
 
@@ -59,13 +72,14 @@ void Naruto::Update()
 
    // UpdateRay();
     tmpCollider->UpdateWorld(); //오른손을 따라가는 중인 충돌체 업데이트
-                                //모델부터 업데이트를 해두면 정보 받기에 유리
+    //모델부터 업데이트를 해두면 정보 받기에 유리
 
-    ///-----------------------------
+///-----------------------------
 
-    //TODO : 쿠나이가 공격 중에는 앞으로 나아가게
-    //       (공격 중이 아닐 때는 사라지게)
+//TODO : 쿠나이가 공격 중에는 앞으로 나아가게
+//       (공격 중이 아닐 때는 사라지게)
     collider->UpdateWorld(); //충돌체 업데이트
+    UpdateUI();
 }
 
 void Naruto::Render()
@@ -78,16 +92,43 @@ void Naruto::Render()
 void Naruto::PostRender()
 {
     crosshair->Render();
+    hpBar->Render();
 }
 
 void Naruto::GUIRender()
 {
     Model::GUIRender(); // 모델로서 GUI 렌더
-                        // (나루토 안에는 애니메이터가, 애니메이터 안에는 모델이 있으니까)
-    ImGui::DragFloat("ray", &value,1.f,0.f,200.f);
+    // (나루토 안에는 애니메이터가, 애니메이터 안에는 모델이 있으니까)
 
+    tmpCollider->GUIRender();
+}
 
+void Naruto::UpdateUI()
+{
+    Vector3 barPos = Pos() + Vector3(0, 20, 0);
 
+    if (!CAM->ContainPoint(barPos))
+    {
+        hpBar->SetActive(false);
+        return;
+    }
+
+    if (!hpBar->Active()) hpBar->SetActive(true);
+    hpBar->Pos() = CAM->WorldToScreen(barPos);
+
+    if (isHit)
+    {
+        curHP -= DELTA * 30;
+
+        if (curHP <= destHP)
+        {
+            curHP = destHP;
+            isHit = false;
+        }
+        hpBar->SetAmount(curHP / maxHp);
+    }
+
+    hpBar->UpdateWorld();
 }
 
 void Naruto::Blocking(Collider* collider)
@@ -137,11 +178,28 @@ void Naruto::Blocking(Collider* collider)
 
         dir.y = 0;
 
-        if (NearlyEqual(dir.y, 1.0f)) return; 
+        if (NearlyEqual(dir.y, 1.0f)) return;
 
         this->Pos() += dir * 50.0f * DELTA;
 
     }
+}
+
+float Naruto::GetCurAttackCoolTime()
+{
+    return curAttackCoolTime;
+}
+
+void Naruto::SetAttackCoolDown()
+{
+    curAttackCoolTime = attackCoolTime; // 어택쿨타임
+}
+
+void Naruto::FillAttackCoolTime()
+{
+    curAttackCoolTime -= DELTA;
+    if (curAttackCoolTime < 0)
+        curAttackCoolTime = 0;
 }
 
 void Naruto::Control()
@@ -190,10 +248,10 @@ void Naruto::Move()
 
     // 속력 기준 값의 x,z (평면상의 xy) 값을 판단해서 방향을 구한다
     if (velocity.Length() > 1) velocity.Normalize(); // 정규화를 풀면? -> 속력이 빨라지는 것뿐만 아니라
-                                                     // 대각선 입력에서 큰 가속이 일어나게 된다
+    // 대각선 입력에서 큰 가속이 일어나게 된다
     if (velocity.x != 0 || velocity.z != 0) {
         if (!Audio::Get()->IsPlaySound("PlayerWalk")) {
-            Audio::Get()->Play("PlayerWalk",GlobalPos());
+            Audio::Get()->Play("PlayerWalk", GlobalPos());
         }
     }
 
@@ -215,9 +273,9 @@ void Naruto::Move()
     // + 보간된 회전 벡터
     //....를 합쳐서 포지션에 주도록 한다
     Pos() += direction * moveSpeed * DELTA * -1; // 이동 수행
-                                                 // -1 : "뒤로 가기" -> 모델이 뒤집혀 있으니까.
+    // -1 : "뒤로 가기" -> 모델이 뒤집혀 있으니까.
 
-    // -> 델타 계산 대신 보간을 이용해서 이동 가능
+// -> 델타 계산 대신 보간을 이용해서 이동 가능
 }
 
 void Naruto::Rotate()

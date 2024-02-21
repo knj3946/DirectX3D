@@ -49,8 +49,9 @@ public:
 
     void AttackTarget();
 
-
-
+    float GetCurAttackCoolTime();
+    void SetAttackCoolDown();
+    void FillAttackCoolTime();
 private:
     void Control();
     void Move();
@@ -70,6 +71,9 @@ private:
     void CalculateEarSight();//귀
     void Detection();
     void SetRay(Vector3& _pos);
+
+    bool IsStartPos();
+
 private:
     Ray ray;// 레이
     Vector3 StorePos;// 소리난 곳 가기 전 위치 저장
@@ -81,6 +85,8 @@ private:
     State curState = IDLE;
 
     float moveSpeed = 25;
+    float runSpeed = 25;
+    float walkSpeed = 10;
     float rotSpeed = 10;
 
     Vector3 velocity;
@@ -106,7 +112,7 @@ private:
 
     UINT index;
 
-    Transform* root;
+    //Transform* root;
     Transform* transform;
     CapsuleCollider* collider;
 
@@ -118,10 +124,12 @@ private:
     Quad* questionMark;
     Quad* exclamationMark;
 
-    Transform* mainHand;
-    SphereCollider* tmpCollider;
+    Transform* leftHand;
+    Transform* rightHand;
+    CapsuleCollider* leftWeaponCollider;
+    CapsuleCollider* rightWeaponCollider;
 
-    float eyeSightRange = 40.f;
+    float eyeSightRange = 20.f;
     float eyeSightangle = 45.f;
     bool bDetection = false;
     bool bFind = false;
@@ -134,4 +142,11 @@ private:
 
     bool isTracking = false;
     float wateTime = 0;
+
+    bool IsAiCooldown = false;
+    float aiCoolTime = 2.0f;
+    bool isAIWaitCooldown = false;
+    float aiWaitCoolTime = 1.5f;
+    float curAttackCoolTime = 1.0f;
+    float attackCoolTime = 1.0f;
 };
