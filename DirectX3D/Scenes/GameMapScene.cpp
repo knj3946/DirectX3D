@@ -198,6 +198,8 @@ void GameMapScene::Update()
 			MonsterManager::Get()->Blocking(collider);
 		}
 	}
+
+	MonsterManager::Get()->Fight(static_cast<Naruto*>(player));
 }
 
 void GameMapScene::PreRender()
@@ -220,16 +222,22 @@ void GameMapScene::Render()
 
 void GameMapScene::PostRender()
 {
+	MonsterManager::Get()->PostRender();
+	static_cast<Naruto*>(player)->PostRender();
 }
 
 void GameMapScene::GUIRender()
 {
+	//static_cast<Naruto*>(player)->GUIRender();
+
 	for (ColliderModel* cm : colliderModels)
 	{
-		cm->GUIRender();
+		//cm->GUIRender();
 	}
 
-	CAM->GUIRender();
+	//CAM->GUIRender();
+
+	MonsterManager::Get()->GUIRender();
 }
 
 void GameMapScene::CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot, Vector3 mPos)

@@ -54,7 +54,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     questionMark->Scale() *= 0.1f;
 
     //aStar = new AStar(512, 512);
-    aStar = new AStar(10,10);
+    aStar = new AStar(64,64);
     aStar->SetNode();
 
 }
@@ -90,14 +90,21 @@ void Orc::Update()
 
     if (!collider->Active())return;
 
-    if (isTracking==false)
-        IdleAIMove();
+    if (isHit)
+    {
+        //맞는 중이면 다른동작 할 수 없음
+        wateTime = 0;
+    }
     else
     {
-        Control();
-        
-        switch (curState)
+        if (isTracking == false && path.empty())
+            IdleAIMove();
+        else
         {
+            Control();
+
+            switch (curState)
+            {
             case ATTACK:
             {
                 if (wateTime <= 0)
@@ -109,16 +116,10 @@ void Orc::Update()
             }
             default:
                 Move();
+            }
+            wateTime -= DELTA;
         }
-        wateTime -= DELTA;
     }
-
-    /*
-    if (collider->IsCapsuleCollision(targetCollider))
-    {
-        Hit();
-    }
-    */
 
     //root->SetWorld(instancing->GetTransformByNode(index, 3));
     transform->SetWorld(instancing->GetTransformByNode(index, 5));
@@ -169,23 +170,40 @@ void Orc::GUIRender()
     ImGui::Text("bFind : %d", bFind);
     ImGui::Text("bDetection : %d", bDetection);
     ImGui::Text("isTracking : %d", isTracking);
+
+    if (!path.empty())
+    {
+        ImGui::Text("path.x : %f", path.back().x);
+        ImGui::Text("path.y : %f", path.back().y);
+        ImGui::Text("path.z : %f", path.back().z);
+
+        ImGui::Text("start.x : %f", startPos.x);
+        ImGui::Text("start.y : %f", startPos.y);
+        ImGui::Text("start.z : %f", startPos.z);
+    }
+    
 }
 
 void Orc::Hit()
 {
-    isHit = true;
-
-    destHP = (curHP - 30 > 0) ? curHP - 30 : 0;
-
-    collider->SetActive(false);
-    if (destHP<=0)
+    if (!isHit)
     {
-        SetState(DYING);
+        destHP = (curHP - 30 > 0) ? curHP - 30 : 0; //데미지 현재 고정 30
 
-        return;
+        collider->SetActive(false);
+        leftWeaponCollider->SetActive(false);
+        rightWeaponCollider->SetActive(false);
+        if (destHP <= 0)
+        {
+            SetState(DYING);
+
+            return;
+        }
+
+        SetState(HIT);
+
+        isHit = true;
     }
-
-    SetState(HIT);
     //// 아직 안 죽었으면 산 로봇답게 맞는 동작 수행
     //curState = HIT;
     //instancing->PlayClip(index, HIT);
@@ -216,6 +234,23 @@ void Orc::AttackTarget()
     }
 }
 
+float Orc::GetCurAttackCoolTime()
+{
+    return curAttackCoolTime;
+}
+
+void Orc::SetAttackCoolDown()
+{
+    curAttackCoolTime = attackCoolTime; // 어택쿨타임
+}
+
+void Orc::FillAttackCoolTime()
+{
+    curAttackCoolTime -= DELTA;
+    if (curAttackCoolTime < 0)
+        curAttackCoolTime = 0;
+}
+
 void Orc::Control()
 {
     if (searchCoolDown > 1)
@@ -234,7 +269,7 @@ void Orc::Control()
 
                     if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
                     {
-                        SetPath(target->Pos()); // 구체적인 경로 내어서 가기
+                        SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
                     }
                     else
                     {
@@ -279,11 +314,18 @@ void Orc::Control()
             }
             else
             {
+                if (!missTargetTrigger)
+                {
+                    path.clear();
+                    missTargetTrigger = true;
+                    DetectionStartTime = 2.0f;
+                }
+
                 //path.clear();
 
                 if (aStar->IsCollisionObstacle(transform->GlobalPos(), startPos))// 중간에 장애물이 있으면
                 {
-                    SetPath(startPos);
+                    SetPath(startPos); // 구체적인 경로 내어서 가기
                 }
                 else
                 {
@@ -294,6 +336,7 @@ void Orc::Control()
                 if (IsStartPos())
                 {
                     isTracking = false;
+                    SetState(IDLE);
                     path.clear();
                 }
             }
@@ -452,6 +495,26 @@ void Orc::UpdateUI()
         }
     }
 
+    if (isHit)
+    {
+        curHP -= DELTA * 30 * 2;
+
+        if (curHP <= destHP)
+        {
+            curHP = destHP;
+            isHit = false;
+
+            collider->SetActive(true);
+            leftWeaponCollider->SetActive(true);
+            rightWeaponCollider->SetActive(true);
+
+            SetState(ATTACK); // 맞은 다음에 일단은 공격상태로 돌아가게 만듬 (나중에 수정 필요할 수도)
+        }
+        hpBar->SetAmount(curHP / maxHp);
+    }
+
+    hpBar->UpdateWorld();
+
     if (!CAM->ContainPoint(barPos))
     {
         hpBar->SetActive(false);
@@ -460,20 +523,7 @@ void Orc::UpdateUI()
 
     if (!hpBar->Active()) hpBar->SetActive(true);
     hpBar->Pos() = CAM->WorldToScreen(barPos);
-    
-    if (isHit)
-    {
-        curHP -= DELTA*30;
 
-        if (curHP <= destHP)
-        {
-            curHP = destHP;
-            isHit = false;
-        }
-        hpBar->SetAmount(curHP / maxHp);
-    }
-    
-    hpBar->UpdateWorld();
 }
 
 

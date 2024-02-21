@@ -12,6 +12,7 @@ public:
     void Update();
     void Render();
     void PostRender();
+    void GUIRender();
 
     void SetTarget(Transform* target);
 
@@ -23,6 +24,8 @@ public:
     void SetTerrain(LevelData* terrain);
 
     void Blocking(Collider* collider);
+
+    void Fight(Naruto* player); //임시로 나루토로 지정
 private:
     void Collision();
 

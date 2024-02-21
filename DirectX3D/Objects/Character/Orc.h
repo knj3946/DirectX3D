@@ -49,8 +49,9 @@ public:
 
     void AttackTarget();
 
-
-
+    float GetCurAttackCoolTime();
+    void SetAttackCoolDown();
+    void FillAttackCoolTime();
 private:
     void Control();
     void Move();
@@ -128,7 +129,7 @@ private:
     CapsuleCollider* leftWeaponCollider;
     CapsuleCollider* rightWeaponCollider;
 
-    float eyeSightRange = 60.f;
+    float eyeSightRange = 20.f;
     float eyeSightangle = 45.f;
     bool bDetection = false;
     bool bFind = false;
@@ -146,4 +147,6 @@ private:
     float aiCoolTime = 2.0f;
     bool isAIWaitCooldown = false;
     float aiWaitCoolTime = 1.5f;
+    float curAttackCoolTime = 1.0f;
+    float attackCoolTime = 1.0f;
 };
