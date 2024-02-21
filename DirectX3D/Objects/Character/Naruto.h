@@ -83,5 +83,6 @@ private:
 
     float curAttackCoolTime = 1.0f;
     float attackCoolTime = 2.0f;
+    float value;
 };
 
