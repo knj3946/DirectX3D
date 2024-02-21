@@ -15,6 +15,8 @@ public:
     ~Naruto();
 
     void Update();
+
+ 
     void Render();
     void PostRender();
     void GUIRender();
@@ -26,6 +28,7 @@ public:
     Collider* GetCollider() { return collider; }
     void Blocking(Collider* collider);
 
+    void PushCol(Cube* cube) { cubes.push_back(cube); }
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
 
     float GetCurAttackCoolTime();
@@ -43,8 +46,12 @@ private:
 
     void Throw();
     void EndThrow();
+    void MouseDirection();
 
+
+   
 private:
+    vector<Cube*> cubes;
 
     Transform* mainHand; //주로 쓰는 손, 나루토의 경우 오른손
 
@@ -77,5 +84,6 @@ private:
 
     float curAttackCoolTime = 1.0f;
     float attackCoolTime = 2.0f;
+    float value;
 };
 
