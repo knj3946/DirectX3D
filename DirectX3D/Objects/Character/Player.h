@@ -23,10 +23,20 @@ public:
 
     Ray GetRay() { return straightRay; }
 
+    void SetMoveSpeed(float speed) { this->moveSpeed = speed; }
     Vector3 GetVelocity() { return velocity; }
     CapsuleCollider* GetCollider() { return collider; }
+    vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
 
     void ResetTarget(Collider* collider, Contact contact) { targetObject = collider; this->contact = contact;  }
+
+    float GetCurAttackCoolTime() { return curAttackCoolTime; }
+    void SetAttackCoolDown() { curAttackCoolTime = attackCoolTime; }  // 어택쿨타임
+    void FillAttackCoolTime() {
+        curAttackCoolTime -= DELTA;
+        if (curAttackCoolTime < 0)
+            curAttackCoolTime = 0;
+    }
 
 
 private:
@@ -77,6 +87,7 @@ private:
     float landing = 0.0f;
 
     CapsuleCollider* collider;
+    vector<Collider*> weaponColliders;
 
     Ray straightRay;
     Ray diagnolLRay;
@@ -92,4 +103,7 @@ private:
     bool s = true;
     bool a = true;
     bool d = true;
+
+    float curAttackCoolTime = 1.0f;
+    float attackCoolTime = 2.0f;
 };

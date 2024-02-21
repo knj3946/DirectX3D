@@ -173,6 +173,7 @@ void Orc::GUIRender()
     ImGui::Text("bDetection : %d", bDetection);
     ImGui::Text("isTracking : %d", isTracking);
 
+    /*
     if (!path.empty())
     {
         ImGui::Text("path.x : %f", path.back().x);
@@ -185,7 +186,7 @@ void Orc::GUIRender()
 
         ImGui::Text("pathsize : %f", path.size());
     }
-    
+    */
 }
 
 void Orc::Hit()

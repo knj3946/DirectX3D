@@ -25,7 +25,7 @@ public:
 
     void Blocking(Collider* collider);
 
-    void Fight(Naruto* player); //임시로 나루토로 지정
+    void Fight(Player* player);
 
     void CalculateDistance();
     void PushPosition(Vector3 _pos) { vecDetectionPos.push_back(_pos); }

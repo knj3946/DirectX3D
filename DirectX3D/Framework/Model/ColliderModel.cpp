@@ -10,6 +10,11 @@ ColliderModel::ColliderModel(string name) : name(name)
 
 ColliderModel::~ColliderModel()
 {
+    for (Collider* collider : colliders)
+    {
+        delete collider;
+    }
+
     for (Material* material : materials)
         delete material;
 

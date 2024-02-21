@@ -196,9 +196,10 @@ void MonsterManager::Blocking(Collider* collider)
     
 }
 
-void MonsterManager::Fight(Naruto* player)
+void MonsterManager::Fight(Player* player)
 {
-    for (Collider* collider : static_cast<Naruto*>(player)->GetWeaponColliders())
+    
+    for (Collider* collider : player->GetWeaponColliders())
     {
         for (Orc* orc : orcs)
         {
@@ -219,7 +220,6 @@ void MonsterManager::Fight(Naruto* player)
         }
     }
 
-
 }
 
 void MonsterManager::CalculateDistance()
@@ -229,7 +229,7 @@ void MonsterManager::CalculateDistance()
         if (p->FindTarget()) continue;
         else {
             for (UINT i = 0; i < vecDetectionPos.size(); ++i) {
-                if (Distance(vecPos[i], p->GetTransform()->GlobalPos()) <= 500) {
+                if (Distance(vecDetectionPos[i], p->GetTransform()->GlobalPos()) <= 500) {
                     p->Findrange();
                 }
             }

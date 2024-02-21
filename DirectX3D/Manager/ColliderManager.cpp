@@ -14,6 +14,7 @@ bool ColliderManager::ControlPlayer(Vector3* dir)
 
 	for (Collider* collider : obstacles)
 	{
+		
 		if(collider->PushCollision(playerCollider))
 			return false;
 
@@ -39,6 +40,8 @@ bool ColliderManager::ControlPlayer(Vector3* dir)
 			//	collider.
 			//}
 		}
+
+		
 	}
 
 	return true;

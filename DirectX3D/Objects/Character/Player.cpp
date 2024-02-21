@@ -72,8 +72,11 @@
 Player::Player()
     : ModelAnimator("akai")
 {
-    CAM->Pos() = { -309.720, 742.889, -247.274 };
-    CAM->Rot() = { 75, 90, 0 };
+    ClientToScreen(hWnd, &clientCenterPos);
+    SetCursorPos(clientCenterPos.x, clientCenterPos.y);
+
+    //CAM->Pos() = { -309.720, 742.889, -247.274 };
+    //CAM->Rot() = { 75, 90, 0 };
 
     targetTransform = new Transform();
     //straightRay = Ray(Pos(), Back());
@@ -231,14 +234,14 @@ void Player::Move() //이동 관련(기본 이동, 암살 이동, 착지 후 이동제한, 특정 행�
 void Player::Rotate()
 {
     ////아래 코드 때문에 중간으로 고정된 커서가 다시 움직이면서 델타 생성
-    //Vector3 delta = mousePos - Vector3(CENTER_X, CENTER_Y);
+    Vector3 delta = mousePos - Vector3(CENTER_X, CENTER_Y);
     //// 마우스가 움직일 때마다 위치를 중간으로 고정
-    //SetCursorPos(clientCenterPos.x, clientCenterPos.y);
+    SetCursorPos(clientCenterPos.x, clientCenterPos.y);
     //// -> 혹시 위 두 줄이 조작 시에 잘 안 된다면 CENTER_XY와 clinetCenterPos 표시를 바꿔보면 될지도
 
     ////델타에 의한 캐릭터와 카메라 양쪽을 모두 회전
-    //Rot().y += delta.x * rotSpeed * DELTA; // 캐릭터 좌우회전 (추적 중이라 카메라도 따라갈 것)
-    //CAM->Rot().x -= delta.y * rotSpeed * DELTA; // 카메라 상하회전
+    Rot().y += delta.x * rotSpeed * DELTA; // 캐릭터 좌우회전 (추적 중이라 카메라도 따라갈 것)
+    CAM->Rot().x -= delta.y * rotSpeed * DELTA; // 카메라 상하회전
     
     if (KEY_PRESS('Q'))
         Rot().y -= DELTA * 2;
