@@ -26,6 +26,11 @@ public:
     void Blocking(Collider* collider);
 
     void Fight(Naruto* player); //임시로 나루토로 지정
+
+    void CalculateDistance();
+    void PushPosition(Vector3 _pos) { vecDetectionPos.push_back(_pos); }
+
+
 private:
     void Collision();
 
@@ -41,5 +46,10 @@ private:
     Transform* target;
 
     float time = 0;
+
+
+    vector<Vector3> vecDetectionPos;// 타겟을 탐지한애들 위치 모으기
+
+
 };
 

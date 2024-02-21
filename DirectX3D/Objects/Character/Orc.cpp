@@ -409,6 +409,20 @@ void Orc::Move()
 
         //transform->Pos() += velocity.GetNormalized() * speed * DELTA;
         transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI; // XY좌표 방향 + 전후반전(문워크 방지)
+        float value = XMConvertToDegrees(transform->Rot().y);
+
+        if (value > 180.f) {
+            value -= 180.f;
+            value = -180.f + value;
+            transform->Rot().y = XMConvertToRadians(value);
+
+        }
+        if (value < -180.f) {
+            value += 180.f;
+            value = 180.f + value;
+            transform->Rot().y = XMConvertToRadians(value);
+
+        }
     }
 }
 
@@ -594,7 +608,7 @@ void Orc::SetPath(Vector3 targetPos)
 
 void Orc::SetEvent(int clip, Event event, float timeRatio)
 {
-    if (totalEvent[clip].count(timeRatio) > 0) return; // 선행 예약된 이벤트가 있으면 종료
+    if (totalEvent[clip].count(timeRatio) > 0) return; // 선행 예약된 이벤트가 있으면 종료    
     totalEvent[clip][timeRatio] = event;
 }
 
@@ -650,11 +664,7 @@ void Orc::CalculateEyeSight()
     float leftdir1 = (180.f - eyeSightangle) + degree;
 
 
-    if (leftdir1 < 0) {
-        leftdir1 += 360;
-        rightdir1 += 360;
-        breverse = true;
-    }
+ 
 
     /*
         -135    135
@@ -673,7 +683,7 @@ void Orc::CalculateEyeSight()
 
     if (Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange) {
 
-        if (!breverse)
+        
             if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
                 //발각
             //    for (UINT i = 0; i < RobotManager::Get()->GetCollider().size(); ++i) {
@@ -746,6 +756,31 @@ void Orc::CalculateEarSight()
 
 void Orc::Detection()
 {
+  //  if (NearFind) {
+  //      bFind = true;
+  //      bDetection = true;
+  //  }
+  //  else {
+  //      if (bDetection) {
+  //          DetectionStartTime += DELTA;
+  //      }
+  //      else {
+  //          if (DetectionStartTime > 0.f) {
+  //              DetectionStartTime -= DELTA;
+  //              if (DetectionStartTime <= 0.f) {
+  //                  DetectionStartTime = 0.f;
+  //              }
+  //          }
+  //      }
+  //      if (DetectionEndTime <= DetectionStartTime) {
+  //          bFind = true;
+  //          bSensor = true;
+  //          behaviorstate = NPC_BehaviorState::DETECT;
+  //          MonsterManager::Get()->PushPosition(transform->GlobalPos());
+  //          MonsterManager::Get()->CalculateDistance();
+  //      }
+  //  } 추후 논의
+
     if (bDetection) {
         DetectionStartTime += DELTA;
     }

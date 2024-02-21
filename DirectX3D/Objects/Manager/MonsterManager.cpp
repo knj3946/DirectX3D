@@ -66,6 +66,7 @@ void MonsterManager::Update()
         }
     }
         
+    vecDetectionPos.clear();
 }
 
 void MonsterManager::Render()
@@ -219,6 +220,21 @@ void MonsterManager::Fight(Naruto* player)
     }
 
 
+}
+
+void MonsterManager::CalculateDistance()
+{
+    for (auto p : orcs)
+    {
+        if (p->FindTarget()) continue;
+        else {
+            for (UINT i = 0; i < vecDetectionPos.size(); ++i) {
+                if (Distance(vecPos[i], p->GetTransform()->GlobalPos()) <= 500) {
+                    p->Findrange();
+                }
+            }
+        }
+    }
 }
 
 void MonsterManager::Collision()

@@ -35,6 +35,7 @@ public:
     void SetAttackCoolDown();
     void FillAttackCoolTime();
 
+    void PushCol(Cube* cube) { cubes.push_back(cube); }
 private:
     void Control();
     void Move();
@@ -47,6 +48,7 @@ private:
     void Throw();
     void EndThrow();
     void MouseDirection();
+
 
 
    

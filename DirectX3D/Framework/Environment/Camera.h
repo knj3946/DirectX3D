@@ -17,6 +17,7 @@ public:
     Vector3 WorldToScreen(Vector3 worldPos);
 
     Ray ScreenPointToRay(Vector3 screenPoint);
+    Vector3 ScreenPointToRayDir(Vector3 screenPoint);
 
     void LookAtTarget();
 
@@ -44,6 +45,8 @@ private:
     float rotSpeed = 10.0f;
 
     Vector3 prevMousePos;
+
+
 
     Transform* target = nullptr;    
 

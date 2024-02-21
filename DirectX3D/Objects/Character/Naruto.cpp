@@ -101,6 +101,9 @@ void Naruto::GUIRender()
     // (나루토 안에는 애니메이터가, 애니메이터 안에는 모델이 있으니까)
 
     tmpCollider->GUIRender();
+
+
+    ImGui::DragFloat("Ray", &value, 1.f, 0.f, 200.f);
 }
 
 void Naruto::UpdateUI()
@@ -340,8 +343,9 @@ void Naruto::EndThrow()
 void Naruto::MouseDirection()
 {
     Ray ray;
+    
     ray.pos = GlobalPos();
-    ray.dir = Back();
+    ray.dir = CAM->ScreenPointToRayDir(mousePos);
     Contact contact;
     value=200;
     for (UINT i = 0; i < 2; ++i) {
