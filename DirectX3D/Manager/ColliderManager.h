@@ -11,7 +11,7 @@ public:
     void SetPlayer(Player* player, CapsuleCollider* playerCollider) { this->player = player; this->playerCollider = playerCollider; }
     void SetObstacles(Collider* obstacle) { obstacles.push_back(obstacle); }
 
-    void ControlPlayer(Vector3* dir);
+    bool ControlPlayer(Vector3* dir);
 
 private:
     Player* player;

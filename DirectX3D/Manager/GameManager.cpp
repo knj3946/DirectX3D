@@ -22,6 +22,7 @@
 #include "Scenes/GameMapScene.h"
 #include "Scenes/TestNpcScene.h"
 #include "Scenes/PlayerScene.h"
+#include "Scenes/PlayerMapScene.h"
 
 GameManager::GameManager()
 {
@@ -48,8 +49,9 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("Human", new HumanScene());
     //SceneManager::Get()->Create("QuadTree", new QuadTreeScene());
     //SceneManager::Get()->Create("GameMap", new GameMapScene());
-    SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
-    //SceneManager::Get()->Create("Player", new PlayerScene());
+    //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
+    SceneManager::Get()->Create("Player", new PlayerScene());
+    //SceneManager::Get()->Create("PlayerMap", new PlayerMapScene());
 
     SceneManager::Get()->Add("Grid");
     //SceneManager::Get()->Add("Cube");
@@ -71,8 +73,9 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("Human");
     //SceneManager::Get()->Add("QuadTree");
     //SceneManager::Get()->Add("GameMap");
-    SceneManager::Get()->Add("TestNpcScene");
-    //SceneManager::Get()->Add("Player");
+    //SceneManager::Get()->Add("TestNpcScene");
+    SceneManager::Get()->Add("Player");
+    //SceneManager::Get()->Add("PlayerMap");
 }
 
 GameManager::~GameManager()
