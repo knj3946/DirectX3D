@@ -70,6 +70,7 @@ void Naruto::Update()
 
     ModelAnimator::Update(); //모델 업데이트
 
+   // UpdateRay();
     tmpCollider->UpdateWorld(); //오른손을 따라가는 중인 충돌체 업데이트
     //모델부터 업데이트를 해두면 정보 받기에 유리
 
@@ -204,8 +205,10 @@ void Naruto::FillAttackCoolTime()
 void Naruto::Control()
 {
     Rotate();
+    MouseDirection();
     Move();
     Attack();
+    
 }
 
 void Naruto::Move()
@@ -332,4 +335,23 @@ void Naruto::Throw()
 void Naruto::EndThrow()
 {
     SetState(IDLE); //다 던졌으므로 이전 동작 돌아가기
+}
+
+void Naruto::MouseDirection()
+{
+    Ray ray;
+    ray.pos = GlobalPos();
+    ray.dir = Back();
+    Contact contact;
+    value=200;
+    for (UINT i = 0; i < 2; ++i) {
+        if (cubes[i]->GetCollider()->IsRayCollision(ray, &contact)) {
+            if (contact.distance < value) {
+                value = contact.distance;
+            }
+
+        }
+    }
+
+
 }

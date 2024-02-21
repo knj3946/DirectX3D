@@ -37,7 +37,7 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("ModelRender", new ModelRenderScene());
     //SceneManager::Get()->Create("ModelAnimation", new ModelAnimationScene());
     //SceneManager::Get()->Create("Instancing", new IntancingScene());
-    //SceneManager::Get()->Create("Game", new GameScene());
+    SceneManager::Get()->Create("Game", new GameScene());
     ///SceneManager::Get()->Create("BillboardScene", new BillboardScene());
     //SceneManager::Get()->Create("RenderTarget", new RenderTargetScene());
     //SceneManager::Get()->Create("ShadowScene", new ShadowScene());
@@ -60,7 +60,7 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("ModelRender");
     //SceneManager::Get()->Add("ModelAnimation");
     //SceneManager::Get()->Add("Instancing");
-    //SceneManager::Get()->Add("Game");
+    SceneManager::Get()->Add("Game");
     //SceneManager::Get()->Add("BillboardScene");
     //SceneManager::Get()->Add("RenderTarget");
     //SceneManager::Get()->Add("ShadowScene");

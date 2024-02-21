@@ -22,6 +22,9 @@ private:
     SkyBox* skyBox;
     Model* background;
 
+    Cube* cube;
+    Cube* cube2;
+
     BlendState* blendState[2]; // 블렌드 상태 인스턴스 2개 만들기
                                // 블렌드 상태 클래스 : DX의 블렌드 상태 호출을 편하게 하기 위한 클래스
                                // 호출시, 기본 블렌드 설정에 의해 이미지에 기록된 배경색을
