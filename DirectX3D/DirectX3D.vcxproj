@@ -149,6 +149,7 @@
     <ClInclude Include="Objects\Character\Player.h" />
     <ClInclude Include="Objects\Manager\MonsterManager.h" />
     <ClInclude Include="Objects\Character\Orc.h" />
+    <ClInclude Include="Scenes\PlayerMapScene.h" />
     <ClInclude Include="Scenes\GameMapScene.h" />
     <ClInclude Include="Objects\Particle\ParticleSystem.h" />
     <ClInclude Include="Objects\Landscape\QuadTreeTerrain.h" />
@@ -274,6 +275,7 @@
     <ClCompile Include="Objects\Character\Player.cpp" />
     <ClCompile Include="Objects\Manager\MonsterManager.cpp" />
     <ClCompile Include="Objects\Character\Orc.cpp" />
+    <ClCompile Include="Scenes\PlayerMapScene.cpp" />
     <ClCompile Include="Scenes\GameMapScene.cpp" />
     <ClCompile Include="Objects\Particle\ParticleSystem.cpp" />
     <ClCompile Include="Objects\Landscape\QuadTreeTerrain.cpp" />

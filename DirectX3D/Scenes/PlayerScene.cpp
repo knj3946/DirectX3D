@@ -72,8 +72,8 @@ void PlayerScene::Update()
 			player->ResetTarget(collider, cont);
 			isSearching = true;
 		}
-		else
-			collider->SetColor({ 0, 0, 1, 0 });
+		//else
+			//collider->SetColor({ 0, 0, 1, 0 });
 	}
 	if(!isSearching)
 		player->ResetTarget(nullptr, cont);

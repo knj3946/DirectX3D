@@ -9,7 +9,29 @@ GameScene::GameScene()
     background->UpdateWorld();
 
     naruto = new Naruto();
-
+   
+    cube = new Cube;
+    cube->Scale().z *= 1000;
+    cube->Scale().x *= 100;
+    cube->Scale().y *= 1000;
+    cube->Pos().y += 500;
+    cube->Pos().x += 100;
+    cube->UpdateWorld();
+    cube->GetCollider()->UpdateWorld();
+    naruto->PushCol(cube);
+    cube2 = new Cube;
+    cube2->SetTag("cube2");
+    cube2->Scale().z *= 1000;
+    cube2->Scale().x *= 100;
+    cube2->Scale().y *= 1000;
+ 
+    cube2->Pos().y += 500;
+    cube2->Pos().x += 600;
+    cube2->Pos().z += 450;
+    cube2->Rot().y += XMConvertToRadians(90);
+    cube2->UpdateWorld();
+    cube2->GetCollider()->UpdateWorld();
+    naruto->PushCol(cube2);
     //// 로봇의 외형(만) 생성
     //robotInstancing = new ModelAnimatorInstancing("Robot");
     //robotInstancing->ReadClip("StandUp");
@@ -28,7 +50,7 @@ GameScene::GameScene()
     KunaiManager::Get(); // 아무것도 안 하는 의미없는 코드지만,
                          // 이 코드가 수행되면서 싱글턴이 생성된다는 것이 의의
     
-    RobotManager::Get()->SetTarget(naruto); //싱글턴 생성 후, 표적 설정까지
+   // RobotManager::Get()->SetTarget(naruto); //싱글턴 생성 후, 표적 설정까지
 
     CAM->SetTarget(naruto); //팔로우캠 + 추적대상 설정
     CAM->TargetOptionLoad("Naruto"); // 나루토에 맞춘 카메라 위치 설정 로드 (있으면 로드 없으면 그대로)
@@ -39,12 +61,12 @@ GameScene::GameScene()
     blendState[1]->AlphaToCoverage(true); // 알파 혹은 지정된 배경색을 외부 픽셀과 결합할 것인가
 
 
-    skyBox = new SkyBox(L"Textures/Landscape/BlueSky.dds");
+   // skyBox = new SkyBox(L"Textures/Landscape/BlueSky.dds");
 
-    building = new Model("building_V2");
+   // building = new Model("building_V2");
 
-    building->Scale() = { 100,100,100 };
-    building->Rot() = {XM_PIDIV2,0,0};
+  //  building->Scale() = { 100,100,100 };
+   // building->Rot() = {XM_PIDIV2,0,0};
     
 }
 
@@ -52,24 +74,28 @@ GameScene::~GameScene()
 {
     delete naruto;
     delete background;
-    delete skyBox;
+   // delete skyBox;
+    delete cube;
+    delete cube2;
 
     FOR(2)
         delete blendState[i];
 
     KunaiManager::Get()->Delete();
-    RobotManager::Get()->Delete();
+  //  RobotManager::Get()->Delete();
 }
 
 void GameScene::Update()
 {
     naruto->Update();
+    cube->Update();
+    cube2->Update();
     //robotInstancing->Update();
     //robot->Update();
-    building->UpdateWorld();
+  //  building->UpdateWorld();
 
     KunaiManager::Get()->Update();
-    RobotManager::Get()->Update();
+   // RobotManager::Get()->Update();
 }
 
 void GameScene::PreRender()
@@ -78,8 +104,9 @@ void GameScene::PreRender()
 
 void GameScene::Render()
 {
-    skyBox->Render();
-
+    //skyBox->Render();
+    cube->Render();
+    cube2->Render();
     blendState[1]->SetState(); // 상태 설정하기
     background->Render();      // 알파 적용된 상태에서 배경만 출력하기
     blendState[0]->SetState(); // 상태 복원하기
@@ -89,19 +116,22 @@ void GameScene::Render()
     //robot->Render();
     
     KunaiManager::Get()->Render();
-    RobotManager::Get()->Render();
+  //  RobotManager::Get()->Render();
 
-    building->Render();
+  //  building->Render();
 }
 
 void GameScene::PostRender()
 {
     naruto->PostRender();
-    RobotManager::Get()->PostRender();
+ //   RobotManager::Get()->PostRender();
 }
 
 void GameScene::GUIRender()
 {
-    skyBox->GUIRender();
-    building->GUIRender();
+  //  skyBox->GUIRender();
+    //building->GUIRender();
+    naruto->GUIRender();
+    cube->GUIRender();
+    cube2->GUIRender();
 }

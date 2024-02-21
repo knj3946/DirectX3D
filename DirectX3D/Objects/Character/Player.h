@@ -8,7 +8,8 @@ private:
         RUN_F, RUN_B, RUN_L, RUN_R, 
         RUN_DL, RUN_DR,
         JUMP1, JUMP2, JUMP3, 
-        TO_COVER, C_IDLE, C_R, C_L, TO_STAND
+        TO_COVER, C_IDLE, C_R, C_L, TO_STAND,
+        TO_ASSASIN
     };
 
 public:
@@ -20,8 +21,7 @@ public:
     void PostRender();
     void GUIRender();
 
-    Ray GetRay() { return ray; }
-    void Wall(BoxCollider* other);
+    Ray GetRay() { return straightRay; }
 
     Vector3 GetVelocity() { return velocity; }
     CapsuleCollider* GetCollider() { return collider; }
@@ -37,9 +37,10 @@ private:
     void Walking();
     void Attack();
     void Jump();
+    void AfterJumpAnimation();
     void Jumping();
-    void EndJump();
     void Cover();
+    void Assasination();
 
     void SetAnimation();
     void SetState(State state);
@@ -77,13 +78,13 @@ private:
 
     CapsuleCollider* collider;
 
-    Ray ray;
+    Ray straightRay;
+    Ray diagnolLRay;
+    Ray diagnolRRay;
 
     Collider* targetObject;
     Contact contact;
     Transform* targetTransform;
-
-    bool toCover = false;
 
     float teleport = 110.000f;
 

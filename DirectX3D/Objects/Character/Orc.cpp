@@ -54,8 +54,8 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     questionMark->Scale() *= 0.1f;
 
     //aStar = new AStar(512, 512);
-    aStar = new AStar(64,64);
-    aStar->SetNode();
+    aStar = new AStar(128,128);
+    //aStar->SetNode();
 
 }
 
@@ -138,6 +138,8 @@ void Orc::Render()
     collider->Render();
     leftWeaponCollider->Render();
     rightWeaponCollider->Render();
+
+    //aStar->Render();
 }
 
 void Orc::PostRender()
@@ -180,6 +182,8 @@ void Orc::GUIRender()
         ImGui::Text("start.x : %f", startPos.x);
         ImGui::Text("start.y : %f", startPos.y);
         ImGui::Text("start.z : %f", startPos.z);
+
+        ImGui::Text("pathsize : %f", path.size());
     }
     
 }
@@ -266,7 +270,6 @@ void Orc::Control()
                 // 공격 사정거리안에 들지 못하면
                 if (dist.Length() > 5.0f)
                 {
-
                     if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
                     {
                         SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
@@ -276,6 +279,7 @@ void Orc::Control()
                         path.clear(); // 굳이 장애물없는데 길찾기 필요 x
                         path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
                     }
+
                     //Move();
                 }
                 else
@@ -316,13 +320,14 @@ void Orc::Control()
             {
                 if (!missTargetTrigger)
                 {
-                    path.clear();
                     missTargetTrigger = true;
                     DetectionStartTime = 2.0f;
+                    path.clear();
                 }
 
-                //path.clear();
 
+                //path.clear();
+                
                 if (aStar->IsCollisionObstacle(transform->GlobalPos(), startPos))// 중간에 장애물이 있으면
                 {
                     SetPath(startPos); // 구체적인 경로 내어서 가기
@@ -375,7 +380,7 @@ void Orc::Move()
     if (curState == DYING) return;
     if (velocity.Length() < 5) return;
     
-    if (path.size() > 0)
+    if (!path.empty())
     {
         // 가야할 곳이 있다
         SetState(RUN);  // 움직이기 + 달리는 동작 실행
@@ -393,7 +398,7 @@ void Orc::Move()
         direction.y = 0; // 필요하면 지형의높이 반영을 해줄 수도 있고,
         // 역시 필요하면 그냥 좌우회전만 하는걸로 (y방향 일부러 주지 않음)
 
-        if (direction.Length() < 0.5f)  // 대충 다 왔으면 (업데이트 호출 과정에서 계속 갱신)
+        if (direction.Length() < 0.1f)  // 대충 다 왔으면 (업데이트 호출 과정에서 계속 갱신)
         {
             path.pop_back(); // 다 온 목적지를 벡터에서 빼기
         }
@@ -404,6 +409,20 @@ void Orc::Move()
 
         //transform->Pos() += velocity.GetNormalized() * speed * DELTA;
         transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI; // XY좌표 방향 + 전후반전(문워크 방지)
+        float value = XMConvertToDegrees(transform->Rot().y);
+
+        if (value > 180.f) {
+            value -= 180.f;
+            value = -180.f + value;
+            transform->Rot().y = XMConvertToRadians(value);
+
+        }
+        if (value < -180.f) {
+            value += 180.f;
+            value = 180.f + value;
+            transform->Rot().y = XMConvertToRadians(value);
+
+        }
     }
 }
 
@@ -549,7 +568,7 @@ void Orc::SetPath(Vector3 targetPos)
     int endIndex = aStar->FindCloseNode(targetPos); // 헤더에서(+업데이트에서) 정해진 목적지
 
     aStar->GetPath(startIndex, endIndex, path); // 길을 낸 다음 path 벡터에 저장
-
+    
     aStar->MakeDirectionPath(transform->GlobalPos(), targetPos, path); // 장애물을 지우고 path에 덮어씌우기
 
     UINT pathSize = path.size(); // 처음 나온 경로 벡터 크기를 저장
@@ -589,7 +608,7 @@ void Orc::SetPath(Vector3 targetPos)
 
 void Orc::SetEvent(int clip, Event event, float timeRatio)
 {
-    if (totalEvent[clip].count(timeRatio) > 0) return; // 선행 예약된 이벤트가 있으면 종료
+    if (totalEvent[clip].count(timeRatio) > 0) return; // 선행 예약된 이벤트가 있으면 종료    
     totalEvent[clip][timeRatio] = event;
 }
 
@@ -645,11 +664,7 @@ void Orc::CalculateEyeSight()
     float leftdir1 = (180.f - eyeSightangle) + degree;
 
 
-    if (leftdir1 < 0) {
-        leftdir1 += 360;
-        rightdir1 += 360;
-        breverse = true;
-    }
+ 
 
     /*
         -135    135
@@ -668,7 +683,7 @@ void Orc::CalculateEyeSight()
 
     if (Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange) {
 
-        if (!breverse)
+        
             if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
                 //발각
             //    for (UINT i = 0; i < RobotManager::Get()->GetCollider().size(); ++i) {
@@ -741,6 +756,31 @@ void Orc::CalculateEarSight()
 
 void Orc::Detection()
 {
+  //  if (NearFind) {
+  //      bFind = true;
+  //      bDetection = true;
+  //  }
+  //  else {
+  //      if (bDetection) {
+  //          DetectionStartTime += DELTA;
+  //      }
+  //      else {
+  //          if (DetectionStartTime > 0.f) {
+  //              DetectionStartTime -= DELTA;
+  //              if (DetectionStartTime <= 0.f) {
+  //                  DetectionStartTime = 0.f;
+  //              }
+  //          }
+  //      }
+  //      if (DetectionEndTime <= DetectionStartTime) {
+  //          bFind = true;
+  //          bSensor = true;
+  //          behaviorstate = NPC_BehaviorState::DETECT;
+  //          MonsterManager::Get()->PushPosition(transform->GlobalPos());
+  //          MonsterManager::Get()->CalculateDistance();
+  //      }
+  //  } 추후 논의
+
     if (bDetection) {
         DetectionStartTime += DELTA;
     }
