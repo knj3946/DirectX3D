@@ -6,14 +6,14 @@ PlayerScene::PlayerScene()
 	ColliderManager::Get();
 
 	box1 = new BoxCollider();
-	box1->Pos() = { 0, 0, -500 };
+	box1->Pos() = { 0, 0, -50 };
 	box1->Scale().x *= 1000;
 	box1->Scale().z *= 100;
-	box1->Scale().y *= 200;
+	box1->Scale().y *= 10;
 	box1->SetTag("1");
 
 	box2 = new BoxCollider();
-	box2->Pos() = { 0, 0, -1000 };
+	box2->Pos() = { 0, 0, -100 };
 	box2->Scale().x *= 500;
 	box2->Scale().z *= 100;
 	box2->Scale().y *= 1000;
@@ -32,7 +32,7 @@ PlayerScene::PlayerScene()
 	colliders.push_back(box1);
 	colliders.push_back(box2);
 
-	ColliderManager::Get()->SetPlayer(player, player->GetCollider());
+	ColliderManager::Get()->SetPlayer(player);
 	ColliderManager::Get()->SetObstacles(box1);
 	ColliderManager::Get()->SetObstacles(box2);
 }

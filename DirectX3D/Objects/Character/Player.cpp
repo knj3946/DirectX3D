@@ -80,8 +80,12 @@ Player::Player()
     ClientToScreen(hWnd, &clientCenterPos);
     SetCursorPos(clientCenterPos.x, clientCenterPos.y);
 
-    collider = new CapsuleCollider(25.0f, 160);
+    collider = new CapsuleCollider(25.0f, 140);
     collider->SetParent(this);
+
+    footRay = new Ray();
+    footRay->pos = Pos();
+    footRay->dir = Pos().Down();
 
     ReadClip("Idle"); // 동작이 0뒤에 1까지 있음
 
@@ -123,8 +127,14 @@ Player::~Player()
 
 void Player::Update()
 {
-    collider->GlobalPos().y = collider->Height() / 2.0f + collider->Radius();
+    if (KEY_DOWN(VK_TAB))
+        camera = !camera;
+
+    collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
     collider->UpdateWorld();
+
+    footRay->pos = collider->GlobalPos();
+    footRay->dir = Down();
 
     Control();
     Searching();
@@ -172,7 +182,7 @@ void Player::GUIRender()
     ImGui::InputFloat("landingT", (float*)&landingT);
     ImGui::InputFloat("landing", (float*)&landing);
 
-    ImGui::InputFloat("teleport", (float*)&teleport);
+    ImGui::InputFloat("temp", (float*)&temp);
 }
 
 void Player::Control()
@@ -222,8 +232,9 @@ void Player::Move() //이동 관련(기본 이동, 암살 이동, 착지 후 이동제한, 특정 행�
 void Player::Rotate()
 {
     Vector3 delta = mousePos - Vector3(CENTER_X, CENTER_Y);
-
-    SetCursorPos(clientCenterPos.x, clientCenterPos.y);
+    
+    if(camera)
+        SetCursorPos(clientCenterPos.x, clientCenterPos.y);
 
     Rot().y += delta.x * rotSpeed * DELTA;
     CAM->Rot().x -= delta.y * rotSpeed * DELTA;
@@ -308,8 +319,6 @@ void Player::Jumping()
 {
     float tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
     float tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
-
-    float heightLevel = 0.0f;
 
     if (tempY <= heightLevel)
     {

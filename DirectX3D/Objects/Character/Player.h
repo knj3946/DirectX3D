@@ -21,11 +21,14 @@ public:
     void PostRender();
     void GUIRender();
 
-    Ray GetRay() { return straightRay; }
-
     void SetMoveSpeed(float speed) { this->moveSpeed = speed; }
+    void SetHeightLevel(float heightLevel) { this->heightLevel = heightLevel; }
+
     Vector3 GetVelocity() { return velocity; }
     CapsuleCollider* GetCollider() { return collider; }
+    Ray* GetFootRay() { return footRay; }
+    Ray GetRay() { return straightRay; }
+
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
 
     void ResetTarget(Collider* collider, Contact contact) { targetObject = collider; this->contact = contact; }
@@ -72,6 +75,8 @@ private:
     float rotSpeed = 0.3;
     float deceleration = 10; //°¨¼Ó
 
+    float heightLevel = 0.0f;
+
     float jumpVel = 0;
     int jumpN = 0;
     float nextJump = 0;
@@ -85,7 +90,7 @@ private:
 
     float landingT = 3.0f;
     float landing = 0.0f;
-
+        
     CapsuleCollider* collider;
     vector<Collider*> weaponColliders;
 
@@ -106,4 +111,9 @@ private:
 
     float curAttackCoolTime = 1.0f;
     float attackCoolTime = 2.0f;
+
+    float temp = 12.5f;
+    bool camera = true;
+
+    Ray* footRay;
 };
