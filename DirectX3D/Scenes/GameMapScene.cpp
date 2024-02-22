@@ -1,4 +1,4 @@
-#include "Framework.h"
+ï»¿#include "Framework.h"
 #include "GameMapScene.h"
 
 GameMapScene::GameMapScene()
@@ -7,9 +7,9 @@ GameMapScene::GameMapScene()
 
 	FOR(2)
 		blendState[i] = new BlendState();
-	blendState[1]->AlphaToCoverage(true); // ¾ËÆÄ È¤Àº ÁöÁ¤µÈ ¹è°æ»öÀ» ¿ÜºÎ ÇÈ¼¿°ú °áÇÕÇÒ °ÍÀÎ°¡
+	blendState[1]->AlphaToCoverage(true); // ï¿½ï¿½ï¿½ï¿½ È¤ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Üºï¿½ ï¿½È¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î°ï¿½
 
-	terrain = new TerrainEditor(256,256);
+	terrain = new TerrainEditor(256, 256);
 	terrain->GetMaterial()->SetDiffuseMap(L"Textures/Landscape/Sand.png");
 	terrain->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
 	terrain->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
@@ -109,11 +109,12 @@ GameMapScene::GameMapScene()
 
 
 
-	player = new Naruto();
+	player = new Player();
 	player->Scale() = { 0.03f,0.03f,0.03f };
 	player->Pos() = { 60,0,90 };
-	MonsterManager::Get()->SetTarget(player); //½Ì±ÛÅÏ »ý¼º ÈÄ, Ç¥Àû ¼³Á¤±îÁö
+	//player->SetTerrain(terrain);
 
+	MonsterManager::Get()->SetTarget(player); //ï¿½Ì±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½, Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(80, 0, 80));
 	MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(60, 0, 150));
 	MonsterManager::Get()->SetTerrain(terrain);
@@ -126,11 +127,21 @@ GameMapScene::GameMapScene()
 		}
 	}
 
-	static_cast<Naruto*>(player)->SetMoveSpeed(50);
+	//player->SetMoveSpeed(50);
 
 	CAM->SetTarget(player);
-	CAM->TargetOptionLoad("Naruto2");
+	CAM->TargetOptionLoad("GameMapScenePlayer");
 	CAM->LookAtTarget();
+
+	//ColliderManager::Get()->SetPlayer(player);
+
+	for (ColliderModel* colliderModel : colliderModels)
+	{
+		for (Collider* collider : colliderModel->GetColliders())
+		{
+			ColliderManager::Get()->SetObstacles(collider);
+		}
+	}
 }
 
 GameMapScene::~GameMapScene()
@@ -139,11 +150,11 @@ GameMapScene::~GameMapScene()
 	{
 		delete colliderModel;
 	}
-	
+
 	delete model;
 	delete terrain;
 	delete skyBox;
-	
+
 	FOR(2)
 		delete blendState[i];
 }
@@ -160,33 +171,33 @@ void GameMapScene::Update()
 
 	if (KEY_UP('1'))
 	{
-		if (Audio::Get()->IsPlaySound("bgm1")) // 1¹ø»ç¿îµå°¡ ÇÃ·¹ÀÌ ÁßÀÌ¶ó¸é
+		if (Audio::Get()->IsPlaySound("bgm1")) // 1ï¿½ï¿½ï¿½ï¿½ï¿½å°¡ ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¶ï¿½ï¿½
 		{
-			Audio::Get()->Stop("bgm1"); // ÇÃ·¹ÀÌ ÁßÁö
+			Audio::Get()->Stop("bgm1"); // ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		}
 		else
 		{
-			Audio::Get()->Play("bgm1", 2.0f); // 1¹ø»ç¿îµå ÇÃ·¹ÀÌ
+			Audio::Get()->Play("bgm1", 2.0f); // 1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½
 		}
 	}
 
-	if (KEY_UP('P')) 
+	if (KEY_UP('P'))
 	{
 		if (Audio::Get()->IsPlaySound("bgm1"))
 		{
-			Audio::Get()->Pause("bgm1"); // ÀÏ½ÃÁ¤Áö
+			Audio::Get()->Pause("bgm1"); // ï¿½Ï½ï¿½ï¿½ï¿½ï¿½ï¿½
 		}
 	}
 
-	if (KEY_UP('R')) 
+	if (KEY_UP('R'))
 	{
 		if (Audio::Get()->IsPlaySound("bgm1"))
 		{
-			Audio::Get()->Resume("bgm1"); // ÀÏ½ÃÁ¤ÁöµÈ ÁöÁ¡ºÎÅÍ ´Ù½Ã Àç»ý
+			Audio::Get()->Resume("bgm1"); // ï¿½Ï½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½
 		}
 	}
 
-	static_cast<Naruto*>(player)->Update();
+	player->Update();
 	MonsterManager::Get()->Update();
 
 
@@ -194,10 +205,11 @@ void GameMapScene::Update()
 	{
 		for (Collider* collider : colliderModel->GetColliders())
 		{
-			static_cast<Naruto*>(player)->Blocking(collider);
 			MonsterManager::Get()->Blocking(collider);
 		}
 	}
+
+	//MonsterManager::Get()->Fight(player);
 }
 
 void GameMapScene::PreRender()
@@ -214,22 +226,26 @@ void GameMapScene::Render()
 		cm->Render();
 	}
 
-	static_cast<Naruto*>(player)->Render();
+	player->Render();
 	MonsterManager::Get()->Render();
 }
 
 void GameMapScene::PostRender()
 {
+	MonsterManager::Get()->PostRender();
+	//player->PostRender();
 }
 
 void GameMapScene::GUIRender()
 {
+	player->GUIRender();
+
 	for (ColliderModel* cm : colliderModels)
 	{
-		cm->GUIRender();
+		//cm->GUIRender();
 	}
 
-	CAM->GUIRender();
+	MonsterManager::Get()->GUIRender();
 }
 
 void GameMapScene::CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot, Vector3 mPos)

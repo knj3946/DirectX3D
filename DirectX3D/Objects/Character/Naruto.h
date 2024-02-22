@@ -15,15 +15,27 @@ public:
     ~Naruto();
 
     void Update();
+
+ 
     void Render();
     void PostRender();
     void GUIRender();
+
+    void UpdateUI();
 
     void SetMoveSpeed(float speed) { this->moveSpeed = speed; }
 
     Collider* GetCollider() { return collider; }
     void Blocking(Collider* collider);
 
+    void PushCol(Cube* cube) { cubes.push_back(cube); }
+    vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
+
+    float GetCurAttackCoolTime();
+    void SetAttackCoolDown();
+    void FillAttackCoolTime();
+
+    //void PushCol(Cube* cube) { cubes.push_back(cube); }
 private:
     void Control();
     void Move();
@@ -35,14 +47,19 @@ private:
 
     void Throw();
     void EndThrow();
+    void MouseDirection();
 
+
+
+   
 private:
+    vector<Cube*> cubes;
 
     Transform* mainHand; //주로 쓰는 손, 나루토의 경우 오른손
-    
+
     SphereCollider* tmpCollider; //임시 충돌체
     CapsuleCollider* collider;
-    
+
     Model* kunai; // <-별도 아이템으로 제작 후 사용
 
     State curState = IDLE;
@@ -59,5 +76,16 @@ private:
     POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- 연산자는 샘플
 
     Quad* crosshair;
+
+    ProgressBar* hpBar;
+    float curHP = 100, maxHp = 100;
+    float destHP;
+    bool isHit = false;
+
+    vector<Collider*> weaponColliders;
+
+    float curAttackCoolTime = 1.0f;
+    float attackCoolTime = 2.0f;
+    float value;
 };
 

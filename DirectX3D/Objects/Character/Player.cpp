@@ -1,4 +1,4 @@
-//    if (KEY_DOWN(VK_SPACE) && canJump) {
+ï»¿//    if (KEY_DOWN(VK_SPACE) && canJump) {
 //        if (curState != JUMP1 && KEY_DOWN(VK_SPACE))
 //        {
 //            SetState(JUMP1);
@@ -24,7 +24,7 @@
 //    jumpVel -= 9.8f * gravityMult * DELTA;
 //    Pos().y += jumpVel * DELTA;
 //
-//    //float heightLevel = 0; // ±âÁØ ³ôÀÌ (ÇöÀç´Â 0)
+//    //float heightLevel = 0; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ 0)
 //    float heightLevel = BlockManager::Get()->GetHeight(Pos());
 //
 //    if (Pos().y < heightLevel) {
@@ -72,68 +72,79 @@
 Player::Player()
     : ModelAnimator("akai")
 {
-    tempTransform = new Transform();
-    ray = Ray(Pos(), Back());
+    targetTransform = new Transform();
+    //straightRay = Ray(Pos(), Back());
+
     //Scale() *= 0.1f;
-    // À©µµ¿ì ÇÚµé·¯ÀÇ Á¤º¸°ª(Áß À©µµ¿ì Å©±â)À» µÎ ¹øÂ° ¸Å°³º¯¼ö¿¡ ÀúÀå
-    //ClientToScreen(hWnd, &clientCenterPos);
-    //SetCursorPos(clientCenterPos.x, clientCenterPos.y);
-    collider = new CapsuleCollider(25.0f, 160);
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Úµé·¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½)ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Â° ï¿½Å°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    ClientToScreen(hWnd, &clientCenterPos);
+    SetCursorPos(clientCenterPos.x, clientCenterPos.y);
+
+    collider = new CapsuleCollider(25.0f, 140);
     collider->SetParent(this);
-    //collider->SetPivot({ 0, Pos().y + collider->Height() / 2.0f + collider->Radius(), 0 });
 
-    ReadClip("Idle"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
+    footRay = new Ray();
+    footRay->pos = Pos();
+    footRay->dir = Pos().Down();
+
+    ReadClip("Idle"); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0ï¿½Ú¿ï¿½ 1ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
     ReadClip("Medium Run");
-    ReadClip("Medium Run");
-    ReadClip("Medium Run");
-    ReadClip("Medium Run");
+    ReadClip("Running Backward");
+    ReadClip("Left Strafe");
+    ReadClip("Right Strafe");
 
-    ReadClip("Jumping"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
-    ReadClip("IntheSky"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
-    ReadClip("Falling To Landing"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
+    ReadClip("Jog Forward Diagonal Left");
+    ReadClip("Jog Forward Diagonal Right");
 
-    ReadClip("Stand To Cover"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
-    ReadClip("Cover Idle"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
-    ReadClip("Crouched Sneaking Right"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
-    ReadClip("Crouched Sneaking Left"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
-    ReadClip("Crouch Turn To Stand"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
+    ReadClip("Jumping"); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0ï¿½Ú¿ï¿½ 1ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    ReadClip("IntheSky"); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0ï¿½Ú¿ï¿½ 1ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    ReadClip("Falling To Landing"); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0ï¿½Ú¿ï¿½ 1ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-    GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.2f);  //Á¡ÇÁ½ÃÀÛ
-    GetClip(JUMP1)->SetEvent(bind(&Player::EndJump, this), 0.20001f);   //ÇÏ°­
+    ReadClip("Stand To Cover"); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0ï¿½Ú¿ï¿½ 1ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    ReadClip("Cover Idle"); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0ï¿½Ú¿ï¿½ 1ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    ReadClip("Crouched Sneaking Right"); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0ï¿½Ú¿ï¿½ 1ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    ReadClip("Crouched Sneaking Left"); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0ï¿½Ú¿ï¿½ 1ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    ReadClip("Crouch Turn To Stand"); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 0ï¿½Ú¿ï¿½ 1ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
-    GetClip(JUMP3)->SetEvent(bind(&Player::SetIdle, this), 0.0001f);   //ÂøÁö
+    GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.1f);  //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    GetClip(JUMP1)->SetEvent(bind(&Player::AfterJumpAnimation, this), 0.20001f);   //ï¿½Ï°ï¿½
 
-    GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.10f);   //¾öÆó
-    //GetClip(TO_COVER)->SetEvent(bind(&Player::Cover, this), 0.0001f);   //ÂøÁö
+    GetClip(JUMP3)->SetEvent(bind(&Player::SetIdle, this), 0.0001f);   //ï¿½ï¿½ï¿½ï¿½
+
+    GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //ï¿½ï¿½ï¿½ï¿½
+
+    //GetClip(TO_ASSASIN)->SetEvent(bind(&Player::Assasination, this), 0.01f);   //ï¿½Ï»ï¿½
+
+    computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
+    rayBuffer = new RayBuffer();
 }
 
 Player::~Player()
 {
     delete collider;
-    delete tempTransform;
+
+    delete targetTransform;
+    delete targetObject;
 }
 
 void Player::Update()
 {
+    if (KEY_DOWN(VK_TAB))
+        camera = !camera;
 
-    //if (Pos().y > highestY)
-    //    highestY = Pos().y;
-    collider->Pos().y = collider->Height()/2.0f + collider->Radius();
+    collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
     collider->UpdateWorld();
-    //collider->SetPivot({ 0, Pos().y + collider->Height() / 2.0f + collider->Radius(), 0 });
 
-    if(curState != TO_COVER || curState != C_IDLE)
-        Control();
+    footRay->pos = collider->GlobalPos();
+    footRay->dir = Down();
+
+    Control();
+    Searching();
 
     SetAnimation();
 
-    Searching();
-
-    ModelAnimator::Update(); //¸ðµ¨ ¾÷µ¥ÀÌÆ®
-
-    if(targetObject != nullptr)
-        targetObject->SetColor({ 1, 0, 0, 0 });
+    ModelAnimator::Update();
 }
 
 void Player::Render()
@@ -151,71 +162,105 @@ void Player::GUIRender()
     Model::GUIRender();
 
     ImGui::DragFloat3("Velocity", (float*)&velocity, 0.5f);
-    //¼Ó·Â
+    //ï¿½Ó·ï¿½
     ImGui::SliderFloat("moveSpeed", &moveSpeed, 10, 1000);
     ImGui::SliderFloat("rotSpeed", &rotSpeed, 1, 10);
     ImGui::SliderFloat("deceleration", &deceleration, 1, 10);
 
-    //Á¡ÇÁ Èû
-    ImGui::SliderFloat("force1", &force1, 100, 1000);
-    ImGui::SliderFloat("force2", &force2, 100, 1000);
-    ImGui::SliderFloat("force3", &force3, 100, 1000);
+    //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
+    ImGui::SliderFloat("force1", &force1, 1, 500);
+    ImGui::SliderFloat("force2", &force2, 1, 500);
+    ImGui::SliderFloat("force3", &force3, 1, 500);
 
-    ImGui::SliderFloat("jumpSpeed", &jumpSpeed, 1.0f, 3.0f);
-    //Áß·Â
-    ImGui::SliderFloat("gravityMult", &gravityMult, 100, 1000);
+    ImGui::SliderFloat("jumpSpeed", &jumpSpeed, 0.01f, 5.0f);
+    //ï¿½ß·ï¿½
+    ImGui::SliderFloat("gravityMult", &gravityMult, 1, 100);
 
-    //3´Ü Á¡ÇÁ ±¸Çö½Ã Á¶°Ç º¯¼ö
+    //3ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     ImGui::InputFloat("JumpVel", (float*)&jumpVel);
     ImGui::InputFloat("jumpN", (float*)&jumpVel);
     ImGui::InputFloat("nextJump", (float*)&nextJump);
 
-    //ÂøÁöÈÄ ºÎµ¿½Ã°£
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½Ã°ï¿½
     ImGui::InputFloat("landingT", (float*)&landingT);
     ImGui::InputFloat("landing", (float*)&landing);
 
-    ImGui::InputFloat("teleport", (float*)&teleport);
+    ImGui::InputFloat("temp", (float*)&temp);
+}
+
+void Player::SetTerrain(LevelData* terrain)
+{
+    this->terrain = terrain;
+
+    vector<VertexType> vertices = terrain->GetMesh()->GetVertices();
+    vector<UINT> indices = terrain->GetMesh()->GetIndices();
+
+    terrainTriangleSize = indices.size() / 3;
+
+    inputs.resize(terrainTriangleSize);
+    outputs.resize(terrainTriangleSize);
+
+    for (UINT i = 0; i < terrainTriangleSize; i++)
+    {
+        UINT index0 = indices[i * 3 + 0];
+        UINT index1 = indices[i * 3 + 1];
+        UINT index2 = indices[i * 3 + 2];
+
+        inputs[i].v0 = vertices[index0].pos;
+        inputs[i].v1 = vertices[index1].pos;
+        inputs[i].v2 = vertices[index2].pos;
+    }
+
+    structuredBuffer = new StructuredBuffer(
+        inputs.data(), sizeof(InputDesc), terrainTriangleSize,
+        sizeof(OutputDesc), terrainTriangleSize);
 }
 
 void Player::Control()
 {
-    Rotate();
-    if (!KEY_PRESS(VK_RBUTTON)) {
-        Move();
-        Attack();
-        Jumping();
-    }
+    if (KEY_PRESS(VK_RBUTTON))
+        return;
 
-    if(targetObject != nullptr && KEY_DOWN('F'))
+    Rotate();
+    Move();
+    Jumping();
+
+    if (targetObject != nullptr && KEY_DOWN('F'))
     {
         velocity = 0;
-        Cover();
+        SetState(TO_ASSASIN);
     }
 }
 
-void Player::Move()
+void Player::Move() //ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½(ï¿½âº» ï¿½Ìµï¿½, ï¿½Ï»ï¿½ ï¿½Ìµï¿½, ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ï¿½ï¿½, Æ¯ï¿½ï¿½ ï¿½àµ¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½)
 {
-    if (toCover) {
-        if (Distance(Pos(), tempTransform->Pos()) < teleport)
+    //ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ terrain ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½
+    Vector3 PlayerSkyPos = Pos();
+    PlayerSkyPos.y += 100;
+    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+    TerainComputePicking(feedBackPos, groundRay);
+
+    if (curState == JUMP3 && landing > 0.0f)    //ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ and ï¿½ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½
+    {
+        landing -= DELTA;
+        return;
+    }
+
+    if (curState == TO_COVER)    //ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ ï¿½Ìµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+    {
+        if (Distance(Pos(), targetTransform->Pos()) < teleport)
         {
             SetState(TO_COVER);
             return;
         }
-        Pos() += (tempTransform->Pos() - Pos()).GetNormalized() * DELTA * 400;
+        Pos() += (targetTransform->Pos() - Pos()).GetNormalized() * DELTA * 400;
         SetState(RUN_F);
-        return;
-    }
-
-    if (curState == JUMP3 && landing > 0.0f)    //ÂøÁöÈÄ ºÎµ¿ ½Ã°£ °¨¼Ò
-    {
-        landing -= DELTA;
         return;
     }
 
     if (KEY_DOWN(VK_SPACE) && !InTheAir())
     {
         SetState(JUMP1);
-        //Jump();
     }
 
     Walking();
@@ -223,16 +268,14 @@ void Player::Move()
 
 void Player::Rotate()
 {
-    ////¾Æ·¡ ÄÚµå ¶§¹®¿¡ Áß°£À¸·Î °íÁ¤µÈ Ä¿¼­°¡ ´Ù½Ã ¿òÁ÷ÀÌ¸é¼­ µ¨Å¸ »ý¼º
-    //Vector3 delta = mousePos - Vector3(CENTER_X, CENTER_Y);
-    //// ¸¶¿ì½º°¡ ¿òÁ÷ÀÏ ¶§¸¶´Ù À§Ä¡¸¦ Áß°£À¸·Î °íÁ¤
-    //SetCursorPos(clientCenterPos.x, clientCenterPos.y);
-    //// -> È¤½Ã À§ µÎ ÁÙÀÌ Á¶ÀÛ ½Ã¿¡ Àß ¾È µÈ´Ù¸é CENTER_XY¿Í clinetCenterPos Ç¥½Ã¸¦ ¹Ù²ãº¸¸é µÉÁöµµ
+    Vector3 delta = mousePos - Vector3(CENTER_X, CENTER_Y);
 
-    ////µ¨Å¸¿¡ ÀÇÇÑ Ä³¸¯ÅÍ¿Í Ä«¸Þ¶ó ¾çÂÊÀ» ¸ðµÎ È¸Àü
-    //Rot().y += delta.x * rotSpeed * DELTA; // Ä³¸¯ÅÍ ÁÂ¿ìÈ¸Àü (ÃßÀû ÁßÀÌ¶ó Ä«¸Þ¶óµµ µû¶ó°¥ °Í)
-    //CAM->Rot().x -= delta.y * rotSpeed * DELTA; // Ä«¸Þ¶ó »óÇÏÈ¸Àü
-    
+    if (camera)
+        SetCursorPos(clientCenterPos.x, clientCenterPos.y);
+
+    Rot().y += delta.x * rotSpeed * DELTA;
+    CAM->Rot().x -= delta.y * rotSpeed * DELTA;
+
     if (KEY_PRESS('Q'))
         Rot().y -= DELTA * 2;
     if (KEY_PRESS('E'))
@@ -241,52 +284,90 @@ void Player::Rotate()
 
 void Player::Walking()
 {
-    bool isMoveZ = false; // ÀüÈÄ ÀÌµ¿ Áß : ±âº»°ª "¾Æ´Ô"
-    bool isMoveX = false; // ÁÂ¿ì ÀÌµ¿ Áß : ±âº»°ª "¾Æ´Ô"
+    bool isMoveZ = false; // ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ : ï¿½âº»ï¿½ï¿½ "ï¿½Æ´ï¿½"
+    bool isMoveX = false; // ï¿½Â¿ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ : ï¿½âº»ï¿½ï¿½ "ï¿½Æ´ï¿½"
 
     if (KEY_PRESS('W'))
     {
-        velocity.z += DELTA; //¼Ó·Â ±âÁØ¿¡ ½Ã°£ °æ°ú¸¸Å­ ´©Àû°ª ÁÖ±â
-        isMoveZ = true; //ÀüÈÄ ÀÌµ¿ ÁßÀÓ
+        if (velocity.z + DELTA * 4.0f < 0.0f)
+            velocity.z += DELTA * 4.0f;
+        else
+            velocity.z += DELTA; //ï¿½Ó·ï¿½ ï¿½ï¿½ï¿½Ø¿ï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Å­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö±ï¿½
+
+        isMoveZ = true; //ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½
     }
 
     if (KEY_PRESS('S'))
     {
-        velocity.z -= DELTA;
+        if (velocity.z - DELTA * 4.0f > 0.0f)
+            velocity.z -= DELTA * 4.0f;
+        else
+            velocity.z -= DELTA;
+
         isMoveZ = true;
     }
 
     if (KEY_PRESS('A'))
     {
-        velocity.x -= DELTA;
+        if (velocity.x - DELTA * 4.0f > 0.0f)
+            velocity.x -= DELTA * 4.0f;
+        else
+            velocity.x -= DELTA;
+
         isMoveX = true;
     }
 
     if (KEY_PRESS('D'))
     {
-        velocity.x += DELTA;
+        if (velocity.x + DELTA * 4.0f < 0.0f)
+            velocity.x += DELTA * 4.0f;
+        else
+            velocity.x += DELTA; //ï¿½Ó·ï¿½ ï¿½ï¿½ï¿½Ø¿ï¿½ ï¿½Ã°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Å­ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö±ï¿½
+
         isMoveX = true;
     }
 
     if (velocity.Length() > 1) velocity.Normalize();
 
     if (!isMoveZ)
-        velocity.z = Lerp(velocity.z, 0, deceleration * DELTA); //º¸°£À¸·Î °¨¼Ó
+        velocity.z = Lerp(velocity.z, 0, deceleration * DELTA); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
     if (!isMoveX)
         velocity.x = Lerp(velocity.x, 0, deceleration * DELTA);
 
-    //Æ®·£½ºÆûÀÇ ¹æÇâ¿¡ ÀÇÇÑ È¸ÀüÁ¤º¸¸¦ ¸éÀûÀ¸·Î ¹Ù²Ù±â
     Matrix rotY = XMMatrixRotationY(Rot().y);
-    //¸éÀû(=±× ¸éÀû¿¡¼­ ³ª¿Â ¼öÁ÷¼±)À¸·Î µÈ È¸Àü Á¤º¸¿Í ¼Ó·Â ±âÁØÀ» ÇÕÃÄ¼­ ¸¸µç ¹æÇâ
-    //=ÇöÀç È¸Àü »óÈ²¿¡¼­ ¼Ó·Â ±âÁØÀ¸·Î ÇâÇÏ±â À§ÇÑ ¹æÇâÀ» °è»êÇÏ´Â º¤ÅÍ º¸°£
     Vector3 direction = XMVector3TransformCoord(velocity, rotY);
 
-    Pos() += direction * moveSpeed * DELTA * -1; // ÀÌµ¿ ¼öÇà
-}
 
-void Player::Attack()
-{
+
+
+
+    Vector3 destFeedBackPos;
+    Vector3 destPos = Pos() + direction * moveSpeed * DELTA * -1;
+    Vector3 PlayerSkyPos = destPos;
+    PlayerSkyPos.y += 100;
+    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+    TerainComputePicking(destFeedBackPos, groundRay);
+
+    //destFeedBackPos : ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Í·ï¿½ï¿½ï¿½Pos
+    //feedBackPos : ï¿½ï¿½ï¿½ï¿½ ï¿½Í·ï¿½ï¿½ï¿½Pos
+
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï±ï¿½
+    Vector3 destDir = destFeedBackPos - feedBackPos;
+    Vector3 destDirXZ = destDir;
+    destDirXZ.y = 0;
+
+    //ï¿½ï¿½ï¿½ï¿½
+    float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
+
+
+    if (ColliderManager::Get()->ControlPlayer(&direction)
+        && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y)) //ï¿½ï¿½ï¿½ï¿½ 70ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Û¾Æ¾ï¿½ ï¿½Ìµï¿½, È¤ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì°ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Æ¾ï¿½ï¿½ï¿½
+        Pos() += direction * moveSpeed * DELTA * -1; // ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½
+
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â°ï¿½ ï¿½Æ´Ï¶ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    if (curState != JUMP1 && curState != JUMP2 && curState != JUMP3)
+        Pos().y = feedBackPos.y;
 }
 
 void Player::Jump()
@@ -294,16 +375,17 @@ void Player::Jump()
     jumpVel = force1;
 }
 
+void Player::AfterJumpAnimation()
+{
+    SetState(JUMP2);
+}
+
 void Player::Jumping()
 {
-    //    jumpVel -= 9.8f * gravityMult * DELTA;
-    //    Pos().y += jumpVel * DELTA;
-
     float tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
     float tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
 
-    //float heightLevel = BlockManager::Get()->GetHeight(Pos());
-    float heightLevel = 0.0f;
+    float heightLevel = feedBackPos.y;
 
     if (tempY <= heightLevel)
     {
@@ -311,34 +393,97 @@ void Player::Jumping()
         tempJumpVel = 0.0f;
 
         if (curState == JUMP2) {
-            //landing = landingT;   //Á¡ÇÁ°¡ ³ô¾Æ¼­ ÂøÁö ÀÚ¼¼°¡ ´Ù¸¦¶§ È£ÃâÇÏ±â
+            //landing = landingT;   //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Æ¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ú¼ï¿½ï¿½ï¿½ ï¿½Ù¸ï¿½ï¿½ï¿½ È£ï¿½ï¿½ï¿½Ï±ï¿½
             SetState(JUMP3);
         }
     }
-    
+
     Pos().y = tempY;
     jumpVel = tempJumpVel;
 
     if (jumpVel < 0.0f)
-        EndJump();
+        SetState(JUMP2);
 }
 
-void Player::SetAnimation()
+void Player::Searching()
 {
-    //if (InTheAir()) return;
-    if (curState == JUMP1 || curState == JUMP3 || Pos().y > 0.0f) return;   //³ôÀÌ°¡ ¹Ù²î´Â °æ¿ì°¡ »ý±â±â ¶§¹®¿¡ Pos().yÀÇ Á¶°Ç °ªÀ» º¯¼ö·Î ¹Ù²Ù±â
-    if (toCover) return;
+    //straightRay.dir = Back;
+    //straightRay.pos = Pos();
 
-    if (velocity.z > 0.1f) // ¼Ó·Â ±âÁØÀÌ ÇöÀç ¾ÕÀ¸·Î +¸é
-        SetState(RUN_F);
-    else if (velocity.z < -0.1f) // ¾Õ ±âÁØ -¸é
-        SetState(RUN_B);
-    else if (velocity.x > 0.1f) // ÁÂ¿ì ±âÁØ +¸é
-        SetState(RUN_R);
-    else if (velocity.x < -0.1f) //ÁÂ¿ì ±âÁØ -¸é
-        SetState(RUN_L);
-    else
-        SetState(IDLE); // °¡¸¸È÷ ÀÖÀ¸¸é
+    //diagnolLRay.dir = Back;
+
+    //block managerï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ ï¿½Û¼ï¿½ ï¿½ï¿½ï¿½ï¿½
+}
+
+void Player::Cover()
+{
+    targetTransform->Pos() = { contact.hitPoint.x, Pos().y, contact.hitPoint.z };
+
+    Vector3 objectPos = { targetObject->Pos().x, 0, targetObject->Pos().z };
+    Vector3 objectDir = Pos() - objectPos;
+    objectDir = objectDir.GetNormalized();
+
+    targetTransform->Rot().y = atan2(objectDir.x, objectDir.z) /*+ XM_PI*/;
+
+    targetTransform->Pos() -= BACK * 30;
+}
+
+void Player::Assasination()
+{
+    //targetTransform->Pos() = { contact.x, Pos().y, contact.hitPoint.z };
+
+}
+
+bool Player::InTheAir() {
+    return ((curState == JUMP1 || curState == JUMP2 || curState == JUMP3) && Pos().y > feedBackPos.y);
+}
+
+bool Player::TerainComputePicking(Vector3& feedback, Ray ray)
+{
+    if (terrain && structuredBuffer)
+    {
+        rayBuffer->Get().pos = ray.pos;
+        rayBuffer->Get().dir = ray.dir;
+        rayBuffer->Get().triangleSize = terrainTriangleSize;
+
+        rayBuffer->SetCS(0);
+
+        DC->CSSetShaderResources(0, 1, &structuredBuffer->GetSRV());
+        DC->CSSetUnorderedAccessViews(0, 1, &structuredBuffer->GetUAV(), nullptr);
+
+        computeShader->Set();
+
+        UINT x = ceil((float)terrainTriangleSize / 64.0f);
+
+        DC->Dispatch(x, 1, 1);
+
+        structuredBuffer->Copy(outputs.data(), sizeof(OutputDesc) * terrainTriangleSize);
+
+        float minDistance = FLT_MAX;
+        int minIndex = -1;
+
+        UINT index = 0;
+        for (OutputDesc output : outputs)
+        {
+            if (output.picked)
+            {
+                if (minDistance > output.distance)
+                {
+                    minDistance = output.distance;
+                    minIndex = index;
+                }
+            }
+            index++;
+        }
+
+        if (minIndex >= 0)
+        {
+            feedback = ray.pos + ray.dir * minDistance;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void Player::SetState(State state)
@@ -349,63 +494,38 @@ void Player::SetState(State state)
     PlayClip((int)state);
 }
 
-void Player::EndJump()
+void Player::SetAnimation()
 {
-    //Pos().y += jumpOffset;
-    SetState(JUMP2);
-}
+    if (curState == JUMP1 || curState == JUMP3 || Pos().y > 0.0f) return;   //ï¿½ï¿½ï¿½Ì°ï¿½ ï¿½Ù²ï¿½ï¿½ ï¿½ï¿½ì°¡ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Pos().yï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù²Ù±ï¿½
+    /*   if (toCover)
+           return;*/
 
-void Player::Cover()
-{    
-    toCover = true;
-
-    tempTransform->Pos() = { contact.hitPoint.x, Pos().y, contact.hitPoint.z };
-    tempTransform->Pos() -= Back() * 45;
-}
-
-bool Player::InTheAir() {
-    return ((curState == JUMP1 || curState == JUMP2 || curState == JUMP3) && Pos().y > 0.0f);
+    if (velocity.z > 0.01f && velocity.x < -0.1f)
+        SetState(RUN_DL);
+    else if (velocity.z > 0.01f && velocity.x > 0.1f)
+        SetState(RUN_DR);
+    else if (velocity.z > 0.1f) // ï¿½Ó·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ +ï¿½ï¿½
+        SetState(RUN_F);
+    else if (velocity.z < -0.1f) // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ -ï¿½ï¿½
+        SetState(RUN_B);
+    else if (velocity.x > 0.1f) // ï¿½Â¿ï¿½ ï¿½ï¿½ï¿½ï¿½ +ï¿½ï¿½
+        SetState(RUN_R);
+    else if (velocity.x < -0.1f) //ï¿½Â¿ï¿½ ï¿½ï¿½ï¿½ï¿½ -ï¿½ï¿½
+        SetState(RUN_L);
+    else
+        SetState(IDLE); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
 void Player::SetIdle()
 {
     if (curState == TO_COVER) {
+        Pos() = targetTransform->Pos();
+        Rot() = targetTransform->Rot();
+
         SetState(C_IDLE);
 
-        Pos() = tempTransform->Pos();
-
-        //Vector3 temp = contact.hitPoint.Forward();
-        //temp.y = 0;
-        //Vector3 objectDir = GlobalPos() - temp;
-        //objectDir = objectDir.GetNormalized();
-        //Rot().y = atan2(objectDir.x, objectDir.z); 
-
-        Vector3 objectPos = { contact.hitPoint.x, 0, contact.hitPoint.z };
-        Vector3 objectDir = GlobalPos() - objectPos;
-        objectDir = objectDir.GetNormalized();
-
-        Rot().y = atan2(objectDir.x, objectDir.z) - XM_PI;
-
-        //Pos() = { contact.hitPoint.x, Pos().y, contact.hitPoint.z };
-        //Pos() -= Back() * 45;
-
-        toCover = false;
+        //toCover = false;
     }
     else
         SetState(IDLE);
-}
-
-void Player::Searching()
-{
-    ray.dir = Back();
-    ray.pos = Pos();
-
-    //block manager·Î °¡Á®¿À´Â ÄÚµå ÀÛ¼º °¡´É
-}
-
-void Player::Wall(BoxCollider* other)
-{
-    if(collider->IsBoxCollision(other))
-    {
-    }
 }

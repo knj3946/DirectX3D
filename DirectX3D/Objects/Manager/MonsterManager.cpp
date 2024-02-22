@@ -45,7 +45,28 @@ void MonsterManager::Update()
     
     for (Orc* orc : orcs)
         orc->Update();
+
+
+    for (Orc* orc : orcs)
+    {
+        if (orc->IsFindTarget()) // 오크가 발견상태라면
+        {
+            for (Orc* nearOrc : orcs)
+            {
+                if (orc != nearOrc) // 자기 자신 제외
+                {
+                    float dis = Distance(orc->GetTransform()->GlobalPos(), nearOrc->GetTransform()->GlobalPos());
+
+                    if (dis < 20.0f) // 거리가 20 미만이면
+                    {
+                        nearOrc->AttackTarget();
+                    }
+                }
+            }
+        }
+    }
         
+    vecDetectionPos.clear();
 }
 
 void MonsterManager::Render()
@@ -57,6 +78,11 @@ void MonsterManager::Render()
 void MonsterManager::PostRender()
 {
     for (Orc* orc : orcs) orc->PostRender();
+}
+
+void MonsterManager::GUIRender()
+{
+    for (Orc* orc : orcs) orc->GUIRender();
 }
 
 void MonsterManager::SetTarget(Transform* target)
@@ -91,6 +117,7 @@ bool MonsterManager::IsCollision(Ray ray, Vector3& hitPoint)
 void MonsterManager::SetOrcSRT(int index,Vector3 scale, Vector3 rot, Vector3 pos)
 {
     orcs[index]->SetSRT(scale,rot,pos);
+    orcs[index]->SetStartPos(pos);
 }
 
 void MonsterManager::AddOrcObstacleObj(Collider* collider)
@@ -167,6 +194,47 @@ void MonsterManager::Blocking(Collider* collider)
         }
     }
     
+}
+
+void MonsterManager::Fight(Naruto* player)
+{
+    for (Collider* collider : static_cast<Naruto*>(player)->GetWeaponColliders())
+    {
+        for (Orc* orc : orcs)
+        {
+            //몬스터가 맞을때
+            if (collider)
+            {
+                if (collider->IsCapsuleCollision(orc->GetCollider()) && player->GetCurAttackCoolTime() == 0) //손 충돌체가 타겟이랑 겹칠때 //어택 동작 하나당 한번의 타격만 해야함
+                {
+                    player->SetAttackCoolDown();
+                    orc->Hit();
+                }
+                else
+                {
+                    player->FillAttackCoolTime();
+                }
+            }
+            
+        }
+    }
+
+
+}
+
+void MonsterManager::CalculateDistance()
+{
+    for (auto p : orcs)
+    {
+        if (p->FindTarget()) continue;
+        else {
+            for (UINT i = 0; i < vecDetectionPos.size(); ++i) {
+                if (Distance(vecDetectionPos[i], p->GetTransform()->GlobalPos()) <= 500) {
+                    p->Findrange();
+                }
+            }
+        }
+    }
 }
 
 void MonsterManager::Collision()

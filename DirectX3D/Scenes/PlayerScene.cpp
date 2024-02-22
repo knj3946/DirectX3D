@@ -3,6 +3,8 @@
 
 PlayerScene::PlayerScene()
 {
+	ColliderManager::Get();
+
 	player = new Player();
 
 	box1 = new BoxCollider();
@@ -19,12 +21,16 @@ PlayerScene::PlayerScene()
 	box2->Scale().y *= 1000;
 	box2->SetTag("2");
 
-	/*CAM->SetTarget(player);
-	CAM->TargetOptionLoad("Player");
-	CAM->LookAtTarget();*/
+	CAM->SetTarget(player);
+	CAM->TargetOptionLoad("Naruto");
+	//CAM->LookAtTarget();
 
 	colliders.push_back(box1);
 	colliders.push_back(box2);
+
+	ColliderManager::Get()->SetPlayer(player, player->GetCollider());
+	ColliderManager::Get()->SetObstacles(box1);
+	ColliderManager::Get()->SetObstacles(box2);
 }
 
 PlayerScene::~PlayerScene()
@@ -37,8 +43,6 @@ PlayerScene::~PlayerScene()
 
 void PlayerScene::Update()
 {
-	//player->Wall(box);
-
 	player->Update();
 
 	FOR(2)
@@ -60,13 +64,13 @@ void PlayerScene::Update()
 	float minDistance = 100000000000.0f;
 	for(Collider* collider : colliders)
 	{
-		if(collider->IsRayCollision(player->GetRay(), &cont) && cont.distance < 500.0f && cont.distance < minDistance)
+		if(collider->IsRayCollision(player->GetRay(), &cont) && cont.distance < 80.0f && cont.distance < minDistance)
 		{
 			player->ResetTarget(collider, cont);
 			isSearching = true;
 		}
-		else
-			collider->SetColor({ 0, 0, 1, 0 });
+		//else
+			//collider->SetColor({ 0, 0, 1, 0 });
 	}
 	if(!isSearching)
 		player->ResetTarget(nullptr, cont);

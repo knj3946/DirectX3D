@@ -13,6 +13,12 @@ private:
         , RUN, HIT, ATTACK, DYING
     };
 
+    enum class NPC_BehaviorState {
+        IDLE,// 탐색하지않고 패트롤 상태 또는 가만히있는 상태
+        CHECK,// 소리를 듣고 가거나 플레이어를 쫓다가 플레이어가 숨을때 탐색하는 상태
+        DETECT// 플레이어를 쫓아서 공격하는 상태.
+    };
+
     typedef TerrainEditor LevelData;
     //typedef Terrain LevelData;
 public:
@@ -29,6 +35,7 @@ public:
     void SetTarget(Transform* target) { this->target = target; }
     void SetTargetCollider(CapsuleCollider* collider) { targetCollider = collider; }
     void SetSRT(Vector3 scale, Vector3 rot, Vector3 transform);
+    void SetStartPos(Vector3 pos) { this->startPos = pos; }
 
     Transform* GetTransform() { return transform; }
     CapsuleCollider* GetCollider() { return collider; }
@@ -37,6 +44,18 @@ public:
     void Spawn(Vector3 pos);
 
     void AddObstacleObj(Collider* collider);
+
+    bool IsFindTarget() { return bFind; };
+
+    void AttackTarget();
+
+    float GetCurAttackCoolTime();
+    void SetAttackCoolDown();
+    void FillAttackCoolTime();
+
+    bool FindTarget() { return bSensor; }
+
+    void Findrange() { NearFind = true; behaviorstate = NPC_BehaviorState::DETECT; }
 
 private:
     void Control();
@@ -54,12 +73,28 @@ private:
     void EndDying();
 
     void CalculateEyeSight();
+    void CalculateEarSight();//귀
     void Detection();
+    void SetRay(Vector3& _pos);
+
+    bool IsStartPos();
 
 private:
+    Ray ray;// 레이
+    Vector3 StorePos;// 소리난 곳 가기 전 위치 저장
+    Vector3 CheckPoint;// 소리난 곳 저장
+    float earRange = 1000.f;// 듣는 범위
+    bool bSound = false;// 소리 체크
+    bool NearFind = false;
+    bool bSensor = false;
+ 
+    NPC_BehaviorState behaviorstate = NPC_BehaviorState::IDLE;
+
     State curState = IDLE;
 
     float moveSpeed = 25;
+    float runSpeed = 25;
+    float walkSpeed = 10;
     float rotSpeed = 10;
 
     Vector3 velocity;
@@ -85,7 +120,7 @@ private:
 
     UINT index;
 
-    Transform* root;
+    //Transform* root;
     Transform* transform;
     CapsuleCollider* collider;
 
@@ -97,10 +132,12 @@ private:
     Quad* questionMark;
     Quad* exclamationMark;
 
-    Transform* mainHand;
-    SphereCollider* tmpCollider;
+    Transform* leftHand;
+    Transform* rightHand;
+    CapsuleCollider* leftWeaponCollider;
+    CapsuleCollider* rightWeaponCollider;
 
-    float eyeSightRange = 80.f;
+    float eyeSightRange = 20.f;
     float eyeSightangle = 45.f;
     bool bDetection = false;
     bool bFind = false;
@@ -113,4 +150,11 @@ private:
 
     bool isTracking = false;
     float wateTime = 0;
+
+    bool IsAiCooldown = false;
+    float aiCoolTime = 2.0f;
+    bool isAIWaitCooldown = false;
+    float aiWaitCoolTime = 1.5f;
+    float curAttackCoolTime = 1.0f;
+    float attackCoolTime = 1.0f;
 };

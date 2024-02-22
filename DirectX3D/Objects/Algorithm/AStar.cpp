@@ -48,11 +48,11 @@ void AStar::SetNode(LevelData* terrain)
 {
     // 지형의 크기 (노드를 설치할 규모)
     //Vector2 mapSize = terrain->GetMaterial()->GetDiffuseMap()->GetSize(); //지도의 크기
-    Vector2 mapSize = terrain->GetMaterial()->GetDiffuseMap()->GetSize(); //지형 클래스에 직접 지정된 가로세로 받기
+    //Vector2 mapSize = terrain->GetMaterial()->GetDiffuseMap()->GetSize(); //지형 클래스에 직접 지정된 가로세로 받기
 
     // 노드 배치 간격 구하기
-    interval.x = mapSize.x / width;
-    interval.y = mapSize.y / height;
+    interval.x = terrain->GetSizeWidth()/ width;
+    interval.y = terrain->GetSizeHeight() / height;
 
     // 노드 생성 자리를 벡터에서 예약
     nodes.reserve((width + 1) * (height + 1)); //벡터는 0부터 만드니까
@@ -62,8 +62,8 @@ void AStar::SetNode(LevelData* terrain)
         for (UINT x = 0; x <= width; ++x)
         {
             Vector3 pos = Vector3(x * interval.x, 0, z * interval.y);
-            //pos.y = 0; // 기본값
-            pos.y = terrain->GetHeight(pos); // A*는 직선이동이 아니라 노드들을 경유하기 때문에
+            pos.y = 0; // 기본값
+            //pos.y = terrain->GetHeight(pos); // A*는 직선이동이 아니라 노드들을 경유하기 때문에
             // 지형이 가지는 높이 변화에도 대응 가능
 
             //노드 추가

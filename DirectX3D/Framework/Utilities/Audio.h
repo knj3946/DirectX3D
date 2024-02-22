@@ -36,7 +36,14 @@ public:
     void Resume(string key);
 
     bool IsPlaySound(string key);
-
+    SoundInfo* GetSounds(string key) { return sounds[key]; }
+    float GetVolume(string key) { float volume; sounds[key]->channel->getVolume(&volume); return volume; }
+    FMOD_VECTOR GetSoundPos(string key) {
+        FMOD_VECTOR pos; FMOD_VECTOR vel; sounds[key]->channel->get3DAttributes(&pos, &vel); return pos;
+    }
+    FMOD_VECTOR GetSoundvelocity(string key) {
+        FMOD_VECTOR pos; FMOD_VECTOR vel; sounds[key]->channel->get3DAttributes(&pos, &vel); return vel;
+    }
 private:
     System* soundSystem;
 

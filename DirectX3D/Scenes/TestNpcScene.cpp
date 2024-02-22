@@ -15,7 +15,8 @@ TestNpcScene::TestNpcScene()
     instancing = new ModelAnimatorInstancing("character1");
 
     instancing->ReadClip("Orc_Idle");
-    instancing->ReadClip("Orc_Walk");
+    //instancing->ReadClip("Orc_Walk");
+    instancing->ReadClip("character1@walk3");
     instancing->ReadClip("Orc_Run");
     instancing->ReadClip("Orc_Hit");
     //instancing->ReadClip("Orc_Attack");
