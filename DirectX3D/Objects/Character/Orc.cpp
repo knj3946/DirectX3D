@@ -57,6 +57,8 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     aStar = new AStar(128,128);
     //aStar->SetNode();
 
+    computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
+    rayBuffer = new RayBuffer();
 }
 
 Orc::~Orc()
@@ -87,6 +89,13 @@ void Orc::Update()
     Detection();
     ExecuteEvent();
     UpdateUI();
+
+    {
+        Vector3 OrcSkyPos = transform->Pos();
+        OrcSkyPos.y += 100;
+        Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
+        TerainComputePicking(feedBackPos, groundRay);
+    }
 
     if (!collider->Active())return;
 
@@ -156,6 +165,29 @@ void Orc::SetTerrain(LevelData* terrain)
 {
     this->terrain = terrain;
     aStar->SetNode(terrain);
+
+    vector<VertexType> vertices = terrain->GetMesh()->GetVertices();
+    vector<UINT> indices = terrain->GetMesh()->GetIndices();
+
+    terrainTriangleSize = indices.size() / 3;
+
+    inputs.resize(terrainTriangleSize);
+    outputs.resize(terrainTriangleSize);
+
+    for (UINT i = 0; i < terrainTriangleSize; i++)
+    {
+        UINT index0 = indices[i * 3 + 0];
+        UINT index1 = indices[i * 3 + 1];
+        UINT index2 = indices[i * 3 + 2];
+
+        inputs[i].v0 = vertices[index0].pos;
+        inputs[i].v1 = vertices[index1].pos;
+        inputs[i].v2 = vertices[index2].pos;
+    }
+
+    structuredBuffer = new StructuredBuffer(
+        inputs.data(), sizeof(InputDesc), terrainTriangleSize,
+        sizeof(OutputDesc), terrainTriangleSize);
 }
 
 void Orc::SetSRT(Vector3 scale, Vector3 rot, Vector3 pos)
@@ -406,7 +438,6 @@ void Orc::Move()
 
         // 목적지로 가기 위한 실제 이동
         velocity = direction.GetNormalized(); // 속력기준 (방향의 정규화)
-        transform->Pos() += velocity * moveSpeed * DELTA; // 속력기준 * 실제속력 * 시간경과
 
         //transform->Pos() += velocity.GetNormalized() * speed * DELTA;
         transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI; // XY좌표 방향 + 전후반전(문워크 방지)
@@ -424,6 +455,32 @@ void Orc::Move()
             transform->Rot().y = XMConvertToRadians(value);
 
         }
+
+        
+
+        //지형 오르기
+        
+        Vector3 destFeedBackPos;
+        Vector3 destPos = transform->Pos() + velocity * moveSpeed * DELTA;
+        Vector3 OrcSkyPos = destPos;
+        OrcSkyPos.y += 100;
+        Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
+        TerainComputePicking(destFeedBackPos, groundRay);
+
+        //destFeedBackPos : 목적지 터레인Pos
+        //feedBackPos : 현재 터레인Pos
+
+        //방향으로 각도 구하기
+        Vector3 destDir = destFeedBackPos - feedBackPos;
+        Vector3 destDirXZ = destDir;
+        destDirXZ.y = 0;
+
+        //각도
+        float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
+
+        transform->Pos() += velocity * moveSpeed * DELTA; // 이동 수행
+        feedBackPos.y = destFeedBackPos.y;
+        transform->Pos().y = feedBackPos.y;
     }
 }
 
@@ -436,7 +493,8 @@ void Orc::IdleAIMove()
     {
         if (isAIWaitCooldown)
         {
-            float randY = Random(XM_PIDIV2, XM_PI) * 2;
+            float randY = Random(0.0f, XM_2PI) * 2;
+            //float randY = Random(XM_PIDIV2, XM_PI) * 2;
             transform->Rot().y = randY + XM_PI;
             //XMMatrixRotationY(randY + XM_PI);
             IsAiCooldown = false;
@@ -464,7 +522,36 @@ void Orc::IdleAIMove()
 
         // 만약 벽 같은 곳에 부딪혔다면 바로 IsAiCooldown=true 로  
         aiCoolTime -= DELTA;
-        transform->Pos() += DELTA * walkSpeed * transform->Back();
+
+        //지형 오르기
+        Vector3 direction = transform->Back();
+
+        Vector3 destFeedBackPos;
+        Vector3 destPos = transform->Pos() + direction * walkSpeed * DELTA;
+        Vector3 OrcSkyPos = destPos;
+        OrcSkyPos.y += 100;
+        Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
+        TerainComputePicking(destFeedBackPos, groundRay);
+
+        //destFeedBackPos : 목적지 터레인Pos
+        //feedBackPos : 현재 터레인Pos
+
+        //방향으로 각도 구하기
+        Vector3 destDir = destFeedBackPos - feedBackPos;
+        Vector3 destDirXZ = destDir;
+        destDirXZ.y = 0;
+
+        //각도
+        float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
+
+
+        if ((radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y)) //각이 60도보다 작아야 이동, 혹은 목적지 높이가 더 낮아야함
+        {
+            transform->Pos() += direction * walkSpeed * DELTA; // 이동 수행
+            feedBackPos.y = destFeedBackPos.y;
+        }
+            
+        transform->Pos().y = feedBackPos.y;
     }
 }
 
@@ -823,6 +910,54 @@ bool Orc::IsStartPos()
         startPos.z + 1.0f > transform->Pos().z && startPos.z - 1.0f < transform->Pos().z)
         return true;
     else return false;
+}
+
+bool Orc::TerainComputePicking(Vector3& feedback, Ray ray)
+{
+    if (terrain && structuredBuffer)
+    {
+        rayBuffer->Get().pos = ray.pos;
+        rayBuffer->Get().dir = ray.dir;
+        rayBuffer->Get().triangleSize = terrainTriangleSize;
+
+        rayBuffer->SetCS(0);
+
+        DC->CSSetShaderResources(0, 1, &structuredBuffer->GetSRV());
+        DC->CSSetUnorderedAccessViews(0, 1, &structuredBuffer->GetUAV(), nullptr);
+
+        computeShader->Set();
+
+        UINT x = ceil((float)terrainTriangleSize / 64.0f);
+
+        DC->Dispatch(x, 1, 1);
+
+        structuredBuffer->Copy(outputs.data(), sizeof(OutputDesc) * terrainTriangleSize);
+
+        float minDistance = FLT_MAX;
+        int minIndex = -1;
+
+        UINT index = 0;
+        for (OutputDesc output : outputs)
+        {
+            if (output.picked)
+            {
+                if (minDistance > output.distance)
+                {
+                    minDistance = output.distance;
+                    minIndex = index;
+                }
+            }
+            index++;
+        }
+
+        if (minIndex >= 0)
+        {
+            feedback = ray.pos + ray.dir * minDistance;
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void Orc::AddObstacleObj(Collider* collider)

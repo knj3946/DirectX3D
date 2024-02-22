@@ -19,8 +19,44 @@ private:
         DETECT// 플레이어를 쫓아서 공격하는 상태.
     };
 
+    class RayBuffer : public ConstBuffer
+    {
+    private:
+        struct Data
+        {
+            Float3 pos;
+            UINT triangleSize;
+
+            Float3 dir;
+            float padding;
+        };
+
+    public:
+        RayBuffer() : ConstBuffer(&data, sizeof(Data))
+        {
+        }
+
+        Data& Get() { return data; }
+
+    private:
+        Data data;
+    };
+
+    struct InputDesc
+    {
+        Float3 v0, v1, v2;
+    };
+
+    struct OutputDesc
+    {
+        int picked;
+        float distance;
+    };
+    
     typedef TerrainEditor LevelData;
     //typedef Terrain LevelData;
+    typedef VertexUVNormalTangentAlpha VertexType;
+
 public:
     Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index);
     ~Orc();
@@ -78,6 +114,7 @@ private:
     void SetRay(Vector3& _pos);
 
     bool IsStartPos();
+    bool TerainComputePicking(Vector3& feedback, Ray ray);
 
 private:
     Ray ray;// 레이
@@ -157,4 +194,17 @@ private:
     float aiWaitCoolTime = 1.5f;
     float curAttackCoolTime = 1.0f;
     float attackCoolTime = 1.0f;
+
+    RayBuffer* rayBuffer;
+    StructuredBuffer* structuredBuffer;
+    vector<InputDesc> inputs;
+    vector<OutputDesc> outputs;
+
+    UINT terrainTriangleSize;
+
+    ComputeShader* computeShader;
+
+    int limitGroundHeight = 10;
+
+    Vector3 feedBackPos;
 };
