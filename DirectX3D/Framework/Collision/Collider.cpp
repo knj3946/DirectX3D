@@ -90,6 +90,7 @@ bool Collider::PushCollision(Collider* collider)
         break;
     }
 
+    
     collider->GetParent()->Pos() += dir * PUSH_SPEED * DELTA;
 
     return true;

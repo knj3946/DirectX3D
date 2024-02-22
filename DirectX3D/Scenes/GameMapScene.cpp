@@ -133,7 +133,7 @@ GameMapScene::GameMapScene()
 	CAM->TargetOptionLoad("GameMapScenePlayer");
 	CAM->LookAtTarget();
 
-	ColliderManager::Get()->SetPlayer(player, player->GetCollider());
+	ColliderManager::Get()->SetPlayer(player);
 
 	for (ColliderModel* colliderModel : colliderModels)
 	{
