@@ -20,6 +20,8 @@ public:
     void PostRender();
     void GUIRender();
 
+    void SetMoveSpeed(float speed) { this->moveSpeed = speed; }
+
     Ray GetRay() { return ray; }
     void Wall(BoxCollider* other);
 

@@ -37,7 +37,7 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("ModelRender", new ModelRenderScene());
     //SceneManager::Get()->Create("ModelAnimation", new ModelAnimationScene());
     //SceneManager::Get()->Create("Instancing", new IntancingScene());
-    SceneManager::Get()->Create("Game", new GameScene());
+    //SceneManager::Get()->Create("Game", new GameScene());
     ///SceneManager::Get()->Create("BillboardScene", new BillboardScene());
     //SceneManager::Get()->Create("RenderTarget", new RenderTargetScene());
     //SceneManager::Get()->Create("ShadowScene", new ShadowScene());
@@ -48,8 +48,8 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("Human", new HumanScene());
     //SceneManager::Get()->Create("QuadTree", new QuadTreeScene());
     //SceneManager::Get()->Create("GameMap", new GameMapScene());
-    SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
-    //SceneManager::Get()->Create("Player", new PlayerScene());
+    //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
+    SceneManager::Get()->Create("Player", new PlayerScene());
 
     SceneManager::Get()->Add("Grid");
     //SceneManager::Get()->Add("Cube");
@@ -60,7 +60,7 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("ModelRender");
     //SceneManager::Get()->Add("ModelAnimation");
     //SceneManager::Get()->Add("Instancing");
-    SceneManager::Get()->Add("Game");
+    //SceneManager::Get()->Add("Game");
     //SceneManager::Get()->Add("BillboardScene");
     //SceneManager::Get()->Add("RenderTarget");
     //SceneManager::Get()->Add("ShadowScene");
@@ -71,8 +71,8 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("Human");
     //SceneManager::Get()->Add("QuadTree");
     //SceneManager::Get()->Add("GameMap");
-    SceneManager::Get()->Add("TestNpcScene");
-    //SceneManager::Get()->Add("Player");
+    //SceneManager::Get()->Add("TestNpcScene");
+    SceneManager::Get()->Add("Player");
 }
 
 GameManager::~GameManager()

@@ -109,7 +109,7 @@ GameMapScene::GameMapScene()
 
 
 
-	player = new Naruto();
+	player = new Player();
 	player->Scale() = { 0.03f,0.03f,0.03f };
 	player->Pos() = { 60,0,90 };
 	MonsterManager::Get()->SetTarget(player); //싱글턴 생성 후, 표적 설정까지
@@ -126,10 +126,10 @@ GameMapScene::GameMapScene()
 		}
 	}
 
-	static_cast<Naruto*>(player)->SetMoveSpeed(50);
+	player->SetMoveSpeed(50);
 
 	CAM->SetTarget(player);
-	CAM->TargetOptionLoad("Naruto2");
+	//CAM->TargetOptionLoad("Naruto2");
 	CAM->LookAtTarget();
 }
 
@@ -186,7 +186,7 @@ void GameMapScene::Update()
 		}
 	}
 
-	static_cast<Naruto*>(player)->Update();
+	player->Update();
 	MonsterManager::Get()->Update();
 
 
@@ -194,12 +194,12 @@ void GameMapScene::Update()
 	{
 		for (Collider* collider : colliderModel->GetColliders())
 		{
-			static_cast<Naruto*>(player)->Blocking(collider);
+			//player->Blocking(collider); //플레이어 벽 뚫고 이동 못하게
 			MonsterManager::Get()->Blocking(collider);
 		}
 	}
 
-	MonsterManager::Get()->Fight(static_cast<Naruto*>(player));
+	MonsterManager::Get()->Fight(player);
 }
 
 void GameMapScene::PreRender()

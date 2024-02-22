@@ -195,9 +195,9 @@ void MonsterManager::Blocking(Collider* collider)
     
 }
 
-void MonsterManager::Fight(Naruto* player)
+void MonsterManager::Fight(Player* player)
 {
-    for (Collider* collider : static_cast<Naruto*>(player)->GetWeaponColliders())
+    for (Collider* collider : player->GetWeaponColliders())
     {
         for (Orc* orc : orcs)
         {
