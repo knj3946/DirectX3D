@@ -385,7 +385,8 @@ void Player::Jumping()
     float tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
     float tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
 
-    float heightLevel = feedBackPos.y;
+    if(heightLevel < feedBackPos.y)
+        heightLevel = feedBackPos.y;
 
     if (tempY <= heightLevel)
     {
