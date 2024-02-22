@@ -351,9 +351,12 @@ void Player::Walking()
 
 
     if (ColliderManager::Get()->ControlPlayer(&direction) 
-        && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y)) //각이 70도보다 작아야 이동, 혹은 목적지 높이가 더 낮아야함
+        && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y)) //각이 60도보다 작아야 이동, 혹은 목적지 높이가 더 낮아야함
+    {
         Pos() += direction * moveSpeed * DELTA * -1; // 이동 수행
-
+        feedBackPos.y = destFeedBackPos.y;
+    }
+        
     //점프상태가 아니라면 현재 지면 높이로 높이 수정
     if(curState != JUMP1 && curState != JUMP2 && curState != JUMP3)
         Pos().y = feedBackPos.y;
