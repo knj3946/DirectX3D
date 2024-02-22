@@ -117,6 +117,9 @@ Player::Player()
     GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //엄폐
 
     //GetClip(TO_ASSASIN)->SetEvent(bind(&Player::Assasination, this), 0.01f);   //암살
+
+    computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
+    rayBuffer = new RayBuffer();
 }
 
 Player::~Player()
@@ -187,6 +190,34 @@ void Player::GUIRender()
     ImGui::InputFloat("teleport", (float*)&teleport);
 }
 
+void Player::SetTerrain(LevelData* terrain)
+{
+    this->terrain = terrain;
+
+    vector<VertexType> vertices = terrain->GetMesh()->GetVertices();
+    vector<UINT> indices = terrain->GetMesh()->GetIndices();
+
+    terrainTriangleSize = indices.size() / 3;
+
+    inputs.resize(terrainTriangleSize);
+    outputs.resize(terrainTriangleSize);
+
+    for (UINT i = 0; i < terrainTriangleSize; i++)
+    {
+        UINT index0 = indices[i * 3 + 0];
+        UINT index1 = indices[i * 3 + 1];
+        UINT index2 = indices[i * 3 + 2];
+
+        inputs[i].v0 = vertices[index0].pos;
+        inputs[i].v1 = vertices[index1].pos;
+        inputs[i].v2 = vertices[index2].pos;
+    }
+
+    structuredBuffer = new StructuredBuffer(
+        inputs.data(), sizeof(InputDesc), terrainTriangleSize,
+        sizeof(OutputDesc), terrainTriangleSize);
+}
+
 void Player::Control()
 {
     if (KEY_PRESS(VK_RBUTTON))
@@ -205,6 +236,12 @@ void Player::Control()
 
 void Player::Move() //이동 관련(기본 이동, 암살 이동, 착지 후 이동제한, 특정 행동을 위한 목적지로 의 이동 등)
 {
+    //플레이어의 위에서 레이를 쏴서 현재 terrain 위치와 높이를 구함
+    Vector3 PlayerSkyPos = Pos();
+    PlayerSkyPos.y += 100;
+    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+    TerainComputePicking(feedBackPos, groundRay);
+
     if (curState == JUMP3 && landing > 0.0f)    //착지 애니메이션 동안 부동 이동 제한 and 제한 시간 감소
     {
         landing -= DELTA;
@@ -305,8 +342,36 @@ void Player::Walking()
     Matrix rotY = XMMatrixRotationY(Rot().y);
     Vector3 direction = XMVector3TransformCoord(velocity, rotY);
 
-    if (ColliderManager::Get()->ControlPlayer(&direction))
+    
+    
+    
+    
+    Vector3 destFeedBackPos;
+    Vector3 destPos = Pos() + direction * moveSpeed * DELTA * -1;
+    Vector3 PlayerSkyPos = destPos;
+    PlayerSkyPos.y += 100;
+    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+    TerainComputePicking(destFeedBackPos, groundRay);
+    
+    //destFeedBackPos : 목적지 터레인Pos
+    //feedBackPos : 현재 터레인Pos
+
+    //방향으로 각도 구하기
+    Vector3 destDir = destFeedBackPos - feedBackPos;
+    Vector3 destDirXZ = destDir;
+    destDirXZ.y = 0;
+    
+    //각도
+    float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
+
+
+    if (ColliderManager::Get()->ControlPlayer(&direction) 
+        && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y)) //각이 70도보다 작아야 이동, 혹은 목적지 높이가 더 낮아야함
         Pos() += direction * moveSpeed * DELTA * -1; // 이동 수행
+
+    //점프상태가 아니라면 현재 지면 높이로 높이 수정
+    if(curState != JUMP1 && curState != JUMP2 && curState != JUMP3)
+        Pos().y = feedBackPos.y;
 }
 
 void Player::Jump()
@@ -324,7 +389,7 @@ void Player::Jumping()
     float tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
     float tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
 
-    float heightLevel = 0.0f;
+    float heightLevel = feedBackPos.y;
 
     if (tempY <= heightLevel)
     {
@@ -374,7 +439,55 @@ void Player::Assasination()
 }
 
 bool Player::InTheAir() {
-    return ((curState == JUMP1 || curState == JUMP2 || curState == JUMP3) && Pos().y > 0.0f);
+    return ((curState == JUMP1 || curState == JUMP2 || curState == JUMP3) && Pos().y > feedBackPos.y);
+}
+
+bool Player::TerainComputePicking(Vector3& feedback, Ray ray)
+{    
+    if (terrain && structuredBuffer)
+    {
+        rayBuffer->Get().pos = ray.pos;
+        rayBuffer->Get().dir = ray.dir;
+        rayBuffer->Get().triangleSize = terrainTriangleSize;
+
+        rayBuffer->SetCS(0);
+
+        DC->CSSetShaderResources(0, 1, &structuredBuffer->GetSRV());
+        DC->CSSetUnorderedAccessViews(0, 1, &structuredBuffer->GetUAV(), nullptr);
+
+        computeShader->Set();
+
+        UINT x = ceil((float)terrainTriangleSize / 64.0f);
+
+        DC->Dispatch(x, 1, 1);
+
+        structuredBuffer->Copy(outputs.data(), sizeof(OutputDesc) * terrainTriangleSize);
+
+        float minDistance = FLT_MAX;
+        int minIndex = -1;
+
+        UINT index = 0;
+        for (OutputDesc output : outputs)
+        {
+            if (output.picked)
+            {
+                if (minDistance > output.distance)
+                {
+                    minDistance = output.distance;
+                    minIndex = index;
+                }
+            }
+            index++;
+        }
+
+        if (minIndex >= 0)
+        {
+            feedback = ray.pos + ray.dir * minDistance;
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 void Player::SetState(State state)
