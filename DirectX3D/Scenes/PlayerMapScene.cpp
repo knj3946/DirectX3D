@@ -1,7 +1,7 @@
 #include "Framework.h"
-#include "GameMapScene.h"
+#include "PlayerMapScene.h"
 
-GameMapScene::GameMapScene()
+PlayerMapScene::PlayerMapScene()
 {
 	skyBox = new SkyBox(L"Textures/Landscape/BlueSky.dds");
 
@@ -109,7 +109,7 @@ GameMapScene::GameMapScene()
 
 
 
-	player = new Player();
+	player = new Naruto();
 	player->Scale() = { 0.03f,0.03f,0.03f };
 	player->Pos() = { 60,0,90 };
 	MonsterManager::Get()->SetTarget(player); //싱글턴 생성 후, 표적 설정까지
@@ -126,24 +126,14 @@ GameMapScene::GameMapScene()
 		}
 	}
 
-	player->SetMoveSpeed(50);
+	//static_cast<Naruto*>(player)->SetMoveSpeed(50);
 
 	CAM->SetTarget(player);
-	CAM->TargetOptionLoad("Player");
+	CAM->TargetOptionLoad("Naruto2");
 	CAM->LookAtTarget();
-
-	ColliderManager::Get()->SetPlayer(player, player->GetCollider());
-
-	for (ColliderModel* colliderModel : colliderModels)
-	{
-		for (Collider* collider : colliderModel->GetColliders())
-		{
-			ColliderManager::Get()->SetObstacles(collider);
-		}
-	}
 }
 
-GameMapScene::~GameMapScene()
+PlayerMapScene::~PlayerMapScene()
 {
 	for (ColliderModel* colliderModel : colliderModels)
 	{
@@ -158,7 +148,7 @@ GameMapScene::~GameMapScene()
 		delete blendState[i];
 }
 
-void GameMapScene::Update()
+void PlayerMapScene::Update()
 {
 	terrain->UpdateWorld();
 
@@ -196,7 +186,7 @@ void GameMapScene::Update()
 		}
 	}
 
-	player->Update();
+	//static_cast<Naruto*>(player)->Update();
 	MonsterManager::Get()->Update();
 
 
@@ -204,18 +194,19 @@ void GameMapScene::Update()
 	{
 		for (Collider* collider : colliderModel->GetColliders())
 		{
+			static_cast<Naruto*>(player)->Blocking(collider);
 			MonsterManager::Get()->Blocking(collider);
 		}
 	}
 
-	MonsterManager::Get()->Fight(player);
+	//MonsterManager::Get()->Fight(static_cast<Naruto*>(player));
 }
 
-void GameMapScene::PreRender()
+void PlayerMapScene::PreRender()
 {
 }
 
-void GameMapScene::Render()
+void PlayerMapScene::Render()
 {
 	skyBox->Render();
 	terrain->Render();
@@ -225,17 +216,17 @@ void GameMapScene::Render()
 		cm->Render();
 	}
 
-	player->Render();
+	static_cast<Naruto*>(player)->Render();
 	MonsterManager::Get()->Render();
 }
 
-void GameMapScene::PostRender()
+void PlayerMapScene::PostRender()
 {
 	MonsterManager::Get()->PostRender();
-	player->PostRender();
+	static_cast<Naruto*>(player)->PostRender();
 }
 
-void GameMapScene::GUIRender()
+void PlayerMapScene::GUIRender()
 {
 	//static_cast<Naruto*>(player)->GUIRender();
 
@@ -244,12 +235,12 @@ void GameMapScene::GUIRender()
 		//cm->GUIRender();
 	}
 
-	CAM->GUIRender();
+	//CAM->GUIRender();
 
 	MonsterManager::Get()->GUIRender();
 }
 
-void GameMapScene::CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot, Vector3 mPos)
+void PlayerMapScene::CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot, Vector3 mPos)
 {
 	int colCount = 0;
 	vector<Vector3> colPoss;

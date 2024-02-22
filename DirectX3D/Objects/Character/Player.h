@@ -4,31 +4,39 @@ class Player : public ModelAnimator
 private:
     enum State
     {
-        IDLE, 
-        RUN_F, RUN_B, RUN_L, RUN_R, 
+        IDLE,
+        RUN_F, RUN_B, RUN_L, RUN_R,
         RUN_DL, RUN_DR,
-        JUMP1, JUMP2, JUMP3, 
-        TO_COVER, C_IDLE, C_R, C_L, TO_STAND
+        JUMP1, JUMP2, JUMP3,
+        TO_COVER, C_IDLE, C_R, C_L, TO_STAND,
+        TO_ASSASIN
     };
 
 public:
-	Player();
-	~Player();
+    Player();
+    ~Player();
 
     void Update();
     void Render();
     void PostRender();
     void GUIRender();
 
+    Ray GetRay() { return straightRay; }
+
     void SetMoveSpeed(float speed) { this->moveSpeed = speed; }
-
-    Ray GetRay() { return ray; }
-    void Wall(BoxCollider* other);
-
     Vector3 GetVelocity() { return velocity; }
     CapsuleCollider* GetCollider() { return collider; }
+    vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
 
-    void ResetTarget(Collider* collider, Contact contact) { targetObject = collider; this->contact = contact;  }
+    void ResetTarget(Collider* collider, Contact contact) { targetObject = collider; this->contact = contact; }
+
+    float GetCurAttackCoolTime() { return curAttackCoolTime; }
+    void SetAttackCoolDown() { curAttackCoolTime = attackCoolTime; }  // 어택쿨타임
+    void FillAttackCoolTime() {
+        curAttackCoolTime -= DELTA;
+        if (curAttackCoolTime < 0)
+            curAttackCoolTime = 0;
+    }
 
 
 private:
@@ -39,9 +47,10 @@ private:
     void Walking();
     void Attack();
     void Jump();
+    void AfterJumpAnimation();
     void Jumping();
-    void EndJump();
     void Cover();
+    void Assasination();
 
     void SetAnimation();
     void SetState(State state);
@@ -62,10 +71,10 @@ private:
     float moveSpeed = 200;
     float rotSpeed = 1;
     float deceleration = 10; //감속
-    
+
     float jumpVel = 0;
     int jumpN = 0;
-    float nextJump = 0;    
+    float nextJump = 0;
 
     float force1 = 600.0f;
     float force2 = 250.0f;
@@ -78,14 +87,15 @@ private:
     float landing = 0.0f;
 
     CapsuleCollider* collider;
+    vector<Collider*> weaponColliders;
 
-    Ray ray;
+    Ray straightRay;
+    Ray diagnolLRay;
+    Ray diagnolRRay;
 
     Collider* targetObject;
     Contact contact;
     Transform* targetTransform;
-
-    bool toCover = false;
 
     float teleport = 110.000f;
 
@@ -93,4 +103,7 @@ private:
     bool s = true;
     bool a = true;
     bool d = true;
+
+    float curAttackCoolTime = 1.0f;
+    float attackCoolTime = 2.0f;
 };

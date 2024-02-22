@@ -72,20 +72,24 @@
 Player::Player()
     : ModelAnimator("akai")
 {
-    CAM->Pos() = { -309.720, 742.889, -247.274 };
-    CAM->Rot() = { 75, 90, 0 };
+    ClientToScreen(hWnd, &clientCenterPos);
+    SetCursorPos(clientCenterPos.x, clientCenterPos.y);
+
+    //CAM->Pos() = { -309.720, 742.889, -247.274 };
+    //CAM->Rot() = { 75, 90, 0 };
 
     targetTransform = new Transform();
-    ray = Ray(Pos(), Back());
+    //straightRay = Ray(Pos(), Back());
+
     //Scale() *= 0.1f;
     // 윈도우 핸들러의 정보값(중 윈도우 크기)을 두 번째 매개변수에 저장
     //ClientToScreen(hWnd, &clientCenterPos);
     //SetCursorPos(clientCenterPos.x, clientCenterPos.y);
+
     collider = new CapsuleCollider(25.0f, 160);
     collider->SetParent(this);
-    //collider->SetPivot({ 0, Pos().y + collider->Height() / 2.0f + collider->Radius(), 0 });
 
-    ReadClip("Standing Idle"); // 동작이 0뒤에 1까지 있음
+    ReadClip("Idle"); // 동작이 0뒤에 1까지 있음
 
     ReadClip("Medium Run");
     ReadClip("Running Backward");
@@ -105,13 +109,14 @@ Player::Player()
     ReadClip("Crouched Sneaking Left"); // 동작이 0뒤에 1까지 있음
     ReadClip("Crouch Turn To Stand"); // 동작이 0뒤에 1까지 있음
 
-    GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.00001f);  //점프시작
-    GetClip(JUMP1)->SetEvent(bind(&Player::EndJump, this), 0.20001f);   //하강
+    GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.1f);  //점프시작
+    GetClip(JUMP1)->SetEvent(bind(&Player::AfterJumpAnimation, this), 0.20001f);   //하강
 
     GetClip(JUMP3)->SetEvent(bind(&Player::SetIdle, this), 0.0001f);   //착지
 
     GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //엄폐
-    //GetClip(TO_COVER)->SetEvent(bind(&Player::Cover, this), 0.0001f);   //착지
+
+    //GetClip(TO_ASSASIN)->SetEvent(bind(&Player::Assasination, this), 0.01f);   //암살
 }
 
 Player::~Player()
@@ -123,20 +128,15 @@ Player::~Player()
 }
 
 void Player::Update()
-{
-
-    //if (Pos().y > highestY)
-    //    highestY = Pos().y;
+{  
     collider->Pos().y = collider->Height()/2.0f + collider->Radius();
     collider->UpdateWorld();
-    //collider->SetPivot({ 0, Pos().y + collider->Height() / 2.0f + collider->Radius(), 0 });
 
-    if(curState != TO_COVER || curState != C_IDLE)
-        Control();
+    Control();
+    Searching();
 
     SetAnimation();
 
-    Searching();
 
     ModelAnimator::Update(); //모델 업데이트
 
@@ -189,23 +189,30 @@ void Player::GUIRender()
 
 void Player::Control()
 {
+    if (KEY_PRESS(VK_RBUTTON))
+        return;
+
     Rotate();
-    if (!KEY_PRESS(VK_RBUTTON)) {
-        Move();
-        Attack();
-        Jumping();
-    }
+    Move();
+    Jumping();
 
     if(targetObject != nullptr && KEY_DOWN('F'))
     {
         velocity = 0;
-        Cover();
+        SetState(TO_ASSASIN);
     }
 }
 
-void Player::Move()
+void Player::Move() //이동 관련(기본 이동, 암살 이동, 착지 후 이동제한, 특정 행동을 위한 목적지로 의 이동 등)
 {
-    if (toCover) {
+    if (curState == JUMP3 && landing > 0.0f)    //착지 애니메이션 동안 부동 이동 제한 and 제한 시간 감소
+    {
+        landing -= DELTA;
+        return;
+    }
+
+    if (curState == TO_COVER)    //엄폐하러 이동할 경우
+    {  
         if (Distance(Pos(), targetTransform->Pos()) < teleport)
         {
             SetState(TO_COVER);
@@ -216,16 +223,9 @@ void Player::Move()
         return;
     }
 
-    if (curState == JUMP3 && landing > 0.0f)    //착지후 부동 시간 감소
-    {
-        landing -= DELTA;
-        return;
-    }
-
     if (KEY_DOWN(VK_SPACE) && !InTheAir())
     {
         SetState(JUMP1);
-        //Jump();
     }
 
     Walking();
@@ -234,14 +234,14 @@ void Player::Move()
 void Player::Rotate()
 {
     ////아래 코드 때문에 중간으로 고정된 커서가 다시 움직이면서 델타 생성
-    //Vector3 delta = mousePos - Vector3(CENTER_X, CENTER_Y);
+    Vector3 delta = mousePos - Vector3(CENTER_X, CENTER_Y);
     //// 마우스가 움직일 때마다 위치를 중간으로 고정
-    //SetCursorPos(clientCenterPos.x, clientCenterPos.y);
+    SetCursorPos(clientCenterPos.x, clientCenterPos.y);
     //// -> 혹시 위 두 줄이 조작 시에 잘 안 된다면 CENTER_XY와 clinetCenterPos 표시를 바꿔보면 될지도
 
     ////델타에 의한 캐릭터와 카메라 양쪽을 모두 회전
-    //Rot().y += delta.x * rotSpeed * DELTA; // 캐릭터 좌우회전 (추적 중이라 카메라도 따라갈 것)
-    //CAM->Rot().x -= delta.y * rotSpeed * DELTA; // 카메라 상하회전
+    Rot().y += delta.x * rotSpeed * DELTA; // 캐릭터 좌우회전 (추적 중이라 카메라도 따라갈 것)
+    CAM->Rot().x -= delta.y * rotSpeed * DELTA; // 카메라 상하회전
     
     if (KEY_PRESS('Q'))
         Rot().y -= DELTA * 2;
@@ -302,19 +302,11 @@ void Player::Walking()
     if (!isMoveX)
         velocity.x = Lerp(velocity.x, 0, deceleration * DELTA);
 
-    //트랜스폼의 방향에 의한 회전정보를 면적으로 바꾸기
     Matrix rotY = XMMatrixRotationY(Rot().y);
-    //면적(=그 면적에서 나온 수직선)으로 된 회전 정보와 속력 기준을 합쳐서 만든 방향
-    //=현재 회전 상황에서 속력 기준으로 향하기 위한 방향을 계산하는 벡터 보간
     Vector3 direction = XMVector3TransformCoord(velocity, rotY);
 
-    ColliderManager::Get()->ControlPlayer(&direction);
-
-    Pos() += direction * moveSpeed * DELTA * -1; // 이동 수행
-}
-
-void Player::Attack()
-{
+    if (ColliderManager::Get()->ControlPlayer(&direction))
+        Pos() += direction * moveSpeed * DELTA * -1; // 이동 수행
 }
 
 void Player::Jump()
@@ -322,15 +314,16 @@ void Player::Jump()
     jumpVel = force1;
 }
 
+void Player::AfterJumpAnimation()
+{
+    SetState(JUMP2);
+}
+
 void Player::Jumping()
 {
-    //    jumpVel -= 9.8f * gravityMult * DELTA;
-    //    Pos().y += jumpVel * DELTA;
-
     float tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
     float tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
 
-    //float heightLevel = BlockManager::Get()->GetHeight(Pos());
     float heightLevel = 0.0f;
 
     if (tempY <= heightLevel)
@@ -348,15 +341,55 @@ void Player::Jumping()
     jumpVel = tempJumpVel;
 
     if (jumpVel < 0.0f)
-        EndJump();
+        SetState(JUMP2);
+}
+
+void Player::Searching()
+{
+    //straightRay.dir = Back;
+    //straightRay.pos = Pos();
+
+    //diagnolLRay.dir = Back;
+
+    //block manager로 가져오는 코드 작성 가능
+}
+
+void Player::Cover()
+{    
+    targetTransform->Pos() = { contact.hitPoint.x, Pos().y, contact.hitPoint.z };
+
+    Vector3 objectPos = { targetObject->Pos().x, 0, targetObject->Pos().z };
+    Vector3 objectDir = Pos() - objectPos;
+    objectDir = objectDir.GetNormalized();
+
+    targetTransform->Rot().y = atan2(objectDir.x, objectDir.z) /*+ XM_PI*/;
+
+    targetTransform->Pos() -= BACK * 30;
+}
+
+void Player::Assasination()
+{
+    //targetTransform->Pos() = { contact.x, Pos().y, contact.hitPoint.z };
+
+}
+
+bool Player::InTheAir() {
+    return ((curState == JUMP1 || curState == JUMP2 || curState == JUMP3) && Pos().y > 0.0f);
+}
+
+void Player::SetState(State state)
+{
+    if (state == curState) return;
+
+    curState = state;
+    PlayClip((int)state);
 }
 
 void Player::SetAnimation()
 {
-    //if (InTheAir()) return;
     if (curState == JUMP1 || curState == JUMP3 || Pos().y > 0.0f) return;   //높이가 바뀌는 경우가 생기기 때문에 Pos().y의 조건 값을 변수로 바꾸기
-    if (toCover) 
-        return;
+ /*   if (toCover)
+        return;*/
 
     if (velocity.z > 0.01f && velocity.x < -0.1f)
         SetState(RUN_DL);
@@ -374,39 +407,6 @@ void Player::SetAnimation()
         SetState(IDLE); // 가만히 있으면
 }
 
-void Player::SetState(State state)
-{
-    if (state == curState) return;
-
-    curState = state;
-    PlayClip((int)state);
-}
-
-void Player::EndJump()
-{
-    //Pos().y += jumpOffset;
-    SetState(JUMP2);
-}
-
-void Player::Cover()
-{    
-    toCover = true;
-
-    targetTransform->Pos() = { contact.hitPoint.x, Pos().y, contact.hitPoint.z };
-
-    Vector3 objectPos = { targetObject->Pos().x, 0, targetObject->Pos().z };
-    Vector3 objectDir = Pos() - objectPos;
-    objectDir = objectDir.GetNormalized();
-
-    targetTransform->Rot().y = atan2(objectDir.x, objectDir.z) /*+ XM_PI*/;
-
-    targetTransform->Pos() -= Back() * 30;
-}
-
-bool Player::InTheAir() {
-    return ((curState == JUMP1 || curState == JUMP2 || curState == JUMP3) && Pos().y > 0.0f);
-}
-
 void Player::SetIdle()
 {
     if (curState == TO_COVER) {
@@ -415,23 +415,8 @@ void Player::SetIdle()
 
         SetState(C_IDLE);
 
-        toCover = false;
+        //toCover = false;
     }
     else
         SetState(IDLE);
-}
-
-void Player::Searching()
-{
-    ray.dir = Back();
-    ray.pos = Pos();
-
-    //block manager로 가져오는 코드 작성 가능
-}
-
-void Player::Wall(BoxCollider* other)
-{
-    if(collider->IsBoxCollision(other))
-    {
-    }
 }

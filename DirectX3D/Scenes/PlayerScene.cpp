@@ -63,6 +63,8 @@ void PlayerScene::Update()
 	//else {
 	//	box1->SetColor({ 0, 0, 1, 0 });
 	//}
+
+	
 	Contact cont;
 	float minDistance = 100000000000.0f;
 	for(Collider* collider : colliders)
@@ -72,8 +74,8 @@ void PlayerScene::Update()
 			player->ResetTarget(collider, cont);
 			isSearching = true;
 		}
-		else
-			collider->SetColor({ 0, 0, 1, 0 });
+		//else
+			//collider->SetColor({ 0, 0, 1, 0 });
 	}
 	if(!isSearching)
 		player->ResetTarget(nullptr, cont);

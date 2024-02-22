@@ -52,6 +52,11 @@ public:
     float GetCurAttackCoolTime();
     void SetAttackCoolDown();
     void FillAttackCoolTime();
+
+    bool FindTarget() { return bSensor; }
+
+    void Findrange() { NearFind = true; behaviorstate = NPC_BehaviorState::DETECT; }
+
 private:
     void Control();
     void Move();
@@ -80,6 +85,9 @@ private:
     Vector3 CheckPoint;// 소리난 곳 저장
     float earRange = 1000.f;// 듣는 범위
     bool bSound = false;// 소리 체크
+    bool NearFind = false;
+    bool bSensor = false;
+ 
     NPC_BehaviorState behaviorstate = NPC_BehaviorState::IDLE;
 
     State curState = IDLE;

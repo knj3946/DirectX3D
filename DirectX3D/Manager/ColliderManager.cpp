@@ -9,27 +9,40 @@ ColliderManager::~ColliderManager()
 {
 }
 
-void  ColliderManager::ControlPlayer(Vector3* dir)
+bool ColliderManager::ControlPlayer(Vector3* dir)
 {
-	Vector3 prePos = player->Pos();
-	Vector3 vel = { dir->x, dir->y, dir->z };
 
 	for (Collider* collider : obstacles)
 	{
-		playerCollider->Pos() += vel.x * 20 * DELTA * -1; // 이동 수행
-
-		if (collider->IsCapsuleCollision(playerCollider)) {
-						
-
-
-		}
 		
-		playerCollider->Pos() += vel.z * 20 * DELTA * -1; // 이동 수행
+		if(collider->PushCollision(playerCollider))
+			return false;
 
-		if (collider->IsCapsuleCollision(playerCollider)) {
-						
+		{
+			//if (collider->IsCapsuleCollision(playerCollider))
+			//{
+			//	if (KEY_PRESS('W'))
+			//		vel -= player->Forward();
+			//	
+			//	if (KEY_PRESS('S'))
+			//		vel -= player->Back();
+			//	
+			//	if (KEY_PRESS('A'))
+			//		vel -= player->Left();
+			//	
+			//	if (KEY_PRESS('W'))
+			//		vel -= player->Right();
 
+			//	dir->x = vel.x;
+			//	dir->y = vel.y;
+			//	dir->z = vel.z;
 
+			//	collider.
+			//}
 		}
+
+		
 	}
+
+	return true;
 }
