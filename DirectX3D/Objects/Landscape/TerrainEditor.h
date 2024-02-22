@@ -96,6 +96,7 @@ public:
     UINT GetSizeWidth() { return this->width; }
     UINT GetSizeHeight() { return this->height; }
 
+    Mesh<VertexType>* GetMesh() { return mesh; }
 private:
     void MakeMesh();
     void MakeNormal();

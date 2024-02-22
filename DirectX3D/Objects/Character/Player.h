@@ -12,6 +12,42 @@ private:
         TO_ASSASIN
     };
 
+    class RayBuffer : public ConstBuffer
+    {
+    private:
+        struct Data
+        {
+            Float3 pos;
+            UINT triangleSize;
+
+            Float3 dir;
+            float padding;
+        };
+
+    public:
+        RayBuffer() : ConstBuffer(&data, sizeof(Data))
+        {
+        }
+
+        Data& Get() { return data; }
+
+    private:
+        Data data;
+    };
+
+    struct InputDesc
+    {
+        Float3 v0, v1, v2;
+    };
+
+    struct OutputDesc
+    {
+        int picked;
+        float distance;
+    };
+    //typedef Terrain LevelData;
+    typedef TerrainEditor LevelData;
+    typedef VertexUVNormalTangentAlpha VertexType;
 public:
     Player();
     ~Player();
@@ -40,6 +76,7 @@ public:
         if (curAttackCoolTime < 0)
             curAttackCoolTime = 0;
     }
+    void SetTerrain(LevelData* terrain);
 
 
 private:
@@ -60,6 +97,8 @@ private:
     void SetIdle();
     void Searching();
     bool InTheAir();
+
+    bool TerainComputePicking(Vector3& feedback, Ray ray);
 
 
 private:
@@ -112,8 +151,26 @@ private:
     float curAttackCoolTime = 1.0f;
     float attackCoolTime = 2.0f;
 
+<<<<<<< HEAD
     float temp = 12.5f;
     bool camera = true;
 
     Ray* footRay;
+=======
+    LevelData* terrain;
+
+    RayBuffer* rayBuffer;
+    StructuredBuffer* structuredBuffer;
+    vector<InputDesc> inputs;
+    vector<OutputDesc> outputs;
+
+    UINT terrainTriangleSize;
+
+    ComputeShader* computeShader;
+
+    int limitGroundHeight = 10;
+
+    Vector3 feedBackPos;
+
+>>>>>>> c1ecc0ed25aaa49c606e267100ed98a2b707dcbf
 };
