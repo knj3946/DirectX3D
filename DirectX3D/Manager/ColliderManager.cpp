@@ -11,13 +11,6 @@ ColliderManager::~ColliderManager()
 
 bool ColliderManager::ControlPlayer(Vector3* dir)
 {
-<<<<<<< HEAD
-
-	for (Collider* collider : obstacles)
-	{
-		if(collider->PushCollision(playerCollider))
-			return false;
-=======
 	maxHeight = 0.0f;
 
 	for (int i = 0; i < obstacles.size(); i++)
@@ -30,7 +23,6 @@ bool ColliderManager::ControlPlayer(Vector3* dir)
 			player->SetHeightLevel(maxHeight);
 			return false;
 		}
->>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 
 		{
 			//if (collider->IsCapsuleCollision(playerCollider))
@@ -54,12 +46,6 @@ bool ColliderManager::ControlPlayer(Vector3* dir)
 			//	collider.
 			//}
 		}
-<<<<<<< HEAD
-	}
-
-	return true;
-}
-=======
 
 	}
 
@@ -81,4 +67,3 @@ bool ColliderManager::SetPlayerHeight(Collider* obstacle)
 
 	return false;
 }
->>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890

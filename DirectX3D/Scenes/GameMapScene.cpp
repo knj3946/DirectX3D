@@ -1,4 +1,4 @@
-ï»¿#include "Framework.h"
+#include "Framework.h"
 #include "GameMapScene.h"
 
 GameMapScene::GameMapScene()
@@ -7,7 +7,7 @@ GameMapScene::GameMapScene()
 
 	FOR(2)
 		blendState[i] = new BlendState();
-	blendState[1]->AlphaToCoverage(true); // ï¿½ï¿½ï¿½ï¿½ È¤ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Üºï¿½ ï¿½È¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î°ï¿½
+	blendState[1]->AlphaToCoverage(true); // ¾ËÆÄ È¤Àº ÁöÁ¤µÈ ¹è°æ»öÀ» ¿ÜºÎ ÇÈ¼¿°ú °áÇÕÇÒ °ÍÀÎ°¡
 
 	terrain = new TerrainEditor(256, 256);
 	terrain->GetMaterial()->SetDiffuseMap(L"Textures/Landscape/Sand.png");
@@ -112,15 +112,9 @@ GameMapScene::GameMapScene()
 	player = new Player();
 	player->Scale() = { 0.03f,0.03f,0.03f };
 	player->Pos() = { 60,0,90 };
-<<<<<<< HEAD
-	//player->SetTerrain(terrain);
-
-	MonsterManager::Get()->SetTarget(player); //ï¿½Ì±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½, Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-=======
 	player->SetTerrain(terrain);
 
 	MonsterManager::Get()->SetTarget(player); //½Ì±ÛÅÏ »ı¼º ÈÄ, Ç¥Àû ¼³Á¤±îÁö
->>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 	MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(80, 0, 80));
 	MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(60, 0, 150));
 	MonsterManager::Get()->SetTerrain(terrain);
@@ -133,21 +127,13 @@ GameMapScene::GameMapScene()
 		}
 	}
 
-<<<<<<< HEAD
-	//player->SetMoveSpeed(50);
-=======
 	player->SetMoveSpeed(50);
->>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 
 	CAM->SetTarget(player);
 	CAM->TargetOptionLoad("GameMapScenePlayer");
 	CAM->LookAtTarget();
 
-<<<<<<< HEAD
-	//ColliderManager::Get()->SetPlayer(player);
-=======
 	ColliderManager::Get()->SetPlayer(player);
->>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 
 	for (ColliderModel* colliderModel : colliderModels)
 	{
@@ -185,13 +171,13 @@ void GameMapScene::Update()
 
 	if (KEY_UP('1'))
 	{
-		if (Audio::Get()->IsPlaySound("bgm1")) // 1ï¿½ï¿½ï¿½ï¿½ï¿½å°¡ ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¶ï¿½ï¿½
+		if (Audio::Get()->IsPlaySound("bgm1")) // 1¹ø»ç¿îµå°¡ ÇÃ·¹ÀÌ ÁßÀÌ¶ó¸é
 		{
-			Audio::Get()->Stop("bgm1"); // ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			Audio::Get()->Stop("bgm1"); // ÇÃ·¹ÀÌ ÁßÁö
 		}
 		else
 		{
-			Audio::Get()->Play("bgm1", 2.0f); // 1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½
+			Audio::Get()->Play("bgm1", 2.0f); // 1¹ø»ç¿îµå ÇÃ·¹ÀÌ
 		}
 	}
 
@@ -199,7 +185,7 @@ void GameMapScene::Update()
 	{
 		if (Audio::Get()->IsPlaySound("bgm1"))
 		{
-			Audio::Get()->Pause("bgm1"); // ï¿½Ï½ï¿½ï¿½ï¿½ï¿½ï¿½
+			Audio::Get()->Pause("bgm1"); // ÀÏ½ÃÁ¤Áö
 		}
 	}
 
@@ -207,7 +193,7 @@ void GameMapScene::Update()
 	{
 		if (Audio::Get()->IsPlaySound("bgm1"))
 		{
-			Audio::Get()->Resume("bgm1"); // ï¿½Ï½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù½ï¿½ ï¿½ï¿½ï¿½
+			Audio::Get()->Resume("bgm1"); // ÀÏ½ÃÁ¤ÁöµÈ ÁöÁ¡ºÎÅÍ ´Ù½Ã Àç»ı
 		}
 	}
 
@@ -223,11 +209,7 @@ void GameMapScene::Update()
 		}
 	}
 
-<<<<<<< HEAD
-	//MonsterManager::Get()->Fight(player);
-=======
 	MonsterManager::Get()->Fight(player);
->>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 }
 
 void GameMapScene::PreRender()
@@ -251,11 +233,7 @@ void GameMapScene::Render()
 void GameMapScene::PostRender()
 {
 	MonsterManager::Get()->PostRender();
-<<<<<<< HEAD
-	//player->PostRender();
-=======
 	player->PostRender();
->>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 }
 
 void GameMapScene::GUIRender()

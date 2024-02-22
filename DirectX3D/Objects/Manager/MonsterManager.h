@@ -25,11 +25,7 @@ public:
 
     void Blocking(Collider* collider);
 
-<<<<<<< HEAD
-    void Fight(Naruto* player); //임시로 나루토로 지정
-=======
     void Fight(Player* player);
->>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 
     void CalculateDistance();
     void PushPosition(Vector3 _pos) { vecDetectionPos.push_back(_pos); }

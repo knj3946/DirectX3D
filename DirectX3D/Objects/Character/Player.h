@@ -1,4 +1,4 @@
-ï»¿#pragma once
+#pragma once
 class Player : public ModelAnimator
 {
 private:
@@ -70,11 +70,7 @@ public:
     void ResetTarget(Collider* collider, Contact contact) { targetObject = collider; this->contact = contact; }
 
     float GetCurAttackCoolTime() { return curAttackCoolTime; }
-<<<<<<< HEAD
-    void SetAttackCoolDown() { curAttackCoolTime = attackCoolTime; }  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å¸ï¿½ï¿½
-=======
     void SetAttackCoolDown() { curAttackCoolTime = attackCoolTime; }  // ¾îÅÃÄðÅ¸ÀÓ
->>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
     void FillAttackCoolTime() {
         curAttackCoolTime -= DELTA;
         if (curAttackCoolTime < 0)
@@ -107,7 +103,7 @@ private:
 
 private:
 
-    POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½ ï¿½ï¿½ï¿½ï¿½ 
+    POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- ¿¬»êÀÚ´Â »ùÇÃ 
 
     State curState = IDLE;
 
@@ -116,11 +112,7 @@ private:
 
     float moveSpeed = 200;
     float rotSpeed = 0.3;
-<<<<<<< HEAD
-    float deceleration = 10; //ï¿½ï¿½ï¿½ï¿½
-=======
     float deceleration = 10; //°¨¼Ó
->>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 
     float heightLevel = 0.0f;
 
@@ -159,20 +151,11 @@ private:
     float curAttackCoolTime = 1.0f;
     float attackCoolTime = 2.0f;
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
     float temp = 12.5f;
     bool camera = true;
 
     Ray* footRay;
-<<<<<<< HEAD
-    LevelData * terrain;
-=======
-=======
     LevelData* terrain;
->>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 
     RayBuffer* rayBuffer;
     StructuredBuffer* structuredBuffer;
@@ -186,9 +169,4 @@ private:
     int limitGroundHeight = 10;
 
     Vector3 feedBackPos;
-<<<<<<< HEAD
-=======
-
->>>>>>> c1ecc0ed25aaa49c606e267100ed98a2b707dcbf
->>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 };

@@ -785,5 +785,6 @@
   <ItemGroup>
     <None Include="Shaders\VertexHeader.hlsli" />
     <None Include="Shaders\PixelHeader.hlsli" />
+    <None Include="TextData\Camera\GameMapScenePlayer.cam" />
   </ItemGroup>
 </Project>

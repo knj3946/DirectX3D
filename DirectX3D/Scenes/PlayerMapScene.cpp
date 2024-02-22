@@ -126,11 +126,7 @@ PlayerMapScene::PlayerMapScene()
 		}
 	}
 
-<<<<<<< HEAD
-	static_cast<Naruto*>(player)->SetMoveSpeed(50);
-=======
 	//static_cast<Naruto*>(player)->SetMoveSpeed(50);
->>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 
 	CAM->SetTarget(player);
 	CAM->TargetOptionLoad("Naruto2");
@@ -190,11 +186,7 @@ void PlayerMapScene::Update()
 		}
 	}
 
-<<<<<<< HEAD
-	static_cast<Naruto*>(player)->Update();
-=======
 	//static_cast<Naruto*>(player)->Update();
->>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 	MonsterManager::Get()->Update();
 
 
@@ -207,11 +199,7 @@ void PlayerMapScene::Update()
 		}
 	}
 
-<<<<<<< HEAD
-	MonsterManager::Get()->Fight(static_cast<Naruto*>(player));
-=======
 	//MonsterManager::Get()->Fight(static_cast<Naruto*>(player));
->>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 }
 
 void PlayerMapScene::PreRender()
