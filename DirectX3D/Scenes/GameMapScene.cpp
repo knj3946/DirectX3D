@@ -9,7 +9,7 @@ GameMapScene::GameMapScene()
 		blendState[i] = new BlendState();
 	blendState[1]->AlphaToCoverage(true); // 알파 혹은 지정된 배경색을 외부 픽셀과 결합할 것인가
 
-	terrain = new TerrainEditor(256,256);
+	terrain = new TerrainEditor(256, 256);
 	terrain->GetMaterial()->SetDiffuseMap(L"Textures/Landscape/Sand.png");
 	terrain->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
 	terrain->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
@@ -149,11 +149,11 @@ GameMapScene::~GameMapScene()
 	{
 		delete colliderModel;
 	}
-	
+
 	delete model;
 	delete terrain;
 	delete skyBox;
-	
+
 	FOR(2)
 		delete blendState[i];
 }
@@ -180,7 +180,7 @@ void GameMapScene::Update()
 		}
 	}
 
-	if (KEY_UP('P')) 
+	if (KEY_UP('P'))
 	{
 		if (Audio::Get()->IsPlaySound("bgm1"))
 		{
@@ -188,7 +188,7 @@ void GameMapScene::Update()
 		}
 	}
 
-	if (KEY_UP('R')) 
+	if (KEY_UP('R'))
 	{
 		if (Audio::Get()->IsPlaySound("bgm1"))
 		{

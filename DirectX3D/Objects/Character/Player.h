@@ -4,17 +4,17 @@ class Player : public ModelAnimator
 private:
     enum State
     {
-        IDLE, 
-        RUN_F, RUN_B, RUN_L, RUN_R, 
+        IDLE,
+        RUN_F, RUN_B, RUN_L, RUN_R,
         RUN_DL, RUN_DR,
-        JUMP1, JUMP2, JUMP3, 
+        JUMP1, JUMP2, JUMP3,
         TO_COVER, C_IDLE, C_R, C_L, TO_STAND,
         TO_ASSASIN
     };
 
 public:
-	Player();
-	~Player();
+    Player();
+    ~Player();
 
     void Update();
     void Render();
@@ -28,7 +28,7 @@ public:
     CapsuleCollider* GetCollider() { return collider; }
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
 
-    void ResetTarget(Collider* collider, Contact contact) { targetObject = collider; this->contact = contact;  }
+    void ResetTarget(Collider* collider, Contact contact) { targetObject = collider; this->contact = contact; }
 
     float GetCurAttackCoolTime() { return curAttackCoolTime; }
     void SetAttackCoolDown() { curAttackCoolTime = attackCoolTime; }  // 어택쿨타임
@@ -71,10 +71,10 @@ private:
     float moveSpeed = 200;
     float rotSpeed = 1;
     float deceleration = 10; //감속
-    
+
     float jumpVel = 0;
     int jumpN = 0;
-    float nextJump = 0;    
+    float nextJump = 0;
 
     float force1 = 600.0f;
     float force2 = 250.0f;

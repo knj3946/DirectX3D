@@ -42,7 +42,7 @@ void MonsterManager::Update()
     Collision();
     orcInstancing->Update();
 
-    
+
     for (Orc* orc : orcs)
         orc->Update();
 
@@ -65,7 +65,7 @@ void MonsterManager::Update()
             }
         }
     }
-        
+
     vecDetectionPos.clear();
 }
 
@@ -103,7 +103,7 @@ bool MonsterManager::IsCollision(Ray ray, Vector3& hitPoint)
     {
         if (orc->GetCollider()->IsRayCollision(ray, &contact))
         {
-            if (contact.distance < minDistance) 
+            if (contact.distance < minDistance)
             {
                 minDistance = contact.distance;
                 hitPoint = contact.hitPoint;
@@ -114,9 +114,9 @@ bool MonsterManager::IsCollision(Ray ray, Vector3& hitPoint)
     return minDistance != FLT_MAX;
 }
 
-void MonsterManager::SetOrcSRT(int index,Vector3 scale, Vector3 rot, Vector3 pos)
+void MonsterManager::SetOrcSRT(int index, Vector3 scale, Vector3 rot, Vector3 pos)
 {
-    orcs[index]->SetSRT(scale,rot,pos);
+    orcs[index]->SetSRT(scale, rot, pos);
     orcs[index]->SetStartPos(pos);
 }
 
@@ -151,7 +151,7 @@ void MonsterManager::Blocking(Collider* collider)
             {
 
                 Vector3 halfSize = ((BoxCollider*)collider)->GetHalfSize();
-                
+
                 if (i != 1)
                 {
                     if (abs(dir[i]) - abs(halfSize[i]) > maxValue)
@@ -193,12 +193,12 @@ void MonsterManager::Blocking(Collider* collider)
 
         }
     }
-    
+
 }
 
 void MonsterManager::Fight(Player* player)
 {
-    
+
     for (Collider* collider : player->GetWeaponColliders())
     {
         for (Orc* orc : orcs)
@@ -216,7 +216,7 @@ void MonsterManager::Fight(Player* player)
                     player->FillAttackCoolTime();
                 }
             }
-            
+
         }
     }
 

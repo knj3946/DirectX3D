@@ -18,7 +18,7 @@ public:
 
     bool IsCollision(Ray ray, Vector3& hitPoint);
 
-    void SetOrcSRT(int index,Vector3 scale,Vector3 rot,Vector3 pos);
+    void SetOrcSRT(int index, Vector3 scale, Vector3 rot, Vector3 pos);
 
     void AddOrcObstacleObj(Collider* collider);
     void SetTerrain(LevelData* terrain);
@@ -41,7 +41,7 @@ private:
     vector<Vector3> scales;
     vector<Vector3> rots;
     vector<Vector3> positions;
-    
+
 
     Transform* target;
 
