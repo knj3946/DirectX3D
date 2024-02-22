@@ -130,7 +130,7 @@ GameMapScene::GameMapScene()
 	player->SetMoveSpeed(50);
 
 	CAM->SetTarget(player);
-	CAM->TargetOptionLoad("Player");
+	CAM->TargetOptionLoad("GameMapScenePlayer");
 	CAM->LookAtTarget();
 
 	ColliderManager::Get()->SetPlayer(player, player->GetCollider());
@@ -244,8 +244,6 @@ void GameMapScene::GUIRender()
 	{
 		//cm->GUIRender();
 	}
-
-	CAM->GUIRender();
 
 	MonsterManager::Get()->GUIRender();
 }

@@ -108,19 +108,19 @@ private:
     Vector3 targetPos;
 
     float moveSpeed = 200;
-    float rotSpeed = 1;
+    float rotSpeed = 0.3;
     float deceleration = 10; //°¨¼Ó
 
     float jumpVel = 0;
     int jumpN = 0;
     float nextJump = 0;
 
-    float force1 = 600.0f;
+    float force1 = 215.f;
     float force2 = 250.0f;
     float force3 = 350.0f;
 
-    float jumpSpeed = 1.5f;
-    float gravityMult = 200.0f;
+    float jumpSpeed = 0.156f;
+    float gravityMult = 55.0;
 
     float landingT = 3.0f;
     float landing = 0.0f;
