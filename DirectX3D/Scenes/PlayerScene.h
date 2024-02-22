@@ -21,5 +21,7 @@ private:
 
 	bool a = false;
 	bool b = false;
+
+	bool tab;
 };
 

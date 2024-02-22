@@ -18,14 +18,18 @@ public:
 
     bool IsCollision(Ray ray, Vector3& hitPoint);
 
-    void SetOrcSRT(int index,Vector3 scale,Vector3 rot,Vector3 pos);
+    void SetOrcSRT(int index, Vector3 scale, Vector3 rot, Vector3 pos);
 
     void AddOrcObstacleObj(Collider* collider);
     void SetTerrain(LevelData* terrain);
 
     void Blocking(Collider* collider);
 
+<<<<<<< HEAD
     void Fight(Naruto* player); //임시로 나루토로 지정
+=======
+    void Fight(Player* player);
+>>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 
     void CalculateDistance();
     void PushPosition(Vector3 _pos) { vecDetectionPos.push_back(_pos); }
@@ -41,7 +45,7 @@ private:
     vector<Vector3> scales;
     vector<Vector3> rots;
     vector<Vector3> positions;
-    
+
 
     Transform* target;
 

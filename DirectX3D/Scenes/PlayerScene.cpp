@@ -4,31 +4,50 @@
 PlayerScene::PlayerScene()
 {
 	ColliderManager::Get();
+<<<<<<< HEAD
 
 	player = new Player();
+=======
+>>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 
 	box1 = new BoxCollider();
-	box1->Pos() = { 0, 0, -500 };
+	box1->Pos() = { 0, 0, -50 };
 	box1->Scale().x *= 1000;
 	box1->Scale().z *= 100;
-	box1->Scale().y *= 1000;
+	box1->Scale().y *= 10;
 	box1->SetTag("1");
 
 	box2 = new BoxCollider();
-	box2->Pos() = { 0, 0, -1000 };
+	box2->Pos() = { 0, 0, -100 };
 	box2->Scale().x *= 500;
 	box2->Scale().z *= 100;
 	box2->Scale().y *= 1000;
 	box2->SetTag("2");
 
+<<<<<<< HEAD
 	CAM->SetTarget(player);
 	CAM->TargetOptionLoad("Naruto");
 	//CAM->LookAtTarget();
+=======
+	player = new Player();
+	player->Scale() = { 0.03f,0.03f,0.03f };
+	player->Pos() = { 60,0,90 };
+
+	player->SetMoveSpeed(50);
+
+	CAM->SetTarget(player);
+	CAM->TargetOptionLoad("GameMapScenePlayer");
+	CAM->LookAtTarget();
+>>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 
 	colliders.push_back(box1);
 	colliders.push_back(box2);
 
+<<<<<<< HEAD
 	ColliderManager::Get()->SetPlayer(player, player->GetCollider());
+=======
+	ColliderManager::Get()->SetPlayer(player);
+>>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 	ColliderManager::Get()->SetObstacles(box1);
 	ColliderManager::Get()->SetObstacles(box2);
 }
@@ -47,6 +66,7 @@ void PlayerScene::Update()
 
 	FOR(2)
 		colliders[i]->UpdateWorld();
+<<<<<<< HEAD
 
 
 	bool isSearching = false;
@@ -74,6 +94,8 @@ void PlayerScene::Update()
 	}
 	if(!isSearching)
 		player->ResetTarget(nullptr, cont);
+=======
+>>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
 }
 
 void PlayerScene::PreRender()

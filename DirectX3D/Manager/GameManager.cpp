@@ -48,9 +48,15 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("ParticleConfig", new ParticleConfigScene());
     //SceneManager::Get()->Create("Human", new HumanScene());
     //SceneManager::Get()->Create("QuadTree", new QuadTreeScene());
+<<<<<<< HEAD
     SceneManager::Get()->Create("GameMap", new GameMapScene());
     //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
     //SceneManager::Get()->Create("Player", new PlayerScene());
+=======
+   // SceneManager::Get()->Create("GameMap", new GameMapScene());
+    //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
+    SceneManager::Get()->Create("Player", new PlayerScene());
+>>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
     //SceneManager::Get()->Create("PlayerMap", new PlayerMapScene());
 
     SceneManager::Get()->Add("Grid");
@@ -72,9 +78,15 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("ParticleConfig");
     //SceneManager::Get()->Add("Human");
     //SceneManager::Get()->Add("QuadTree");
+<<<<<<< HEAD
     SceneManager::Get()->Add("GameMap");
     //SceneManager::Get()->Add("TestNpcScene");
     //SceneManager::Get()->Add("Player");
+=======
+    //SceneManager::Get()->Add("GameMap");
+    //SceneManager::Get()->Add("TestNpcScene");
+    SceneManager::Get()->Add("Player");
+>>>>>>> b40f8b5ae3a8100a0a483a3fe97de15bb1be7890
     //SceneManager::Get()->Add("PlayerMap");
 }
 
