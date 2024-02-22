@@ -4,36 +4,23 @@
 TestNpcScene::TestNpcScene()
 {
     terrain = new TerrainEditor();
-    aStar = new AStar();
-    aStar->SetNode(terrain); //지형에 맞추어서 노드 설치
-
-    fox = new Fox();
-    fox->SetTerrain(terrain);
-    fox->SetAStar(aStar);
-
-
-    instancing = new ModelAnimatorInstancing("character1");
-
-    instancing->ReadClip("Orc_Idle");
-    //instancing->ReadClip("Orc_Walk");
-    instancing->ReadClip("character1@walk3");
-    instancing->ReadClip("Orc_Run");
-    instancing->ReadClip("Orc_Hit");
-    //instancing->ReadClip("Orc_Attack");
-    instancing->ReadClip("character1@atack4");
-    instancing->ReadClip("Orc_Death");
-
+    
     aStar2 = new AStar();
     aStar2->SetNode(terrain);
+    
+    naruto = new Naruto();
+  
 
-    Transform* rt = instancing->Add();
-    orc = new Orc(rt, instancing, orcCount++);
-    orc->GetTransform()->Scale() *= 0.1f;
+    MonsterManager::Get()->SetTarget(naruto); //싱글턴 생성 후, 표적 설정까지
 
-    orc->SetTerrain(terrain);
-    orc->SetAStar(aStar2);
-    orc->SetTarget(fox);
-    orc->SetTargetCollider(fox->GetCollider());
+    MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(80, 0, 80));
+    MonsterManager::Get()->SetType(0,Orc::NPC_TYPE::INFORM);
+    MonsterManager::Get()->SetPatrolPos(0, Vector3(160, 0, 160));
+    MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(60, 0, 150));
+    MonsterManager::Get()->SetPatrolPos(1, Vector3(130, 0, 100));
+    MonsterManager::Get()->SetType(1, Orc::NPC_TYPE::ATTACK);
+    MonsterManager::Get()->SetTerrain(terrain);
+    MonsterManager::Get()->SetAStar(aStar2);
 
 //#pragma region 그림자
 //    shadow = new Shadow();
@@ -62,21 +49,21 @@ TestNpcScene::TestNpcScene()
 TestNpcScene::~TestNpcScene()
 {
     delete terrain;
-    delete aStar;
-    delete aStar2;
-    delete fox;
-    delete orc;
+     delete aStar2;
+  
+    MonsterManager::Delete();
+    delete naruto;
     //delete shadow;
 }
 
 void TestNpcScene::Update()
 {
     aStar2->Update();
-    aStar->Update();
-    fox->Update();
-    orc->Update();
-    instancing->Update();
-    
+ 
+    naruto->Update();
+
+    MonsterManager::Get()->Update();
+   
     //if (KEY_DOWN('1')) light->type = 0;
 }
 
@@ -96,10 +83,10 @@ void TestNpcScene::Render()
 {
     terrain->Render();
     //aStar->Render();
-    aStar2->Render();
-    fox->Render();
-    instancing->Render();
-    orc->Render();
+   // aStar2->Render();
+    naruto->Render();
+    
+    MonsterManager::Get()->Render();
 
 
     // 그림자 관련
@@ -116,11 +103,10 @@ void TestNpcScene::Render()
 
 void TestNpcScene::PostRender()
 {
-    orc->PostRender();
+  
 }
 
 void TestNpcScene::GUIRender()
 {
-    instancing->GUIRender();
-    orc->GUIRender();
+    terrain->GUIRender();
 }

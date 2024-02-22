@@ -8,8 +8,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
 
     //root = new Transform();
 
-    transform->Pos() = startPos;
-
+ 
     motion = instancing->GetMotion(index);
     totalEvent.resize(instancing->GetClipSize()); //모델이 가진 동작 숫자만큼 이벤트 리사이징
     eventIters.resize(instancing->GetClipSize());
@@ -54,7 +53,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     questionMark->Scale() *= 0.1f;
 
     //aStar = new AStar(512, 512);
-    aStar = new AStar(128,128);
+    
     //aStar->SetNode();
 
 }
@@ -66,8 +65,8 @@ Orc::~Orc()
     delete leftWeaponCollider;
     delete rightWeaponCollider;
     delete collider;
-    delete terrain;
-    delete aStar;
+    //delete terrain;
+   // delete aStar;
     delete instancing;
     delete motion;
     //delete root;
@@ -76,13 +75,29 @@ Orc::~Orc()
     delete questionMark;
 }
 
+void Orc::SetType(NPC_TYPE _type) {
+
+    switch (_type)
+    {
+    case Orc::NPC_TYPE::ATTACK:
+        informrange = 100;
+        type = NPC_TYPE::ATTACK;
+        break;
+    case Orc::NPC_TYPE::INFORM:
+        informrange = 750;
+        type = NPC_TYPE::INFORM;
+        break;
+    default:
+        break;
+    }
+}
+
 void Orc::Update()
 {
     if (!transform->Active()) return;
 
+    Direction();
     
-    velocity = target->GlobalPos() - transform->GlobalPos();
-
     CalculateEyeSight();
     Detection();
     ExecuteEvent();
@@ -155,7 +170,7 @@ void Orc::PostRender()
 void Orc::SetTerrain(LevelData* terrain)
 {
     this->terrain = terrain;
-    aStar->SetNode(terrain);
+   
 }
 
 void Orc::SetSRT(Vector3 scale, Vector3 rot, Vector3 pos)
@@ -187,6 +202,16 @@ void Orc::GUIRender()
         ImGui::Text("pathsize : %f", path.size());
     }
     */
+}
+
+void Orc::Direction()
+{
+    if (behaviorstate == NPC_BehaviorState::IDLE) {
+        velocity = PatrolPos[nextPatrol] - transform->GlobalPos();
+    }
+    else {
+        velocity = target->GlobalPos() - transform->GlobalPos();
+    }
 }
 
 void Orc::Hit()
@@ -432,7 +457,16 @@ void Orc::IdleAIMove()
 {
     // WALK애니메이션 해결 -> Orc_Walk0.clip 대신 character1@walk30.clip 사용할 것
 
-    if (IsAiCooldown)
+     
+     Patrol();
+
+
+    
+
+
+    /*
+    
+      if (IsAiCooldown)
     {
         if (isAIWaitCooldown)
         {
@@ -466,6 +500,8 @@ void Orc::IdleAIMove()
         aiCoolTime -= DELTA;
         transform->Pos() += DELTA * walkSpeed * transform->Back();
     }
+    */
+  
 }
 
 void Orc::UpdateUI()
@@ -777,6 +813,11 @@ void Orc::Detection()
   //          bFind = true;
   //          bSensor = true;
   //          behaviorstate = NPC_BehaviorState::DETECT;
+  //          Vector3 pos;
+  //          pos.x =transform->GlobalPos().x;
+  //  pos.y =transform->GlobalPos().y;
+  //  pos.z =transform->GlobalPos().z;
+  //    pos.w=informrange;
   //          MonsterManager::Get()->PushPosition(transform->GlobalPos());
   //          MonsterManager::Get()->CalculateDistance();
   //      }
@@ -814,6 +855,21 @@ void Orc::SetRay(Vector3& _pos)
 
     ray.dir = _pos - ray.pos;
     ray.dir.Normalize();
+}
+
+void Orc::Patrol()
+{
+    if (PatrolPos[nextPatrol].x > transform->GlobalPos().x - 0.1f
+        && PatrolPos[nextPatrol].x < transform->GlobalPos().x + 0.1f) {
+        if (PatrolPos[nextPatrol].z > transform->GlobalPos().z - 0.1f
+            && PatrolPos[nextPatrol].z < transform->GlobalPos().z + 0.1f)
+        {
+            nextPatrol += 1;
+            if (nextPatrol >= PatrolPos.size()) {
+                nextPatrol = 0;
+            }
+        }
+    }
 }
 
 bool Orc::IsStartPos()

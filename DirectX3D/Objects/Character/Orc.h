@@ -19,9 +19,16 @@ private:
         DETECT// 플레이어를 쫓아서 공격하는 상태.
     };
 
+
     typedef TerrainEditor LevelData;
     //typedef Terrain LevelData;
 public:
+    enum class NPC_TYPE {
+        ATTACK,
+        INFORM//탐지범위가 긴 npc
+
+    };
+
     Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index);
     ~Orc();
 
@@ -29,13 +36,19 @@ public:
     void Render();
     void PostRender();
     void GUIRender();
+    void SetPatrolPos(Vector3& _pos) { PatrolPos.push_back(_pos); };
+    void Direction();
+
 
     void SetTerrain(LevelData* terrain);
     void SetAStar(AStar* aStar) { this->aStar = aStar; }
     void SetTarget(Transform* target) { this->target = target; }
     void SetTargetCollider(CapsuleCollider* collider) { targetCollider = collider; }
     void SetSRT(Vector3 scale, Vector3 rot, Vector3 transform);
-    void SetStartPos(Vector3 pos) { this->startPos = pos; }
+    void SetStartPos(Vector3 pos) { this->startPos = pos; this->PatrolPos.push_back(startPos); }
+    void SetType(NPC_TYPE _type);
+    float GetInformRange() { return informrange; }
+
 
     Transform* GetTransform() { return transform; }
     CapsuleCollider* GetCollider() { return collider; }
@@ -76,7 +89,7 @@ private:
     void CalculateEarSight();//귀
     void Detection();
     void SetRay(Vector3& _pos);
-
+    void Patrol();
     bool IsStartPos();
 
 private:
@@ -87,6 +100,11 @@ private:
     bool bSound = false;// 소리 체크
     bool NearFind = false;
     bool bSensor = false;
+
+    float informrange;// 탐지범위
+    NPC_TYPE type;//
+    vector<Vector3> PatrolPos;// 순찰지
+    UINT nextPatrol = 0;// 순찰지 위치
  
     NPC_BehaviorState behaviorstate = NPC_BehaviorState::IDLE;
 
@@ -157,4 +175,6 @@ private:
     float aiWaitCoolTime = 1.5f;
     float curAttackCoolTime = 1.0f;
     float attackCoolTime = 1.0f;
+
+    friend class MonsterManager;
 };

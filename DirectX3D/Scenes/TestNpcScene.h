@@ -29,6 +29,7 @@ private:
 	AStar* aStar2;
 
 	Fox* fox;
+	Naruto* naruto;
 	RobotA* robot;
 	Orc* orc;
 
