@@ -3,12 +3,7 @@
 
 PlayerScene::PlayerScene()
 {
-	CAM->Pos() = { -296.339 , 742.889 , -449.494 };
-	CAM->Rot() = { 70 , 90 , 0};
-
 	ColliderManager::Get();
-
-	player = new Player();
 
 	box1 = new BoxCollider();
 	box1->Pos() = { 0, 0, -500 };
@@ -24,8 +19,14 @@ PlayerScene::PlayerScene()
 	box2->Scale().y *= 1000;
 	box2->SetTag("2");
 
+	player = new Player();
+	player->Scale() = { 0.03f,0.03f,0.03f };
+	player->Pos() = { 60,0,90 };
+
+	player->SetMoveSpeed(50);
+
 	CAM->SetTarget(player);
-	CAM->TargetOptionLoad("Player");
+	CAM->TargetOptionLoad("GameMapScenePlayer");
 	CAM->LookAtTarget();
 
 	colliders.push_back(box1);

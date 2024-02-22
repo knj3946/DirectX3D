@@ -72,16 +72,13 @@
 Player::Player()
     : ModelAnimator("akai")
 {
-    CAM->Pos() = { -309.720, 742.889, -247.274 };
-    CAM->Rot() = { 75, 90, 0 };
-
     targetTransform = new Transform();
     //straightRay = Ray(Pos(), Back());
 
     //Scale() *= 0.1f;
     // 윈도우 핸들러의 정보값(중 윈도우 크기)을 두 번째 매개변수에 저장
-    //ClientToScreen(hWnd, &clientCenterPos);
-    //SetCursorPos(clientCenterPos.x, clientCenterPos.y);
+    ClientToScreen(hWnd, &clientCenterPos);
+    SetCursorPos(clientCenterPos.x, clientCenterPos.y);
 
     collider = new CapsuleCollider(25.0f, 160);
     collider->SetParent(this);
@@ -126,7 +123,7 @@ Player::~Player()
 
 void Player::Update()
 {
-    collider->Pos().y = collider->Height() / 2.0f + collider->Radius();
+    collider->GlobalPos().y = collider->Height() / 2.0f + collider->Radius();
     collider->UpdateWorld();
 
     Control();
@@ -158,13 +155,13 @@ void Player::GUIRender()
     ImGui::SliderFloat("deceleration", &deceleration, 1, 10);
 
     //점프 힘
-    ImGui::SliderFloat("force1", &force1, 100, 1000);
-    ImGui::SliderFloat("force2", &force2, 100, 1000);
-    ImGui::SliderFloat("force3", &force3, 100, 1000);
+    ImGui::SliderFloat("force1", &force1, 1, 500);
+    ImGui::SliderFloat("force2", &force2, 1, 500);
+    ImGui::SliderFloat("force3", &force3, 1, 500);
 
-    ImGui::SliderFloat("jumpSpeed", &jumpSpeed, 1.0f, 3.0f);
+    ImGui::SliderFloat("jumpSpeed", &jumpSpeed, 0.01f, 5.0f);
     //중력
-    ImGui::SliderFloat("gravityMult", &gravityMult, 100, 1000);
+    ImGui::SliderFloat("gravityMult", &gravityMult, 1, 100);
 
     //3단 점프 구현시 조건 변수
     ImGui::InputFloat("JumpVel", (float*)&jumpVel);
@@ -183,7 +180,7 @@ void Player::Control()
     if (KEY_PRESS(VK_RBUTTON))
         return;
 
-    //Rotate();
+    Rotate();
     Move();
     Jumping();
 
@@ -225,13 +222,11 @@ void Player::Move() //이동 관련(기본 이동, 암살 이동, 착지 후 이동제한, 특정 행�
 void Player::Rotate()
 {
     Vector3 delta = mousePos - Vector3(CENTER_X, CENTER_Y);
-    //// 마우스가 움직일 때마다 위치를 중간으로 고정
-    SetCursorPos(CENTER_X, CENTER_Y);
-    //// -> 혹시 위 두 줄이 조작 시에 잘 안 된다면 CENTER_XY와 clinetCenterPos 표시를 바꿔보면 될지도
 
-    ////델타에 의한 캐릭터와 카메라 양쪽을 모두 회전
-    Rot().y += delta.x * rotSpeed * DELTA; // 캐릭터 좌우회전 (추적 중이라 카메라도 따라갈 것)
-    CAM->Rot().x -= delta.y * rotSpeed * DELTA; // 카메라 상하회전
+    SetCursorPos(clientCenterPos.x, clientCenterPos.y);
+
+    Rot().y += delta.x * rotSpeed * DELTA;
+    CAM->Rot().x -= delta.y * rotSpeed * DELTA;
     
     if (KEY_PRESS('Q'))
         Rot().y -= DELTA * 2;

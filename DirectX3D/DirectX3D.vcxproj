@@ -586,6 +586,7 @@
   <ItemGroup>
     <None Include="Shaders\PixelHeader.hlsli" />
     <None Include="Shaders\VertexHeader.hlsli" />
+    <None Include="TextData\Camera\GameMapScenePlayer.cam" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
