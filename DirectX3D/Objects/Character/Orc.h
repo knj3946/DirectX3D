@@ -177,4 +177,7 @@ private:
     float attackCoolTime = 1.0f;
 
     friend class MonsterManager;
+    bool PatrolChange = false;
+    float WaitTime = 0.f;
+
 };

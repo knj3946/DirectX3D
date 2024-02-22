@@ -354,14 +354,14 @@ void Orc::Control()
 
                 //path.clear();
                 
-                if (aStar->IsCollisionObstacle(transform->GlobalPos(), startPos))// 중간에 장애물이 있으면
+                if (aStar->IsCollisionObstacle(transform->GlobalPos(), PatrolPos[nextPatrol]))// 중간에 장애물이 있으면
                 {
-                    SetPath(startPos); // 구체적인 경로 내어서 가기
+                    SetPath(PatrolPos[nextPatrol]); // 구체적인 경로 내어서 가기
                 }
                 else
                 {
                     path.clear(); // 굳이 장애물없는데 길찾기 필요 x
-                    path.push_back(startPos); // 가야할 곳만 경로에 집어넣기
+                    path.push_back(PatrolPos[nextPatrol]); // 가야할 곳만 경로에 집어넣기
                 }
 
                 if (IsStartPos())
@@ -459,10 +459,22 @@ void Orc::IdleAIMove()
 
      
      Patrol();
+     if (PatrolChange) {
+         if (WaitTime >= 2.f) {
+             WaitTime = 0.f;
+             PatrolChange = false;
+             SetState(WALK);
+         }
+         else {
+             WaitTime += DELTA;
+         }
+     }
 
-
-    
-
+     if (curState == WALK)
+     {
+         transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI;
+         transform->Pos() += DELTA * walkSpeed * transform->Back();
+     }
 
     /*
     
@@ -868,6 +880,8 @@ void Orc::Patrol()
             if (nextPatrol >= PatrolPos.size()) {
                 nextPatrol = 0;
             }
+            PatrolChange = true;
+            SetState(IDLE);
         }
     }
 }
@@ -875,8 +889,8 @@ void Orc::Patrol()
 bool Orc::IsStartPos()
 {
     
-    if (startPos.x + 1.0f > transform->Pos().x && startPos.x - 1.0f < transform->Pos().x &&
-        startPos.z + 1.0f > transform->Pos().z && startPos.z - 1.0f < transform->Pos().z)
+    if (PatrolPos[nextPatrol].x + 1.0f > transform->Pos().x && PatrolPos[nextPatrol].x - 1.0f < transform->Pos().x &&
+        PatrolPos[nextPatrol].z + 1.0f > transform->Pos().z && PatrolPos[nextPatrol].z - 1.0f < transform->Pos().z)
         return true;
     else return false;
 }

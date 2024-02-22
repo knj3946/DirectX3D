@@ -16,9 +16,7 @@ TestNpcScene::TestNpcScene()
     MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(80, 0, 80));
     MonsterManager::Get()->SetType(0,Orc::NPC_TYPE::INFORM);
     MonsterManager::Get()->SetPatrolPos(0, Vector3(160, 0, 160));
-    MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(60, 0, 150));
-    MonsterManager::Get()->SetPatrolPos(1, Vector3(130, 0, 100));
-    MonsterManager::Get()->SetType(1, Orc::NPC_TYPE::ATTACK);
+    
     MonsterManager::Get()->SetTerrain(terrain);
     MonsterManager::Get()->SetAStar(aStar2);
 
