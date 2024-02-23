@@ -182,6 +182,7 @@ private:
     bool PatrolChange = false;
     float WaitTime = 0.f;
     float rangetime = 0.f;
+    float rangeDegreez;
     UINT m_uiRangeCheck = 0;// 왼쪽 1 오른쪽 2
 
 };

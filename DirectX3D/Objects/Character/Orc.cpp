@@ -356,7 +356,7 @@ void Orc::Control()
                     if (!missTargetTrigger)
                     {
                         missTargetTrigger = true;
-                        DetectionStartTime = 2.0f;
+                  //      DetectionStartTime = 2.0f;
                     }
 
                 }
@@ -367,7 +367,7 @@ void Orc::Control()
                 if (!missTargetTrigger)
                 {
                     missTargetTrigger = true;
-                    DetectionStartTime = 2.0f;
+             //       DetectionStartTime = 2.0f;
                     path.clear();
                 }
 
@@ -408,6 +408,7 @@ void Orc::Move()
 
             if (dist.Length() <= 0.5f)
             {
+
                 SetState(IDLE);
                 return;
             }
@@ -416,6 +417,8 @@ void Orc::Move()
 
     if (velocity.Length() >= 5 && curState == ATTACK)
     {
+        if (behaviorstate == NPC_BehaviorState::CHECK)
+            return;
         SetState(RUN);
         return;
     }
@@ -870,11 +873,11 @@ void Orc::Detection()
             if (DetectionStartTime <= 0.f) {
                 DetectionStartTime = 0.f;
                 bFind = false;
-                if (behaviorstate != NPC_BehaviorState::IDLE)
-                {
-                    behaviorstate = NPC_BehaviorState::CHECK;
-                    SetState(IDLE);
-                }missTargetTrigger = false;
+              
+                behaviorstate = NPC_BehaviorState::CHECK;
+                SetState(IDLE);
+                missTargetTrigger = false;
+                rangeDegree = transform->Rot().y;
             }
         }
     }
@@ -889,7 +892,6 @@ void Orc::Detection()
         pos.w = informrange;
         MonsterManager::Get()->PushPosition(pos);
         MonsterManager::Get()->CalculateDistance();
-
         if (curState == IDLE)
             SetState(RUN);
     }
@@ -955,6 +957,7 @@ void Orc::RangeCheck()
         m_uiRangeCheck = 0;
         SetState(WALK);
         missTargetTrigger = false;
+        isTracking = false;
     }
 }
 
