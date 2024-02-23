@@ -186,7 +186,10 @@ private:
 
     int rightHandNode = 35;
     float x;
-    float y = 10;
-    float z = 1.5;
+    float y = 0.400f;
+    float z = -0.700f;
+    float x1 = 4.300;
+    float y2 = 10.000f;
+    float z3 = -2.100f;
     float s;
 };

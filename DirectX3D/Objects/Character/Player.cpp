@@ -182,7 +182,6 @@ Player::~Player()
 
 void Player::Update()
 {
-    weaponCollider->SetActive(false);
     collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
     collider->UpdateWorld();
 
@@ -209,10 +208,12 @@ void Player::Update()
     rightHand->SetWorld(this->GetTransformByNode(rightHandNode));
     weaponCollider->UpdateWorld();
 
-    weapon->Pos() = { 0, 10, 0 };
     weapon->Rot().x = x;
     weapon->Rot().y = y;
     weapon->Rot().z = z;
+    weapon->Pos().x = x1;
+    weapon->Pos().y = y2;
+    weapon->Pos().z = z3;
     weapon->UpdateWorld();
 }
 
@@ -261,10 +262,13 @@ void Player::GUIRender()
 
     ImGui::InputInt("rightHandNode", &rightHandNode);
 
-    ImGui::SliderFloat("x", &x, 0.001f, 360.0f);
-    ImGui::SliderFloat("y", &y, 0.001f, 360.0f);
-    ImGui::InputFloat("z", &z, 0.001f, 360.0f);
-    ImGui::SliderFloat("s", &s, 0.001f, 360.0f);
+    ImGui::InputFloat("x", &x, 0.1f, 360.0f);
+    ImGui::InputFloat("y", &y, 0.1f, 360.0f);
+    ImGui::InputFloat("z", &z, 0.1f, 360.0f);
+    ImGui::InputFloat("x1", &x1, 0.1f, 360.0f);
+    ImGui::InputFloat("y2", &y2, 0.1f, 360.0f);
+    ImGui::InputFloat("z3", &z3, 0.1f, 360.0f);
+    ImGui::SliderFloat("s", &s, 0.1f, 360.0f);
 }
 
 void Player::SetTerrain(LevelData* terrain)
@@ -297,6 +301,8 @@ void Player::SetTerrain(LevelData* terrain)
 
 void Player::Control()  //사용자의 키보드, 마우스 입력 처리
 {
+    weaponCollider->SetActive(false);
+
     if (KEY_DOWN(VK_TAB))
     {
         camera = !camera;
@@ -700,7 +706,7 @@ void Player::AttackCombo()
     comboHolding = 1.5f;
     comboStack++;
     if (comboStack == 3)
-        comboStack = 0;
+        comboStack = 2;
 }
 
 void Player::CanCombo()
