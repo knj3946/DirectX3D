@@ -152,11 +152,6 @@ private:
 
     float teleport = 110.000f;
 
-    bool w = true;
-    bool s = true;
-    bool a = true;
-    bool d = true;
-
     float temp = 12.5f;
     bool camera = true;
 
@@ -185,8 +180,13 @@ private:
     float comboHolding = 0.0f;   //comboStack이 유지되는 시간, 이 변수의 값은 공격의 진행시간마다 다르게 초기화
     bool combo = false;    //대거 1번 2번 공격이 스무스하게 연결되도록 대거 1번 애니메이션 진행 중간쯤에 이 변수 true로 만들기
 
-    CapsuleCollider* weapon;
+    Model* weapon;
+    CapsuleCollider* weaponCollider;
     Transform* rightHand;
 
-    int nodeNum = 0;
+    int rightHandNode = 35;
+    float x;
+    float y = 10;
+    float z = 1.5;
+    float s;
 };

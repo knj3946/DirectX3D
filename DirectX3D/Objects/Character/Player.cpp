@@ -87,9 +87,14 @@ Player::Player()
     footRay->pos = Pos();
     footRay->dir = Pos().Down();
 
+    weapon = new Model("dagger");
+    weapon->Scale() *= 100;
+    //weapon->Rot();
+
     rightHand = new Transform();
-    weapon = new CapsuleCollider(10, 50);
-    weapon->Pos().y += 20;
+    weaponCollider = new CapsuleCollider(10, 50);
+    weaponCollider->Pos().y += 20;
+    weaponCollider->SetParent(rightHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
     weapon->SetParent(rightHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
     
 
@@ -171,11 +176,13 @@ Player::~Player()
     delete targetObject;
 
     delete rightHand;
+    delete weaponCollider;
     delete weapon;
 }
 
 void Player::Update()
 {
+    weaponCollider->SetActive(false);
     collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
     collider->UpdateWorld();
 
@@ -199,7 +206,13 @@ void Player::Update()
         comboStack = 0;
     }
 
-    rightHand->SetWorld(this->GetTransformByNode(nodeNum));
+    rightHand->SetWorld(this->GetTransformByNode(rightHandNode));
+    weaponCollider->UpdateWorld();
+
+    weapon->Pos() = { 0, 10, 0 };
+    weapon->Rot().x = x;
+    weapon->Rot().y = y;
+    weapon->Rot().z = z;
     weapon->UpdateWorld();
 }
 
@@ -207,6 +220,8 @@ void Player::Render()
 {
     ModelAnimator::Render();
     collider->Render();
+
+    weaponCollider->Render();
 
     weapon->Render();
 }
@@ -244,7 +259,12 @@ void Player::GUIRender()
     ImGui::InputFloat("landingT", (float*)&landingT);
     ImGui::InputFloat("landing", (float*)&landing);
 
-    ImGui::InputInt("nodeNum", &nodeNum);
+    ImGui::InputInt("rightHandNode", &rightHandNode);
+
+    ImGui::SliderFloat("x", &x, 0.001f, 360.0f);
+    ImGui::SliderFloat("y", &y, 0.001f, 360.0f);
+    ImGui::InputFloat("z", &z, 0.001f, 360.0f);
+    ImGui::SliderFloat("s", &s, 0.001f, 360.0f);
 }
 
 void Player::SetTerrain(LevelData* terrain)
@@ -318,7 +338,7 @@ void Player::Control()  //사용자의 키보드, 마우스 입력 처리
         return;
     }
 
-    if (KEY_PRESS(VK_LBUTTON))
+    if (KEY_PRESS('G'))
     {
         AttackCombo();
         return;
