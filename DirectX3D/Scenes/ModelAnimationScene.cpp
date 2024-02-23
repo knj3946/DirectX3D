@@ -31,7 +31,7 @@ ModelAnimationScene::ModelAnimationScene()
 	}
 	*/
 	//클립 생성해두기 
-	string modelName = "character1";
+	string modelName = "akai";
 	/*string clipNames[] = {
 		"character1@idle1"
 		,"character1@idle2"
@@ -85,7 +85,9 @@ ModelAnimationScene::ModelAnimationScene()
 		,"character1@gethit"
 	};*/
 	string clipNames[] = {
-		"Orc_Hit"
+		"Side Kick"
+		,"Punching"
+		,"Head Hit"
 	};
 	/*
 	string modelName = "character1";
@@ -105,10 +107,10 @@ ModelAnimationScene::ModelAnimationScene()
 		delete exporter;
 	}
 	*/
-	model = new ModelAnimator("character1");
+	model = new ModelAnimator("akai");
 	for (string clipName : clipNames)
 	{
-		model->ReadClip(clipName,0);
+		model->ReadClip(clipName);
 	}
 
 	

@@ -28,20 +28,24 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     collider->SetParent(transform);
     //collider->Rot().z = XM_PIDIV2 - 0.2f;
     collider->Pos() = { -15, 80, 0 };
-    collider->SetActive(true);
+    collider->SetActive(false); //spawn 할때 활성화
 
     // 무기 충돌체
     leftHand = new Transform();
     leftWeaponCollider = new CapsuleCollider(8,50);
     leftWeaponCollider->Pos().y += 20;
     leftWeaponCollider->SetParent(leftHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
-    leftWeaponCollider->SetActive(true);
+    leftWeaponCollider->SetActive(false); //attack 할때 활성화
+
+    weaponColliders.push_back(leftWeaponCollider);
 
     rightHand = new Transform();
     rightWeaponCollider = new CapsuleCollider(6, 30);
     //rightWeaponCollider->Pos().y += 20;
     rightWeaponCollider->SetParent(rightHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
-    rightWeaponCollider->SetActive(true);
+    rightWeaponCollider->SetActive(false); //attack 할때 활성화
+
+    weaponColliders.push_back(rightWeaponCollider);
 
     // hp UI
     hpBar = new ProgressBar(L"Textures/UI/hp_bar.png", L"Textures/UI/hp_bar_BG.png");
@@ -76,6 +80,8 @@ Orc::~Orc()
     delete transform;
     delete exclamationMark;
     delete questionMark;
+    for (Collider* wcollider : weaponColliders)
+        delete wcollider;
 }
 
 void Orc::Update()
@@ -121,10 +127,14 @@ void Orc::Update()
                     Move();
                     wateTime = 1.0f; //ATTACK 애니메이션이 끝나고 이동해야 하기 때문
                 }
+                leftWeaponCollider->SetActive(true);
+                rightWeaponCollider->SetActive(true);
                 break;
             }
             default:
                 Move();
+                leftWeaponCollider->SetActive(false);
+                rightWeaponCollider->SetActive(false);
             }
             wateTime -= DELTA;
         }
@@ -221,11 +231,21 @@ void Orc::GUIRender()
     */
 }
 
-void Orc::Hit()
+float Orc::GetDamage()
+{
+    float r = 0.0f;
+    if (curState == ATTACK)
+    {
+        r = 10.0f;
+    }
+    return r;
+}
+
+void Orc::Hit(float damage)
 {
     if (!isHit)
     {
-        destHP = (curHP - 30 > 0) ? curHP - 30 : 0; //데미지 현재 고정 30
+        destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
         collider->SetActive(false);
         leftWeaponCollider->SetActive(false);
@@ -249,15 +269,17 @@ void Orc::Hit()
 
 void Orc::Spawn(Vector3 pos)
 {
-    transform->SetActive(true); //비활성화였다면 활성화 시작
-    collider->SetActive(true);
-
     SetState(IDLE); // 가볍게 산책
 
     curHP = maxHp;
     hpBar->SetAmount(curHP / maxHp);
 
     transform->Pos() = pos;
+
+    transform->SetActive(true); //비활성화였다면 활성화 시작
+    collider->SetActive(true);
+    //leftWeaponCollider->SetActive(true);
+    //rightWeaponCollider->SetActive(true);
 }
 
 void Orc::AttackTarget()
@@ -269,23 +291,6 @@ void Orc::AttackTarget()
         //if (curState == IDLE)
             SetState(RUN);
     }
-}
-
-float Orc::GetCurAttackCoolTime()
-{
-    return curAttackCoolTime;
-}
-
-void Orc::SetAttackCoolDown()
-{
-    curAttackCoolTime = attackCoolTime; // 어택쿨타임
-}
-
-void Orc::FillAttackCoolTime()
-{
-    curAttackCoolTime -= DELTA;
-    if (curAttackCoolTime < 0)
-        curAttackCoolTime = 0;
 }
 
 void Orc::Control()
@@ -318,7 +323,7 @@ void Orc::Control()
                 else
                 {
                     path.clear();
-                    SetState(ATTACK);
+                    SetState(ATTACK,3.0f);
                 }
 
             }
@@ -557,7 +562,7 @@ void Orc::IdleAIMove()
 
 void Orc::UpdateUI()
 {
-    Vector3 barPos = transform->Pos() + Vector3(0, 20, 0);
+    Vector3 barPos = transform->Pos() + Vector3(0, 6, 0);
 
     if (bDetection)
     {
@@ -615,7 +620,7 @@ void Orc::UpdateUI()
             leftWeaponCollider->SetActive(true);
             rightWeaponCollider->SetActive(true);
 
-            SetState(ATTACK); // 맞은 다음에 일단은 공격상태로 돌아가게 만듬 (나중에 수정 필요할 수도)
+            SetState(ATTACK,3.0f); // 맞은 다음에 일단은 공격상태로 돌아가게 만듬 (나중에 수정 필요할 수도)
         }
         hpBar->SetAmount(curHP / maxHp);
     }
@@ -635,7 +640,7 @@ void Orc::UpdateUI()
 
 
 
-void Orc::SetState(State state)
+void Orc::SetState(State state, float scale, float takeTime)
 {
     if (state == curState) return; // 이미 그 상태라면 굳이 변환 필요 없음
 
@@ -643,7 +648,7 @@ void Orc::SetState(State state)
     //if(state==WALK)
       //  instancing->PlayClip(index, (int)state,0.5f); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
     //else 
-        instancing->PlayClip(index, (int)state); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
+        instancing->PlayClip(index, (int)state, scale, takeTime); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
     eventIters[state] = totalEvent[state].begin(); //이벤트 반복자도 등록된 이벤트 시작시점으로
 
     // ->이렇게 상태와 동작을 하나로 통합해두면

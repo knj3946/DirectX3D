@@ -75,8 +75,10 @@ public:
 
     Transform* GetTransform() { return transform; }
     CapsuleCollider* GetCollider() { return collider; }
-
-    void Hit();
+    vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
+    
+    float GetDamage();
+    void Hit(float damage);
     void Spawn(Vector3 pos);
 
     void AddObstacleObj(Collider* collider);
@@ -84,10 +86,6 @@ public:
     bool IsFindTarget() { return bFind; };
 
     void AttackTarget();
-
-    float GetCurAttackCoolTime();
-    void SetAttackCoolDown();
-    void FillAttackCoolTime();
 
     bool FindTarget() { return bSensor; }
 
@@ -99,7 +97,7 @@ private:
     void IdleAIMove();
     void UpdateUI();
 
-    void SetState(State state);
+    void SetState(State state, float scale = 1.0f, float takeTime = 0.2f);
     void SetPath(Vector3 targetPos);
 
     void SetEvent(int clip, Event event, float timeRatio);
@@ -160,6 +158,7 @@ private:
     //Transform* root;
     Transform* transform;
     CapsuleCollider* collider;
+    vector<Collider*> weaponColliders;
 
     ProgressBar* hpBar;
     float curHP = 100, maxHp = 100;
@@ -192,8 +191,6 @@ private:
     float aiCoolTime = 2.0f;
     bool isAIWaitCooldown = false;
     float aiWaitCoolTime = 1.5f;
-    float curAttackCoolTime = 1.0f;
-    float attackCoolTime = 1.0f;
 
     RayBuffer* rayBuffer;
     StructuredBuffer* structuredBuffer;

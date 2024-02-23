@@ -107,6 +107,13 @@ Player::Player()
     ReadClip("Crouched Sneaking Left"); // 동작이 0뒤에 1까지 있음
     ReadClip("Crouch Turn To Stand"); // 동작이 0뒤에 1까지 있음
 
+    ReadClip("Turning Right"); // TO_ASSASIN //뭔지 몰라서 아무거나 넣어둠
+
+    ReadClip("Side Kick"); // ATTACK
+    ReadClip("Head Hit"); // HIT
+    
+    
+
     GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.1f);  //점프시작
     GetClip(JUMP1)->SetEvent(bind(&Player::AfterJumpAnimation, this), 0.20001f);   //하강
 
@@ -116,8 +123,14 @@ Player::Player()
 
     //GetClip(TO_ASSASIN)->SetEvent(bind(&Player::Assasination, this), 0.01f);   //암살
 
+    GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f); // 히트가 끝나고
+
     computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
     rayBuffer = new RayBuffer();
+
+    hpBar = new ProgressBar(L"Textures/UI/hp_bar.png", L"Textures/UI/hp_bar_BG.png");
+    hpBar->Scale() *= 0.6f;
+    hpBar->SetAmount(curHP / maxHp);
 }
 
 Player::~Player()
@@ -139,6 +152,8 @@ void Player::Update()
     footRay->pos = collider->GlobalPos();
     footRay->dir = Down();
 
+    UpdateUI();
+
     Control();
     Searching();
 
@@ -155,6 +170,7 @@ void Player::Render()
 
 void Player::PostRender()
 {
+    hpBar->Render();
 }
 
 void Player::GUIRender()
@@ -222,8 +238,34 @@ void Player::Control()
         return;
 
     Rotate();
+
+    if (isHit) //맞는 중에는 못움직임
+    {
+        return;
+    }
+
+    switch (curState)
+    {
+        case ATTACK:
+        {
+            //leftWeaponCollider->SetActive(true);
+            //rightWeaponCollider->SetActive(true);
+            break;
+        }
+        default:
+        {
+            //leftWeaponCollider->SetActive(false);
+            //rightWeaponCollider->SetActive(false);
+        }  
+    }
+
     Move();
     Jumping();
+
+    if (KEY_DOWN('1'))
+    {
+        SetState(ATTACK);
+    }
 
     if(targetObject != nullptr && KEY_DOWN('F'))
     {
@@ -264,6 +306,34 @@ void Player::Move() //이동 관련(기본 이동, 암살 이동, 착지 후 이동제한, 특정 행�
     }
 
     Walking();
+}
+
+void Player::UpdateUI()
+{
+    if (isHit)
+    {
+        curHP -= DELTA * 10 * 2;
+        State aa = curState;
+
+        if (curHP <= destHP)
+        {
+            curHP = destHP;
+        }
+        hpBar->SetAmount(curHP / maxHp);
+    }
+    
+    Vector3 barPos = Pos() + Vector3(0, 6, 0);
+
+    hpBar->UpdateWorld();
+
+    if (!CAM->ContainPoint(barPos))
+    {
+        hpBar->SetActive(false);
+        return;
+    }
+
+    if (!hpBar->Active()) hpBar->SetActive(true);
+    hpBar->Pos() = CAM->WorldToScreen(barPos);
 }
 
 void Player::Rotate()
@@ -442,6 +512,13 @@ bool Player::InTheAir() {
     return ((curState == JUMP1 || curState == JUMP2 || curState == JUMP3) && Pos().y > feedBackPos.y);
 }
 
+void Player::EndHit()
+{
+    isHit = false;
+    collider->SetActive(true);
+    SetState(IDLE);
+}
+
 bool Player::TerainComputePicking(Vector3& feedback, Ray ray)
 {    
     if (terrain && structuredBuffer)
@@ -490,12 +567,43 @@ bool Player::TerainComputePicking(Vector3& feedback, Ray ray)
     return false;
 }
 
-void Player::SetState(State state)
+float Player::GetDamage()
+{
+    float r = 0.0f;
+    if (curState == ATTACK)
+    {
+        r = 10.0f;
+    }
+    return r;
+}
+
+void Player::Hit(float damage)
+{
+    if (!isHit)
+    {
+        destHP = (curHP - damage > 0) ? curHP - damage : 0;
+
+        collider->SetActive(false);
+        if (destHP <= 0)
+        {
+            //SetState(DYING);
+            //게임오버
+            return;
+        }
+
+        SetState(HIT,0.8f);
+
+        isHit = true;
+    }
+
+}
+
+void Player::SetState(State state, float scale, float takeTime)
 {
     if (state == curState) return;
-
+    
     curState = state;
-    PlayClip((int)state);
+    PlayClip((int)state,scale,takeTime);
 }
 
 void Player::SetAnimation()
@@ -503,6 +611,9 @@ void Player::SetAnimation()
     if (curState == JUMP1 || curState == JUMP3 || Pos().y > 0.0f) return;   //높이가 바뀌는 경우가 생기기 때문에 Pos().y의 조건 값을 변수로 바꾸기
  /*   if (toCover)
         return;*/
+
+    if (curState == HIT || curState == ATTACK)
+        return;
 
     if (velocity.z > 0.01f && velocity.x < -0.1f)
         SetState(RUN_DL);

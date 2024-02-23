@@ -206,20 +206,29 @@ void MonsterManager::Fight(Player* player)
             //¸ó½ºÅÍ°¡ ¸ÂÀ»¶§
             if (collider)
             {
-                if (collider->IsCapsuleCollision(orc->GetCollider()) && player->GetCurAttackCoolTime() == 0) //¼Õ Ãæµ¹Ã¼°¡ Å¸°ÙÀÌ¶û °ãÄ¥¶§ //¾îÅÃ µ¿ÀÛ ÇÏ³ª´ç ÇÑ¹øÀÇ Å¸°Ý¸¸ ÇØ¾ßÇÔ
+                if (collider->IsCapsuleCollision(orc->GetCollider())) //¼Õ Ãæµ¹Ã¼°¡ Å¸°ÙÀÌ¶û °ãÄ¥¶§
                 {
-                    player->SetAttackCoolDown();
-                    orc->Hit();
-                }
-                else
-                {
-                    player->FillAttackCoolTime();
+                    orc->Hit(player->GetDamage());
                 }
             }
 
         }
     }
 
+    for (Orc* orc : orcs)
+    {
+        for (Collider* collider : orc->GetWeaponColliders())
+        {
+            if (collider)
+            {
+                if (collider->IsCapsuleCollision(player->GetCollider())) //¿ÀÅ©ÀÇ ¿þÆù Ãæµ¹Ã¼°¡ Å¸°ÙÀÌ¶û °ãÄ¥¶§
+                {
+                    player->Hit(orc->GetDamage());
+                }
+            }
+        }
+
+    }
 }
 
 void MonsterManager::CalculateDistance()

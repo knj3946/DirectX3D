@@ -9,7 +9,9 @@ private:
         RUN_DL, RUN_DR,
         JUMP1, JUMP2, JUMP3,
         TO_COVER, C_IDLE, C_R, C_L, TO_STAND,
-        TO_ASSASIN
+        TO_ASSASIN,
+        ATTACK,
+        HIT
     };
 
     class RayBuffer : public ConstBuffer
@@ -69,19 +71,15 @@ public:
 
     void ResetTarget(Collider* collider, Contact contact) { targetObject = collider; this->contact = contact; }
 
-    float GetCurAttackCoolTime() { return curAttackCoolTime; }
-    void SetAttackCoolDown() { curAttackCoolTime = attackCoolTime; }  // 어택쿨타임
-    void FillAttackCoolTime() {
-        curAttackCoolTime -= DELTA;
-        if (curAttackCoolTime < 0)
-            curAttackCoolTime = 0;
-    }
     void SetTerrain(LevelData* terrain);
-
+    
+    float GetDamage();
+    void Hit(float damage);
 
 private:
     void Control();
     void Move();
+    void UpdateUI();
 
     void Rotate();
     void Walking();
@@ -93,13 +91,14 @@ private:
     void Assasination();
 
     void SetAnimation();
-    void SetState(State state);
+    void SetState(State state, float scale = 1.0f, float takeTime = 0.2f);
     void SetIdle();
     void Searching();
     bool InTheAir();
 
-    bool TerainComputePicking(Vector3& feedback, Ray ray);
+    void EndHit();
 
+    bool TerainComputePicking(Vector3& feedback, Ray ray);
 
 private:
 
@@ -148,9 +147,6 @@ private:
     bool a = true;
     bool d = true;
 
-    float curAttackCoolTime = 1.0f;
-    float attackCoolTime = 2.0f;
-
     float temp = 12.5f;
     bool camera = true;
 
@@ -169,4 +165,9 @@ private:
     int limitGroundHeight = 10;
 
     Vector3 feedBackPos;
+
+    ProgressBar* hpBar;
+    float curHP = 100, maxHp = 100;
+    float destHP;
+    bool isHit = false;
 };

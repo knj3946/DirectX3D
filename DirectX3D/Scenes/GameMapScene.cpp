@@ -169,7 +169,7 @@ void GameMapScene::Update()
 	}
 	Audio::Get()->Update();
 
-	if (KEY_UP('1'))
+	if (KEY_UP('7')) // 123456 은 플레이어 조작에 써야되서 바꿈
 	{
 		if (Audio::Get()->IsPlaySound("bgm1")) // 1번사운드가 플레이 중이라면
 		{
@@ -209,7 +209,14 @@ void GameMapScene::Update()
 		}
 	}
 
-	MonsterManager::Get()->Fight(player);
+	if (waitSettingTime >= 1)
+	{
+		MonsterManager::Get()->Fight(player);
+	}
+	else
+		waitSettingTime += DELTA;
+
+	
 }
 
 void GameMapScene::PreRender()
