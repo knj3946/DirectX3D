@@ -100,9 +100,9 @@ void Orc::Update()
     
     CalculateEyeSight();
     Detection();
+    RangeCheck();
     ExecuteEvent();
     UpdateUI();
-
     if (!collider->Active())return;
 
     if (isHit)
@@ -281,8 +281,28 @@ void Orc::FillAttackCoolTime()
         curAttackCoolTime = 0;
 }
 
+void Orc::Findrange()
+{
+    if (curState == ATTACK)return;
+    bFind = true; bDetection = true;
+    DetectionStartTime = DetectionEndTime;
+    isTracking = true;
+    SetState(RUN);
+    if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
+    {
+        SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
+    }
+    else
+    {
+        path.clear(); // 굳이 장애물없는데 길찾기 필요 x
+        path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
+    }
+    behaviorstate = NPC_BehaviorState::DETECT;
+}
 void Orc::Control()
 {
+    if (behaviorstate == NPC_BehaviorState::CHECK)return;
+
     if (searchCoolDown > 1)
     {
         Vector3 dist = target->Pos() - transform->GlobalPos();
@@ -399,13 +419,15 @@ void Orc::Move()
         SetState(RUN);
         return;
     }
-
+    float f=velocity.Length();
     if (curState == IDLE) return; 
     if (curState == ATTACK) return;
     if (curState == HIT) return;
     if (curState == DYING) return;
-    if (velocity.Length() < 5) return;
-    
+    if (behaviorstate == NPC_BehaviorState::CHECK)return;
+    if (velocity.Length() < 5&&!missTargetTrigger) return;
+    if (velocity.Length() < 0.1f && missTargetTrigger) return;
+
     if (!path.empty())
     {
         // 가야할 곳이 있다
@@ -457,7 +479,7 @@ void Orc::IdleAIMove()
 {
     // WALK애니메이션 해결 -> Orc_Walk0.clip 대신 character1@walk30.clip 사용할 것
 
-     
+    if (behaviorstate == NPC_BehaviorState::CHECK)return;
      Patrol();
      if (PatrolChange) {
          if (WaitTime >= 2.f) {
@@ -798,6 +820,7 @@ void Orc::CalculateEarSight()
         CheckPoint = pos;
         StorePos = transform->GlobalPos();
         bFind = true;
+
     }
 
 
@@ -834,7 +857,7 @@ void Orc::Detection()
   //          MonsterManager::Get()->CalculateDistance();
   //      }
   //  } 추후 논의
-
+    
     if (bDetection) {
         DetectionStartTime += DELTA;
     }
@@ -847,14 +870,26 @@ void Orc::Detection()
             if (DetectionStartTime <= 0.f) {
                 DetectionStartTime = 0.f;
                 bFind = false;
-                
-                missTargetTrigger = false;
+                if (behaviorstate != NPC_BehaviorState::IDLE)
+                {
+                    behaviorstate = NPC_BehaviorState::CHECK;
+                    SetState(IDLE);
+                }missTargetTrigger = false;
             }
         }
     }
     if (DetectionEndTime <= DetectionStartTime) {
         bFind = true;
         isTracking = true;
+        Float4 pos;
+        behaviorstate = NPC_BehaviorState::DETECT;
+        pos.x =transform->GlobalPos().x;
+        pos.y =transform->GlobalPos().y;
+        pos.z =transform->GlobalPos().z;
+        pos.w = informrange;
+        MonsterManager::Get()->PushPosition(pos);
+        MonsterManager::Get()->CalculateDistance();
+
         if (curState == IDLE)
             SetState(RUN);
     }
@@ -871,10 +906,10 @@ void Orc::SetRay(Vector3& _pos)
 
 void Orc::Patrol()
 {
-    if (PatrolPos[nextPatrol].x > transform->GlobalPos().x - 0.1f
-        && PatrolPos[nextPatrol].x < transform->GlobalPos().x + 0.1f) {
-        if (PatrolPos[nextPatrol].z > transform->GlobalPos().z - 0.1f
-            && PatrolPos[nextPatrol].z < transform->GlobalPos().z + 0.1f)
+    if (PatrolPos[nextPatrol].x > transform->GlobalPos().x - 1.1f
+        && PatrolPos[nextPatrol].x < transform->GlobalPos().x + 1.1f) {
+        if (PatrolPos[nextPatrol].z > transform->GlobalPos().z - 1.1f
+            && PatrolPos[nextPatrol].z < transform->GlobalPos().z + 1.1f)
         {
             nextPatrol += 1;
             if (nextPatrol >= PatrolPos.size()) {
@@ -893,6 +928,34 @@ bool Orc::IsStartPos()
         PatrolPos[nextPatrol].z + 1.0f > transform->Pos().z && PatrolPos[nextPatrol].z - 1.0f < transform->Pos().z)
         return true;
     else return false;
+}
+
+void Orc::RangeCheck()
+{
+    if (behaviorstate != NPC_BehaviorState::CHECK)return;
+
+    rangetime += DELTA;
+    
+    if (rangetime >= 3.f) {
+        m_uiRangeCheck++;
+        rangetime = 0.f;
+        
+    }
+
+    if (!m_uiRangeCheck) {
+        transform->Rot().y += DELTA;
+    }
+    else
+        transform->Rot().y -= 2*DELTA;
+    
+
+    if (m_uiRangeCheck == 2)
+    {
+        behaviorstate = NPC_BehaviorState::IDLE;
+        m_uiRangeCheck = 0;
+        SetState(WALK);
+        missTargetTrigger = false;
+    }
 }
 
 void Orc::AddObstacleObj(Collider* collider)

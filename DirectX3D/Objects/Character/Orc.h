@@ -66,9 +66,9 @@ public:
     void SetAttackCoolDown();
     void FillAttackCoolTime();
 
-    bool FindTarget() { return bSensor; }
+    bool FindTarget() { return bFind; }
 
-    void Findrange() { NearFind = true; behaviorstate = NPC_BehaviorState::DETECT; }
+    void Findrange();
 
 private:
     void Control();
@@ -91,6 +91,8 @@ private:
     void SetRay(Vector3& _pos);
     void Patrol();
     bool IsStartPos();
+
+    void RangeCheck();
 
 private:
     Ray ray;// 레이
@@ -179,5 +181,7 @@ private:
     friend class MonsterManager;
     bool PatrolChange = false;
     float WaitTime = 0.f;
+    float rangetime = 0.f;
+    UINT m_uiRangeCheck = 0;// 왼쪽 1 오른쪽 2
 
 };

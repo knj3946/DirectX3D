@@ -42,10 +42,16 @@ void MonsterManager::Update()
     Collision();
     orcInstancing->Update();
 
-
+    int i = 0;
     for (Orc* orc : orcs)
-        orc->Update();
+    {
 
+
+
+        
+        orc->Update();
+        i++;
+    }
 
     for (Orc* orc : orcs)
     {
