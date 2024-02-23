@@ -87,6 +87,12 @@ Player::Player()
     footRay->pos = Pos();
     footRay->dir = Pos().Down();
 
+    rightHand = new Transform();
+    weapon = new CapsuleCollider(10, 50);
+    weapon->Pos().y += 20;
+    weapon->SetParent(rightHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
+    
+
 
     computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
     rayBuffer = new RayBuffer();
@@ -163,6 +169,9 @@ Player::~Player()
 
     delete targetTransform;
     delete targetObject;
+
+    delete rightHand;
+    delete weapon;
 }
 
 void Player::Update()
@@ -189,12 +198,17 @@ void Player::Update()
         comboHolding = 0.0f;
         comboStack = 0;
     }
+
+    rightHand->SetWorld(this->GetTransformByNode(nodeNum));
+    weapon->UpdateWorld();
 }
 
 void Player::Render()
 {
     ModelAnimator::Render();
     collider->Render();
+
+    weapon->Render();
 }
 
 void Player::PostRender()
@@ -230,7 +244,7 @@ void Player::GUIRender()
     ImGui::InputFloat("landingT", (float*)&landingT);
     ImGui::InputFloat("landing", (float*)&landing);
 
-    ImGui::InputFloat("temp", (float*)&temp);
+    ImGui::InputInt("nodeNum", &nodeNum);
 }
 
 void Player::SetTerrain(LevelData* terrain)
@@ -266,11 +280,12 @@ void Player::Control()  //사용자의 키보드, 마우스 입력 처리
     if (KEY_DOWN(VK_TAB))
     {
         camera = !camera;
-        if(camera)
-            CAM->SetTarget(nullptr);
-        else
-            CAM->SetTarget(this);
     }
+    if (camera)
+        CAM->SetTarget(this);
+    else
+        CAM->SetTarget(nullptr);
+
 
     if (KEY_PRESS(VK_RBUTTON))
         return;
@@ -333,23 +348,23 @@ void Player::Move() //이동 관련(기본 이동, 암살 이동, 착지 후 이동제한, 특정 행�
     Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
     TerainComputePicking(feedBackPos, groundRay);
 
-    if (curState == JUMP3 && landing > 0.0f)    //착지 애니메이션 동안 부동 이동 제한 and 제한 시간 감소
-    {
-        landing -= DELTA;
-        return;
-    }
+    //if (curState == JUMP3 && landing > 0.0f)    //착지 애니메이션 동안 부동 이동 제한 and 제한 시간 감소
+    //{
+    //    landing -= DELTA;
+    //    return;
+    //}
 
-    if (curState == TO_COVER)    //엄폐하러 이동할 경우
-    {  
-        if (Distance(Pos(), targetTransform->Pos()) < teleport)
-        {
-            SetState(TO_COVER);
-            return;
-        }
-        Pos() += (targetTransform->Pos() - Pos()).GetNormalized() * DELTA * 400;
-        SetState(RUN_F);
-        return;
-    }
+    //if (curState == TO_COVER)    //엄폐하러 이동할 경우
+    //{  
+    //    if (Distance(Pos(), targetTransform->Pos()) < teleport)
+    //    {
+    //        SetState(TO_COVER);
+    //        return;
+    //    }
+    //    Pos() += (targetTransform->Pos() - Pos()).GetNormalized() * DELTA * 400;
+    //    SetState(RUN_F);
+    //    return;
+    //}
 
     if (KEY_DOWN(VK_SPACE) && !InTheAir())
     {
@@ -650,7 +665,7 @@ void Player::Hit(float damage)
 
 void Player::AttackCombo()
 {
-    switch (weapon)
+    switch (weaponState)
     {
     //case NONE:
 
@@ -708,6 +723,7 @@ void Player::SetAnimation()
 
 void Player::SetIdle()
 {
+
     if (curState == TO_COVER) {
         Pos() = targetTransform->Pos();
         Rot() = targetTransform->Rot();
@@ -716,6 +732,8 @@ void Player::SetIdle()
 
         //toCover = false;
     }
+    //else if(curState == DAGGER1 && KEY_PRESS(VK_LBUTTON))
+    //    SetState(IDLE);
     else
         SetState(IDLE);
 

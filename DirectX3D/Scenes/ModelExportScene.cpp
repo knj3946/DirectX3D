@@ -3,35 +3,44 @@
 
 ModelExportScene::ModelExportScene()
 {
-    string name = "akai";
+    string name = "abc";
     string file = "Models/FBX/" + name + ".fbx";
     ModelExporter* exporter;
     string clipName;
 
-    /*exporter = new ModelExporter(name, file);
+    exporter = new ModelExporter(name, file);
     exporter->ExportMaterial();
     exporter->ExportMesh();
-    delete exporter;*/
-
+    delete exporter;
 
     {
+        //string name = "akai";
+        //string file = "Models/FBX/" + name + ".fbx";
+        //ModelExporter* exporter;
+        //string clipName;
+
+        /*exporter = new ModelExporter(name, file);
+        exporter->ExportMaterial();
+        exporter->ExportMesh();
+        delete exporter;*/
+
         //clipName = "Upward Thrust";
         //file = "Models/Animations/" + name + "/" + clipName + ".fbx";
         //exporter = new ModelExporter(name, file);
         //exporter->ExportClip(clipName);
         //delete exporter;
         
-        clipName = "Stable Sword Inward Slash";
-        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
-        exporter = new ModelExporter(name, file);
-        exporter->ExportClip(clipName);
-        delete exporter;
-        
-        clipName = "Stable Sword Outward Slash";
-        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
-        exporter = new ModelExporter(name, file);
-        exporter->ExportClip(clipName);
-        delete exporter;
+        //clipName = "Stable Sword Inward Slash";
+        //file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        //exporter = new ModelExporter(name, file);
+        //exporter->ExportClip(clipName);
+        //delete exporter;
+        //
+        //clipName = "Stable Sword Outward Slash";
+        //file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        //exporter = new ModelExporter(name, file);
+        //exporter->ExportClip(clipName);
+        //delete exporter;
         
         //clipName = "Sneak Walk";
         //file = "Models/Animations/" + name + "/" + clipName + ".fbx";
