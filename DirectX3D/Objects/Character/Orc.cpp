@@ -520,7 +520,7 @@ void Orc::IdleAIMove()
             return;
         }
 
-        // 만약 벽 같은 곳에 부딪혔다면 바로 IsAiCooldown=true 로  
+        // TODO : 만약 벽 같은 곳에 부딪혔다면 바로 IsAiCooldown=true 로  
         aiCoolTime -= DELTA;
 
         //지형 오르기
@@ -557,7 +557,7 @@ void Orc::IdleAIMove()
 
 void Orc::UpdateUI()
 {
-    Vector3 barPos = transform->Pos() + Vector3(0, 20, 0);
+    Vector3 barPos = transform->Pos() + Vector3(0, 6, 0);
 
     if (bDetection)
     {
@@ -565,14 +565,14 @@ void Orc::UpdateUI()
         {
             questionMark->SetActive(false);
             exclamationMark->SetActive(true);
-            exclamationMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 5, 0));
+            exclamationMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 1, 0));
             exclamationMark->UpdateWorld();
         }
         else
         {
             exclamationMark->SetActive(false);
             questionMark->SetActive(true);
-            questionMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 5, 0));
+            questionMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 1, 0));
             questionMark->UpdateWorld();
         }
     }
@@ -584,14 +584,14 @@ void Orc::UpdateUI()
             {
                 exclamationMark->SetActive(false);
                 questionMark->SetActive(true);
-                questionMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 5, 0));
+                questionMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 1, 0));
                 questionMark->UpdateWorld();
             }
             else
             {
                 questionMark->SetActive(false);
                 exclamationMark->SetActive(true);
-                exclamationMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 5, 0));
+                exclamationMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 1, 0));
                 exclamationMark->UpdateWorld();
             }
         }

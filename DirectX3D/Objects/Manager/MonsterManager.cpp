@@ -5,7 +5,8 @@ MonsterManager::MonsterManager()
 {
     orcInstancing = new ModelAnimatorInstancing("character1");
     orcInstancing->ReadClip("Orc_Idle");
-    orcInstancing->ReadClip("Orc_Walk");
+    //orcInstancing->ReadClip("Orc_Walk");
+    orcInstancing->ReadClip("character1@walk3");
     orcInstancing->ReadClip("Orc_Run");
     orcInstancing->ReadClip("Orc_Hit");
     //orcInstancing->ReadClip("Orc_Attack");
