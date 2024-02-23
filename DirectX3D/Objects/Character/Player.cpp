@@ -145,9 +145,9 @@ Player::Player()
     GetClip(DAGGER1)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
     GetClip(DAGGER2)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
     GetClip(DAGGER3)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
-    GetClip(DAGGER1)->SetEvent(bind(&Player::SetAttackDelay, this), 0.3f);
-    GetClip(DAGGER2)->SetEvent(bind(&Player::SetAttackDelay, this), 0.3f);
-    GetClip(DAGGER3)->SetEvent(bind(&Player::SetAttackDelay, this), 0.3f);
+
+    GetClip(DAGGER1)->SetEvent(bind(&Player::CanCombo, this), 0.4f);
+
     //GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f);
 }
 
@@ -187,6 +187,7 @@ void Player::Update()
     else
     {
         comboHolding = 0.0f;
+        comboStack = 0;
     }
 }
 
@@ -276,34 +277,30 @@ void Player::Control()  //사용자의 키보드, 마우스 입력 처리
 
     Rotate();
 
+    switch (curState)
+    {
+    case KICK:
+    {
+        //leftWeaponCollider->SetActive(true);
+        //rightWeaponCollider->SetActive(true);
+        break;
+    }
+    default:
+    {
+        //leftWeaponCollider->SetActive(false);
+        //rightWeaponCollider->SetActive(false);
+    }
+    }
+
     if (curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3) 
     {
-        if (!attackDelay && KEY_PRESS(VK_LBUTTON)) //attackDelay가 false면 연속 공격이 가능
+        if (combo && KEY_PRESS(VK_LBUTTON))
         {
             AttackCombo();
             return;
         }
-        return;
-    }
 
-    if (isHit)
-    {
         return;
-    }
-
-    switch (curState)
-    {
-        case KICK:
-        {
-            //leftWeaponCollider->SetActive(true);
-            //rightWeaponCollider->SetActive(true);
-            break;
-        }
-        default:
-        {
-            //leftWeaponCollider->SetActive(false);
-            //rightWeaponCollider->SetActive(false);
-        }
     }
 
     if (KEY_PRESS(VK_LBUTTON))
@@ -312,8 +309,14 @@ void Player::Control()  //사용자의 키보드, 마우스 입력 처리
         return;
     }
 
+    if (isHit)   //맞는게 활성화됐을때 Jumping함수가 동작을 안하면 공중에 떠있는 시간이 늘어남
+    {
+        return;
+    }
+
     Move();
     Jumping();
+
 
     if(targetObject != nullptr && KEY_DOWN('F'))
     {
@@ -649,23 +652,25 @@ void Player::AttackCombo()
 {
     switch (weapon)
     {
-    case NONE:
+    //case NONE:
 
-        break;
+    //    break;
     case DAGGER:
         SetState(static_cast<State>(DAGGER1 + comboStack));
         break;
     }
 
-    attackDelay = true;
+    combo = false;
+
+    comboHolding = 1.5f;
     comboStack++;
     if (comboStack == 3)
         comboStack = 0;
 }
 
-void Player::SetAttackDelay()
+void Player::CanCombo()
 {
-    attackDelay = false;
+    combo = true;
 }
 
 void Player::SetState(State state, float scale, float takeTime)
