@@ -706,7 +706,7 @@ void Player::AttackCombo()
     comboHolding = 1.5f;
     comboStack++;
     if (comboStack == 3)
-        comboStack = 2;
+        comboStack = 0;
 }
 
 void Player::CanCombo()
