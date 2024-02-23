@@ -207,7 +207,7 @@ void MonsterManager::Fight(Player* player)
             //¸ó½ºÅÍ°¡ ¸ÂÀ»¶§
             if (collider)
             {
-                if (collider->IsCapsuleCollision(orc->GetCollider())) //¼Õ Ãæµ¹Ã¼°¡ Å¸°ÙÀÌ¶û °ãÄ¥¶§
+                if (collider->Active() && collider->IsCapsuleCollision(orc->GetCollider())) //¼Õ Ãæµ¹Ã¼°¡ Å¸°ÙÀÌ¶û °ãÄ¥¶§
                 {
                     orc->Hit(player->GetDamage());
                 }
@@ -222,7 +222,7 @@ void MonsterManager::Fight(Player* player)
         {
             if (collider)
             {
-                if (collider->IsCapsuleCollision(player->GetCollider())) //¿ÀÅ©ÀÇ ¿þÆù Ãæµ¹Ã¼°¡ Å¸°ÙÀÌ¶û °ãÄ¥¶§
+                if (collider->Active() && collider->IsCapsuleCollision(player->GetCollider())) //¿ÀÅ©ÀÇ ¿þÆù Ãæµ¹Ã¼°¡ Å¸°ÙÀÌ¶û °ãÄ¥¶§
                 {
                     player->Hit(orc->GetDamage());
                 }
