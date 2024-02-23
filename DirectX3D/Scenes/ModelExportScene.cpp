@@ -15,11 +15,29 @@ ModelExportScene::ModelExportScene()
 
 
     {
-        clipName = "Sneak Walk";
+        //clipName = "Upward Thrust";
+        //file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        //exporter = new ModelExporter(name, file);
+        //exporter->ExportClip(clipName);
+        //delete exporter;
+        
+        clipName = "Stable Sword Inward Slash";
         file = "Models/Animations/" + name + "/" + clipName + ".fbx";
         exporter = new ModelExporter(name, file);
         exporter->ExportClip(clipName);
         delete exporter;
+        
+        clipName = "Stable Sword Outward Slash";
+        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        exporter = new ModelExporter(name, file);
+        exporter->ExportClip(clipName);
+        delete exporter;
+        
+        //clipName = "Sneak Walk";
+        //file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        //////exporter = new ModelExporter(name, file);
+        //exporter->ExportClip(clipName);
+        //delete exporter;
 
         /*clipName = "Idle";
         file = "Models/Animations/" + name + "/" + clipName + ".fbx";

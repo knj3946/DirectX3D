@@ -10,8 +10,14 @@ private:
         JUMP1, JUMP2, JUMP3,
         TO_COVER, C_IDLE, C_R, C_L, TO_STAND,
         TO_ASSASIN,
-        ATTACK,
+        KICK,
+        DAGGER1, DAGGER2, DAGGER3,
         HIT
+    };
+
+    enum Weapon
+    {
+        NONE, DAGGER
     };
 
     class RayBuffer : public ConstBuffer
@@ -83,12 +89,15 @@ private:
 
     void Rotate();
     void Walking();
-    void Attack();
     void Jump();
     void AfterJumpAnimation();
     void Jumping();
     void Cover();
     void Assasination();
+
+    void Attack();
+    void AttackCombo();
+    void SetAttackDelay();
 
     void SetAnimation();
     void SetState(State state, float scale = 1.0f, float takeTime = 0.2f);
@@ -105,6 +114,7 @@ private:
     POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- 연산자는 샘플 
 
     State curState = IDLE;
+    Weapon weapon = DAGGER;
 
     Vector3 velocity;
     Vector3 targetPos;
@@ -170,4 +180,8 @@ private:
     float curHP = 100, maxHp = 100;
     float destHP;
     bool isHit = false;
+
+    int comboStack = 0;
+    float comboHolding = 0.0f;
+    bool attackDelay = true;
 };

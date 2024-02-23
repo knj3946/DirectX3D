@@ -87,6 +87,16 @@ Player::Player()
     footRay->pos = Pos();
     footRay->dir = Pos().Down();
 
+
+    computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
+    rayBuffer = new RayBuffer();
+
+    hpBar = new ProgressBar(L"Textures/UI/hp_bar.png", L"Textures/UI/hp_bar_BG.png");
+    hpBar->Scale() *= 0.6f;
+    hpBar->SetAmount(curHP / maxHp);
+
+    string temp;    //하위 파일
+
     ReadClip("Idle"); // 동작이 0뒤에 1까지 있음
 
     ReadClip("Medium Run");
@@ -109,10 +119,17 @@ Player::Player()
 
     ReadClip("Turning Right"); // TO_ASSASIN //뭔지 몰라서 아무거나 넣어둠
 
-    ReadClip("Side Kick"); // ATTACK
-    ReadClip("Head Hit"); // HIT
-    
-    
+    temp = "Attack/";
+    //NONE
+    ReadClip(temp + "Side Kick");
+
+    //DAGGER
+    ReadClip(temp + "Stable Sword Outward Slash");
+    ReadClip(temp + "Stable Sword Inward Slash");
+    ReadClip(temp + "Upward Thrust");
+
+    // HIT
+    ReadClip("Head Hit"); 
 
     GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.1f);  //점프시작
     GetClip(JUMP1)->SetEvent(bind(&Player::AfterJumpAnimation, this), 0.20001f);   //하강
@@ -125,17 +142,24 @@ Player::Player()
 
     GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f); // 히트가 끝나고
 
-    computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
-    rayBuffer = new RayBuffer();
-
-    hpBar = new ProgressBar(L"Textures/UI/hp_bar.png", L"Textures/UI/hp_bar_BG.png");
-    hpBar->Scale() *= 0.6f;
-    hpBar->SetAmount(curHP / maxHp);
+    GetClip(DAGGER1)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
+    GetClip(DAGGER2)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
+    GetClip(DAGGER3)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
+    GetClip(DAGGER1)->SetEvent(bind(&Player::SetAttackDelay, this), 0.3f);
+    GetClip(DAGGER2)->SetEvent(bind(&Player::SetAttackDelay, this), 0.3f);
+    GetClip(DAGGER3)->SetEvent(bind(&Player::SetAttackDelay, this), 0.3f);
+    //GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f);
 }
 
 Player::~Player()
 {
     delete collider;
+    delete footRay;
+
+    delete hpBar;
+
+    delete rayBuffer;
+    delete structuredBuffer;
 
     delete targetTransform;
     delete targetObject;
@@ -143,9 +167,6 @@ Player::~Player()
 
 void Player::Update()
 {
-    if (KEY_DOWN(VK_TAB))
-        camera = !camera;
-
     collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
     collider->UpdateWorld();
 
@@ -160,6 +181,13 @@ void Player::Update()
     SetAnimation();
 
     ModelAnimator::Update();
+
+    if (comboHolding > 0.0f)
+        comboHolding -= DELTA;  //공격 콤보, 스턴시간 등 시간 감소 함수 만들기
+    else
+    {
+        comboHolding = 0.0f;
+    }
 }
 
 void Player::Render()
@@ -232,21 +260,40 @@ void Player::SetTerrain(LevelData* terrain)
         sizeof(OutputDesc), terrainTriangleSize);
 }
 
-void Player::Control()
+void Player::Control()  //사용자의 키보드, 마우스 입력 처리
 {
+    if (KEY_DOWN(VK_TAB))
+    {
+        camera = !camera;
+        if(camera)
+            CAM->SetTarget(nullptr);
+        else
+            CAM->SetTarget(this);
+    }
+
     if (KEY_PRESS(VK_RBUTTON))
         return;
 
     Rotate();
 
-    if (isHit) //맞는 중에는 못움직임
+    if (curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3) 
+    {
+        if (!attackDelay && KEY_PRESS(VK_LBUTTON)) //attackDelay가 false면 연속 공격이 가능
+        {
+            AttackCombo();
+            return;
+        }
+        return;
+    }
+
+    if (isHit)
     {
         return;
     }
 
     switch (curState)
     {
-        case ATTACK:
+        case KICK:
         {
             //leftWeaponCollider->SetActive(true);
             //rightWeaponCollider->SetActive(true);
@@ -256,16 +303,17 @@ void Player::Control()
         {
             //leftWeaponCollider->SetActive(false);
             //rightWeaponCollider->SetActive(false);
-        }  
+        }
+    }
+
+    if (KEY_PRESS(VK_LBUTTON))
+    {
+        AttackCombo();
+        return;
     }
 
     Move();
     Jumping();
-
-    if (KEY_DOWN('1'))
-    {
-        SetState(ATTACK);
-    }
 
     if(targetObject != nullptr && KEY_DOWN('F'))
     {
@@ -340,8 +388,10 @@ void Player::Rotate()
 {
     Vector3 delta = mousePos - Vector3(CENTER_X, CENTER_Y);
     
-    if(camera)
-        SetCursorPos(clientCenterPos.x, clientCenterPos.y);
+    if (!camera)
+        return;
+    
+    SetCursorPos(clientCenterPos.x, clientCenterPos.y);
 
     Rot().y += delta.x * rotSpeed * DELTA;
     CAM->Rot().x -= delta.y * rotSpeed * DELTA;
@@ -408,10 +458,7 @@ void Player::Walking()
     Matrix rotY = XMMatrixRotationY(Rot().y);
     Vector3 direction = XMVector3TransformCoord(velocity, rotY);
 
-    
-    
-    
-    
+        
     Vector3 destFeedBackPos;
     Vector3 destPos = Pos() + direction * moveSpeed * DELTA * -1;
     Vector3 PlayerSkyPos = destPos;
@@ -570,7 +617,7 @@ bool Player::TerainComputePicking(Vector3& feedback, Ray ray)
 float Player::GetDamage()
 {
     float r = 0.0f;
-    if (curState == ATTACK)
+    if (curState == KICK)
     {
         r = 10.0f;
     }
@@ -598,6 +645,29 @@ void Player::Hit(float damage)
 
 }
 
+void Player::AttackCombo()
+{
+    switch (weapon)
+    {
+    case NONE:
+
+        break;
+    case DAGGER:
+        SetState(static_cast<State>(DAGGER1 + comboStack));
+        break;
+    }
+
+    attackDelay = true;
+    comboStack++;
+    if (comboStack == 3)
+        comboStack = 0;
+}
+
+void Player::SetAttackDelay()
+{
+    attackDelay = false;
+}
+
 void Player::SetState(State state, float scale, float takeTime)
 {
     if (state == curState) return;
@@ -612,7 +682,7 @@ void Player::SetAnimation()
  /*   if (toCover)
         return;*/
 
-    if (curState == HIT || curState == ATTACK)
+    if (curState == HIT || curState == KICK || curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3)
         return;
 
     if (velocity.z > 0.01f && velocity.x < -0.1f)
@@ -643,4 +713,5 @@ void Player::SetIdle()
     }
     else
         SetState(IDLE);
+
 }
