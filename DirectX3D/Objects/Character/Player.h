@@ -195,9 +195,14 @@ private:
     int rightHandNode = 35;
     int leftFootNode = 57;
     int rightFootNode = 62;
-
-    float x;
-    float y = 10;
-    float z = 1.5;
+    float x = 0.00;
+    float y = 0.00f;
+    float z = -1.500f;
+    /*float x = 0.300;
+    float y = 0.400f;
+    float z = -0.700f;*/
+    float x1 = 6.100;
+    float y2 = 10.000f;
+    float z3 = -2.100f;
     float s;
 };
