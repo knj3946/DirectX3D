@@ -71,16 +71,21 @@ public:
     Vector3 GetVelocity() { return velocity; }
     CapsuleCollider* GetCollider() { return collider; }
     Ray* GetFootRay() { return footRay; }
-    Ray GetRay() { return straightRay; }
+    
+    
+    Ray GetRay() { return straightRay; }    //아직 안쓰는거
 
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
 
     void ResetTarget(Collider* collider, Contact contact) { targetObject = collider; this->contact = contact; }
 
     void SetTerrain(LevelData* terrain);
-    
+
     float GetDamage();
     void Hit(float damage);
+
+    void SetIsPushed(bool value) { isPushed = value; }
+    void SetIsCeiling(bool value) { isCeiling = value; }
 
 private:
     void Control();
@@ -193,4 +198,7 @@ private:
     int rightHandNode = 35;
     int leftFootNode = 57;
     int rightFootNode = 62;
+
+    bool isPushed = false;
+    bool isCeiling = false;
 };

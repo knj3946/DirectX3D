@@ -117,6 +117,10 @@ Player::~Player()
 
 void Player::Update()
 {
+    ColliderManager::Get()->SetHeight();
+    if(!isCeiling)
+        ColliderManager::Get()->PushPlayer();
+
     collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
     collider->UpdateWorld();
 
@@ -200,6 +204,8 @@ void Player::GUIRender()
     ImGui::InputInt("rightFootNode", &rightFootNode);
 
     dagger->GUIRender();
+
+    ColliderManager::Get()->GuiRender();
 }
 
 void Player::SetTerrain(LevelData* terrain)
@@ -451,7 +457,7 @@ void Player::Walking()
     float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
 
 
-    if (ColliderManager::Get()->ControlPlayer(&direction) 
+    if (/*ColliderManager::Get()->ControlPlayer(&direction)*/ !isPushed 
         && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y)) //각이 60도보다 작아야 이동, 혹은 목적지 높이가 더 낮아야함
     {
         Pos() += direction * moveSpeed * DELTA * -1; // 이동 수행
@@ -475,6 +481,11 @@ void Player::AfterJumpAnimation()
 
 void Player::Jumping()
 {
+    if (isCeiling) {
+        jumpVel = -1;
+        isCeiling = false;
+    }
+
     float tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
     float tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
 

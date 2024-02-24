@@ -11,10 +11,18 @@ public:
     void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); playerFoot = player->GetFootRay(); }
     void SetObstacles(Collider* obstacle) { obstacles.push_back(obstacle); }
 
-    bool ControlPlayer(Vector3* dir);
-    bool SetPlayerHeight(Collider* obstacle);
+    void PushPlayer();
+    void SetHeight();
+
+    void GuiRender();
 
     float CloseRayCollisionColliderDistance(Ray ray);
+
+
+
+
+    bool ControlPlayer(Vector3* dir);
+    bool SetPlayerHeight(Collider* obstacle);
 
 private:
     Player* player;
@@ -23,5 +31,7 @@ private:
     Ray* playerFoot;
 
     float maxHeight;
+
+    Vector3 rayHeight;
 };
 

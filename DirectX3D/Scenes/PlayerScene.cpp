@@ -6,10 +6,10 @@ PlayerScene::PlayerScene()
 	ColliderManager::Get();
 
 	box1 = new BoxCollider();
-	box1->Pos() = { 0, 0, -50 };
+	box1->Pos() = { 0, 3.100, -50 };
 	box1->Scale().x *= 1000;
 	box1->Scale().z *= 100;
-	box1->Scale().y *= 10;
+	box1->Scale().y *= 1;
 	box1->SetTag("1");
 
 	box2 = new BoxCollider();
