@@ -24,6 +24,7 @@ MonsterManager::MonsterManager()
         Transform* transform = orcInstancing->Add();
         transform->SetActive(false);
         Orc* orc = new Orc(transform, orcInstancing, i);
+        ColliderManager::Get()->PushCollision(ColliderManager::ORC, orc->GetCollider());
         orcs.push_back(orc);
         orc->Spawn(positions[i]);
     }

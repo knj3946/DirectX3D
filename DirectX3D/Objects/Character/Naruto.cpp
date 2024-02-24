@@ -46,7 +46,8 @@ Naruto::Naruto()
     hpBar->Scale() *= 0.6f;
     hpBar->SetAmount(curHP / maxHp);
     Scale() *= 0.03f;
-    Pos().x -= 100;
+    Pos().x += 100;
+    Pos().z += 100;
 }
 
 Naruto::~Naruto()

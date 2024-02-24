@@ -37,6 +37,8 @@ private:
 
 	ModelAnimatorInstancing* instancing;
 
+	Cube* cube[2];
+
 	// 그림자 관련
 	//Shadow* shadow;
 	//LightBuffer::Light* light;
