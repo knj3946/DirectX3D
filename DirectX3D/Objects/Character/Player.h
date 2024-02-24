@@ -184,7 +184,18 @@ private:
     CapsuleCollider* weaponCollider;
     Transform* rightHand;
 
+    Transform* leftFoot;
+    CapsuleCollider* leftFootCollider;
+    
+    Transform* rightFoot;
+    CapsuleCollider* rightFootCollider;
+    
+    //left foot : 57
+    //right foot : 62
     int rightHandNode = 35;
+    int leftFootNode = 57;
+    int rightFootNode = 62;
+
     float x;
     float y = 10;
     float z = 1.5;

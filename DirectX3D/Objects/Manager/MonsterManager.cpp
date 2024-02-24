@@ -93,6 +93,12 @@ void MonsterManager::SetTarget(Transform* target)
         orc->SetTarget(target);
 }
 
+void MonsterManager::SetTargetCollider(CapsuleCollider* collider)
+{
+    for (Orc* orc : orcs)
+        orc->SetTargetCollider(collider);
+}
+
 bool MonsterManager::IsCollision(Ray ray, Vector3& hitPoint)
 {
     //외부 호출용

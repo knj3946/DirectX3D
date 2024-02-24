@@ -92,6 +92,7 @@ void Orc::Update()
     velocity = target->GlobalPos() - transform->GlobalPos();
 
     CalculateEyeSight();
+    eyesRayDetect = EyesRayToDetectTarget();
     Detection();
     ExecuteEvent();
     UpdateUI();
@@ -113,7 +114,9 @@ void Orc::Update()
     else
     {
         if (isTracking == false && path.empty())
-            IdleAIMove();
+        {
+            //IdleAIMove();
+        }
         else
         {
             Control();
@@ -213,6 +216,7 @@ void Orc::GUIRender()
 {
     ImGui::Text("bFind : %d", bFind);
     ImGui::Text("bDetection : %d", bDetection);
+    ImGui::Text("eyesRayDetect : %d", eyesRayDetect);
     ImGui::Text("isTracking : %d", isTracking);
 
     /*
@@ -300,7 +304,7 @@ void Orc::Control()
         Vector3 dist = target->Pos() - transform->GlobalPos();
 
         // 시야에 들어왔다면
-        if (bDetection)
+        if (bDetection && eyesRayDetect)
         {
             // 발견한지 2초가 됐나
             if (bFind)
@@ -874,7 +878,7 @@ void Orc::Detection()
   //      }
   //  } 추후 논의
 
-    if (bDetection) {
+    if (bDetection && eyesRayDetect) {
         DetectionStartTime += DELTA;
     }
     else {
@@ -963,6 +967,61 @@ bool Orc::TerainComputePicking(Vector3& feedback, Ray ray)
     }
 
     return false;
+}
+
+bool Orc::EyesRayToDetectTarget()
+{
+    // 시야안에 들어왔을 경우 진짜로 보이는 대상인가 확인 EyesRaySearchScene 참고
+    // 목표 콜라이더 맨위 맨 아래 맨 왼쪽 맨 오른쪽 중앙 5군데만 레이를 쏴서 확인 (0.8을 곱해서 좀 안쪽으로 쏘기)
+
+    if (!bDetection) // 시야안에 들어오지 않았으면 그냥 리턴
+        return false;
+
+    Vector3 orcEyesPos = transform->GlobalPos(); //오크 눈 위치 수정필요
+    orcEyesPos.y += 5;
+
+    Vector3 top = targetCollider->GlobalPos()+(transform->Up()* targetCollider->Height()*0.4+ transform->Up()* targetCollider->Radius()*0.8);
+    Vector3 bottom = targetCollider->GlobalPos() + (transform->Down() * targetCollider->Height() * 0.4 + transform->Down() * targetCollider->Radius() * 0.8);
+    Vector3 left = targetCollider->GlobalPos() + (transform->Right() * targetCollider->Radius() * 0.8);
+    Vector3 right = targetCollider->GlobalPos() + (transform->Left() * targetCollider->Radius() * 0.8);
+    Vector3 center = targetCollider->GlobalPos();
+
+    Contact topCon;
+    Contact bottomCon;
+    Contact leftCon;
+    Contact rightCon;
+    Contact centerCon;
+
+    Ray topRay = Ray(orcEyesPos, (top - orcEyesPos).GetNormalized());
+    Ray bottomRay = Ray(orcEyesPos, (bottom - orcEyesPos).GetNormalized());
+    Ray leftRay = Ray(orcEyesPos, (left - orcEyesPos).GetNormalized());
+    Ray rightRay = Ray(orcEyesPos, (right - orcEyesPos).GetNormalized());
+    Ray centerRay = Ray(orcEyesPos, (center - orcEyesPos).GetNormalized());
+
+    targetCollider->IsRayCollision(topRay, &topCon);
+    targetCollider->IsRayCollision(bottomRay, &bottomCon);
+    targetCollider->IsRayCollision(leftRay, &leftCon);
+    targetCollider->IsRayCollision(rightRay, &rightCon);
+    targetCollider->IsRayCollision(centerRay, &centerCon);
+
+    float topBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(topRay);
+    float bottomBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(bottomRay);
+    float leftBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(leftRay);
+    float rightBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(rightRay);
+    float centerBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(centerRay);
+
+    if (topBlockdistance < Distance(topCon.hitPoint, topRay.pos)
+        && bottomBlockdistance < Distance(bottomCon.hitPoint, bottomRay.pos)
+        && leftBlockdistance < Distance(leftCon.hitPoint, leftRay.pos)
+        && rightBlockdistance < Distance(rightCon.hitPoint, rightRay.pos)
+        && centerBlockdistance < Distance(centerCon.hitPoint, centerRay.pos)
+        )
+        {
+            //모든 부분에서 엄폐되었다
+            return false;
+        }
+
+    return true;
 }
 
 void Orc::AddObstacleObj(Collider* collider)

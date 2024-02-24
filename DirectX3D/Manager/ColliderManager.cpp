@@ -67,3 +67,19 @@ bool ColliderManager::SetPlayerHeight(Collider* obstacle)
 
 	return false;
 }
+
+float ColliderManager::CloseRayCollisionColliderDistance(Ray ray)
+{
+	float minDistance = FLT_MAX;
+	for (Collider* ob : obstacles)
+	{
+		Contact con;
+		ob->IsRayCollision(ray, &con);
+
+		float hitDistance = Distance(con.hitPoint, ray.pos);
+		if (minDistance > hitDistance)
+			minDistance = hitDistance;
+	}
+
+	return minDistance;
+}

@@ -113,6 +113,7 @@ private:
 
     bool IsStartPos();
     bool TerainComputePicking(Vector3& feedback, Ray ray);
+    bool EyesRayToDetectTarget();
 
 private:
     Ray ray;// ∑π¿Ã
@@ -204,4 +205,6 @@ private:
     int limitGroundHeight = 10;
 
     Vector3 feedBackPos;
+
+    bool eyesRayDetect;
 };

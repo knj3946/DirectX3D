@@ -108,7 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Framework.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>./</AdditionalIncludeDirectories>
     </ClCompile>
@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scenes\EyesRaySearchScene.h" />
     <ClInclude Include="Manager\ColliderManager.h" />
     <ClInclude Include="Framework\Model\ColliderModel.h" />
     <ClInclude Include="Framework\Shader\DomainShader.h" />
@@ -268,6 +269,7 @@
     <ClInclude Include="Scenes\TestNpcScene.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scenes\EyesRaySearchScene.cpp" />
     <ClCompile Include="Manager\ColliderManager.cpp" />
     <ClCompile Include="Framework\Model\ColliderModel.cpp" />
     <ClCompile Include="Framework\Shader\DomainShader.cpp" />

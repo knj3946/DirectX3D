@@ -14,6 +14,7 @@ public:
     bool ControlPlayer(Vector3* dir);
     bool SetPlayerHeight(Collider* obstacle);
 
+    float CloseRayCollisionColliderDistance(Ray ray);
 
 private:
     Player* player;

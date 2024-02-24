@@ -82,6 +82,7 @@ Player::Player()
 
     collider = new CapsuleCollider(25.0f, 140);
     collider->SetParent(this);
+    collider->Pos().y += 20;
 
     footRay = new Ray();
     footRay->pos = Pos();
@@ -97,7 +98,15 @@ Player::Player()
     weaponCollider->SetParent(rightHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
     weapon->SetParent(rightHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
     
+    //left foot : 57
+    leftFoot = new Transform();
+    leftFootCollider = new CapsuleCollider(10, 50);
+    leftFootCollider->SetParent(leftFoot);
 
+    //right foot : 62
+    rightFoot = new Transform();
+    rightFootCollider = new CapsuleCollider(10, 50);
+    rightFootCollider->SetParent(rightFoot);
 
     computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
     rayBuffer = new RayBuffer();
@@ -209,6 +218,12 @@ void Player::Update()
     rightHand->SetWorld(this->GetTransformByNode(rightHandNode));
     weaponCollider->UpdateWorld();
 
+    leftFoot->SetWorld(this->GetTransformByNode(leftFootNode));
+    leftFootCollider->UpdateWorld();
+
+    rightFoot->SetWorld(this->GetTransformByNode(rightFootNode));
+    rightFootCollider->UpdateWorld();
+
     weapon->Pos() = { 0, 10, 0 };
     weapon->Rot().x = x;
     weapon->Rot().y = y;
@@ -222,6 +237,8 @@ void Player::Render()
     collider->Render();
 
     weaponCollider->Render();
+    leftFootCollider->Render();
+    rightFootCollider->Render();
 
     weapon->Render();
 }
@@ -260,6 +277,8 @@ void Player::GUIRender()
     ImGui::InputFloat("landing", (float*)&landing);
 
     ImGui::InputInt("rightHandNode", &rightHandNode);
+    ImGui::InputInt("leftFootNode", &leftFootNode);
+    ImGui::InputInt("rightFootNode", &rightFootNode);
 
     ImGui::SliderFloat("x", &x, 0.001f, 360.0f);
     ImGui::SliderFloat("y", &y, 0.001f, 360.0f);

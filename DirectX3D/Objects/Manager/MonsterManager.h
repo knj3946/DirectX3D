@@ -15,6 +15,7 @@ public:
     void GUIRender();
 
     void SetTarget(Transform* target);
+    void SetTargetCollider(CapsuleCollider* collider);
 
     bool IsCollision(Ray ray, Vector3& hitPoint);
 
