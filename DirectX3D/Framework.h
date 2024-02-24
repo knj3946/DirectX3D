@@ -182,6 +182,7 @@ using namespace GameMath;
 
 #include "Objects/Items/Weapons/Kunai.h"
 #include "Objects/Items/Weapons/Crowbar.h"
+#include "Objects/Items/Weapons/Dagger.h"
 
 #include "Objects/Character/Human.h"
 #include "Objects/Character/Robot.h"

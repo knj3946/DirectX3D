@@ -18,10 +18,5 @@ private:
 	BoxCollider* box2;
 
 	vector<Collider*> colliders;
-
-	bool a = false;
-	bool b = false;
-
-	bool tab;
 };
 

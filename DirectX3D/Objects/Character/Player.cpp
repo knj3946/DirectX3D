@@ -1,71 +1,3 @@
-//    if (KEY_DOWN(VK_SPACE) && canJump) {
-//        if (curState != JUMP1 && KEY_DOWN(VK_SPACE))
-//        {
-//            SetState(JUMP1);
-//        }
-//
-//        if (jumpN == 2)
-//        {
-//            jumpVel = force3;
-//            jumpN = 0;
-//        }
-//        else {
-//            if (jumpN == 0)
-//                jumpVel = force1;
-//            else if (jumpN == 1)
-//                jumpVel = force2;
-//            jumpN++;
-//        }
-//    }
-//}
-//
-//void Player::Jump()
-//{
-//    jumpVel -= 9.8f * gravityMult * DELTA;
-//    Pos().y += jumpVel * DELTA;
-//
-//    //float heightLevel = 0; // 기준 높이 (현재는 0)
-//    float heightLevel = BlockManager::Get()->GetHeight(Pos());
-//
-//    if (Pos().y < heightLevel) {
-//        canJump = true;
-//
-//        Pos().y = heightLevel;
-//        fall = false;
-//        jumpVel = 0;
-//
-//        if (nextJump > 0.0f) {
-//            nextJump -= DELTA;
-//            if (nextJump <= 0.0f)
-//            {
-//                nextJump = 0.0f;
-//                jumpN = 0;
-//            }
-//            return;
-//        }
-//
-//        if (jumpN != 0)
-//            nextJump = 1.5f;
-//    }
-//    else
-//        canJump = false;
-//}
-//
-//void Player::SetAnimation()
-//{
-//    /*if (jumpVel > 0.0f)
-//        SetState(JUMP1);
-//    //else if (jumpVel < 0.0f) {
-//    //    SetState(JUMP2);
-//    //    if (!fall) {
-//    //        if(jumpN == 2)
-//    //            Pos().y += 70.0f;
-//    //        if(jumpN == 0)
-//    //            Pos().y += 100.0f;
-//    //        fall = true;
-//    //    }
-//    //}
-
 #include "Framework.h"
 #include "Player.h"
 
@@ -88,15 +20,10 @@ Player::Player()
     footRay->pos = Pos();
     footRay->dir = Pos().Down();
 
-    weapon = new Model("dagger");
-    weapon->Scale() *= 100;
-    //weapon->Rot();
 
     rightHand = new Transform();
-    weaponCollider = new CapsuleCollider(10, 50);
-    weaponCollider->Pos().y += 20;
-    weaponCollider->SetParent(rightHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
-    weapon->SetParent(rightHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
+    dagger = new Dagger(rightHand);
+
     
     //left foot : 57
     leftFoot = new Transform();
@@ -166,7 +93,7 @@ Player::Player()
     GetClip(DAGGER2)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
     GetClip(DAGGER3)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
 
-    GetClip(DAGGER1)->SetEvent(bind(&Player::CanCombo, this), 0.4f);
+    //GetClip(DAGGER1)->SetEvent(bind(&Player::CanCombo, this), 0.4f);
 
     //GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f);
 }
@@ -185,8 +112,7 @@ Player::~Player()
     delete targetObject;
 
     delete rightHand;
-    delete weaponCollider;
-    delete weapon;
+    delete dagger;
 }
 
 void Player::Update()
@@ -215,7 +141,7 @@ void Player::Update()
     }
 
     rightHand->SetWorld(this->GetTransformByNode(rightHandNode));
-    weaponCollider->UpdateWorld();
+    dagger->Update();
 
     leftFoot->SetWorld(this->GetTransformByNode(leftFootNode));
     leftFootCollider->UpdateWorld();
@@ -223,14 +149,6 @@ void Player::Update()
     rightFoot->SetWorld(this->GetTransformByNode(rightFootNode));
     rightFootCollider->UpdateWorld();
 
-    weapon->Pos() = { 0, 10, 0 };
-    weapon->Rot().x = x;
-    weapon->Rot().y = y;
-    weapon->Rot().z = z;
-    weapon->Pos().x = x1;
-    weapon->Pos().y = y2;
-    weapon->Pos().z = z3;
-    weapon->UpdateWorld();
 }
 
 void Player::Render()
@@ -238,11 +156,10 @@ void Player::Render()
     ModelAnimator::Render();
     collider->Render();
 
-    weaponCollider->Render();
     leftFootCollider->Render();
     rightFootCollider->Render();
 
-    weapon->Render();
+    dagger->Render();
 }
 
 void Player::PostRender()
@@ -282,13 +199,7 @@ void Player::GUIRender()
     ImGui::InputInt("leftFootNode", &leftFootNode);
     ImGui::InputInt("rightFootNode", &rightFootNode);
 
-    ImGui::InputFloat("x", &x, 0.1f, 360.0f);
-    ImGui::InputFloat("y", &y, 0.1f, 360.0f);
-    ImGui::InputFloat("z", &z, 0.1f, 360.0f);
-    ImGui::InputFloat("x1", &x1, 0.1f, 360.0f);
-    ImGui::InputFloat("y2", &y2, 0.1f, 360.0f);
-    ImGui::InputFloat("z3", &z3, 0.1f, 360.0f);
-    ImGui::SliderFloat("s", &s, 0.1f, 360.0f);
+    dagger->GUIRender();
 }
 
 void Player::SetTerrain(LevelData* terrain)
@@ -321,8 +232,6 @@ void Player::SetTerrain(LevelData* terrain)
 
 void Player::Control()  //사용자의 키보드, 마우스 입력 처리
 {
-    weaponCollider->SetActive(false);
-
     if (KEY_DOWN(VK_TAB))
     {
         camera = !camera;
@@ -727,11 +636,6 @@ void Player::AttackCombo()
     comboStack++;
     if (comboStack == 3)
         comboStack = 0;
-}
-
-void Player::CanCombo()
-{
-    combo = true;
 }
 
 void Player::SetState(State state, float scale, float takeTime)

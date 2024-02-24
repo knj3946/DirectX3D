@@ -142,6 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Objects\Items\Weapons\Dagger.h" />
     <ClInclude Include="Scenes\EyesRaySearchScene.h" />
     <ClInclude Include="Manager\ColliderManager.h" />
     <ClInclude Include="Framework\Model\ColliderModel.h" />
@@ -269,6 +270,7 @@
     <ClInclude Include="Scenes\TestNpcScene.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Objects\Items\Weapons\Dagger.cpp" />
     <ClCompile Include="Scenes\EyesRaySearchScene.cpp" />
     <ClCompile Include="Manager\ColliderManager.cpp" />
     <ClCompile Include="Framework\Model\ColliderModel.cpp" />

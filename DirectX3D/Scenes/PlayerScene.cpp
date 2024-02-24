@@ -76,7 +76,4 @@ void PlayerScene::GUIRender()
 
 	for (Collider* collider : colliders)
 		collider->GUIRender();
-
-	ImGui::Value("a", a);
-	ImGui::Value("b", a);
 }

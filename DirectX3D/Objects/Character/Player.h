@@ -97,7 +97,6 @@ private:
 
     void Attack();
     void AttackCombo();
-    void CanCombo();
 
     void SetAnimation();
     void SetState(State state, float scale = 1.0f, float takeTime = 0.2f);
@@ -180,9 +179,8 @@ private:
     float comboHolding = 0.0f;   //comboStack이 유지되는 시간, 이 변수의 값은 공격의 진행시간마다 다르게 초기화
     bool combo = false;    //대거 1번 2번 공격이 스무스하게 연결되도록 대거 1번 애니메이션 진행 중간쯤에 이 변수 true로 만들기
 
-    Model* weapon;
-    CapsuleCollider* weaponCollider;
     Transform* rightHand;
+    Dagger* dagger;
 
     Transform* leftFoot;
     CapsuleCollider* leftFootCollider;
@@ -195,14 +193,4 @@ private:
     int rightHandNode = 35;
     int leftFootNode = 57;
     int rightFootNode = 62;
-    float x = 0.00;
-    float y = 0.00f;
-    float z = -1.500f;
-    /*float x = 0.300;
-    float y = 0.400f;
-    float z = -0.700f;*/
-    float x1 = 6.100;
-    float y2 = 10.000f;
-    float z3 = -2.100f;
-    float s;
 };

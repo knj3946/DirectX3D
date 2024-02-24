@@ -3,27 +3,33 @@
 
 ModelExportScene::ModelExportScene()
 {
-    string name = "dagger";
-    string file = "Models/FBX/" + name + ".fbx";
-    ModelExporter* exporter;
-    string clipName;
+    //string name = "dagger";
+    //string file = "Models/FBX/" + name + ".fbx";
+    //ModelExporter* exporter;
+    //string clipName;
 
-    exporter = new ModelExporter(name, file);
-    exporter->ExportMaterial();
-    exporter->ExportMesh();
-    delete exporter;
+    //exporter = new ModelExporter(name, file);
+    //exporter->ExportMaterial();
+    //exporter->ExportMesh();
+    //delete exporter;
 
     {
-        //string name = "akai";
-        //string file = "Models/FBX/" + name + ".fbx";
-        //ModelExporter* exporter;
-        //string clipName;
+        string name = "akai";
+        string file = "Models/FBX/" + name + ".fbx";
+        ModelExporter* exporter;
+        string clipName;
 
         /*exporter = new ModelExporter(name, file);
         exporter->ExportMaterial();
         exporter->ExportMesh();
         delete exporter;*/
 
+        clipName = "Combo Stable Sword Inward Slash";
+        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        exporter = new ModelExporter(name, file);
+        exporter->ExportClip(clipName);
+        delete exporter;
+        // 
         //clipName = "Upward Thrust";
         //file = "Models/Animations/" + name + "/" + clipName + ".fbx";
         //exporter = new ModelExporter(name, file);

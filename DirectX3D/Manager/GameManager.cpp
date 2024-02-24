@@ -51,9 +51,9 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("QuadTree", new QuadTreeScene());
     //SceneManager::Get()->Create("GameMap", new GameMapScene());
     //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
-    //SceneManager::Get()->Create("Player", new PlayerScene());
+    SceneManager::Get()->Create("Player", new PlayerScene());
     //SceneManager::Get()->Create("PlayerMap", new PlayerMapScene());
-    SceneManager::Get()->Create("EyesRaySearch", new EyesRaySearchScene());
+    //SceneManager::Get()->Create("EyesRaySearch", new EyesRaySearchScene());
 
     SceneManager::Get()->Add("Grid");
 
@@ -77,9 +77,9 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("QuadTree");
     //SceneManager::Get()->Add("GameMap");
     //SceneManager::Get()->Add("TestNpcScene");
-    //SceneManager::Get()->Add("Player");
+    SceneManager::Get()->Add("Player");
     //SceneManager::Get()->Add("PlayerMap");
-    SceneManager::Get()->Add("EyesRaySearch");
+    //SceneManager::Get()->Add("EyesRaySearch");
 }
 
 GameManager::~GameManager()
