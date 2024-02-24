@@ -877,7 +877,7 @@ void Orc::Detection()
                 behaviorstate = NPC_BehaviorState::CHECK;
                 SetState(IDLE);
                 missTargetTrigger = false;
-                rangeDegree = transform->Rot().y;
+                rangeDegree = XMConvertToDegrees( transform->Rot().y);
             }
         }
     }
@@ -936,19 +936,27 @@ void Orc::RangeCheck()
 {
     if (behaviorstate != NPC_BehaviorState::CHECK)return;
 
-    rangetime += DELTA;
     
-    if (rangetime >= 3.f) {
-        m_uiRangeCheck++;
-        rangetime = 0.f;
-        
-    }
-
-    if (!m_uiRangeCheck) {
-        transform->Rot().y += DELTA;
+    float curdegree= XMConvertToDegrees(transform->Rot().y);//
+    if (0 == m_uiRangeCheck)
+    {
+        if (rangeDegree + 45.f > curdegree) {// 플레이어를 놓친 후 각도에서 왼쪽으로 45 넘을시
+            m_uiRangeCheck++;
+        }
     }
     else
-        transform->Rot().y -= 2*DELTA;
+    {
+        if (rangeDegree - 45.f < curdegree) {// 플레이어를 놓친 후 각도에서 왼쪽으로 45 넘을시
+            m_uiRangeCheck++;
+        }
+    }
+    
+
+    if (!m_uiRangeCheck) {
+        transform->Rot().y += DELTA*1.5f;
+    }
+    else
+        transform->Rot().y -= DELTA*2.F;
     
 
     if (m_uiRangeCheck == 2)
@@ -958,6 +966,8 @@ void Orc::RangeCheck()
         SetState(WALK);
         missTargetTrigger = false;
         isTracking = false;
+        rangeDegree = 0.f   ;
+        bFind = false;
     }
 }
 

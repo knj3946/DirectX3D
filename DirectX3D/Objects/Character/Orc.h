@@ -73,7 +73,7 @@ public:
 private:
     void Control();
     void Move();
-    void IdleAIMove();
+    void IdleAIMove();      
     void UpdateUI();
 
     void SetState(State state);
@@ -182,7 +182,7 @@ private:
     bool PatrolChange = false;
     float WaitTime = 0.f;
     float rangetime = 0.f;
-    float rangeDegreez;
+    float rangeDegree;
     UINT m_uiRangeCheck = 0;// 왼쪽 1 오른쪽 2
 
 };
