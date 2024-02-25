@@ -9,8 +9,13 @@ MonsterManager::MonsterManager()
     orcInstancing->ReadClip("character1@walk3");
     orcInstancing->ReadClip("Orc_Run");
     orcInstancing->ReadClip("Orc_Hit");
-    //orcInstancing->ReadClip("Orc_Attack");
-    orcInstancing->ReadClip("character1@atack4");
+    
+    // 아래 3개중 1개 모션으로 공격
+    orcInstancing->ReadClip("character1@atack22");
+    orcInstancing->ReadClip("character1@atack23");
+    orcInstancing->ReadClip("character1@atack24");
+    //orcInstancing->ReadClip("character1@atack4");
+
     orcInstancing->ReadClip("Orc_Death");
 
     FOR(SIZE)

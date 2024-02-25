@@ -97,12 +97,15 @@ private:
     void IdleAIMove();
     void UpdateUI();
 
+    void TimeCalculator(); // 시간 계산하는 것들은 여기서 한번에 관리하는게 편할거같아서 추가해본 함수
+
     void SetState(State state, float scale = 1.0f, float takeTime = 0.2f);
     void SetPath(Vector3 targetPos);
 
     void SetEvent(int clip, Event event, float timeRatio);
     void ExecuteEvent();
 
+    void EndAttack();
     void EndHit();
     void EndDying();
 
@@ -207,4 +210,8 @@ private:
     Vector3 feedBackPos;
 
     bool eyesRayDetect;
+
+    bool isAttackable=true;
+    float attackSpeed = 1.5f;
+    float curAttackSpeed=0;
 };

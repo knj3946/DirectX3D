@@ -15,6 +15,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     eventIters.resize(instancing->GetClipSize());
 
     //이벤트 세팅
+    SetEvent(ATTACK, bind(&Orc::EndAttack, this), 0.99f);
     SetEvent(HIT, bind(&Orc::EndHit, this), 0.99f);
     SetEvent(DYING, bind(&Orc::EndDying, this), 0.9f);
 
@@ -92,10 +93,11 @@ void Orc::Update()
     velocity = target->GlobalPos() - transform->GlobalPos();
 
     CalculateEyeSight();
-    eyesRayDetect = EyesRayToDetectTarget();
+    //eyesRayDetect = EyesRayToDetectTarget(); // 오류로 주석처리 2/25
     Detection();
     ExecuteEvent();
     UpdateUI();
+    TimeCalculator();
 
     {
         Vector3 OrcSkyPos = transform->Pos();
@@ -135,6 +137,7 @@ void Orc::Update()
                 break;
             }
             default:
+                //if (!isAttackable)break;
                 Move();
                 leftWeaponCollider->SetActive(false);
                 rightWeaponCollider->SetActive(false);
@@ -143,12 +146,10 @@ void Orc::Update()
         }
     }
 
-    //root->SetWorld(instancing->GetTransformByNode(index, 3));
     transform->SetWorld(instancing->GetTransformByNode(index, 5));
     collider->UpdateWorld();
     transform->UpdateWorld();
 
-    // TODO : 무기들 애니메이션 맞춰서 움직이게, 몸통콜라이더도
     leftHand->SetWorld(instancing->GetTransformByNode(index, 170));
     leftWeaponCollider->UpdateWorld();
     rightHand->SetWorld(instancing->GetTransformByNode(index, 187)); 
@@ -302,7 +303,7 @@ void Orc::Control()
         Vector3 dist = target->Pos() - transform->GlobalPos();
 
         // 시야에 들어왔다면
-        if (bDetection && eyesRayDetect)
+        if (bDetection )//&& eyesRayDetect // 오류로 주석처리 2/25
         {
             // 발견한지 2초가 됐나
             if (bFind)
@@ -639,17 +640,56 @@ void Orc::UpdateUI()
     hpBar->UpdateWorld();
 }
 
+void Orc::TimeCalculator()
+{
+    // false 됐을 때 동작 시작
+    if (!isAttackable)
+    {
+        curAttackSpeed += DELTA;
+        if (curAttackSpeed > attackSpeed)
+        {
+            isAttackable = true;
+            curAttackSpeed = 0;
+        }
+    }
+}
+
 
 
 void Orc::SetState(State state, float scale, float takeTime)
 {
     if (state == curState) return; // 이미 그 상태라면 굳이 변환 필요 없음
 
+    // 공격 속도 조절 -> Attack이지만 attackSpeed만큼 시간이 지나지 않았다면 공격 x
+    if (state == ATTACK && !isAttackable)
+    {
+        state = IDLE;
+        //return;
+    }
+
     curState = state; //매개변수에 따라 상태 변화
-    //if(state==WALK)
-      //  instancing->PlayClip(index, (int)state,0.5f); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
-    //else 
-        instancing->PlayClip(index, (int)state, scale, takeTime); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
+    if (state == ATTACK)
+    {
+        int randNum = GameMath::Random(0, 3);
+        //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
+        switch (randNum)
+        {
+        case 0:
+            instancing->PlayClip(index, (int)state + randNum, 0.7);
+            break;
+        case 1:
+            instancing->PlayClip(index, (int)state + randNum, 0.7);
+            break;
+        case 2:
+            instancing->PlayClip(index, (int)state + randNum, 0.7);
+            break;
+
+        default:
+            break;
+        }
+    }
+    else
+        instancing->PlayClip(index, (int)state); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
     eventIters[state] = totalEvent[state].begin(); //이벤트 반복자도 등록된 이벤트 시작시점으로
 
     // ->이렇게 상태와 동작을 하나로 통합해두면
@@ -720,6 +760,13 @@ void Orc::ExecuteEvent()
     eventIters[index]++;
 }
 
+
+void Orc::EndAttack()
+{
+    isAttackable = false;
+    SetState(IDLE);
+    //SetState(ATTACK);
+}
 
 void Orc::EndHit()
 {
@@ -875,7 +922,7 @@ void Orc::Detection()
   //      }
   //  } 추후 논의
 
-    if (bDetection && eyesRayDetect) {
+    if (bDetection ) {//&& eyesRayDetect // 오류로 주석처리 2/25
         DetectionStartTime += DELTA;
     }
     else {
