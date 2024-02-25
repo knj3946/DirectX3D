@@ -12,8 +12,6 @@ public:
 	void PostRender() override;
 	void GUIRender() override;
 
-	void CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot,Vector3 mPos);
-
 private:
 	vector<ColliderModel*> colliderModels;
 	ColliderModel* model;

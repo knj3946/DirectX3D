@@ -24,6 +24,7 @@
 #include "Scenes/PlayerScene.h"
 #include "Scenes/PlayerMapScene.h"
 #include "Scenes/EyesRaySearchScene.h"
+#include "Scenes/BuildingScene.h"
 
 GameManager::GameManager()
 {
@@ -54,6 +55,7 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("Player", new PlayerScene());
     //SceneManager::Get()->Create("PlayerMap", new PlayerMapScene());
     //SceneManager::Get()->Create("EyesRaySearch", new EyesRaySearchScene());
+    //SceneManager::Get()->Create("Building", new BuildingScene());
 
     SceneManager::Get()->Add("Grid");
 
@@ -80,6 +82,7 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("Player");
     //SceneManager::Get()->Add("PlayerMap");
     //SceneManager::Get()->Add("EyesRaySearch");
+    //SceneManager::Get()->Add("Building");
 }
 
 GameManager::~GameManager()

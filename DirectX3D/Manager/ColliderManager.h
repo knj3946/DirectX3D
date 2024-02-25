@@ -24,6 +24,8 @@ public:
     bool ControlPlayer(Vector3* dir);
     bool SetPlayerHeight(Collider* obstacle);
 
+    ColliderModel* CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot, Vector3 mPos);
+
 private:
     Player* player;
     CapsuleCollider* playerCollider;
