@@ -70,8 +70,8 @@ public:
 
     void Findrange();
 
-private:
-    void Control();
+private:    
+    void Control();    
     void Move();
     void IdleAIMove();      
     void UpdateUI();

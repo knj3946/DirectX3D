@@ -37,7 +37,7 @@ private:
 
 	ModelAnimatorInstancing* instancing;
 
-	Cube* cube[2];
+	Cube* cube[4];
 
 	// 그림자 관련
 	//Shadow* shadow;

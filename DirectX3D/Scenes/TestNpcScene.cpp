@@ -47,10 +47,21 @@ TestNpcScene::TestNpcScene()
     //#pragma endregion
 
 
-    FOR(2) {
+    FOR(4) {
         cube[i] = new Cube;
+        cube[i]->SetTag(to_string(i));
         ColliderManager::Get()->PushCollision(ColliderManager::WALL, cube[i]->GetCollider());
+        aStar2->AddObstacle(cube[i]->GetCollider()); 
+    
     }
+    cube[0]->Pos() = { 90.f,10.f,72.f };
+    cube[0]->Scale() = { 20.f,20.f,1.f };
+    cube[1]->Pos() = { 100.f,10.f,62.f };
+    cube[1]->Scale() = { 1.f,20.f,20.f };
+    cube[2]->Scale() = { 1.f,20.f,20.f };
+    cube[2]->Pos() = { 80.f,10.f,62.f };
+    cube[3]->Pos() = { 90.f,10.f,52.f };
+    cube[3]->Scale() = { 20.f,20.f,1.f };
 }
 
 TestNpcScene::~TestNpcScene()
@@ -60,7 +71,7 @@ TestNpcScene::~TestNpcScene()
   
     MonsterManager::Delete();
     delete naruto;
-    FOR(2)
+    FOR(4)
         delete cube[i];
     //delete shadow;
 }
@@ -72,7 +83,7 @@ void TestNpcScene::Update()
     naruto->Update();
 
     MonsterManager::Get()->Update();
-    FOR(2)
+    FOR(4)
         cube[i]->Update();
     //if (KEY_DOWN('1')) light->type = 0;
 }
@@ -97,7 +108,7 @@ void TestNpcScene::Render()
     naruto->Render();
     
     MonsterManager::Get()->Render();
-    FOR(2)
+    FOR(4)
         cube[i]->Render();
 
     // 그림자 관련
@@ -120,6 +131,6 @@ void TestNpcScene::PostRender()
 void TestNpcScene::GUIRender()
 {
     terrain->GUIRender();
-    FOR(2)
+    FOR(4)
         cube[i]->GUIRender();
 }

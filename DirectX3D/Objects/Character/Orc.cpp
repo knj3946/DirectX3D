@@ -91,17 +91,26 @@ void Orc::SetType(NPC_TYPE _type) {
         break;
     }
 }
-
+bool curtrack;
 void Orc::Update()
 {
     if (!transform->Active()) return;
-
+    curtrack = isTracking;
     Direction();
-    
+    if (curtrack != isTracking)
+        int a = 0;
     CalculateEyeSight();
+    if (curtrack != isTracking)
+        int a = 0;
     Detection();
+    if (curtrack != isTracking)
+        int a = 0;
     RangeCheck();
+    if (curtrack != isTracking)
+        int a = 0;
     ExecuteEvent();
+    if (curtrack != isTracking)
+        int a = 0;
     UpdateUI();
     if (!collider->Active())return;
 
@@ -135,7 +144,8 @@ void Orc::Update()
             wateTime -= DELTA;
         }
     }
-
+    if (curtrack != isTracking)
+        int a = 0;
     //root->SetWorld(instancing->GetTransformByNode(index, 3));
     transform->SetWorld(instancing->GetTransformByNode(index, 5));
     collider->UpdateWorld();
@@ -153,7 +163,8 @@ void Orc::Render()
     collider->Render();
     leftWeaponCollider->Render();
     rightWeaponCollider->Render();
-
+    if (curtrack != isTracking)
+        int a = 0;
     //aStar->Render();
 }
 
@@ -208,6 +219,7 @@ void Orc::Direction()
 {
     if (behaviorstate == NPC_BehaviorState::IDLE) {
         velocity = PatrolPos[nextPatrol] - transform->GlobalPos();
+        isTracking = false;
     }
     else {
         velocity = target->GlobalPos() - transform->GlobalPos();
@@ -255,6 +267,7 @@ void Orc::Spawn(Vector3 pos)
 
 void Orc::AttackTarget()
 {
+    return;
     if (!bFind)
     {
         bFind = true;
@@ -884,6 +897,7 @@ void Orc::Detection()
         }
     }
     if (DetectionEndTime <= DetectionStartTime) {
+        if (bFind)return;
         bFind = true;
         isTracking = true;
         Float4 pos;
@@ -897,6 +911,7 @@ void Orc::Detection()
         if (curState == IDLE)
             SetState(RUN);
     }
+    
 }
 
 void Orc::SetRay(Vector3& _pos)
@@ -971,6 +986,7 @@ void Orc::RangeCheck()
         rangeDegree = 0.f   ;
         bFind = false;
     }
+
 }
 
 void Orc::AddObstacleObj(Collider* collider)

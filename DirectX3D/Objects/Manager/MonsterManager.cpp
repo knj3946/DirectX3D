@@ -44,15 +44,19 @@ void MonsterManager::Update()
     orcInstancing->Update();
 
     int i = 0;
-    for (Orc* orc : orcs)
-    {
 
 
-
-        
-        orc->Update();
-        i++;
-    }
+    orcs[0]->Update();
+    orcs[1]->Update();
+  //  for (Orc* orc : orcs)
+  //  {
+  //
+  //
+  //
+  //      
+  //      orc->Update();
+  //      i++;
+  //  }
 
     for (Orc* orc : orcs)
     {
