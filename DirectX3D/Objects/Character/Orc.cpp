@@ -49,7 +49,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
 
     // hp UI
     hpBar = new ProgressBar(L"Textures/UI/hp_bar.png", L"Textures/UI/hp_bar_BG.png");
-    hpBar->Scale() *= 0.6f;
+    hpBar->Scale() *= 0.01f;
     hpBar->SetAmount(curHP / maxHp);
 
     exclamationMark = new Quad(L"Textures/UI/Exclamationmark.png");
@@ -160,15 +160,13 @@ void Orc::Render()
     collider->Render();
     leftWeaponCollider->Render();
     rightWeaponCollider->Render();
-
+    hpBar->Render();
     //aStar->Render();
 }
 
 void Orc::PostRender()
 {
     if (!transform->Active())return;
-    hpBar->Render();
-    
     questionMark->Render();
     exclamationMark->Render();
 
@@ -624,22 +622,21 @@ void Orc::UpdateUI()
             leftWeaponCollider->SetActive(true);
             rightWeaponCollider->SetActive(true);
 
-            SetState(ATTACK,3.0f); // 맞은 다음에 일단은 공격상태로 돌아가게 만듬 (나중에 수정 필요할 수도)
+            SetState(ATTACK); // 맞은 다음에 일단은 공격상태로 돌아가게 만듬 (나중에 수정 필요할 수도)
         }
         hpBar->SetAmount(curHP / maxHp);
     }
 
+    hpBar->Pos() = transform->Pos() + Vector3(0, 6, 0);
+    Vector3 dir = hpBar->Pos() - CAM->Pos();
+    hpBar->Rot().y = atan2(dir.x, dir.z);
+
+    float scale = 1 / velocity.Length();
+    scale *= 0.03f;
+    scale = Clamp(0.01f, 0.5f, scale);
+    hpBar->Scale() = { scale, scale, scale };
+    
     hpBar->UpdateWorld();
-
-    if (!CAM->ContainPoint(barPos))
-    {
-        hpBar->SetActive(false);
-        return;
-    }
-
-    if (!hpBar->Active()) hpBar->SetActive(true);
-    hpBar->Pos() = CAM->WorldToScreen(barPos);
-
 }
 
 

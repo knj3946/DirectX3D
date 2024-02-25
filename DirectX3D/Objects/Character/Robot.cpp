@@ -225,7 +225,7 @@ void Robot::UpdateUI()
     float scale = 100 / velocity.Length(); // 임시 크기 변수를 지정해서, 표적과 트랜스폼의 거리에 따라
     // UI 크기가 최대 100픽셀까지 조절되게 한다
 
-    scale = Clamp(0.1f, 1.0f, scale); // 최대 최소 범위를 다시 준다 (최대 범위 강제 가능)
+    scale = Clamp(0.001f, 1.f, scale); // 최대 최소 범위를 다시 준다 (최대 범위 강제 가능)
     // 최초 계산의 크기를 살리고 싶다면 두 번째 매개변수를 더 많이 주면 된다
 
     hpBar->Scale() = { scale, scale, scale }; //도출된 크기 변수를 체력바에 적용
