@@ -91,26 +91,21 @@ void Orc::SetType(NPC_TYPE _type) {
         break;
     }
 }
-bool curtrack;
+
 void Orc::Update()
 {
     if (!transform->Active()) return;
-    curtrack = isTracking;
+  
     Direction();
-    if (curtrack != isTracking)
-        int a = 0;
+    
     CalculateEyeSight();
-    if (curtrack != isTracking)
-        int a = 0;
+    CalculateEarSight();
     Detection();
-    if (curtrack != isTracking)
-        int a = 0;
+  
     RangeCheck();
-    if (curtrack != isTracking)
-        int a = 0;
+   
     ExecuteEvent();
-    if (curtrack != isTracking)
-        int a = 0;
+   
     UpdateUI();
     if (!collider->Active())return;
 
@@ -144,8 +139,7 @@ void Orc::Update()
             wateTime -= DELTA;
         }
     }
-    if (curtrack != isTracking)
-        int a = 0;
+    
     //root->SetWorld(instancing->GetTransformByNode(index, 3));
     transform->SetWorld(instancing->GetTransformByNode(index, 5));
     collider->UpdateWorld();
@@ -163,8 +157,7 @@ void Orc::Render()
     collider->Render();
     leftWeaponCollider->Render();
     rightWeaponCollider->Render();
-    if (curtrack != isTracking)
-        int a = 0;
+   
     //aStar->Render();
 }
 
@@ -221,7 +214,10 @@ void Orc::Direction()
         velocity = PatrolPos[nextPatrol] - transform->GlobalPos();
         isTracking = false;
     }
-    else {
+    else if (behaviorstate == NPC_BehaviorState::SOUNDCHECK) {
+        velocity = CheckPoint - transform->GlobalPos();
+    }
+    else  {
         velocity = target->GlobalPos() - transform->GlobalPos();
     }
 }
@@ -496,6 +492,15 @@ void Orc::IdleAIMove()
     // WALK애니메이션 해결 -> Orc_Walk0.clip 대신 character1@walk30.clip 사용할 것
 
     if (behaviorstate == NPC_BehaviorState::CHECK)return;
+    if (behaviorstate == NPC_BehaviorState::SOUNDCHECK)
+    {
+        if (curState == WALK)
+        {
+            transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI;
+            transform->Pos() += DELTA * walkSpeed * transform->Back();
+        }
+        return;
+    }
      Patrol();
      if (PatrolChange) {
          if (WaitTime >= 2.f) {
@@ -770,16 +775,20 @@ void Orc::CalculateEyeSight()
 
     if (Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange) {
 
-        
+        SetRay(target->GlobalPos());
             if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
                 //발각
-            //    for (UINT i = 0; i < RobotManager::Get()->GetCollider().size(); ++i) {
-            //        if (RobotManager::Get()->GetCollider()[i]->IsRayCollision(ray))
-            //        {
-            //            return;
-            //        }
-            //
-            //    }
+                for (UINT i = 0; i < ColliderManager::Get()->Getvector(ColliderManager::WALL).size(); ++i) {
+                    if (ColliderManager::Get()->Getvector(ColliderManager::WALL)[i]->IsRayCollision(ray))
+                    {
+                        if (bDetection) {
+                            bDetection = false;
+                            DetectionStartTime = 0.001f;
+                        }
+                        return;
+                   }
+            
+                }
                 // 추후 오크매니저에서 씬에 깔린 모든 벽들 체크해서 ray충돌페크
                 // behaviorstate = NPC_BehaviorState::DETECT;
                 bDetection = true;
@@ -791,13 +800,19 @@ void Orc::CalculateEyeSight()
 
                 if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
                     //발각
-                    //    for (UINT i = 0; i < RobotManager::Get()->GetCollider().size(); ++i) {
-            //        if (RobotManager::Get()->GetCollider()[i]->IsRayCollision(ray))
-            //        {
-            //            return;
-            //        }
-            //
-            //    }
+                    //   
+                    for (UINT i = 0; i < ColliderManager::Get()->Getvector(ColliderManager::WALL).size(); ++i) {
+                    if (ColliderManager::Get()->Getvector(ColliderManager::WALL)[i]->IsRayCollision(ray))
+                    {
+                        if (bDetection) {
+                            bDetection = false;
+                            DetectionStartTime = 0.001f;
+                        }
+                        return;
+                    }
+
+                }
+    
                 // 추후 오크매니저에서 씬에 깔린 모든 벽들 체크해서 ray충돌페크
                     //  behaviorstate = NPC_BehaviorState::DETECT;
                     bDetection = true;
@@ -810,6 +825,7 @@ void Orc::CalculateEyeSight()
 
 void Orc::CalculateEarSight()
 {
+    if (behaviorstate != NPC_BehaviorState::IDLE)return;
     Vector3 pos;
     float volume = -1.f;
     float distance = -1.f;
@@ -820,7 +836,6 @@ void Orc::CalculateEarSight()
         pos.z = Audio::Get()->GetSoundPos("PlayerWalk").z;
         volume = Audio::Get()->GetVolume("PlayerWalk");
         distance = Distance(transform->GlobalPos(), pos);
-
         volume = Audio::Get()->GetVolume("PlayerWalk");
     }
     // 웅크리고 걷는 소리 ,암살소리  제외
@@ -832,11 +847,10 @@ void Orc::CalculateEarSight()
     if (distance == -1.f)return;
 
     if (distance < earRange * volume) {
-        behaviorstate = NPC_BehaviorState::CHECK;
+        behaviorstate = NPC_BehaviorState::SOUNDCHECK;
         CheckPoint = pos;
         StorePos = transform->GlobalPos();
-        bFind = true;
-
+       
     }
 
 
@@ -914,7 +928,7 @@ void Orc::Detection()
     
 }
 
-void Orc::SetRay(Vector3& _pos)
+void Orc::SetRay(Vector3 _pos)
 {
     ray.pos = transform->GlobalPos();
     ray.pos.y += 100;

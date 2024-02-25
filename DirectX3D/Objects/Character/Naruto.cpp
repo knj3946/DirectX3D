@@ -253,9 +253,9 @@ void Naruto::Move()
     // 속력 기준 값의 x,z (평면상의 xy) 값을 판단해서 방향을 구한다
     if (velocity.Length() > 1) velocity.Normalize(); // 정규화를 풀면? -> 속력이 빨라지는 것뿐만 아니라
     // 대각선 입력에서 큰 가속이 일어나게 된다
-    if (velocity.x != 0 || velocity.z != 0) {
+    if (KEY_PRESS('Q')) {
         if (!Audio::Get()->IsPlaySound("PlayerWalk")) {
-            Audio::Get()->Play("PlayerWalk", GlobalPos());
+            Audio::Get()->Play("PlayerWalk", Vector3(100.f,0,100.f));
         }
     }
 

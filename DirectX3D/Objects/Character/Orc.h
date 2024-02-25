@@ -16,6 +16,7 @@ private:
     enum class NPC_BehaviorState {
         IDLE,// 탐색하지않고 패트롤 상태 또는 가만히있는 상태
         CHECK,// 소리를 듣고 가거나 플레이어를 쫓다가 플레이어가 숨을때 탐색하는 상태
+        SOUNDCHECK,
         DETECT// 플레이어를 쫓아서 공격하는 상태.
     };
 
@@ -88,7 +89,7 @@ private:
     void CalculateEyeSight();
     void CalculateEarSight();//귀
     void Detection();
-    void SetRay(Vector3& _pos);
+    void SetRay(Vector3 _pos);
     void Patrol();
     bool IsStartPos();
 
@@ -157,7 +158,7 @@ private:
     CapsuleCollider* leftWeaponCollider;
     CapsuleCollider* rightWeaponCollider;
 
-    float eyeSightRange = 20.f;
+    float eyeSightRange = 40.f;
     float eyeSightangle = 45.f;
     bool bDetection = false;
     bool bFind = false;
