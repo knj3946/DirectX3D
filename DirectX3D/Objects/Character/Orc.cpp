@@ -79,7 +79,7 @@ void Orc::SetType(NPC_TYPE _type) {
 
     switch (_type)
     {
-    case Orc::NPC_TYPE::ATTACK:
+    case Orc::NPC_TYPE::ATTACK:// 오크 타입에 따라 탐지 범위 지정 (현재 임시)
         informrange = 100;
         type = NPC_TYPE::ATTACK;
         break;
@@ -96,10 +96,13 @@ void Orc::Update()
 {
     if (!transform->Active()) return;
   
-    Direction();
+    Direction();//
     
     CalculateEyeSight();
     CalculateEarSight();
+    SoundPositionCheck();
+    
+
     Detection();
   
     RangeCheck();
@@ -116,6 +119,7 @@ void Orc::Update()
     }
     else
     {
+        if (behaviorstate == NPC_BehaviorState::CHECK)return;
         if (isTracking == false && path.empty())
             IdleAIMove();
         else
@@ -150,6 +154,7 @@ void Orc::Update()
     leftWeaponCollider->UpdateWorld();
     rightHand->SetWorld(instancing->GetTransformByNode(index, 187)); 
     rightWeaponCollider->UpdateWorld();
+   
 }
 
 void Orc::Render()
@@ -210,6 +215,8 @@ void Orc::GUIRender()
 
 void Orc::Direction()
 {
+
+    // 방향지정
     if (behaviorstate == NPC_BehaviorState::IDLE) {
         velocity = PatrolPos[nextPatrol] - transform->GlobalPos();
         isTracking = false;
@@ -217,7 +224,7 @@ void Orc::Direction()
     else if (behaviorstate == NPC_BehaviorState::SOUNDCHECK) {
         velocity = CheckPoint - transform->GlobalPos();
     }
-    else  {
+    else if(behaviorstate==NPC_BehaviorState::DETECT) {
         velocity = target->GlobalPos() - transform->GlobalPos();
     }
 }
@@ -293,6 +300,7 @@ void Orc::FillAttackCoolTime()
 void Orc::Findrange()
 {
     if (curState == ATTACK)return;
+    // 탐지시 범위에 닿은 애에게 설정
     bFind = true; bDetection = true;
     DetectionStartTime = DetectionEndTime;
     isTracking = true;
@@ -311,7 +319,7 @@ void Orc::Findrange()
 void Orc::Control()
 {
     if (behaviorstate == NPC_BehaviorState::CHECK)return;
-
+    if (behaviorstate == NPC_BehaviorState::SOUNDCHECK)return;
     if (searchCoolDown > 1)
     {
         Vector3 dist = target->Pos() - transform->GlobalPos();
@@ -437,14 +445,17 @@ void Orc::Move()
     if (curState == HIT) return;
     if (curState == DYING) return;
     if (behaviorstate == NPC_BehaviorState::CHECK)return;
-    if (velocity.Length() < 5&&!missTargetTrigger) return;
+    if (velocity.Length() < 0.1f&&!missTargetTrigger) return;
     if (velocity.Length() < 0.1f && missTargetTrigger) return;
 
     if (!path.empty())
     {
         // 가야할 곳이 있다
-        SetState(RUN);  // 움직이기 + 달리는 동작 실행
-
+     
+        if(behaviorstate!=NPC_BehaviorState::SOUNDCHECK&&!bSound)
+            SetState(RUN);  // 움직이기 + 달리는 동작 실행
+        else
+            SetState(WALK);
         //벡터로 들어온 경로를 하나씩 찾아가면서 움직이기
 
         Vector3 dest = path.back(); // 나에게 이르는 경로의 마지막
@@ -492,15 +503,7 @@ void Orc::IdleAIMove()
     // WALK애니메이션 해결 -> Orc_Walk0.clip 대신 character1@walk30.clip 사용할 것
 
     if (behaviorstate == NPC_BehaviorState::CHECK)return;
-    if (behaviorstate == NPC_BehaviorState::SOUNDCHECK)
-    {
-        if (curState == WALK)
-        {
-            transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI;
-            transform->Pos() += DELTA * walkSpeed * transform->Back();
-        }
-        return;
-    }
+  
      Patrol();
      if (PatrolChange) {
          if (WaitTime >= 2.f) {
@@ -519,43 +522,7 @@ void Orc::IdleAIMove()
          transform->Pos() += DELTA * walkSpeed * transform->Back();
      }
 
-    /*
-    
-      if (IsAiCooldown)
-    {
-        if (isAIWaitCooldown)
-        {
-            float randY = Random(XM_PIDIV2, XM_PI) * 2;
-            transform->Rot().y = randY + XM_PI;
-            //XMMatrixRotationY(randY + XM_PI);
-            IsAiCooldown = false;
-            aiCoolTime = 3.f; // 나중에 랜덤으로
-            SetState(WALK);
-            isAIWaitCooldown = false;
-            aiWaitCoolTime = 1.5f;
-        }
-        else
-        {
-            aiWaitCoolTime -= DELTA;
-            if (aiWaitCoolTime <= 0)
-                isAIWaitCooldown = true;
-        }
-        
-    }
-    else
-    {
-        if (aiCoolTime <= 0)
-        {
-            IsAiCooldown = true;
-            SetState(IDLE);
-            return;
-        }
-
-        // 만약 벽 같은 곳에 부딪혔다면 바로 IsAiCooldown=true 로  
-        aiCoolTime -= DELTA;
-        transform->Pos() += DELTA * walkSpeed * transform->Back();
-    }
-    */
+ 
   
 }
 
@@ -692,7 +659,7 @@ void Orc::SetPath(Vector3 targetPos)
     }
 
     // 다시 조정된, 내가 갈 수 있는 경로에, 최종 목적지를 다시 한번 추가한다
-    path.insert(path.begin(), target->GlobalPos());
+    path.insert(path.begin(), targetPos);
 
 
     //직선거리일때 한칸한칸이동할 필요가 없다 -> 장애물 전까지는 하나의 벡터로 가도 된다 ->MakeDirectionPath를 쓰는이유
@@ -847,9 +814,13 @@ void Orc::CalculateEarSight()
     if (distance == -1.f)return;
 
     if (distance < earRange * volume) {
+        SetState(WALK);
         behaviorstate = NPC_BehaviorState::SOUNDCHECK;
         CheckPoint = pos;
         StorePos = transform->GlobalPos();
+        path.clear();
+        bSound = true;
+        SetPath(CheckPoint);
        
     }
 
@@ -858,35 +829,7 @@ void Orc::CalculateEarSight()
 
 void Orc::Detection()
 {
-  //  if (NearFind) {
-  //      bFind = true;
-  //      bDetection = true;
-  //  }
-  //  else {
-  //      if (bDetection) {
-  //          DetectionStartTime += DELTA;
-  //      }
-  //      else {
-  //          if (DetectionStartTime > 0.f) {
-  //              DetectionStartTime -= DELTA;
-  //              if (DetectionStartTime <= 0.f) {
-  //                  DetectionStartTime = 0.f;
-  //              }
-  //          }
-  //      }
-  //      if (DetectionEndTime <= DetectionStartTime) {
-  //          bFind = true;
-  //          bSensor = true;
-  //          behaviorstate = NPC_BehaviorState::DETECT;
-  //          Vector3 pos;
-  //          pos.x =transform->GlobalPos().x;
-  //  pos.y =transform->GlobalPos().y;
-  //  pos.z =transform->GlobalPos().z;
-  //    pos.w=informrange;
-  //          MonsterManager::Get()->PushPosition(transform->GlobalPos());
-  //          MonsterManager::Get()->CalculateDistance();
-  //      }
-  //  } 추후 논의
+
     
     if (bDetection) {
         if(!bFind)
@@ -931,7 +874,7 @@ void Orc::Detection()
 void Orc::SetRay(Vector3 _pos)
 {
     ray.pos = transform->GlobalPos();
-    ray.pos.y += 100;
+    ray.pos.y += 10.f;
 
     ray.dir = _pos - ray.pos;
     ray.dir.Normalize();
@@ -956,7 +899,7 @@ void Orc::Patrol()
 
 bool Orc::IsStartPos()
 {
-    
+   
     if (PatrolPos[nextPatrol].x + 1.0f > transform->Pos().x && PatrolPos[nextPatrol].x - 1.0f < transform->Pos().x &&
         PatrolPos[nextPatrol].z + 1.0f > transform->Pos().z && PatrolPos[nextPatrol].z - 1.0f < transform->Pos().z)
         return true;
@@ -999,8 +942,27 @@ void Orc::RangeCheck()
         isTracking = false;
         rangeDegree = 0.f   ;
         bFind = false;
+        path.clear();
     }
 
+}
+
+void Orc::SoundPositionCheck()
+{
+
+    if (behaviorstate == NPC_BehaviorState::SOUNDCHECK) {
+        if (CheckPoint.x + 1.0f > transform->Pos().x && CheckPoint.x - 1.0f < transform->Pos().x &&
+            CheckPoint.z + 1.0f > transform->Pos().z && CheckPoint.z - 1.0f < transform->Pos().z)
+        {
+            behaviorstate = NPC_BehaviorState::CHECK;
+            rangeDegree = XMConvertToDegrees(transform->Rot().y);
+            path.clear();
+            SetPath(StorePos);
+            SetState(IDLE);
+            bSound = false;
+        }
+    }
+  
 }
 
 void Orc::AddObstacleObj(Collider* collider)

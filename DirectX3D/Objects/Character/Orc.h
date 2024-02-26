@@ -92,8 +92,8 @@ private:
     void SetRay(Vector3 _pos);
     void Patrol();
     bool IsStartPos();
-
     void RangeCheck();
+    void SoundPositionCheck();//소리난 곳에 도달함.
 
 private:
     Ray ray;// 레이
