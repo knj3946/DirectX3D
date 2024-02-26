@@ -1,0 +1,322 @@
+#include "Framework.h"
+#include "ColliderManager.h"
+
+ColliderManager::ColliderManager()
+{
+}
+
+ColliderManager::~ColliderManager()
+{
+	vecCol->clear();
+
+}
+
+void ColliderManager::PushPlayer()
+{
+	bool isPushed = false;
+
+	for (Collider* obstacle : obstacles)
+		if (obstacle->PushCollision(playerCollider) && !isPushed)
+			isPushed = true;
+
+	player->SetIsPushed(isPushed);
+}
+
+void ColliderManager::SetHeight()
+{
+	Contact underObj;
+	Vector3 rayPos = player->Pos();
+
+	Ray upRay = Ray(playerCollider->GlobalPos(), {0, 1, 0});	//이거 dir 값이 대체 어떻게 해야할지 모르겠음, 플레이어 머리 위로 쏘면 천장에 부딪히는거 구현 완료
+	upRay.pos.y += 137.0f;
+
+	for (Collider* obstacle : obstacles)
+	{
+		if (obstacle->IsRayCollision(upRay))
+			obstacle->SetColor({ 1, 0, 0, 0 });
+		else
+			obstacle->SetColor({ 0, 1, 0, 0 });
+
+		obstacle->IsRayCollision(upRay);
+		if (obstacle->IsCapsuleCollision(playerCollider) && obstacle->IsRayCollision(upRay))
+		{
+			player->SetIsCeiling(true);
+			return;
+		}
+		else if (obstacle->IsRayCollision(*playerFoot, &underObj))
+		{
+			if (underObj.hitPoint.y > maxHeight)
+				maxHeight = underObj.hitPoint.y;
+		}
+	}
+
+
+}
+
+void ColliderManager::GuiRender()
+{
+	ImGui::DragFloat3("fds", (float*)&rayHeight, 0.5f);
+}
+
+//bool ColliderManager::ControlPlayer(Vector3* dir)
+//{
+//	maxHeight = 0.0f;
+//
+//	for (int i = 0; i < obstacles.size(); i++)
+//	{
+//		if (SetPlayerHeight(obstacles[i]))	//높이를 정하는 함수를 따로해야하나?
+//			continue;
+//
+//		if (obstacles[i]->PushCollision(playerCollider))	//여러 면이 부딪혀서 이상한 경우에는 return 지우기
+//		{
+//			player->SetHeightLevel(maxHeight);
+//			return false;
+//		}
+//	}
+//
+//	player->SetHeightLevel(maxHeight);
+//
+//	return true;
+//}
+//
+//bool ColliderManager::SetPlayerHeight(Collider* obstacle)
+//{
+//	Contact underObj;
+//
+//	if (playerFoot->pos.y < obstacle->Pos().y)
+//		return false;
+//
+//	if (obstacle->IsRayCollision(*playerFoot, &underObj)) {
+//		if (underObj.hitPoint.y > maxHeight) {
+//			maxHeight = underObj.hitPoint.y;
+//			return true;
+//		}
+//	}
+//
+//	return false;
+//}
+
+float ColliderManager::CloseRayCollisionColliderDistance(Ray ray)
+{
+	float minDistance = FLT_MAX;
+	for (Collider* ob : obstacles)
+	{
+		Contact con;
+		ob->IsRayCollision(ray, &con);
+
+		float hitDistance = Distance(con.hitPoint, ray.pos);
+		if (minDistance > hitDistance)
+			minDistance = hitDistance;
+	}
+
+	return minDistance;
+}
+
+ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot, Vector3 mPos)
+{
+	int colCount = 0;
+	vector<Vector3> colPoss;
+	vector<Vector3> colScales;
+	vector<Vector3> colRots;
+
+	if (mName == "building_V2")
+	{
+		mRot.x += XM_PIDIV2;
+		colCount = 12;
+		colPoss.push_back(Vector3(4.f, -1.6f, -1.5f));
+		colPoss.push_back(Vector3(4.f, 1.6f, -1.5f));
+		colPoss.push_back(Vector3(0.f, 0.f, -2.7f));
+		colPoss.push_back(Vector3(0.3f, 2.5f, -1.5f));
+		colPoss.push_back(Vector3(-3.9f, 0.f, -1.5f));
+		colPoss.push_back(Vector3(-3.6f, -2.4f, -1.5f));
+		colPoss.push_back(Vector3(-0.9f, -2.4f, -1.5f));
+		colPoss.push_back(Vector3(1.5f, -2.4f, -1.5f));
+		colPoss.push_back(Vector3(3.7f, -2.4f, -1.5f));
+		colPoss.push_back(Vector3(1.5f, -2.4f, -2.6f));
+		colPoss.push_back(Vector3(1.5f, -2.4f, -1.6f));
+		colPoss.push_back(Vector3(1.5f, -2.4f, -0.6f));
+
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+
+		colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
+		colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
+		colScales.push_back(Vector3(8.5f, 5.1f, 0.9f));
+		colScales.push_back(Vector3(7.7f, 0.2f, 3.f));
+		colScales.push_back(Vector3(0.6f, 5.1f, 3.2f));
+		colScales.push_back(Vector3(1.1f, 0.4f, 3.f));
+		colScales.push_back(Vector3(1.2f, 0.4f, 3.f));
+		colScales.push_back(Vector3(1.8f, 0.4f, 3.f));
+		colScales.push_back(Vector3(0.9f, 0.4f, 3.f));
+		colScales.push_back(Vector3(3.9f, 0.4f, 1.1f));
+		colScales.push_back(Vector3(1.8f, 0.4f, 1.3f));
+		colScales.push_back(Vector3(3.7f, 0.4f, 1.2f));
+
+	}
+	else if (mName == "building_V4")
+	{
+		mRot.x += XM_PIDIV2;
+		colCount = 17;
+		colPoss.push_back(Vector3(4.f, -1.6f, -1.5f));
+		colPoss.push_back(Vector3(4.f, 1.6f, -1.5f));
+		colPoss.push_back(Vector3(0.f, 0.f, -2.7f));
+		colPoss.push_back(Vector3(2.1f, 2.5f, -1.5f));
+		colPoss.push_back(Vector3(-3.9f, 2.4f, -1.5f));
+		colPoss.push_back(Vector3(0.f, -2.4f, -2.6f));
+		colPoss.push_back(Vector3(0.f, -2.4f, -0.6f));
+		colPoss.push_back(Vector3(-2.2f, -2.4f, -1.7f));
+		colPoss.push_back(Vector3(1.5f, -2.4f, -1.7f));
+		colPoss.push_back(Vector3(3.7f, -2.4f, -1.7f));
+		colPoss.push_back(Vector3(-0.8f, 7.1f, -1.5f));
+		colPoss.push_back(Vector3(-3.6f, 7.1f, -1.5f));
+		colPoss.push_back(Vector3(-0.2f, 4.9f, -2.6f));
+		colPoss.push_back(Vector3(-0.2f, 4.9f, -0.6f));
+		colPoss.push_back(Vector3(-0.2f, 3.4f, -1.6f));
+		colPoss.push_back(Vector3(-0.2f, 6.2f, -1.6f));
+		colPoss.push_back(Vector3(-2.1f, 4.9f, -2.9f));
+
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+
+		colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
+		colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
+		colScales.push_back(Vector3(8.5f, 5.1f, 0.9f));
+		colScales.push_back(Vector3(4.2f, 0.2f, 3.f));
+		colScales.push_back(Vector3(0.6f, 9.8f, 3.2f));
+		colScales.push_back(Vector3(8.4f, 0.4f, 1.f));
+		colScales.push_back(Vector3(8.4f, 0.4f, 1.3f));
+		colScales.push_back(Vector3(3.9f, 0.4f, 1.3f));
+		colScales.push_back(Vector3(1.8f, 0.4f, 1.3f));
+		colScales.push_back(Vector3(0.9f, 0.4f, 1.3f));
+		colScales.push_back(Vector3(1.5f, 0.4f, 3.f));
+		colScales.push_back(Vector3(1.3f, 0.4f, 3.f));
+		colScales.push_back(Vector3(0.3f, 4.6f, 1.1f));
+		colScales.push_back(Vector3(0.3f, 4.6f, 1.2f));
+		colScales.push_back(Vector3(0.3f, 1.8f, 1.3f));
+		colScales.push_back(Vector3(0.3f, 2.0f, 1.3f));
+		colScales.push_back(Vector3(4.1f, 4.9f, 0.4));
+
+	}
+	else if (mName == "building_V5")
+	{
+		mRot.x += XMConvertToRadians(165);
+		colCount = 12;
+		colPoss.push_back(Vector3(4.f, -1.1f, -2.0f));
+		colPoss.push_back(Vector3(4.f, -2.0f, 1.2f));
+		colPoss.push_back(Vector3(0.f, -2.8f, -0.7f));
+		colPoss.push_back(Vector3(0.f, -0.9f, -2.7f));
+		colPoss.push_back(Vector3(-3.9f, -1.5f, -0.4f));
+		colPoss.push_back(Vector3(-3.6f, -2.1f, 1.9f));
+		colPoss.push_back(Vector3(1.3f, -3.1f, 1.7f));
+		colPoss.push_back(Vector3(1.3f, -1.2f, 2.2f));
+		colPoss.push_back(Vector3(1.5f, -2.2f, 1.9f));
+		colPoss.push_back(Vector3(-0.9f, -2.2f, 1.9f));
+		colPoss.push_back(Vector3(3.7f, -2.2f, 1.9f));
+		colPoss.push_back(Vector3(0.f, -3.5f, 2.8f));
+
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(180), 0.f, 0.f));
+
+		colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
+		colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
+		colScales.push_back(Vector3(8.5f, 5.1f, 0.4f));
+		colScales.push_back(Vector3(8.3f, 0.4f, 3.1f));
+		colScales.push_back(Vector3(0.6f, 5.1f, 3.2f));
+		colScales.push_back(Vector3(1.2f, 0.4f, 3.2f));
+		colScales.push_back(Vector3(5.8f, 0.4f, 0.9f));
+		colScales.push_back(Vector3(5.8f, 0.4f, 1.2f));
+		colScales.push_back(Vector3(1.8f, 0.4f, 1.2f));
+		colScales.push_back(Vector3(1.2f, 0.4f, 1.2f));
+		colScales.push_back(Vector3(0.9f, 0.4f, 1.2f));
+		colScales.push_back(Vector3(8.0f, 0.1f, 2.4f));
+	}
+
+	ColliderModel* model = new ColliderModel(mName);
+
+	model->SetTag(mTag);
+	model->Scale() = mScale;
+	model->Pos() = mPos;
+	model->Rot() = mRot;
+	model->UpdateWorld();
+
+	FOR(colCount)
+	{
+		Collider* col = new BoxCollider();
+		string ctag = mTag + "_collider" + to_string(i);
+		col->SetTag(ctag);
+		col->SetParent(model);
+		col->Scale() = colScales[i];
+		col->Rot() = colRots[i];
+		col->Pos() = colPoss[i];
+		col->UpdateWorld();
+		model->AddCollider(col);
+	}
+
+	for (Collider* collider : model->GetColliders())
+	{
+		SetObstacles(collider);
+	}
+
+	return model;
+}
+
+bool ColliderManager::CollisionCheck(Collider* _pCollider, Collision_Type _type)
+{
+	for (int i = 0; i < vecCol[_type].size(); ++i) {
+		if (_pCollider->IsCollision(vecCol[_type][i]))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
+bool ColliderManager::CollisionCheck(Collision_Type _type1, Collision_Type _type2)
+{
+	for (int i = 0; i < vecCol[_type1].size(); ++i) {
+		for (int j = 0; j < vecCol[_type2].size(); ++j) {
+			if (vecCol[_type1][i]->IsCollision(vecCol[_type2][j]))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
