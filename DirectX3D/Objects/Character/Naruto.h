@@ -34,6 +34,7 @@ public:
     float GetCurAttackCoolTime();
     void SetAttackCoolDown();
     void FillAttackCoolTime();
+   // CapsuleCollider* GetCollider() { return collider; }
 
 private:
     void Control();
@@ -63,7 +64,7 @@ private:
 
     State curState = IDLE;
 
-    float moveSpeed = 500;
+    float moveSpeed = 50;
     float rotSpeed = 1;
     float deceleration = 5; //°¨¼Ó
 

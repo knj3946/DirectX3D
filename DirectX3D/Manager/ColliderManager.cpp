@@ -7,6 +7,8 @@ ColliderManager::ColliderManager()
 
 ColliderManager::~ColliderManager()
 {
+	vecCol->clear();
+
 }
 
 void ColliderManager::PushPlayer()
@@ -291,4 +293,30 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
 	}
 
 	return model;
+}
+
+bool ColliderManager::CollisionCheck(Collider* _pCollider, Collision_Type _type)
+{
+	for (int i = 0; i < vecCol[_type].size(); ++i) {
+		if (_pCollider->IsCollision(vecCol[_type][i]))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
+bool ColliderManager::CollisionCheck(Collision_Type _type1, Collision_Type _type2)
+{
+	for (int i = 0; i < vecCol[_type1].size(); ++i) {
+		for (int j = 0; j < vecCol[_type2].size(); ++j) {
+			if (vecCol[_type1][i]->IsCollision(vecCol[_type2][j]))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
 }

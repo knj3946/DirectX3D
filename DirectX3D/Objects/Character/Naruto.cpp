@@ -5,7 +5,7 @@ Naruto::Naruto()
 {
     // 윈도우 핸들러의 정보값(중 윈도우 크기)을 두 번째 매개변수에 저장
     ClientToScreen(hWnd, &clientCenterPos);
-    SetCursorPos(clientCenterPos.x, clientCenterPos.y);
+  //  SetCursorPos(clientCenterPos.x, clientCenterPos.y);
 
     collider = new CapsuleCollider(50, 200); // <- 대충 높이 160
     collider->SetParent(this);
@@ -45,6 +45,9 @@ Naruto::Naruto()
     hpBar = new ProgressBar(L"Textures/UI/hp_bar.png", L"Textures/UI/hp_bar_BG.png");
     hpBar->Scale() *= 0.6f;
     hpBar->SetAmount(curHP / maxHp);
+    Scale() *= 0.03f;
+    Pos().x += 200;
+   // Pos().z += 100;
 }
 
 Naruto::~Naruto()
@@ -100,10 +103,7 @@ void Naruto::GUIRender()
     Model::GUIRender(); // 모델로서 GUI 렌더
     // (나루토 안에는 애니메이터가, 애니메이터 안에는 모델이 있으니까)
 
-    tmpCollider->GUIRender();
-
-
-    ImGui::DragFloat("Ray", &value, 1.f, 0.f, 200.f);
+  
 }
 
 void Naruto::UpdateUI()
@@ -217,6 +217,7 @@ void Naruto::Control()
 void Naruto::Move()
 {
     if (curState == THROW) return; //던지기 동작 중에는 움직이지 않도록
+    if (KEY_PRESS(VK_RBUTTON))return;
 
     bool isMoveZ = false; // 전후 이동 중 : 기본값 "아님"
     bool isMoveX = false; // 좌우 이동 중 : 기본값 "아님"
@@ -252,9 +253,9 @@ void Naruto::Move()
     // 속력 기준 값의 x,z (평면상의 xy) 값을 판단해서 방향을 구한다
     if (velocity.Length() > 1) velocity.Normalize(); // 정규화를 풀면? -> 속력이 빨라지는 것뿐만 아니라
     // 대각선 입력에서 큰 가속이 일어나게 된다
-    if (velocity.x != 0 || velocity.z != 0) {
+    if (KEY_PRESS('Q')) {
         if (!Audio::Get()->IsPlaySound("PlayerWalk")) {
-            Audio::Get()->Play("PlayerWalk", GlobalPos());
+            Audio::Get()->Play("PlayerWalk", Vector3(100.f,0,100.f));
         }
     }
 
@@ -286,12 +287,12 @@ void Naruto::Rotate()
     //아래 코드 때문에 중간으로 고정된 커서가 다시 움직이면서 델타 생성
     Vector3 delta = mousePos - Vector3(CENTER_X, CENTER_Y);
     // 마우스가 움직일 때마다 위치를 중간으로 고정
-    SetCursorPos(clientCenterPos.x, clientCenterPos.y);
+  //  SetCursorPos(clientCenterPos.x, clientCenterPos.y);
     // -> 혹시 위 두 줄이 조작 시에 잘 안 된다면 CENTER_XY와 clinetCenterPos 표시를 바꿔보면 될지도
 
     //델타에 의한 캐릭터와 카메라 양쪽을 모두 회전
-    Rot().y += delta.x * rotSpeed * DELTA; // 캐릭터 좌우회전 (추적 중이라 카메라도 따라갈 것)
-    CAM->Rot().x -= delta.y * rotSpeed * DELTA; // 카메라 상하회전
+ //   Rot().y += delta.x * rotSpeed * DELTA; // 캐릭터 좌우회전 (추적 중이라 카메라도 따라갈 것)
+ //   CAM->Rot().x -= delta.y * rotSpeed * DELTA; // 카메라 상하회전
 }
 
 void Naruto::Attack()

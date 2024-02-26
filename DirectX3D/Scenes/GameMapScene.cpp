@@ -14,7 +14,8 @@ GameMapScene::GameMapScene()
 	terrain->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
 	terrain->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
 	terrain->SetHeightMap(L"Textures/HeightMaps/HeightMapCustom.png");
-
+	aStar = new AStar(128, 128);
+	aStar->SetNode(terrain);
 	{
 		string mName = "building_V2";
 		string mTag = "model1";
@@ -125,6 +126,7 @@ GameMapScene::GameMapScene()
 	MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(80, 0, 80));
 	MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(60, 0, 150));
 	MonsterManager::Get()->SetTerrain(terrain);
+	MonsterManager::Get()->SetAStar(aStar);
 
 	for (ColliderModel* colliderModel : colliderModels)
 	{
@@ -152,6 +154,7 @@ GameMapScene::~GameMapScene()
 
 	delete model;
 	delete terrain;
+	delete aStar;
 	delete skyBox;
 
 	FOR(2)
@@ -161,7 +164,7 @@ GameMapScene::~GameMapScene()
 void GameMapScene::Update()
 {
 	terrain->UpdateWorld();
-
+	aStar->Update();
 	for (ColliderModel* cm : colliderModels)
 	{
 		cm->UpdateWorld();

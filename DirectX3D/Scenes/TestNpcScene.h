@@ -29,12 +29,15 @@ private:
 	AStar* aStar2;
 
 	Fox* fox;
+	Naruto* naruto;
 	RobotA* robot;
 	Orc* orc;
 
 	UINT orcCount = 0;
 
 	ModelAnimatorInstancing* instancing;
+
+	Cube* cube[4];
 
 	// 그림자 관련
 	//Shadow* shadow;

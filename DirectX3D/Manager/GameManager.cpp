@@ -77,9 +77,9 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("ParticleConfig");
     //SceneManager::Get()->Add("Human");
     //SceneManager::Get()->Add("QuadTree");
-    //SceneManager::Get()->Add("GameMap");
-    //SceneManager::Get()->Add("TestNpcScene");
-    SceneManager::Get()->Add("Player");
+  //  SceneManager::Get()->Add("GameMap");
+    SceneManager::Get()->Add("TestNpcScene");
+   // SceneManager::Get()->Add("Player");
     //SceneManager::Get()->Add("PlayerMap");
     //SceneManager::Get()->Add("EyesRaySearch");
     //SceneManager::Get()->Add("Building");

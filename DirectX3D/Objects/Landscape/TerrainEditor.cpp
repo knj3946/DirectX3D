@@ -106,6 +106,7 @@ void TerrainEditor::Render()
 
 void TerrainEditor::GUIRender()
 {
+    Transform::GUIRender();
     ImGui::Text("TerrainEdit Option");
     //ImGui::Text("x : %.1f, y : %.1f, z : %.1f", pickingPos.x, pickingPos.y, pickingPos.z);
     if (ImGui::DragInt("Width", (int*)&width, 1.0f, 2, MAX_SIZE))
