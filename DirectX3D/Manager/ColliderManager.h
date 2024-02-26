@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 class ColliderManager : public Singleton<ColliderManager>
 {
 private:
@@ -20,10 +20,10 @@ public:
 
     };
 
-    void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); playerFoot = player->GetFootRay(); }    void SetObstacles(Collider* obstacle) { obstacles.push_back(obstacle); }
-
+    void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); }
     void PushPlayer();
     void SetHeight();
+    void SetObstacles(Collider* obstacle) { obstacles.push_back(obstacle); }
 
     void GuiRender();
 
@@ -59,5 +59,10 @@ private:
     float maxHeight;
 
     Vector3 rayHeight;
+
+    Collider* onBlock;  //���� �ؿ��ִ� �ݶ��̴� Contact�� ��ü �����ҵ�
+
+    Ray* footRay;
+    Ray* headRay;
 };
 
