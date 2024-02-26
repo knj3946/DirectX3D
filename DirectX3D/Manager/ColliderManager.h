@@ -10,9 +10,6 @@ private:
     ~ColliderManager();
 
 public:
-<<<<<<< HEAD
-    void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); }
-=======
     enum Collision_Type {
         PLAYER,
         ORC,
@@ -23,9 +20,7 @@ public:
 
     };
 
-    void SetPlayer(Player* player, CapsuleCollider* playerCollider) { this->player = player; this->playerCollider = playerCollider; }
->>>>>>> 906ee3bd1174cd299fa7a8e1e11ede24d4789463
-    void SetObstacles(Collider* obstacle) { obstacles.push_back(obstacle); }
+    void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); playerFoot = player->GetFootRay(); }    void SetObstacles(Collider* obstacle) { obstacles.push_back(obstacle); }
 
     void PushPlayer();
     void SetHeight();
@@ -54,22 +49,15 @@ private:
     CapsuleCollider* playerCollider;
     vector<Collider*> obstacles;
 
-<<<<<<< HEAD
-    Collider* onBlock;  //현재 밑에있는 콜라이더 Contact로 대체 가능할듯
-=======
 
 
     vector<Collider*> vecCol[Collision_Type::END];
 
 
     Ray* playerFoot;
->>>>>>> 906ee3bd1174cd299fa7a8e1e11ede24d4789463
 
     float maxHeight;
 
     Vector3 rayHeight;
-
-    Ray* footRay;
-    Ray* headRay;
 };
 
