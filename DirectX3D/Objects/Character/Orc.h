@@ -130,7 +130,9 @@ private:
     bool IsStartPos();
     bool TerainComputePicking(Vector3& feedback, Ray ray);
     bool EyesRayToDetectTarget();
-
+    void RangeCheck();
+    void  SoundPositionCheck();;
+    float Hit();
 private:
     Ray ray;// 레이
     Vector3 StorePos;// 소리난 곳 가기 전 위치 저장
@@ -232,4 +234,8 @@ private:
     bool isAttackable=true;
     float attackSpeed = 1.5f;
     float curAttackSpeed=0;
+    bool PatrolChange = false;
+    float WaitTime = 0.f;
+    float rangeDegree;
+    UINT m_uiRangeCheck = 0;
 };

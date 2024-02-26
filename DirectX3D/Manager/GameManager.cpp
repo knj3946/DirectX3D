@@ -35,7 +35,7 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("ModelExport", new ModelExportScene());
     //SceneManager::Get()->Create("Cube", new CubeScene());
     //SceneManager::Get()->Create("Sphere", new SphereScene());
-   // SceneManager::Get()->Create("Terrain", new TerrainEditorScene());
+    SceneManager::Get()->Create("Terrain", new TerrainEditorScene());
     //SceneManager::Get()->Create("Collision", new CollisionScene());
     //SceneManager::Get()->Create("ModelRender", new ModelRenderScene());
     //SceneManager::Get()->Create("ModelAnimation", new ModelAnimationScene());
@@ -50,9 +50,15 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("ParticleConfig", new ParticleConfigScene());
     //SceneManager::Get()->Create("Human", new HumanScene());
     //SceneManager::Get()->Create("QuadTree", new QuadTreeScene());
+<<<<<<< HEAD
     SceneManager::Get()->Create("GameMap", new GameMapScene());
     //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
     //SceneManager::Get()->Create("Player", new PlayerScene());
+=======
+    //SceneManager::Get()->Create("GameMap", new GameMapScene());
+   // SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
+    SceneManager::Get()->Create("Player", new PlayerScene());
+>>>>>>> 4f106a34d62bd93b17562237027040353a90f7fb
     //SceneManager::Get()->Create("PlayerMap", new PlayerMapScene());
     //SceneManager::Get()->Create("EyesRaySearch", new EyesRaySearchScene());
     //SceneManager::Get()->Create("Building", new BuildingScene());
@@ -77,9 +83,15 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("ParticleConfig");
     //SceneManager::Get()->Add("Human");
     //SceneManager::Get()->Add("QuadTree");
+<<<<<<< HEAD
     SceneManager::Get()->Add("GameMap");
     //SceneManager::Get()->Add("TestNpcScene");
     //SceneManager::Get()->Add("Player");
+=======
+  //  SceneManager::Get()->Add("GameMap");
+   // SceneManager::Get()->Add("TestNpcScene");
+    SceneManager::Get()->Add("Player");
+>>>>>>> 4f106a34d62bd93b17562237027040353a90f7fb
     //SceneManager::Get()->Add("PlayerMap");
     //SceneManager::Get()->Add("EyesRaySearch");
     //SceneManager::Get()->Add("Building");

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 class ColliderManager : public Singleton<ColliderManager>
 {
 private:
@@ -10,8 +10,11 @@ private:
     ~ColliderManager();
 
 public:
+<<<<<<< HEAD
     void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); }
 
+=======
+>>>>>>> 4f106a34d62bd93b17562237027040353a90f7fb
     enum Collision_Type {
         PLAYER,
         ORC,
@@ -22,11 +25,16 @@ public:
 
     };
 
+<<<<<<< HEAD
     void SetPlayer(Player* player, CapsuleCollider* playerCollider) { this->player = player; this->playerCollider = playerCollider; }
     void SetObstacles(Collider* obstacle) { obstacles.push_back(obstacle); }
 
+=======
+    void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); }
+>>>>>>> 4f106a34d62bd93b17562237027040353a90f7fb
     void PushPlayer();
     void SetHeight();
+    void SetObstacles(Collider* obstacle) { obstacles.push_back(obstacle); }
 
     void GuiRender();
 
@@ -52,7 +60,10 @@ private:
     CapsuleCollider* playerCollider;
     vector<Collider*> obstacles;
 
+<<<<<<< HEAD
     Collider* onBlock;  //ÇöÀç ¹Ø¿¡ÀÖ´Â ÄÝ¶óÀÌ´õ Contact·Î ´ëÃ¼ °¡´ÉÇÒµí
+=======
+>>>>>>> 4f106a34d62bd93b17562237027040353a90f7fb
 
 
     vector<Collider*> vecCol[Collision_Type::END];
@@ -63,6 +74,8 @@ private:
     float maxHeight;
 
     Vector3 rayHeight;
+
+    Collider* onBlock;  //ï¿½ï¿½ï¿½ï¿½ ï¿½Ø¿ï¿½ï¿½Ö´ï¿½ ï¿½Ý¶ï¿½ï¿½Ì´ï¿½ Contactï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½Òµï¿½
 
     Ray* footRay;
     Ray* headRay;

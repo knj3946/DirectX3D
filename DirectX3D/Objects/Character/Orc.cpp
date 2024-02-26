@@ -201,10 +201,6 @@ void Orc::SetTerrain(LevelData* terrain)
 {
     this->terrain = terrain;
 
-    structuredBuffer = new StructuredBuffer(
-        inputs.data(), sizeof(InputDesc), terrainTriangleSize,
-        sizeof(OutputDesc), terrainTriangleSize);
-}
 
 void Orc::SetSRT(Vector3 scale, Vector3 rot, Vector3 pos)
 {
@@ -254,7 +250,7 @@ void Orc::Direction()
     }
 }
 
-void Orc::Hit()
+float Orc::Hit()
 {
     float r = 0.0f;
     if (curState == ATTACK)
@@ -326,22 +322,7 @@ void Orc::AttackTarget()
     }
 }
 
-float Orc::GetCurAttackCoolTime()
-{
-    return curAttackCoolTime;
-}
 
-void Orc::SetAttackCoolDown()
-{
-    curAttackCoolTime = attackCoolTime; // 어택쿨타임
-}
-
-void Orc::FillAttackCoolTime()
-{
-    curAttackCoolTime -= DELTA;
-    if (curAttackCoolTime < 0)
-        curAttackCoolTime = 0;
-}
 
 void Orc::Findrange()
 {
