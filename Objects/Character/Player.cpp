@@ -566,7 +566,7 @@ void Player::EndHit()
 bool Player::OnColliderFloor(Vector3& feedback)
 {
     Vector3 PlayerSkyPos = Pos();
-    PlayerSkyPos.y += 1000;
+    PlayerSkyPos.y += 5;
     Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
     Contact con;
     if (ColliderManager::Get()->CloseRayCollisionColliderContact(groundRay, con))
