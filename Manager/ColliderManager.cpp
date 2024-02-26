@@ -1,14 +1,17 @@
-#include "Framework.h"
+ï»¿#include "Framework.h"
 #include "ColliderManager.h"
 
 ColliderManager::ColliderManager()
 {
+	footRay = new Ray();
+	headRay = new Ray();
+
+	headRay->dir = { 0, 1, 0 };
+	footRay->dir = { 0, -1, 0 };
 }
 
 ColliderManager::~ColliderManager()
 {
-	vecCol->clear();
-
 }
 
 void ColliderManager::PushPlayer()
@@ -16,7 +19,7 @@ void ColliderManager::PushPlayer()
 	bool isPushed = false;
 
 	for (Collider* obstacle : obstacles)
-		if (obstacle->PushCollision(playerCollider) && !isPushed)
+		if (obstacle != onBlock && obstacle->PushCollision(playerCollider) && !isPushed)
 			isPushed = true;
 
 	player->SetIsPushed(isPushed);
@@ -24,38 +27,41 @@ void ColliderManager::PushPlayer()
 
 void ColliderManager::SetHeight()
 {
-	Contact underObj;
-	Vector3 rayPos = player->Pos();
+	onBlock = nullptr;
 
-	Ray upRay = Ray(playerCollider->GlobalPos(), {0, 1, 0});	//ÀÌ°Å dir °ªÀÌ ´ëÃ¼ ¾î¶»°Ô ÇØ¾ßÇÒÁö ¸ð¸£°ÚÀ½, ÇÃ·¹ÀÌ¾î ¸Ó¸® À§·Î ½î¸é ÃµÀå¿¡ ºÎµúÈ÷´Â°Å ±¸Çö ¿Ï·á
-	upRay.pos.y += 137.0f;
+	maxHeight = 0.0f;
+
+	headRay->pos = playerCollider->GlobalPos();
+	footRay->pos = playerCollider->GlobalPos();
+
+	headRay->pos.y = player->Pos().y + 6.2f;
+
+	Contact underObj;
 
 	for (Collider* obstacle : obstacles)
 	{
-		if (obstacle->IsRayCollision(upRay))
-			obstacle->SetColor({ 1, 0, 0, 0 });
-		else
-			obstacle->SetColor({ 0, 1, 0, 0 });
-
-		obstacle->IsRayCollision(upRay);
-		if (obstacle->IsCapsuleCollision(playerCollider) && obstacle->IsRayCollision(upRay))
+		if (obstacle->IsCapsuleCollision(playerCollider) && obstacle->IsRayCollision(*headRay))
 		{
 			player->SetIsCeiling(true);
-			return;
+			continue;
 		}
-		else if (obstacle->IsRayCollision(*playerFoot, &underObj))
+		else if (obstacle->IsRayCollision(*footRay, &underObj))
 		{
 			if (underObj.hitPoint.y > maxHeight)
+			{
 				maxHeight = underObj.hitPoint.y;
+				onBlock = obstacle;
+			}
 		}
 	}
 
-
+	player->SetHeightLevel(maxHeight);
 }
 
 void ColliderManager::GuiRender()
 {
-	ImGui::DragFloat3("fds", (float*)&rayHeight, 0.5f);
+	//ImGui::DragFloat3("fds", (float*)&rayHeight, 0.5f);
+	ImGui::DragFloat3("fds", (float*)&headRay->pos, 0.5f);
 }
 
 //bool ColliderManager::ControlPlayer(Vector3* dir)
@@ -64,10 +70,10 @@ void ColliderManager::GuiRender()
 //
 //	for (int i = 0; i < obstacles.size(); i++)
 //	{
-//		if (SetPlayerHeight(obstacles[i]))	//³ôÀÌ¸¦ Á¤ÇÏ´Â ÇÔ¼ö¸¦ µû·ÎÇØ¾ßÇÏ³ª?
+//		if (SetPlayerHeight(obstacles[i]))	//ï¿½ï¿½ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ï¿½Ï³ï¿½?
 //			continue;
 //
-//		if (obstacles[i]->PushCollision(playerCollider))	//¿©·¯ ¸éÀÌ ºÎµúÇô¼­ ÀÌ»óÇÑ °æ¿ì¿¡´Â return Áö¿ì±â
+//		if (obstacles[i]->PushCollision(playerCollider))	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì»ï¿½ï¿½ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ return ï¿½ï¿½ï¿½ï¿½ï¿½
 //		{
 //			player->SetHeightLevel(maxHeight);
 //			return false;
@@ -293,30 +299,4 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
 	}
 
 	return model;
-}
-
-bool ColliderManager::CollisionCheck(Collider* _pCollider, Collision_Type _type)
-{
-	for (int i = 0; i < vecCol[_type].size(); ++i) {
-		if (_pCollider->IsCollision(vecCol[_type][i]))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-
-
-bool ColliderManager::CollisionCheck(Collision_Type _type1, Collision_Type _type2)
-{
-	for (int i = 0; i < vecCol[_type1].size(); ++i) {
-		for (int j = 0; j < vecCol[_type2].size(); ++j) {
-			if (vecCol[_type1][i]->IsCollision(vecCol[_type2][j]))
-			{
-				return true;
-			}
-		}
-	}
-	return false;
 }

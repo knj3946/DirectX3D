@@ -8,7 +8,7 @@ Player::Player()
     //straightRay = Ray(Pos(), Back());
 
     //Scale() *= 0.1f;
-    // 윈도우 핸들러의 정보값(중 윈도우 크기)을 두 번째 매개변수에 저장
+    // ?????? ????? ??????(?? ?????? ???)?? ?? ??° ????????? ????
     ClientToScreen(hWnd, &clientCenterPos);
     SetCursorPos(clientCenterPos.x, clientCenterPos.y);
 
@@ -16,15 +16,10 @@ Player::Player()
     collider->SetParent(this);
     collider->Pos().y += 20;
 
-    footRay = new Ray();
-    footRay->pos = Pos();
-    footRay->dir = Pos().Down();
-
-
     rightHand = new Transform();
     dagger = new Dagger(rightHand);
 
-    
+
     //left foot : 57
     leftFoot = new Transform();
     leftFootCollider = new CapsuleCollider(10, 50);
@@ -42,9 +37,9 @@ Player::Player()
     hpBar->Scale() *= 0.6f;
     hpBar->SetAmount(curHP / maxHp);
 
-    string temp;    //하위 파일
+    string temp;    //???? ????
 
-    ReadClip("Idle"); // 동작이 0뒤에 1까지 있음
+    ReadClip("Idle"); // ?????? 0??? 1???? ????
 
     ReadClip("Medium Run");
     ReadClip("Running Backward");
@@ -54,17 +49,17 @@ Player::Player()
     ReadClip("Jog Forward Diagonal Left");
     ReadClip("Jog Forward Diagonal Right");
 
-    ReadClip("Jumping"); // 동작이 0뒤에 1까지 있음
-    ReadClip("IntheSky"); // 동작이 0뒤에 1까지 있음
-    ReadClip("Falling To Landing"); // 동작이 0뒤에 1까지 있음
+    ReadClip("Jumping"); // ?????? 0??? 1???? ????
+    ReadClip("IntheSky"); // ?????? 0??? 1???? ????
+    ReadClip("Falling To Landing"); // ?????? 0??? 1???? ????
 
-    ReadClip("Stand To Cover"); // 동작이 0뒤에 1까지 있음
-    ReadClip("Cover Idle"); // 동작이 0뒤에 1까지 있음
-    ReadClip("Crouched Sneaking Right"); // 동작이 0뒤에 1까지 있음
-    ReadClip("Crouched Sneaking Left"); // 동작이 0뒤에 1까지 있음
-    ReadClip("Crouch Turn To Stand"); // 동작이 0뒤에 1까지 있음
+    ReadClip("Stand To Cover"); // ?????? 0??? 1???? ????
+    ReadClip("Cover Idle"); // ?????? 0??? 1???? ????
+    ReadClip("Crouched Sneaking Right"); // ?????? 0??? 1???? ????
+    ReadClip("Crouched Sneaking Left"); // ?????? 0??? 1???? ????
+    ReadClip("Crouch Turn To Stand"); // ?????? 0??? 1???? ????
 
-    ReadClip("Turning Right"); // TO_ASSASIN //뭔지 몰라서 아무거나 넣어둠
+    ReadClip("Turning Right"); // TO_ASSASIN //???? ???? ?????? ????
 
     temp = "Attack/";
     //NONE
@@ -76,18 +71,18 @@ Player::Player()
     ReadClip(temp + "Upward Thrust");
 
     // HIT
-    ReadClip("Head Hit"); 
+    ReadClip("Head Hit");
 
-    GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.1f);  //점프시작
-    GetClip(JUMP1)->SetEvent(bind(&Player::AfterJumpAnimation, this), 0.20001f);   //하강
+    GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.1f);  //????????
+    GetClip(JUMP1)->SetEvent(bind(&Player::AfterJumpAnimation, this), 0.20001f);   //???
 
-    GetClip(JUMP3)->SetEvent(bind(&Player::SetIdle, this), 0.0001f);   //착지
+    GetClip(JUMP3)->SetEvent(bind(&Player::SetIdle, this), 0.0001f);   //????
 
-    GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //엄폐
+    GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //????
 
-    //GetClip(TO_ASSASIN)->SetEvent(bind(&Player::Assasination, this), 0.01f);   //암살
+    //GetClip(TO_ASSASIN)->SetEvent(bind(&Player::Assasination, this), 0.01f);   //???
 
-    GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f); // 히트가 끝나고
+    GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f); // ????? ??????
 
     GetClip(DAGGER1)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
     GetClip(DAGGER2)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
@@ -101,7 +96,6 @@ Player::Player()
 Player::~Player()
 {
     delete collider;
-    delete footRay;
 
     delete hpBar;
 
@@ -118,14 +112,11 @@ Player::~Player()
 void Player::Update()
 {
     ColliderManager::Get()->SetHeight();
-    if(!isCeiling)
+    if (!isCeiling)
         ColliderManager::Get()->PushPlayer();
 
     collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
     collider->UpdateWorld();
-
-    footRay->pos = collider->GlobalPos();
-    footRay->dir = Down();
 
     UpdateUI();
 
@@ -137,7 +128,7 @@ void Player::Update()
     ModelAnimator::Update();
 
     if (comboHolding > 0.0f)
-        comboHolding -= DELTA;  //공격 콤보, 스턴시간 등 시간 감소 함수 만들기
+        comboHolding -= DELTA;  //???? ???, ????ð? ?? ?ð? ???? ??? ?????
     else
     {
         comboHolding = 0.0f;
@@ -176,26 +167,26 @@ void Player::GUIRender()
     Model::GUIRender();
 
     ImGui::DragFloat3("Velocity", (float*)&velocity, 0.5f);
-    //속력
+    //???
     ImGui::SliderFloat("moveSpeed", &moveSpeed, 10, 1000);
     ImGui::SliderFloat("rotSpeed", &rotSpeed, 1, 10);
     ImGui::SliderFloat("deceleration", &deceleration, 1, 10);
 
-    //점프 힘
+    //???? ??
     ImGui::SliderFloat("force1", &force1, 1, 500);
     ImGui::SliderFloat("force2", &force2, 1, 500);
     ImGui::SliderFloat("force3", &force3, 1, 500);
 
     ImGui::SliderFloat("jumpSpeed", &jumpSpeed, 0.01f, 5.0f);
-    //중력
+    //???
     ImGui::SliderFloat("gravityMult", &gravityMult, 1, 100);
 
-    //3단 점프 구현시 조건 변수
+    //3?? ???? ?????? ???? ????
     ImGui::InputFloat("JumpVel", (float*)&jumpVel);
     ImGui::InputFloat("jumpN", (float*)&jumpVel);
     ImGui::InputFloat("nextJump", (float*)&nextJump);
 
-    //착지후 부동시간
+    //?????? ?ε??ð?
     ImGui::InputFloat("landingT", (float*)&landingT);
     ImGui::InputFloat("landing", (float*)&landing);
 
@@ -236,7 +227,7 @@ void Player::SetTerrain(LevelData* terrain)
         sizeof(OutputDesc), terrainTriangleSize);
 }
 
-void Player::Control()  //사용자의 키보드, 마우스 입력 처리
+void Player::Control()  //??????? ?????, ???콺 ??? ???
 {
     if (KEY_DOWN(VK_TAB))
     {
@@ -268,54 +259,45 @@ void Player::Control()  //사용자의 키보드, 마우스 입력 처리
     }
     }
 
-    if (curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3) 
-    {
-        if (combo && KEY_PRESS(VK_LBUTTON))
-        {
+    if (KEY_PRESS(VK_LBUTTON))
+        if (curState != DAGGER1 && curState != DAGGER2 && curState != DAGGER3)
             AttackCombo();
-            return;
-        }
 
+    if (isHit)   //?´°? ?????????? Jumping????? ?????? ????? ????? ????? ?ð??? ?þ?
+    {
         return;
     }
 
-    if (KEY_PRESS('G'))
+    if (KEY_DOWN(VK_SPACE) && !InTheAir())
     {
-        AttackCombo();
-        return;
-    }
-
-    if (isHit)   //맞는게 활성화됐을때 Jumping함수가 동작을 안하면 공중에 떠있는 시간이 늘어남
-    {
-        return;
+        SetState(JUMP1);
     }
 
     Move();
     Jumping();
 
-
-    if(targetObject != nullptr && KEY_DOWN('F'))
+    if (targetObject != nullptr && KEY_DOWN('F'))
     {
         velocity = 0;
         SetState(TO_ASSASIN);
     }
 }
 
-void Player::Move() //이동 관련(기본 이동, 암살 이동, 착지 후 이동제한, 특정 행동을 위한 목적지로 의 이동 등)
+void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ???????? ?? ??? ??)
 {
-    //플레이어의 위에서 레이를 쏴서 현재 terrain 위치와 높이를 구함
+    //?÷?????? ?????? ????? ???? ???? terrain ????? ????? ????
     Vector3 PlayerSkyPos = Pos();
     PlayerSkyPos.y += 100;
     Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
     TerainComputePicking(feedBackPos, groundRay);
 
-    //if (curState == JUMP3 && landing > 0.0f)    //착지 애니메이션 동안 부동 이동 제한 and 제한 시간 감소
+    //if (curState == JUMP3 && landing > 0.0f)    //???? ??????? ???? ?ε? ??? ???? and ???? ?ð? ????
     //{
     //    landing -= DELTA;
     //    return;
     //}
 
-    //if (curState == TO_COVER)    //엄폐하러 이동할 경우
+    //if (curState == TO_COVER)    //??????? ????? ???
     //{  
     //    if (Distance(Pos(), targetTransform->Pos()) < teleport)
     //    {
@@ -327,10 +309,6 @@ void Player::Move() //이동 관련(기본 이동, 암살 이동, 착지 후 이동제한, 특정 행�
     //    return;
     //}
 
-    if (KEY_DOWN(VK_SPACE) && !InTheAir())
-    {
-        SetState(JUMP1);
-    }
 
     Walking();
 }
@@ -348,7 +326,7 @@ void Player::UpdateUI()
         }
         hpBar->SetAmount(curHP / maxHp);
     }
-    
+
     Vector3 barPos = Pos() + Vector3(0, 6, 0);
 
     hpBar->UpdateWorld();
@@ -366,15 +344,15 @@ void Player::UpdateUI()
 void Player::Rotate()
 {
     Vector3 delta = mousePos - Vector3(CENTER_X, CENTER_Y);
-    
+
     if (!camera)
         return;
-    
+
     SetCursorPos(clientCenterPos.x, clientCenterPos.y);
 
     Rot().y += delta.x * rotSpeed * DELTA;
     CAM->Rot().x -= delta.y * rotSpeed * DELTA;
-    
+
     if (KEY_PRESS('Q'))
         Rot().y -= DELTA * 2;
     if (KEY_PRESS('E'))
@@ -383,22 +361,22 @@ void Player::Rotate()
 
 void Player::Walking()
 {
-    bool isMoveZ = false; // 전후 이동 중 : 기본값 "아님"
-    bool isMoveX = false; // 좌우 이동 중 : 기본값 "아님"
+    bool isMoveZ = false; // ???? ??? ?? : ???? "???"
+    bool isMoveX = false; // ?¿? ??? ?? : ???? "???"
 
     if (KEY_PRESS('W'))
     {
         if (velocity.z + DELTA * 4.0f < 0.0f)
             velocity.z += DELTA * 4.0f;
         else
-            velocity.z += DELTA; //속력 기준에 시간 경과만큼 누적값 주기
+            velocity.z += DELTA; //??? ????? ?ð? ?????? ?????? ???
 
-        isMoveZ = true; //전후 이동 중임
+        isMoveZ = true; //???? ??? ????
     }
 
     if (KEY_PRESS('S'))
     {
-        if(velocity.z - DELTA * 4.0f > 0.0f)
+        if (velocity.z - DELTA * 4.0f > 0.0f)
             velocity.z -= DELTA * 4.0f;
         else
             velocity.z -= DELTA;
@@ -421,7 +399,7 @@ void Player::Walking()
         if (velocity.x + DELTA * 4.0f < 0.0f)
             velocity.x += DELTA * 4.0f;
         else
-            velocity.x += DELTA; //속력 기준에 시간 경과만큼 누적값 주기
+            velocity.x += DELTA; //??? ????? ?ð? ?????? ?????? ???
 
         isMoveX = true;
     }
@@ -429,7 +407,7 @@ void Player::Walking()
     if (velocity.Length() > 1) velocity.Normalize();
 
     if (!isMoveZ)
-        velocity.z = Lerp(velocity.z, 0, deceleration * DELTA); //보간으로 감속
+        velocity.z = Lerp(velocity.z, 0, deceleration * DELTA); //???????? ????
 
     if (!isMoveX)
         velocity.x = Lerp(velocity.x, 0, deceleration * DELTA);
@@ -437,35 +415,35 @@ void Player::Walking()
     Matrix rotY = XMMatrixRotationY(Rot().y);
     Vector3 direction = XMVector3TransformCoord(velocity, rotY);
 
-        
+
     Vector3 destFeedBackPos;
     Vector3 destPos = Pos() + direction * moveSpeed * DELTA * -1;
     Vector3 PlayerSkyPos = destPos;
     PlayerSkyPos.y += 100;
     Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
     TerainComputePicking(destFeedBackPos, groundRay);
-    
-    //destFeedBackPos : 목적지 터레인Pos
-    //feedBackPos : 현재 터레인Pos
 
-    //방향으로 각도 구하기
+    //destFeedBackPos : ?????? ?????Pos
+    //feedBackPos : ???? ?????Pos
+
+    //???????? ???? ?????
     Vector3 destDir = destFeedBackPos - feedBackPos;
     Vector3 destDirXZ = destDir;
     destDirXZ.y = 0;
-    
-    //각도
+
+    //????
     float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
 
 
-    if (/*ColliderManager::Get()->ControlPlayer(&direction)*/ !isPushed 
-        && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y)) //각이 60도보다 작아야 이동, 혹은 목적지 높이가 더 낮아야함
+    if (/*ColliderManager::Get()->ControlPlayer(&direction)*/ !isPushed
+        && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y)) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????
     {
-        Pos() += direction * moveSpeed * DELTA * -1; // 이동 수행
+        Pos() += direction * moveSpeed * DELTA * -1; // ??? ????
         feedBackPos.y = destFeedBackPos.y;
     }
-        
-    //점프상태가 아니라면 현재 지면 높이로 높이 수정
-    if(curState != JUMP1 && curState != JUMP2 && curState != JUMP3)
+
+    //???????°? ????? ???? ???? ????? ???? ????
+    if (curState != JUMP1 && curState != JUMP2 && curState != JUMP3)
         Pos().y = feedBackPos.y;
 }
 
@@ -481,16 +459,29 @@ void Player::AfterJumpAnimation()
 
 void Player::Jumping()
 {
+    if (heightLevel < feedBackPos.y)
+        heightLevel = feedBackPos.y;
+
     if (isCeiling) {
-        jumpVel = -1;
+        jumpVel = -20;
         isCeiling = false;
     }
 
-    float tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
-    float tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
+    float tempJumpVel;
+    float tempY;
+    if (preHeight - heightLevel > 5.0f)
+    {
+        jumpVel = -1;
 
-    if(heightLevel < feedBackPos.y)
-        heightLevel = feedBackPos.y;
+        tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
+        tempY = preHeight + jumpVel * DELTA * jumpSpeed;
+    }
+    else
+    {
+        tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
+        tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
+    }
+
 
     if (tempY <= heightLevel)
     {
@@ -498,16 +489,18 @@ void Player::Jumping()
         tempJumpVel = 0.0f;
 
         if (curState == JUMP2) {
-            //landing = landingT;   //점프가 높아서 착지 자세가 다를때 호출하기
+            //landing = landingT;   //?????? ????? ???? ????? ????? ??????
             SetState(JUMP3);
         }
     }
-    
+
     Pos().y = tempY;
     jumpVel = tempJumpVel;
 
     if (jumpVel < 0.0f)
         SetState(JUMP2);
+
+    preHeight = heightLevel;
 }
 
 void Player::Searching()
@@ -517,11 +510,11 @@ void Player::Searching()
 
     //diagnolLRay.dir = Back;
 
-    //block manager로 가져오는 코드 작성 가능
+    //block manager?? ???????? ??? ??? ????
 }
 
 void Player::Cover()
-{    
+{
     targetTransform->Pos() = { contact.hitPoint.x, Pos().y, contact.hitPoint.z };
 
     Vector3 objectPos = { targetObject->Pos().x, 0, targetObject->Pos().z };
@@ -551,7 +544,7 @@ void Player::EndHit()
 }
 
 bool Player::TerainComputePicking(Vector3& feedback, Ray ray)
-{    
+{
     if (terrain && structuredBuffer)
     {
         rayBuffer->Get().pos = ray.pos;
@@ -594,7 +587,7 @@ bool Player::TerainComputePicking(Vector3& feedback, Ray ray)
             return true;
         }
     }
-    
+
     return false;
 }
 
@@ -618,11 +611,11 @@ void Player::Hit(float damage)
         if (destHP <= 0)
         {
             //SetState(DYING);
-            //게임오버
+            //???????
             return;
         }
 
-        SetState(HIT,0.8f);
+        SetState(HIT, 0.8f);
 
         isHit = true;
     }
@@ -633,15 +626,13 @@ void Player::AttackCombo()
 {
     switch (weaponState)
     {
-    //case NONE:
+        //case NONE:
 
-    //    break;
+        //    break;
     case DAGGER:
         SetState(static_cast<State>(DAGGER1 + comboStack));
         break;
     }
-
-    combo = false;
 
     comboHolding = 1.5f;
     comboStack++;
@@ -652,16 +643,16 @@ void Player::AttackCombo()
 void Player::SetState(State state, float scale, float takeTime)
 {
     if (state == curState) return;
-    
+
     curState = state;
-    PlayClip((int)state,scale,takeTime);
+    PlayClip((int)state, scale, takeTime);
 }
 
 void Player::SetAnimation()
 {
-    if (curState == JUMP1 || curState == JUMP3 || Pos().y > 0.0f) return;   //높이가 바뀌는 경우가 생기기 때문에 Pos().y의 조건 값을 변수로 바꾸기
- /*   if (toCover)
-        return;*/
+    if (curState == JUMP1 || curState == JUMP3 || Pos().y > 0.0f) return;   //????? ???? ??찡 ????? ?????? Pos().y?? ???? ???? ?????? ????
+    /*   if (toCover)
+           return;*/
 
     if (curState == HIT || curState == KICK || curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3)
         return;
@@ -670,16 +661,16 @@ void Player::SetAnimation()
         SetState(RUN_DL);
     else if (velocity.z > 0.01f && velocity.x > 0.1f)
         SetState(RUN_DR);
-    else if (velocity.z > 0.1f) // 속력 기준이 현재 앞으로 +면
+    else if (velocity.z > 0.1f) // ??? ?????? ???? ?????? +??
         SetState(RUN_F);
-    else if (velocity.z < -0.1f) // 앞 기준 -면
+    else if (velocity.z < -0.1f) // ?? ???? -??
         SetState(RUN_B);
-    else if (velocity.x > 0.1f) // 좌우 기준 +면
+    else if (velocity.x > 0.1f) // ?¿? ???? +??
         SetState(RUN_R);
-    else if (velocity.x < -0.1f) //좌우 기준 -면
+    else if (velocity.x < -0.1f) //?¿? ???? -??
         SetState(RUN_L);
     else
-        SetState(IDLE); // 가만히 있으면
+        SetState(IDLE); // ?????? ??????
 }
 
 void Player::SetIdle()

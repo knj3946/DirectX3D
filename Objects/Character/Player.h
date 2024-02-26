@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 class Player : public ModelAnimator
 {
 private:
@@ -70,10 +70,9 @@ public:
 
     Vector3 GetVelocity() { return velocity; }
     CapsuleCollider* GetCollider() { return collider; }
-    Ray* GetFootRay() { return footRay; }
-    
-    
-    Ray GetRay() { return straightRay; }    //¾ÆÁ÷ ¾È¾²´Â°Å
+
+
+    Ray GetRay() { return straightRay; }    //ï¿½ï¿½ï¿½ï¿½ ï¿½È¾ï¿½ï¿½Â°ï¿½
 
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
 
@@ -115,7 +114,7 @@ private:
 
 private:
 
-    POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- ¿¬»êÀÚ´Â »ùÇÃ 
+    POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½ ï¿½ï¿½ï¿½ï¿½ 
 
     State curState = IDLE;
     WeaponState weaponState = DAGGER;
@@ -123,9 +122,9 @@ private:
     Vector3 velocity;
     Vector3 targetPos;
 
-    float moveSpeed = 200;
+    float moveSpeed = 20;
     float rotSpeed = 0.3;
-    float deceleration = 10; //°¨¼Ó
+    float deceleration = 10; //ï¿½ï¿½ï¿½ï¿½
 
     float heightLevel = 0.0f;
 
@@ -133,7 +132,7 @@ private:
     int jumpN = 0;
     float nextJump = 0;
 
-    float force1 = 215.f;
+    float force1 = 250.f;
     float force2 = 250.0f;
     float force3 = 350.0f;
 
@@ -142,7 +141,7 @@ private:
 
     float landingT = 3.0f;
     float landing = 0.0f;
-        
+
     CapsuleCollider* collider;
     vector<Collider*> weaponColliders;
 
@@ -159,7 +158,6 @@ private:
     float temp = 12.5f;
     bool camera = true;
 
-    Ray* footRay;
     LevelData* terrain;
 
     RayBuffer* rayBuffer;
@@ -181,18 +179,18 @@ private:
     bool isHit = false;
 
     int comboStack = 0;
-    float comboHolding = 0.0f;   //comboStackÀÌ À¯ÁöµÇ´Â ½Ã°£, ÀÌ º¯¼öÀÇ °ªÀº °ø°ÝÀÇ ÁøÇà½Ã°£¸¶´Ù ´Ù¸£°Ô ÃÊ±âÈ­
-    bool combo = false;    //´ë°Å 1¹ø 2¹ø °ø°ÝÀÌ ½º¹«½ºÇÏ°Ô ¿¬°áµÇµµ·Ï ´ë°Å 1¹ø ¾Ö´Ï¸ÞÀÌ¼Ç ÁøÇà Áß°£Âë¿¡ ÀÌ º¯¼ö true·Î ¸¸µé±â
+    float comboHolding = 0.0f;   //comboStackï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½Ã°ï¿½, ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ã°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¸ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
+    //bool combo = false;    //ï¿½ï¿½ï¿½ 1ï¿½ï¿½ 2ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½Çµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ 1ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½ë¿¡ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ trueï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
 
     Transform* rightHand;
     Dagger* dagger;
 
     Transform* leftFoot;
     CapsuleCollider* leftFootCollider;
-    
+
     Transform* rightFoot;
     CapsuleCollider* rightFootCollider;
-    
+
     //left foot : 57
     //right foot : 62
     int rightHandNode = 35;
@@ -201,4 +199,6 @@ private:
 
     bool isPushed = false;
     bool isCeiling = false;
+
+    float preHeight = 0.0f;
 };
