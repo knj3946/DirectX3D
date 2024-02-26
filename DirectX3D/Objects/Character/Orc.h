@@ -16,6 +16,7 @@ private:
     enum class NPC_BehaviorState {
         IDLE,// 탐색하지않고 패트롤 상태 또는 가만히있는 상태
         CHECK,// 소리를 듣고 가거나 플레이어를 쫓다가 플레이어가 숨을때 탐색하는 상태
+        SOUNDCHECK,
         DETECT// 플레이어를 쫓아서 공격하는 상태.
     };
 
@@ -58,6 +59,12 @@ private:
     typedef VertexUVNormalTangentAlpha VertexType;
 
 public:
+    enum class NPC_TYPE {
+        ATTACK,
+        INFORM//탐지범위가 긴 npc
+
+    };
+
     Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index);
     ~Orc();
 
@@ -65,13 +72,19 @@ public:
     void Render();
     void PostRender();
     void GUIRender();
+    void SetPatrolPos(Vector3& _pos) { PatrolPos.push_back(_pos); };
+    void Direction();
+
 
     void SetTerrain(LevelData* terrain);
     void SetAStar(AStar* aStar) { this->aStar = aStar; }
     void SetTarget(Transform* target) { this->target = target; }
     void SetTargetCollider(CapsuleCollider* collider) { targetCollider = collider; }
     void SetSRT(Vector3 scale, Vector3 rot, Vector3 transform);
-    void SetStartPos(Vector3 pos) { this->startPos = pos; }
+    void SetStartPos(Vector3 pos) { this->startPos = pos; this->PatrolPos.push_back(startPos); }
+    void SetType(NPC_TYPE _type);
+    float GetInformRange() { return informrange; }
+
 
     Transform* GetTransform() { return transform; }
     CapsuleCollider* GetCollider() { return collider; }
@@ -89,12 +102,12 @@ public:
 
     bool FindTarget() { return bSensor; }
 
-    void Findrange() { NearFind = true; behaviorstate = NPC_BehaviorState::DETECT; }
+    void Findrange();
 
-private:
-    void Control();
+private:    
+    void Control();    
     void Move();
-    void IdleAIMove();
+    void IdleAIMove();      
     void UpdateUI();
 
     void TimeCalculator(); // 시간 계산하는 것들은 여기서 한번에 관리하는게 편할거같아서 추가해본 함수
@@ -112,8 +125,8 @@ private:
     void CalculateEyeSight();
     void CalculateEarSight();//귀
     void Detection();
-    void SetRay(Vector3& _pos);
-
+    void SetRay(Vector3 _pos);
+    void Patrol();
     bool IsStartPos();
     bool TerainComputePicking(Vector3& feedback, Ray ray);
     bool EyesRayToDetectTarget();
@@ -126,6 +139,11 @@ private:
     bool bSound = false;// 소리 체크
     bool NearFind = false;
     bool bSensor = false;
+
+    float informrange;// 탐지범위
+    NPC_TYPE type;//
+    vector<Vector3> PatrolPos;// 순찰지
+    UINT nextPatrol = 0;// 순찰지 위치
  
     NPC_BehaviorState behaviorstate = NPC_BehaviorState::IDLE;
 
@@ -177,7 +195,7 @@ private:
     CapsuleCollider* leftWeaponCollider;
     CapsuleCollider* rightWeaponCollider;
 
-    float eyeSightRange = 20.f;
+    float eyeSightRange = 40.f;
     float eyeSightangle = 45.f;
     bool bDetection = false;
     bool bFind = false;

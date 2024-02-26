@@ -30,6 +30,7 @@ MonsterManager::MonsterManager()
         Transform* transform = orcInstancing->Add();
         transform->SetActive(false);
         Orc* orc = new Orc(transform, orcInstancing, i);
+        ColliderManager::Get()->PushCollision(ColliderManager::ORC, orc->GetCollider());
         orcs.push_back(orc);
         orc->Spawn(positions[i]);
     }
@@ -48,10 +49,20 @@ void MonsterManager::Update()
     Collision();
     orcInstancing->Update();
 
+    int i = 0;
 
-    for (Orc* orc : orcs)
-        orc->Update();
 
+    orcs[0]->Update();
+    orcs[1]->Update();
+  //  for (Orc* orc : orcs)
+  //  {
+  //
+  //
+  //
+  //      
+  //      orc->Update();
+  //      i++;
+  //  }
 
     for (Orc* orc : orcs)
     {
@@ -132,6 +143,13 @@ void MonsterManager::SetOrcSRT(int index, Vector3 scale, Vector3 rot, Vector3 po
     orcs[index]->SetStartPos(pos);
 }
 
+void MonsterManager::SetPatrolPos(UINT idx, Vector3 Pos)
+{
+    orcs[idx]->SetPatrolPos(Pos);
+}
+
+
+
 void MonsterManager::AddOrcObstacleObj(Collider* collider)
 {
     for (Orc* orc : orcs)
@@ -145,6 +163,14 @@ void MonsterManager::SetTerrain(LevelData* terrain)
     for (Orc* orc : orcs)
     {
         orc->SetTerrain(terrain);
+    }
+}
+
+void MonsterManager::SetAStar(AStar* astar)
+{
+    for (Orc* orc : orcs)
+    {
+        orc->SetAStar(astar);
     }
 }
 
@@ -249,8 +275,12 @@ void MonsterManager::CalculateDistance()
     {
         if (p->FindTarget()) continue;
         else {
+            Vector3 pos;
             for (UINT i = 0; i < vecDetectionPos.size(); ++i) {
-                if (Distance(vecDetectionPos[i], p->GetTransform()->GlobalPos()) <= 500) {
+                pos.x = vecDetectionPos[i].x;   
+                pos.y = vecDetectionPos[i].y;
+                pos.z = vecDetectionPos[i].z;
+                if (Distance(pos, p->GetTransform()->GlobalPos()) <= vecDetectionPos[i].w) {
                     p->Findrange();
                 }
             }
@@ -264,4 +294,9 @@ void MonsterManager::Collision()
     {
 
     }
+}
+
+
+void MonsterManager::SetType(int index, Orc::NPC_TYPE _type) {
+    orcs[index]->SetType(_type);
 }

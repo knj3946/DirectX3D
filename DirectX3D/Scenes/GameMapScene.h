@@ -19,7 +19,7 @@ private:
 	TerrainEditor* terrain;
 
 	SkyBox* skyBox;
-
+	AStar* aStar;
 	BlendState* blendState[2];
 
 	Player* player;
