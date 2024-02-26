@@ -16,11 +16,6 @@ Player::Player()
     collider->SetParent(this);
     collider->Pos().y += 20;
 
-    footRay = new Ray();
-    footRay->pos = Pos();
-    footRay->dir = Pos().Down();
-
-
     rightHand = new Transform();
     dagger = new Dagger(rightHand);
 
@@ -101,7 +96,6 @@ Player::Player()
 Player::~Player()
 {
     delete collider;
-    delete footRay;
 
     delete hpBar;
 
@@ -123,9 +117,6 @@ void Player::Update()
 
     collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
     collider->UpdateWorld();
-
-    footRay->pos = collider->GlobalPos();
-    footRay->dir = Down();
 
     UpdateUI();
 
@@ -268,31 +259,22 @@ void Player::Control()  //사용자의 키보드, 마우스 입력 처리
     }
     }
 
-    if (curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3) 
-    {
-        if (combo && KEY_PRESS(VK_LBUTTON))
-        {
+    if (KEY_PRESS(VK_LBUTTON))
+        if(curState != DAGGER1 && curState != DAGGER2 && curState != DAGGER3)
             AttackCombo();
-            return;
-        }
-
-        return;
-    }
-
-    if (KEY_PRESS('G'))
-    {
-        AttackCombo();
-        return;
-    }
 
     if (isHit)   //맞는게 활성화됐을때 Jumping함수가 동작을 안하면 공중에 떠있는 시간이 늘어남
     {
         return;
     }
 
+    if (KEY_DOWN(VK_SPACE) && !InTheAir())
+    {
+        SetState(JUMP1);
+    }
+
     Move();
     Jumping();
-
 
     if(targetObject != nullptr && KEY_DOWN('F'))
     {
@@ -327,10 +309,6 @@ void Player::Move() //이동 관련(기본 이동, 암살 이동, 착지 후 이동제한, 특정 행�
     //    return;
     //}
 
-    if (KEY_DOWN(VK_SPACE) && !InTheAir())
-    {
-        SetState(JUMP1);
-    }
 
     Walking();
 }
@@ -481,16 +459,29 @@ void Player::AfterJumpAnimation()
 
 void Player::Jumping()
 {
+    if (heightLevel < feedBackPos.y)
+        heightLevel = feedBackPos.y;
+
     if (isCeiling) {
-        jumpVel = -1;
+        jumpVel = -20;
         isCeiling = false;
     }
 
-    float tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
-    float tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
+    float tempJumpVel;
+    float tempY;
+    if (preHeight - heightLevel > 5.0f)
+    {
+        jumpVel = -1;
 
-    if(heightLevel < feedBackPos.y)
-        heightLevel = feedBackPos.y;
+        tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
+        tempY = preHeight + jumpVel * DELTA * jumpSpeed;
+    }
+    else
+    {
+        tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
+        tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
+    }
+
 
     if (tempY <= heightLevel)
     {
@@ -508,6 +499,8 @@ void Player::Jumping()
 
     if (jumpVel < 0.0f)
         SetState(JUMP2);
+
+    preHeight = heightLevel;
 }
 
 void Player::Searching()
@@ -640,8 +633,6 @@ void Player::AttackCombo()
         SetState(static_cast<State>(DAGGER1 + comboStack));
         break;
     }
-
-    combo = false;
 
     comboHolding = 1.5f;
     comboStack++;

@@ -18,5 +18,7 @@ private:
 	BoxCollider* box2;
 
 	vector<Collider*> colliders;
+
+	int onColliderNum = -1;
 };
 

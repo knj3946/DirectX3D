@@ -70,7 +70,6 @@ public:
 
     Vector3 GetVelocity() { return velocity; }
     CapsuleCollider* GetCollider() { return collider; }
-    Ray* GetFootRay() { return footRay; }
     
     
     Ray GetRay() { return straightRay; }    //아직 안쓰는거
@@ -123,7 +122,7 @@ private:
     Vector3 velocity;
     Vector3 targetPos;
 
-    float moveSpeed = 200;
+    float moveSpeed = 20;
     float rotSpeed = 0.3;
     float deceleration = 10; //감속
 
@@ -133,7 +132,7 @@ private:
     int jumpN = 0;
     float nextJump = 0;
 
-    float force1 = 215.f;
+    float force1 = 250.f;
     float force2 = 250.0f;
     float force3 = 350.0f;
 
@@ -159,7 +158,6 @@ private:
     float temp = 12.5f;
     bool camera = true;
 
-    Ray* footRay;
     LevelData* terrain;
 
     RayBuffer* rayBuffer;
@@ -182,7 +180,7 @@ private:
 
     int comboStack = 0;
     float comboHolding = 0.0f;   //comboStack이 유지되는 시간, 이 변수의 값은 공격의 진행시간마다 다르게 초기화
-    bool combo = false;    //대거 1번 2번 공격이 스무스하게 연결되도록 대거 1번 애니메이션 진행 중간쯤에 이 변수 true로 만들기
+    //bool combo = false;    //대거 1번 2번 공격이 스무스하게 연결되도록 대거 1번 애니메이션 진행 중간쯤에 이 변수 true로 만들기
 
     Transform* rightHand;
     Dagger* dagger;
@@ -201,4 +199,6 @@ private:
 
     bool isPushed = false;
     bool isCeiling = false;
+
+    float preHeight = 0.0f;
 };

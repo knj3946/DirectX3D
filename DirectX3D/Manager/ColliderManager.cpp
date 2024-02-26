@@ -3,6 +3,11 @@
 
 ColliderManager::ColliderManager()
 {
+	footRay = new Ray();
+	headRay = new Ray();
+
+	headRay->dir = { 0, 1, 0 };
+	footRay->dir = { 0, -1, 0 };
 }
 
 ColliderManager::~ColliderManager()
@@ -14,7 +19,7 @@ void ColliderManager::PushPlayer()
 	bool isPushed = false;
 
 	for (Collider* obstacle : obstacles)
-		if (obstacle->PushCollision(playerCollider) && !isPushed)
+		if (obstacle != onBlock && obstacle->PushCollision(playerCollider) && !isPushed)
 			isPushed = true;
 
 	player->SetIsPushed(isPushed);
@@ -22,38 +27,41 @@ void ColliderManager::PushPlayer()
 
 void ColliderManager::SetHeight()
 {
-	Contact underObj;
-	Vector3 rayPos = player->Pos();
+	onBlock = nullptr;
 
-	Ray upRay = Ray(playerCollider->GlobalPos(), {0, 1, 0});	//이거 dir 값이 대체 어떻게 해야할지 모르겠음, 플레이어 머리 위로 쏘면 천장에 부딪히는거 구현 완료
-	upRay.pos.y += 137.0f;
+	maxHeight = 0.0f;
+
+	headRay->pos = playerCollider->GlobalPos();
+	footRay->pos = playerCollider->GlobalPos();
+
+	headRay->pos.y = player->Pos().y + 6.2f;
+
+	Contact underObj;
 
 	for (Collider* obstacle : obstacles)
 	{
-		if (obstacle->IsRayCollision(upRay))
-			obstacle->SetColor({ 1, 0, 0, 0 });
-		else
-			obstacle->SetColor({ 0, 1, 0, 0 });
-
-		obstacle->IsRayCollision(upRay);
-		if (obstacle->IsCapsuleCollision(playerCollider) && obstacle->IsRayCollision(upRay))
+		if (obstacle->IsCapsuleCollision(playerCollider) && obstacle->IsRayCollision(*headRay))
 		{
 			player->SetIsCeiling(true);
-			return;
+			continue;
 		}
-		else if (obstacle->IsRayCollision(*playerFoot, &underObj))
+		else if (obstacle->IsRayCollision(*footRay, &underObj))
 		{
 			if (underObj.hitPoint.y > maxHeight)
+			{
 				maxHeight = underObj.hitPoint.y;
+				onBlock = obstacle;
+			}
 		}
 	}
 
-
+	player->SetHeightLevel(maxHeight);
 }
 
 void ColliderManager::GuiRender()
 {
-	ImGui::DragFloat3("fds", (float*)&rayHeight, 0.5f);
+	//ImGui::DragFloat3("fds", (float*)&rayHeight, 0.5f);
+	ImGui::DragFloat3("fds", (float*)&headRay->pos, 0.5f);
 }
 
 //bool ColliderManager::ControlPlayer(Vector3* dir)

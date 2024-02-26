@@ -8,7 +8,7 @@ private:
     ~ColliderManager();
 
 public:
-    void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); playerFoot = player->GetFootRay(); }
+    void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); }
     void SetObstacles(Collider* obstacle) { obstacles.push_back(obstacle); }
 
     void PushPlayer();
@@ -30,10 +30,14 @@ private:
     Player* player;
     CapsuleCollider* playerCollider;
     vector<Collider*> obstacles;
-    Ray* playerFoot;
+
+    Collider* onBlock;  //현재 밑에있는 콜라이더 Contact로 대체 가능할듯
 
     float maxHeight;
 
     Vector3 rayHeight;
+
+    Ray* footRay;
+    Ray* headRay;
 };
 
