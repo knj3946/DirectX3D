@@ -59,6 +59,8 @@ public:
 
     UINT GetClipSize() { return clips.size(); }
 
+    void SetOutLine(UINT index,bool flag);
+
 private:    
     void UpdateFrame(UINT instanceID, Motion& motion);
     void UpdateTransforms();
@@ -71,4 +73,8 @@ private:
     FrameInstancingBuffer* frameInstancingBuffer;
 
     UINT drawCount = 0;
+
+    DepthStencilState* depthStencilState[2];
+    BlendState* blendState[2];
+    vector<bool> outLines;
 };

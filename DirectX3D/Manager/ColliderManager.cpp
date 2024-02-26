@@ -14,8 +14,13 @@ void ColliderManager::PushPlayer()
 	bool isPushed = false;
 
 	for (Collider* obstacle : obstacles)
+	{
 		if (obstacle->PushCollision(playerCollider) && !isPushed)
+		{
 			isPushed = true;
+			break;
+		}
+	}
 
 	player->SetIsPushed(isPushed);
 }
@@ -102,12 +107,37 @@ float ColliderManager::CloseRayCollisionColliderDistance(Ray ray)
 		Contact con;
 		ob->IsRayCollision(ray, &con);
 
-		float hitDistance = Distance(con.hitPoint, ray.pos);
-		if (minDistance > hitDistance)
-			minDistance = hitDistance;
+		if (con.distance > 0)
+		{
+			float hitDistance = Distance(con.hitPoint, ray.pos);
+			if (minDistance > hitDistance)
+				minDistance = hitDistance;
+		}
 	}
 
 	return minDistance;
+}
+bool ColliderManager::CloseRayCollisionColliderContact(Ray ray,Contact& con)
+{
+	float minDistance = FLT_MAX;
+	bool flag = false;
+	for (Collider* ob : obstacles)
+	{
+		Contact tempCon;
+		ob->IsRayCollision(ray, &tempCon);
+
+		if (tempCon.distance > 0)
+		{
+			float hitDistance = Distance(tempCon.hitPoint, ray.pos);
+			if (minDistance > hitDistance)
+			{
+				con = tempCon;
+				minDistance = hitDistance;
+				flag = true;
+			}
+		}	
+	}
+	return flag;
 }
 
 ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot, Vector3 mPos)
@@ -120,7 +150,7 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
 	if (mName == "building_V2")
 	{
 		mRot.x += XM_PIDIV2;
-		colCount = 12;
+		colCount = 11;
 		colPoss.push_back(Vector3(4.f, -1.6f, -1.5f));
 		colPoss.push_back(Vector3(4.f, 1.6f, -1.5f));
 		colPoss.push_back(Vector3(0.f, 0.f, -2.7f));
@@ -128,13 +158,12 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
 		colPoss.push_back(Vector3(-3.9f, 0.f, -1.5f));
 		colPoss.push_back(Vector3(-3.6f, -2.4f, -1.5f));
 		colPoss.push_back(Vector3(-0.9f, -2.4f, -1.5f));
-		colPoss.push_back(Vector3(1.5f, -2.4f, -1.5f));
 		colPoss.push_back(Vector3(3.7f, -2.4f, -1.5f));
 		colPoss.push_back(Vector3(1.5f, -2.4f, -2.6f));
+
 		colPoss.push_back(Vector3(1.5f, -2.4f, -1.6f));
 		colPoss.push_back(Vector3(1.5f, -2.4f, -0.6f));
 
-		colRots.push_back(Vector3(0.f, 0.f, 0.f));
 		colRots.push_back(Vector3(0.f, 0.f, 0.f));
 		colRots.push_back(Vector3(0.f, 0.f, 0.f));
 		colRots.push_back(Vector3(0.f, 0.f, 0.f));
@@ -154,11 +183,10 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
 		colScales.push_back(Vector3(0.6f, 5.1f, 3.2f));
 		colScales.push_back(Vector3(1.1f, 0.4f, 3.f));
 		colScales.push_back(Vector3(1.2f, 0.4f, 3.f));
-		colScales.push_back(Vector3(1.8f, 0.4f, 3.f));
 		colScales.push_back(Vector3(0.9f, 0.4f, 3.f));
-		colScales.push_back(Vector3(3.9f, 0.4f, 1.1f));
+		colScales.push_back(Vector3(3.5f, 0.4f, 1.1f));
 		colScales.push_back(Vector3(1.8f, 0.4f, 1.3f));
-		colScales.push_back(Vector3(3.7f, 0.4f, 1.2f));
+		colScales.push_back(Vector3(3.5f, 0.4f, 1.2f));
 
 	}
 	else if (mName == "building_V4")

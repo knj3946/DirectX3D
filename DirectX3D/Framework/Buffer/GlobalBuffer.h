@@ -182,14 +182,18 @@ private:
 class FogBuffer : public ConstBuffer
 {
 private:
-    struct Data
+
+    //안개 버퍼 (실제로 쓰이는 안개의) 가장 단순한 안개 형태를 구현한 것
+    // -> 이셰이더가 설정된 물체를 뿌옇게 보이게 한다
+
+    struct Data 
     {        
-        Float4 color = { 1, 1, 1, 1 };
+        Float4 color = { 1, 1, 1, 1 }; // 안개의 색깔
 
-        float start = 0.0f;
-        float random = 1.0f;
-
-        float padding[2];
+        float start = 0.0f; // 안개가 시작되는 곳
+        float random = 1.0f; // 안개가 강해지는 곳
+                             //위 두 숫자를 나눗셈에 써서 뿌얘지는 정도를 정한다
+        float padding[2]; // ->>
     };
 public:
     FogBuffer() : ConstBuffer(&data, sizeof(Data))

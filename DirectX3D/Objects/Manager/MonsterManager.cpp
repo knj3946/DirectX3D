@@ -258,6 +258,32 @@ void MonsterManager::CalculateDistance()
     }
 }
 
+void MonsterManager::OnOutLineByRay(Ray ray)
+{
+    float minDistance = FLT_MAX;
+    Orc* targetOrc = nullptr;
+
+    for (Orc* orc : orcs)
+    {
+        Contact con;
+        if (orc->GetCollider()->IsRayCollision(ray, &con))
+        {
+            float hitDistance = Distance(con.hitPoint, ray.pos);
+            if (minDistance > hitDistance)
+            {
+                minDistance = hitDistance;
+                targetOrc = orc;
+            }  
+        }
+        orc->SetOutLine(false);
+    }
+
+    if (targetOrc)
+    {
+        targetOrc->SetOutLine(true);
+    }
+}
+
 void MonsterManager::Collision()
 {
     for (Orc* orc : orcs)

@@ -17,6 +17,7 @@ public:
     void GuiRender();
 
     float CloseRayCollisionColliderDistance(Ray ray);
+    bool CloseRayCollisionColliderContact(Ray ray, Contact& con);
 
 
 

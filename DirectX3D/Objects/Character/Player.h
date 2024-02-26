@@ -107,10 +107,12 @@ private:
     void SetState(State state, float scale = 1.0f, float takeTime = 0.2f);
     void SetIdle();
     void Searching();
+    void Targeting();
     bool InTheAir();
 
     void EndHit();
 
+    bool OnColliderFloor(Vector3& feedback);
     bool TerainComputePicking(Vector3& feedback, Ray ray);
 
 private:

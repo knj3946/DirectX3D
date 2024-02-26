@@ -31,6 +31,8 @@ public:
     void CalculateDistance();
     void PushPosition(Vector3 _pos) { vecDetectionPos.push_back(_pos); }
 
+    void OnOutLineByRay(Ray ray);
+
 
 private:
     void Collision();

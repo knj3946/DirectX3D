@@ -64,6 +64,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
 
     computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
     rayBuffer = new RayBuffer();
+    
 }
 
 Orc::~Orc()
@@ -93,7 +94,7 @@ void Orc::Update()
     velocity = target->GlobalPos() - transform->GlobalPos();
 
     CalculateEyeSight();
-    //eyesRayDetect = EyesRayToDetectTarget(); // 오류로 주석처리 2/25
+    eyesRayDetect = EyesRayToDetectTarget(); // 오류로 주석처리 2/25
     Detection();
     ExecuteEvent();
     UpdateUI();
@@ -303,7 +304,7 @@ void Orc::Control()
         Vector3 dist = target->Pos() - transform->GlobalPos();
 
         // 시야에 들어왔다면
-        if (bDetection )//&& eyesRayDetect // 오류로 주석처리 2/25
+        if (bDetection && eyesRayDetect)
         {
             // 발견한지 2초가 됐나
             if (bFind)
@@ -922,7 +923,7 @@ void Orc::Detection()
   //      }
   //  } 추후 논의
 
-    if (bDetection ) {//&& eyesRayDetect // 오류로 주석처리 2/25
+    if (bDetection && eyesRayDetect) {
         DetectionStartTime += DELTA;
     }
     else {
@@ -1066,6 +1067,11 @@ bool Orc::EyesRayToDetectTarget()
         }
 
     return true;
+}
+
+void Orc::SetOutLine(bool flag)
+{
+    instancing->SetOutLine(index,flag);
 }
 
 void Orc::AddObstacleObj(Collider* collider)

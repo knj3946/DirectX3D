@@ -73,20 +73,20 @@ bool Collider::PushCollision(Collider* collider)
     {
     case 0: // x
         dir.x = dir.x > 0 ? 1.0f : -1.0f;
-        dir.y = 0;
-        dir.z = 0;
+        dir.y = dir.y > 0 ? 0.1f : -0.1f; //콜라이더 양쪽에서 미는 끼임 방지
+        dir.z = dir.z > 0 ? 0.1f : -0.1f;
         break;
 
     case 1: // y
         dir.x = 0;
-        dir.y = dir.y > 0 ? 1.0f : -1.0f;;
+        dir.y = dir.y > 0 ? 1.0f : -1.0f;
         dir.z = 0;
         break;
 
     case 2: // z
-        dir.x = 0;
-        dir.y = 0;
-        dir.z = dir.z > 0 ? 1.0f : -1.0f;;
+        dir.x = dir.x > 0 ? 0.1f : -0.1f;
+        dir.y = dir.y > 0 ? 0.1f : -0.1f;
+        dir.z = dir.z > 0 ? 1.0f : -1.0f;
         break;
     }
 

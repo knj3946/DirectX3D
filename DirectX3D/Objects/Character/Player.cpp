@@ -131,6 +131,7 @@ void Player::Update()
 
     Control();
     Searching();
+    Targeting();
 
     SetAnimation();
 
@@ -180,6 +181,10 @@ void Player::GUIRender()
     ImGui::SliderFloat("moveSpeed", &moveSpeed, 10, 1000);
     ImGui::SliderFloat("rotSpeed", &rotSpeed, 1, 10);
     ImGui::SliderFloat("deceleration", &deceleration, 1, 10);
+    ImGui::Text("isPushed : %d", isPushed);
+    ImGui::Text("feedBackPosY : %f", feedBackPos.y);
+    ImGui::Text("Pos.y : %f", Pos().y);
+    ImGui::Text("heightLevel : %f", heightLevel);
 
     //점프 힘
     ImGui::SliderFloat("force1", &force1, 1, 500);
@@ -304,10 +309,14 @@ void Player::Control()  //사용자의 키보드, 마우스 입력 처리
 void Player::Move() //이동 관련(기본 이동, 암살 이동, 착지 후 이동제한, 특정 행동을 위한 목적지로 의 이동 등)
 {
     //플레이어의 위에서 레이를 쏴서 현재 terrain 위치와 높이를 구함
-    Vector3 PlayerSkyPos = Pos();
-    PlayerSkyPos.y += 100;
-    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
-    TerainComputePicking(feedBackPos, groundRay);
+
+    if (!OnColliderFloor(feedBackPos))
+    {
+        Vector3 PlayerSkyPos = Pos();
+        PlayerSkyPos.y += 1000;
+        Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+        TerainComputePicking(feedBackPos, groundRay);
+    }
 
     //if (curState == JUMP3 && landing > 0.0f)    //착지 애니메이션 동안 부동 이동 제한 and 제한 시간 감소
     //{
@@ -441,10 +450,13 @@ void Player::Walking()
     Vector3 destFeedBackPos;
     Vector3 destPos = Pos() + direction * moveSpeed * DELTA * -1;
     Vector3 PlayerSkyPos = destPos;
-    PlayerSkyPos.y += 100;
+    PlayerSkyPos.y += 1000;
     Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
-    TerainComputePicking(destFeedBackPos, groundRay);
-    
+    if (!OnColliderFloor(destFeedBackPos))
+    {
+        TerainComputePicking(destFeedBackPos, groundRay);
+    }
+
     //destFeedBackPos : 목적지 터레인Pos
     //feedBackPos : 현재 터레인Pos
 
@@ -471,7 +483,7 @@ void Player::Walking()
 
 void Player::Jump()
 {
-    jumpVel = force1;
+    jumpVel = force3;
 }
 
 void Player::AfterJumpAnimation()
@@ -489,8 +501,7 @@ void Player::Jumping()
     float tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
     float tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
 
-    if(heightLevel < feedBackPos.y)
-        heightLevel = feedBackPos.y;
+    heightLevel = feedBackPos.y;
 
     if (tempY <= heightLevel)
     {
@@ -518,6 +529,13 @@ void Player::Searching()
     //diagnolLRay.dir = Back;
 
     //block manager로 가져오는 코드 작성 가능
+}
+
+void Player::Targeting()
+{
+    Ray mouseRay = CAM->ScreenPointToRay(mousePos);
+
+    MonsterManager::Get()->OnOutLineByRay(mouseRay);
 }
 
 void Player::Cover()
@@ -548,6 +566,22 @@ void Player::EndHit()
     isHit = false;
     collider->SetActive(true);
     SetState(IDLE);
+}
+
+bool Player::OnColliderFloor(Vector3& feedback)
+{
+    Vector3 PlayerSkyPos = Pos();
+    PlayerSkyPos.y += 1000;
+    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+    Contact con;
+    if (ColliderManager::Get()->CloseRayCollisionColliderContact(groundRay, con))
+    {
+        feedback = con.hitPoint;
+        feedback.y += 0.1f; //살짝 띄움으로서 충돌 방지
+        return true;
+    }
+    
+    return false;
 }
 
 bool Player::TerainComputePicking(Vector3& feedback, Ray ray)

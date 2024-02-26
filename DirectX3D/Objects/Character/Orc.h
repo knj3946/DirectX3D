@@ -91,6 +91,8 @@ public:
 
     void Findrange() { NearFind = true; behaviorstate = NPC_BehaviorState::DETECT; }
 
+    void SetOutLine(bool flag);
+
 private:
     void Control();
     void Move();
