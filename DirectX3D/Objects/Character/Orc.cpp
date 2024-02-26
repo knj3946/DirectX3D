@@ -200,8 +200,6 @@ void Orc::PostRender()
 void Orc::SetTerrain(LevelData* terrain)
 {
     this->terrain = terrain;
-   
-}
 
     structuredBuffer = new StructuredBuffer(
         inputs.data(), sizeof(InputDesc), terrainTriangleSize,
