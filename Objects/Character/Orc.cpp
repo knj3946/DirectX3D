@@ -1244,8 +1244,3 @@ void Orc::SetOutLine(bool flag)
 {
     instancing->SetOutLine(index,flag);
 }
-
-void Orc::AddObstacleObj(Collider* collider)
-{
-    aStar->AddObstacleObj(collider);
-}
