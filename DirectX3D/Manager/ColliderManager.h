@@ -20,8 +20,7 @@ public:
 
     };
 
-    void SetPlayer(Player* player, CapsuleCollider* playerCollider) { this->player = player; this->playerCollider = playerCollider; }
-    void SetObstacles(Collider* obstacle) { obstacles.push_back(obstacle); }
+    void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); playerFoot = player->GetFootRay(); }    void SetObstacles(Collider* obstacle) { obstacles.push_back(obstacle); }
 
     void PushPlayer();
     void SetHeight();
