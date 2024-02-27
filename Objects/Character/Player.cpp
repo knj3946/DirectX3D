@@ -291,14 +291,16 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
 void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ???????? ?? ??? ??)
 {
     //플레이어의 위에서 레이를 쏴서 현재 terrain 위치와 높이를 구함
-
+    /*
     if (!OnColliderFloor(feedBackPos))
     {
-        Vector3 PlayerSkyPos = Pos();
-        PlayerSkyPos.y += 1000;
-        Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
-        TerainComputePicking(feedBackPos, groundRay);
+
     }
+    */
+    Vector3 PlayerSkyPos = Pos();
+    PlayerSkyPos.y += 1000;
+    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+    TerainComputePicking(feedBackPos, groundRay);
 
     //if (curState == JUMP3 && landing > 0.0f)    //???? ??????? ???? ?ε? ??? ???? and ???? ?ð? ????
     //{
@@ -430,10 +432,13 @@ void Player::Walking()
     Vector3 PlayerSkyPos = destPos;
     PlayerSkyPos.y += 1000;
     Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+    /*
     if (!OnColliderFloor(destFeedBackPos))
     {
-        TerainComputePicking(destFeedBackPos, groundRay);
-    }
+        
+    }*/
+
+    TerainComputePicking(destFeedBackPos, groundRay);
 
     //destFeedBackPos : 목적지 터레인Pos
     //feedBackPos : 현재 터레인Pos
@@ -494,7 +499,7 @@ void Player::Jumping()
         tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
     }
 
-    heightLevel = feedBackPos.y;
+    //heightLevel = feedBackPos.y;
 
     if (tempY <= heightLevel)
     {
@@ -562,7 +567,7 @@ void Player::EndHit()
     collider->SetActive(true);
     SetState(IDLE);
 }
-
+/*
 bool Player::OnColliderFloor(Vector3& feedback)
 {
     Vector3 PlayerSkyPos = Pos();
@@ -578,7 +583,7 @@ bool Player::OnColliderFloor(Vector3& feedback)
     
     return false;
 }
-
+*/
 bool Player::TerainComputePicking(Vector3& feedback, Ray ray)
 {
     if (terrain && structuredBuffer)
