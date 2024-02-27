@@ -10,8 +10,9 @@ private:
     enum State
     {
         IDLE, WALK
-        , RUN, HIT, ATTACK, DYING
-    };
+        , RUN, HIT, ATTACK, THROW, DYING
+    };// throw 는 attack16 클립
+    
 
     enum class NPC_BehaviorState {
         IDLE,// 탐색하지않고 패트롤 상태 또는 가만히있는 상태
@@ -138,6 +139,7 @@ private:
     void RangeCheck();
     void  SoundPositionCheck();;
     float Hit();
+    void Throw();
 private:
     Ray ray;// 레이
     Vector3 StorePos;// 소리난 곳 가기 전 위치 저장

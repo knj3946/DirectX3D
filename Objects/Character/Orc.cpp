@@ -15,6 +15,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
 
     //이벤트 세팅
     SetEvent(ATTACK, bind(&Orc::EndAttack, this), 0.99f);
+    SetEvent(THROW, bind(&Orc::Throw, this), 0.59f);
     SetEvent(HIT, bind(&Orc::EndHit, this), 0.99f);
     SetEvent(DYING, bind(&Orc::EndDying, this), 0.9f);
 
@@ -49,8 +50,21 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
 
     // hp UI
     hpBar = new ProgressBar(L"Textures/UI/hp_bar.png", L"Textures/UI/hp_bar_BG.png");
-    hpBar->Scale() *= 0.01f;
+    
     hpBar->SetAmount(curHP / maxHp);
+    hpBar->Pos() = transform->Pos() + Vector3(0, 6, 0);
+    Vector3 dir = hpBar->Pos() - CAM->Pos();
+    hpBar->Rot().y = atan2(dir.x, dir.z);
+
+    float scale = 1 / velocity.Length();
+    scale *= 0.03f;
+    scale = Clamp(0.01f, 0.5f, scale);
+    hpBar->Scale() = { scale, scale, scale };
+
+    hpBar->UpdateWorld();
+    hpBar->Render();
+
+
 
     exclamationMark = new Quad(L"Textures/UI/Exclamationmark.png");
     questionMark = new Quad(L"Textures/UI/QuestionMark.png");
@@ -260,6 +274,13 @@ float Orc::Hit()
     }
     return r;
 }
+
+void Orc::Throw()
+{
+    KunaiManager::Get()->Throw(transform->Pos()+Vector3(0,3,0), transform->Back());
+    SetState(IDLE);
+}
+
 float Orc::GetDamage()
 {
     float r = 0.0f;
@@ -361,22 +382,31 @@ void Orc::Control()
                 // 공격 사정거리안에 들지 못하면
                 if (dist.Length() > 5.0f)
                 {
-                    if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
+                    if (dist.Length() < 15.f) // THROW 범위 : 5~15 임시 설정
                     {
-                        SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
+                        SetState(THROW);
                     }
                     else
                     {
-                        path.clear(); // 굳이 장애물없는데 길찾기 필요 x
-                        path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
+                        if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
+                        {
+                            SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
+                        }
+                        else
+                        {
+                            path.clear(); // 굳이 장애물없는데 길찾기 필요 x
+                            path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
+                        }
                     }
+                    
 
                     //Move();
                 }
                 else
                 {
                     path.clear();
-                    SetState(ATTACK,3.0f);
+                    //SetState(ATTACK,3.0f);
+                    SetState(THROW);
                 }
 
             }
@@ -470,6 +500,7 @@ void Orc::Move()
     float f=velocity.Length();
     if (curState == IDLE) return; 
     if (curState == ATTACK) return;
+    if (curState == THROW) return;
     if (curState == HIT) return;
     if (curState == DYING) return;
     if (behaviorstate == NPC_BehaviorState::CHECK)return;
@@ -574,8 +605,6 @@ void Orc::IdleAIMove()
          transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI;
          transform->Pos() += DELTA * walkSpeed * transform->Back();
      }
-
-
      /*
      if (IsAiCooldown)
     {
@@ -642,8 +671,6 @@ void Orc::IdleAIMove()
         transform->Pos().y = feedBackPos.y;
     }
      */
- 
-  
 }
 
 void Orc::UpdateUI()
@@ -706,7 +733,7 @@ void Orc::UpdateUI()
             leftWeaponCollider->SetActive(true);
             rightWeaponCollider->SetActive(true);
 
-            SetState(ATTACK); // 맞은 다음에 일단은 공격상태로 돌아가게 만듬 (나중에 수정 필요할 수도)
+            SetState(THROW); // 맞은 다음에 일단은 공격상태로 돌아가게 만듬 (나중에 수정 필요할 수도)
         }
         hpBar->SetAmount(curHP / maxHp);
     }
@@ -848,7 +875,7 @@ void Orc::EndAttack()
 {
     isAttackable = false;
     SetState(IDLE);
-    //SetState(ATTACK);
+    //SetState(THROW);
 }
 
 void Orc::EndHit()
