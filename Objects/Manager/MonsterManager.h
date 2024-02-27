@@ -2,6 +2,14 @@
 class MonsterManager : public Singleton<MonsterManager>
 {
 private:
+
+    struct SpecialKeyUI
+    {
+        string name;
+        Quad* quad;
+        bool active;
+    };
+
     typedef TerrainEditor LevelData;
     //typedef Terrain LevelData;
     UINT SIZE = 2;
@@ -39,6 +47,7 @@ public:
     Orc* GetOrc(UINT idx) { return orcs[idx]; }
 
     void OnOutLineByRay(Ray ray);
+    void ActiveSpecialKey(Vector3 playPos, Vector3 offset);
 
 
 private:
@@ -61,6 +70,11 @@ private:
     vector<Float4> vecDetectionPos;// 타겟을 탐지한애들 위치 모으기
 
     friend class Orc;
+
+    map<string,SpecialKeyUI> specialKeyUI;
+
+    BlendState* blendState[2];
+    DepthStencilState* depthState[2];
 
 };
 

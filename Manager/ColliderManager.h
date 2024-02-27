@@ -14,12 +14,11 @@ public:
         WALL,
         ARROW,
         END,
-
-
     };
     
     void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); }
-    void SetObstacles(Collider * obstacle) { obstacles.push_back(obstacle); }
+    void SetObstacles(Collider* obstacle);
+    vector<Collider*>& GetObstacles();
 
     void PushPlayer();
     void SetHeight();
@@ -45,7 +44,7 @@ public:
 private:
     Player* player;
     CapsuleCollider* playerCollider;
-    vector<Collider*> obstacles;
+    //vector<Collider*> obstacles; // 밑의 vecCol에 통합
 
     Collider * onBlock; 
 

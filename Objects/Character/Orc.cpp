@@ -111,7 +111,6 @@ void Orc::Update()
     CalculateEyeSight();
     CalculateEarSight();
     SoundPositionCheck();
-    eyesRayDetect = EyesRayToDetectTarget();
 
     Detection();
   
@@ -186,7 +185,7 @@ void Orc::Render()
     collider->Render();
     leftWeaponCollider->Render();
     rightWeaponCollider->Render();
-    hpBar->Render();
+    //hpBar->Render();
     //aStar->Render();
 }
 
@@ -218,7 +217,6 @@ void Orc::GUIRender()
 {
     ImGui::Text("bFind : %d", bFind);
     ImGui::Text("bDetection : %d", bDetection);
-    ImGui::Text("eyesRayDetect : %d", eyesRayDetect);
     ImGui::Text("isTracking : %d", isTracking);
 
     /*
@@ -234,7 +232,7 @@ void Orc::GUIRender()
 
         ImGui::Text("pathsize : %f", path.size());
     }
-    */
+   */
 }
 
 void Orc::Direction()
@@ -355,7 +353,7 @@ void Orc::Control()
         Vector3 dist = target->Pos() - transform->GlobalPos();
 
         // 시야에 들어왔다면
-        if (bDetection && eyesRayDetect)
+        if (bDetection )
         {
             // 발견한지 2초가 됐나
             if (bFind)
@@ -889,9 +887,6 @@ void Orc::CalculateEyeSight()
     bool breverse = false;
     float leftdir1 = (180.f - eyeSightangle) + degree;
 
-
- 
-
     /*
         -135    135
         -135 -45 135-45
@@ -909,9 +904,13 @@ void Orc::CalculateEyeSight()
 
     if (Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange) {
 
-        SetRay(target->GlobalPos());
+        //SetRay(target->GlobalPos()); //레이 여러개 사용
+        SetEyePos(); //눈 위치만 설정
+
             if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
+
                 //발각
+                /*
                 for (UINT i = 0; i < ColliderManager::Get()->Getvector(ColliderManager::WALL).size(); ++i) {
                     if (ColliderManager::Get()->Getvector(ColliderManager::WALL)[i]->IsRayCollision(ray))
                     {
@@ -921,8 +920,18 @@ void Orc::CalculateEyeSight()
                         }
                         return;
                    }
-            
                 }
+                */
+
+                if (!EyesRayToDetectTarget(targetCollider, eyesPos)) //리턴 값 false면 가려서 안보이는 것
+                {
+                    if (bDetection) {
+                        bDetection = false;
+                        DetectionStartTime = 0.001f;
+                    }
+                    return;
+                }
+                
                 // 추후 오크매니저에서 씬에 깔린 모든 벽들 체크해서 ray충돌페크
                 // behaviorstate = NPC_BehaviorState::DETECT;
                 bDetection = true;
@@ -934,9 +943,20 @@ void Orc::CalculateEyeSight()
 
                 if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
                     //발각
-                    //   
+                    /*
                     for (UINT i = 0; i < ColliderManager::Get()->Getvector(ColliderManager::WALL).size(); ++i) {
-                    if (ColliderManager::Get()->Getvector(ColliderManager::WALL)[i]->IsRayCollision(ray))
+                        if (ColliderManager::Get()->Getvector(ColliderManager::WALL)[i]->IsRayCollision(ray))
+                        {
+                            if (bDetection) {
+                                bDetection = false;
+                                DetectionStartTime = 0.001f;
+                            }
+                            return;
+                        }
+                    }
+                    */
+
+                    if (!EyesRayToDetectTarget(targetCollider, eyesPos))
                     {
                         if (bDetection) {
                             bDetection = false;
@@ -944,13 +964,12 @@ void Orc::CalculateEyeSight()
                         }
                         return;
                     }
-
-                }
-    
-                // 추후 오크매니저에서 씬에 깔린 모든 벽들 체크해서 ray충돌페크
+                    // 추후 오크매니저에서 씬에 깔린 모든 벽들 체크해서 ray충돌페크
                     //  behaviorstate = NPC_BehaviorState::DETECT;
                     bDetection = true;
                 }
+                else
+                    bDetection = false; //범위 내이지만 최종적으로 시야각 안에 없을시에 false 처리
             }
     }
     else
@@ -1045,6 +1064,12 @@ void Orc::SetRay(Vector3 _pos)
 
     ray.dir = _pos - ray.pos;
     ray.dir.Normalize();
+}
+
+void Orc::SetEyePos()
+{
+    eyesPos = transform->GlobalPos();
+    eyesPos.y += 5.f;
 }
 
 void Orc::Patrol()
@@ -1185,56 +1210,62 @@ bool Orc::TerainComputePicking(Vector3& feedback, Ray ray)
     return false;
 }
 
-bool Orc::EyesRayToDetectTarget()
+bool Orc::EyesRayToDetectTarget(Collider* targetCol,Vector3 orcEyesPos)
 {
-    // 시야안에 들어왔을 경우 진짜로 보이는 대상인가 확인 EyesRaySearchScene 참고
     // 목표 콜라이더 맨위 맨 아래 맨 왼쪽 맨 오른쪽 중앙 5군데만 레이를 쏴서 확인 (0.8을 곱해서 좀 안쪽으로 쏘기)
 
-    if (!bDetection) // 시야안에 들어오지 않았으면 그냥 리턴
-        return false;
-
-    Vector3 orcEyesPos = transform->GlobalPos(); //오크 눈 위치 수정필요
-    orcEyesPos.y += 5;
-
-    Vector3 top = targetCollider->GlobalPos() + (transform->Up() * targetCollider->Height() * 0.4 + transform->Up() * targetCollider->Radius() * 0.8);
-    Vector3 bottom = targetCollider->GlobalPos() + (transform->Down() * targetCollider->Height() * 0.4 + transform->Down() * targetCollider->Radius() * 0.8);
-    Vector3 left = targetCollider->GlobalPos() + (transform->Right() * targetCollider->Radius() * 0.8);
-    Vector3 right = targetCollider->GlobalPos() + (transform->Left() * targetCollider->Radius() * 0.8);
-    Vector3 center = targetCollider->GlobalPos();
-
-    Contact topCon;
-    Contact bottomCon;
-    Contact leftCon;
-    Contact rightCon;
-    Contact centerCon;
-
-    Ray topRay = Ray(orcEyesPos, (top - orcEyesPos).GetNormalized());
-    Ray bottomRay = Ray(orcEyesPos, (bottom - orcEyesPos).GetNormalized());
-    Ray leftRay = Ray(orcEyesPos, (left - orcEyesPos).GetNormalized());
-    Ray rightRay = Ray(orcEyesPos, (right - orcEyesPos).GetNormalized());
-    Ray centerRay = Ray(orcEyesPos, (center - orcEyesPos).GetNormalized());
-
-    targetCollider->IsRayCollision(topRay, &topCon);
-    targetCollider->IsRayCollision(bottomRay, &bottomCon);
-    targetCollider->IsRayCollision(leftRay, &leftCon);
-    targetCollider->IsRayCollision(rightRay, &rightCon);
-    targetCollider->IsRayCollision(centerRay, &centerCon);
-
-    float topBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(topRay);
-    float bottomBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(bottomRay);
-    float leftBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(leftRay);
-    float rightBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(rightRay);
-    float centerBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(centerRay);
-
-    if (topBlockdistance < Distance(topCon.hitPoint, topRay.pos)
-        && bottomBlockdistance < Distance(bottomCon.hitPoint, bottomRay.pos)
-        && leftBlockdistance < Distance(leftCon.hitPoint, leftRay.pos)
-        && rightBlockdistance < Distance(rightCon.hitPoint, rightRay.pos)
-        && centerBlockdistance < Distance(centerCon.hitPoint, centerRay.pos)
-        )
+    switch (targetCol->GetType())
     {
-        //모든 부분에서 엄폐되었다
-        return false;
+        case Collider::Type::CAPSULE:
+        {
+            CapsuleCollider* targetCapsuleCol = static_cast<CapsuleCollider*>(targetCol);
+            
+            Vector3 top = targetCapsuleCol->GlobalPos() + (transform->Up() * targetCapsuleCol->Height() * 0.4 + transform->Up() * targetCapsuleCol->Radius() * 0.8);
+            Vector3 bottom = targetCapsuleCol->GlobalPos() + (transform->Down() * targetCapsuleCol->Height() * 0.4 + transform->Down() * targetCapsuleCol->Radius() * 0.8);
+            Vector3 left = targetCapsuleCol->GlobalPos() + (transform->Right() * targetCapsuleCol->Radius() * 0.8);
+            Vector3 right = targetCapsuleCol->GlobalPos() + (transform->Left() * targetCapsuleCol->Radius() * 0.8);
+            Vector3 center = targetCapsuleCol->GlobalPos();
+
+            Contact topCon;
+            Contact bottomCon;
+            Contact leftCon;
+            Contact rightCon;
+            Contact centerCon;
+
+            Ray topRay = Ray(orcEyesPos, (top - orcEyesPos).GetNormalized());
+            Ray bottomRay = Ray(orcEyesPos, (bottom - orcEyesPos).GetNormalized());
+            Ray leftRay = Ray(orcEyesPos, (left - orcEyesPos).GetNormalized());
+            Ray rightRay = Ray(orcEyesPos, (right - orcEyesPos).GetNormalized());
+            Ray centerRay = Ray(orcEyesPos, (center - orcEyesPos).GetNormalized());
+
+            targetCollider->IsRayCollision(topRay, &topCon);
+            targetCollider->IsRayCollision(bottomRay, &bottomCon);
+            targetCollider->IsRayCollision(leftRay, &leftCon);
+            targetCollider->IsRayCollision(rightRay, &rightCon);
+            targetCollider->IsRayCollision(centerRay, &centerCon);
+
+            float topBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(topRay);
+            float bottomBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(bottomRay);
+            float leftBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(leftRay);
+            float rightBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(rightRay);
+            float centerBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(centerRay);
+
+            if (topBlockdistance < Distance(topCon.hitPoint, topRay.pos)
+                && bottomBlockdistance < Distance(bottomCon.hitPoint, bottomRay.pos)
+                && leftBlockdistance < Distance(leftCon.hitPoint, leftRay.pos)
+                && rightBlockdistance < Distance(rightCon.hitPoint, rightRay.pos)
+                && centerBlockdistance < Distance(centerCon.hitPoint, centerRay.pos)
+                )
+            {
+                //모든 부분에서 엄폐되었다
+                return false;
+            }
+
+
+        }
+        default:
+        {
+        }
     }
 
     return true;
@@ -1242,5 +1273,6 @@ bool Orc::EyesRayToDetectTarget()
 
 void Orc::SetOutLine(bool flag)
 {
+    outLine = flag;
     instancing->SetOutLine(index,flag);
 }

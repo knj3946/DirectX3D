@@ -105,6 +105,8 @@ public:
     void Findrange();
 
     void SetOutLine(bool flag);
+    bool IsOutLine() { return outLine; };
+    bool IsDetectTarget() { return bDetection; };
 
 private:
     void Control();
@@ -128,10 +130,11 @@ private:
     void CalculateEarSight();//귀
     void Detection();
     void SetRay(Vector3 _pos);
+    void SetEyePos();
     void Patrol();
     bool IsStartPos();
     bool TerainComputePicking(Vector3& feedback, Ray ray);
-    bool EyesRayToDetectTarget();
+    bool EyesRayToDetectTarget(Collider* targetCol, Vector3 orcEyesPos);
     void RangeCheck();
     void  SoundPositionCheck();;
     float Hit();
@@ -139,6 +142,7 @@ private:
     Ray ray;// 레이
     Vector3 StorePos;// 소리난 곳 가기 전 위치 저장
     Vector3 CheckPoint;// 소리난 곳 저장
+    Vector3 eyesPos;
     float earRange = 1000.f;// 듣는 범위
     bool bSound = false;// 소리 체크
     bool NearFind = false;
@@ -231,8 +235,6 @@ private:
 
     Vector3 feedBackPos;
 
-    bool eyesRayDetect;
-
     bool isAttackable=true;
     float attackSpeed = 1.5f;
     float curAttackSpeed=0;
@@ -240,4 +242,6 @@ private:
     float WaitTime = 0.f;
     float rangeDegree;
     UINT m_uiRangeCheck = 0;
+
+    bool outLine = false;
 };

@@ -25,7 +25,7 @@ struct Contact
 
 class Collider : public GameObject
 {
-protected:
+public:
     enum Type
     {
         BOX, SPHERE, CAPSULE
@@ -58,6 +58,7 @@ public:
 
     virtual Vector3 GetHalfSize() { return Vector3(0, 0, 0); };
 
+    Type GetType() { return type; }
 private:
     virtual void MakeMesh() = 0;
 
