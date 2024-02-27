@@ -316,7 +316,7 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
         PlayerSkyPos.y += 1000;
         Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
         TerainComputePicking(feedBackPos, groundRay);
-    //}
+    }
 
     //if (curState == JUMP3 && landing > 0.0f)    //???? ??????? ???? ?¥å? ??? ???? and ???? ?©£? ????
     //{
@@ -527,32 +527,31 @@ void Player::Jumping()
     {
         jumpVel = -1;
 
-            tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
-            tempY = preHeight + jumpVel * DELTA * jumpSpeed;
-        }
-        else
-        {
-            tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
-            tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
-        }
+        tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
+        tempY = preHeight + jumpVel * DELTA * jumpSpeed;
+    }
+    else
+    {
+        tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
+        tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
+    }
 
         if (tempY <= heightLevel)
         {
             tempY = heightLevel;
             tempJumpVel = 0.0f;
 
-            if (curState == JUMP2) 
-            {
-                //landing = landingT;   //?????? ????? ???? ????? ????? ??????
-                SetState(JUMP3);
-            }
+        if (curState == JUMP2) {
+            //landing = landingT;   //?????? ????? ???? ????? ????? ??????
+            SetState(JUMP3);
         }
+    }
 
-        Pos().y = tempY;
-        jumpVel = tempJumpVel;
+    Pos().y = tempY;
+    jumpVel = tempJumpVel;
 
-        if (jumpVel < 0.0f)
-            SetState(JUMP2);
+    if (jumpVel < 0.0f)
+        SetState(JUMP2);
 
         preHeight = heightLevel;
     }
