@@ -37,7 +37,7 @@ MonsterManager::MonsterManager()
         orc->Spawn(positions[i]);
     }
 
-    //특수키 빌보드 추가
+    //특수키 추가
     {
         SpecialKeyUI sk;
         Quad* quad = new Quad(Vector2(100, 50));

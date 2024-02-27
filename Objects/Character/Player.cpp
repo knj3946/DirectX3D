@@ -43,9 +43,12 @@ Player::Player()
     computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
     rayBuffer = new RayBuffer();
 
-    hpBar = new ProgressBar(L"Textures/UI/hp_bar.png", L"Textures/UI/hp_bar_BG.png");
-    hpBar->Scale() *= 0.6f;
+    hpBar = new ProgressBar(L"Textures/UI/hp_bar2.png", L"Textures/UI/hp_bar2_BG.png");
+    hpBar->Scale().y *= 0.3f;
+    hpBar->Scale().x *= 0.2f;
+    hpBar->Pos() = { 403, WIN_HEIGHT - 30, 0 };
     hpBar->SetAmount(curHP / maxHp);
+    hpBar->UpdateWorld();
 
     string temp;    //???? ????
 
@@ -119,6 +122,22 @@ Player::Player()
     //GetClip(DAGGER1)->SetEvent(bind(&Player::CanCombo, this), 0.4f);
 
     //GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f);
+
+    {
+        portrait = new Quad(Vector2(200, 150));
+        portrait->GetMaterial()->SetShader(L"Basic/Texture.hlsl");
+        portrait->GetMaterial()->SetDiffuseMap(L"Textures/UI/portrait.png");
+        portrait->Pos() = { 100, WIN_HEIGHT - 75, 0 };
+        portrait->UpdateWorld();
+    }
+
+    {
+        form = new Quad(Vector2(70, 70));
+        form->GetMaterial()->SetShader(L"Basic/Texture.hlsl");
+        form->GetMaterial()->SetDiffuseMap(L"Textures/UI/rpg/Bow_icon.png");
+        form->Pos() = { 245, WIN_HEIGHT - 100, 0 };
+        form->UpdateWorld();
+    }
 }
 
 Player::~Player()
@@ -214,6 +233,8 @@ void Player::Render()
 void Player::PostRender()
 {
     hpBar->Render();
+    portrait->Render();
+    form->Render();
 }
 
 void Player::GUIRender()
@@ -422,6 +443,7 @@ void Player::UpdateUI()
         hpBar->SetAmount(curHP / maxHp);
     }
 
+    /*
     Vector3 barPos = Pos() + Vector3(0, 6, 0);
 
     hpBar->UpdateWorld();
@@ -434,6 +456,8 @@ void Player::UpdateUI()
 
     if (!hpBar->Active()) hpBar->SetActive(true);
     hpBar->Pos() = CAM->WorldToScreen(barPos);
+
+    */
 }
 
 void Player::Rotate()
@@ -784,8 +808,8 @@ void Player::SetState(State state, float scale, float takeTime)
 
 void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 매개변수로 값을 받아올 경우엔 바로 그 state로 변경하게 만들기
 {
-    SetState(B_ODRAW);
-    return;
+    //SetState(B_ODRAW);
+    //return;
     if (weaponState == DAGGER)
     {
         if (curState == JUMP1 || curState == JUMP3 || Pos().y > 0.0f) return;   //????? ???? ??찡 ????? ?????? Pos().y?? ???? ???? ?????? ????

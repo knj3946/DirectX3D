@@ -211,4 +211,7 @@ private:
 
     float preHeight = 0.0f;
 
+    Quad* portrait;
+    Quad* form;
+
 };
