@@ -259,5 +259,5 @@ void GameMapScene::GUIRender()
 	*/
 
 	//MonsterManager::Get()->GUIRender();
-	KunaiManager::Get()->GUIRender();
+	//KunaiManager::Get()->GUIRender();
 }

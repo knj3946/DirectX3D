@@ -1,44 +1,43 @@
 #pragma once
+
 class Kunai
 {
-    //투사체 하나를 총괄하는 클래스
+	// 투사체 하나를 총괄하는 클래스
 
 private:
-    //열람시 필요한 주요 데이터 (설정값)
-    float LIFE_SPAN = 3; // life span = 생애 주기, 혹은 세대 생멸 기간
-                         // 프로그래밍에서는 임시로 생성된 객체가 자동 삭제
-                         // 혹은 비활성화하기까지 걸리는 시간을 말한다
+	// 열람시 필요한 주요 데이터
+	float LIFE_SPAN = 2.f; // life span : 생성 후 비활성화까지 걸리는 시간
+
+
 
 public:
-    //호출용 함수
-    Kunai(Transform* transform); //인스턴싱을 전제한 트랜스폼 매개 생성
-    ~Kunai();
+	Kunai(Transform* transform); // 인스턴싱을 전제한 트랜스폼 매개 생성
+	~Kunai();
 
-    void Update();
-    void Render();
-    void GUIRender();
-    void Throw(Vector3 pos, Vector3 dir);
+	void Update();
+	void Render();
 
-    SphereCollider* GetCollider() { return collider; }
-    Transform* GetTransform() { return transform; }
+	void Throw(Vector3 pos, Vector3 dir);
 
-    void SetTrail(Trail* trail) { this->trail = trail; }
-    Trail* GetTrail() { return trail; }
+	SphereCollider* GetCollider() { return collider; }
+	Transform* GetTransform() { return transform; }
+
+	class Trail* GetTrail() { return trail; }
 private:
-    //멤버 함수
+
+
 
 private:
-    //멤버 변수
+	Transform* transform; // 인스턴싱을 전제로 하기 때문에 transform을 변수로 받음
+	SphereCollider* collider;
 
-    Transform* transform;
-    SphereCollider* collider;
+	float speed = 30;
+	float time = 0; // 생성된 시간
 
-    float speed = 20;
-    float time = 0; //생성된 시간
+	Vector3 direction;
 
-    Vector3 direction;
-    Trail* trail;
-    Transform* startEdge; // 궤적이 시작될 곳
-    Transform* endEdge;
+	class Trail* trail; // 궤적 파티클
+	Transform* startEdge; // 궤적이 시작될 곳
+	Transform* endEdge;
 };
 
