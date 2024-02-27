@@ -22,6 +22,8 @@ public:
 	SphereCollider* GetCollider() { return collider; }
 	Transform* GetTransform() { return transform; }
 
+	float GetDamage() { return damage; }
+
 	class Trail* GetTrail() { return trail; }
 private:
 
@@ -33,6 +35,7 @@ private:
 
 	float speed = 30;
 	float time = 0; // 생성된 시간
+	float damage = 30; // 임시 데미지값 설정
 
 	Vector3 direction;
 
