@@ -72,8 +72,6 @@ public:
     CapsuleCollider* GetCollider() { return collider; }
 
 
-    Ray GetRay() { return straightRay; }    //���� �Ⱦ��°�
-
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
 
     void ResetTarget(Collider* collider, Contact contact) { targetObject = collider; this->contact = contact; }
@@ -99,12 +97,12 @@ private:
     void Cover();
     void Assasination();
 
-    void Attack();
-    void AttackCombo();
+    void ComboAttack();
 
     void SetAnimation();
     void SetState(State state, float scale = 1.0f, float takeTime = 0.2f);
     void SetIdle();
+
     void Searching();
     void Targeting();
     bool InTheAir();
@@ -147,10 +145,6 @@ private:
     CapsuleCollider* collider;
     vector<Collider*> weaponColliders;
 
-    Ray straightRay;
-    Ray diagnolLRay;
-    Ray diagnolRRay;
-
     Collider* targetObject;
     Contact contact;
     Transform* targetTransform;
@@ -181,8 +175,7 @@ private:
     bool isHit = false;
 
     int comboStack = 0;
-    float comboHolding = 0.0f;   //comboStack�� �����Ǵ� �ð�, �� ������ ���� ������ ����ð����� �ٸ��� �ʱ�ȭ
-    //bool combo = false;    //��� 1�� 2�� ������ �������ϰ� ����ǵ��� ��� 1�� �ִϸ��̼� ���� �߰��뿡 �� ���� true�� �����
+    float comboHolding = 0.0f;
 
     Transform* rightHand;
     Dagger* dagger;
@@ -195,6 +188,7 @@ private:
 
     //left foot : 57
     //right foot : 62
+
     int rightHandNode = 35;
     int leftFootNode = 57;
     int rightFootNode = 62;
