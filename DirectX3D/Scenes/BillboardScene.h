@@ -32,12 +32,10 @@ private:
 
     // C 방법을 위한 추가 변수
     vector<Transform*> origins; //나무 위치의 원점을 기록한 벡터
-    BlendState* blendState[2];
 
     // D 방법을 위한 추가 변수
 
     // 지오메트리 셰이더를 변수로 선언하기
-    GeometryShader* geometryShader; // DX의 G셰이더를 편하게 쓰기 위한 객체
                                     // *DX 제공 기능들은 마이크로소프트 학습 페이지에서 검색 가능
 
     Material* material; // 셰이더에 맞추기 위한 별도의 매티리얼
@@ -45,6 +43,8 @@ private:
 
     //그림 데이터를 "다른 곳"에 투사하기 위한 준비
     DepthStencilState* depthState[2]; //깊이 스테이트 2개
+    BlendState* blendState[2];
+    GeometryShader* geometryShader; // DX의 G셰이더를 편하게 쓰기 위한 객체
     vector<VertexUV> vertices; //정점 벡터 (텍스처 정보 빼기 + 버퍼에 넣기 위한 데이터의 원본)
 
     // -> 매티리얼을 스테이트에서 준비 -> 버퍼와 셰이더에 접근 -> 그대로 출력

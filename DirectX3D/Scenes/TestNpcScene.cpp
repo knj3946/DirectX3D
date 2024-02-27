@@ -62,6 +62,9 @@ TestNpcScene::TestNpcScene()
     cube[2]->Pos() = { 80.f,10.f,62.f };
     cube[3]->Pos() = { 90.f,10.f,52.f };
     cube[3]->Scale() = { 20.f,20.f,1.f };
+    FOR(2) blendState[i] = new BlendState();
+    blendState[1]->AlphaToCoverage(true); //투명색 적용 + 배경색 처리가 있으면 역시 적용
+
 }
 
 TestNpcScene::~TestNpcScene()
@@ -74,6 +77,8 @@ TestNpcScene::~TestNpcScene()
     FOR(4)
         delete cube[i];
     //delete shadow;
+    FOR(2) delete blendState[i];
+
 }
 
 void TestNpcScene::Update()
@@ -102,6 +107,7 @@ void TestNpcScene::PreRender()
 
 void TestNpcScene::Render()
 {
+    blendState[1]->SetState();
     terrain->Render();
     //aStar->Render();
    // aStar2->Render();
@@ -111,6 +117,7 @@ void TestNpcScene::Render()
     FOR(4)
         cube[i]->Render();
 
+    blendState[0]->SetState();
     // 그림자 관련
     //shadow->SetRender();
 
@@ -131,6 +138,6 @@ void TestNpcScene::PostRender()
 void TestNpcScene::GUIRender()
 {
     terrain->GUIRender();
-    FOR(4)
-        cube[i]->GUIRender();
+    MonsterManager::Get()->GetOrc(0)->GUIRender();
+    MonsterManager::Get()->GetOrc(1)->GUIRender();
 }

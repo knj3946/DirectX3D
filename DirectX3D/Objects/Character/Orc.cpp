@@ -54,8 +54,8 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
 
     rangeBar = new ProgressBar(L"Textures/UI/Range_bar_BG.png", L"Textures/UI/Range_bar.png");
     rangeBar->SetAmount(curRange / maxRange);
-    rangeBar->SetParent(transform);
-
+   // rangeBar->SetParent(transform);
+    rangeBar->Scale() *= 0.4f;
 
     exclamationMark = new Quad(L"Textures/UI/Exclamationmark.png");
     questionMark = new Quad(L"Textures/UI/QuestionMark.png");
@@ -192,7 +192,7 @@ void Orc::Render()
     collider->Render();
     leftWeaponCollider->Render();
     rightWeaponCollider->Render();
-    hpBar->Render();
+  //  hpBar->Render();
     rangeBar->Render();
     //aStar->Render();
 }

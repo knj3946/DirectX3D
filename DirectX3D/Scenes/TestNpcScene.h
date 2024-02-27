@@ -33,7 +33,8 @@ private:
 	RobotA* robot;
 	Orc* orc;
 
-	UINT orcCount = 0;
+	UINT orcCount = 0;  
+	BlendState* blendState[2];
 
 	ModelAnimatorInstancing* instancing;
 

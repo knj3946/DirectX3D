@@ -55,7 +55,7 @@ void Transform::GUIRender()
         localRotation.z = XMConvertToRadians(rot.z);
     
         temp = tag + "_Scale";
-        ImGui::DragFloat3(temp.c_str(), (float*)&localScale, 0.001f);
+        ImGui::DragFloat3(temp.c_str(), (float*)&localScale, 0.1f);
     
         if (ImGui::Button("Save"))
             Save();
