@@ -311,7 +311,6 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     }
 
     if (KEY_PRESS(VK_LBUTTON))
-<<<<<<< HEAD
     {
         if (weaponState == DAGGER)
         {
@@ -324,10 +323,6 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
                 SetState(B_DRAW);
         }
     }
-=======
-        if (curState != DAGGER1 && curState != DAGGER2 && curState != DAGGER3)
-            ComboAttack();
->>>>>>> a5c054ed44e6c11db8a44248124781545ef28c0f
 
     if (isHit) 
     {
@@ -352,8 +347,6 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
 void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ???????? ?? ??? ??)
 {
     //플레이어의 위에서 레이를 쏴서 현재 terrain 위치와 높이를 구함
-<<<<<<< HEAD
-
     //if (!OnColliderFloor(feedBackPos))
     //{
         Vector3 PlayerSkyPos = Pos();
@@ -361,18 +354,6 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
         Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
         TerainComputePicking(feedBackPos, groundRay);
     //}
-=======
-    /*
-    if (!OnColliderFloor(feedBackPos))
-    {
-
-    }
-    */
-    Vector3 PlayerSkyPos = Pos();
-    PlayerSkyPos.y += 1000;
-    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
-    TerainComputePicking(feedBackPos, groundRay);
->>>>>>> a5c054ed44e6c11db8a44248124781545ef28c0f
 
     //if (curState == JUMP3 && landing > 0.0f)    //???? ??????? ???? ?ε? ??? ???? and ???? ?ð? ????
     //{
@@ -550,41 +531,16 @@ void Player::Jumping()
 {
     if (weaponState == DAGGER)
     {
+        float tempJumpVel;
+        float tempY;
+
         if (heightLevel < feedBackPos.y)
             heightLevel = feedBackPos.y;
 
-<<<<<<< HEAD
-        if (isCeiling) {
+        if (isCeiling) 
+        {
             jumpVel = -20;
             isCeiling = false;
-=======
-        tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
-        tempY = preHeight + jumpVel * DELTA * jumpSpeed;
-    }
-    else
-    {
-        tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
-        tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
-    }
-
-    //heightLevel = feedBackPos.y;
-
-    if (tempY <= heightLevel)
-    {
-        tempY = heightLevel;
-        tempJumpVel = 0.0f;
-
-        if (curState == JUMP2) {
-            //landing = landingT;   //?????? ????? ???? ????? ????? ??????
-            SetState(JUMP3);
->>>>>>> a5c054ed44e6c11db8a44248124781545ef28c0f
-        }
-
-        float tempJumpVel;
-        float tempY;
-        if (preHeight - heightLevel > 5.0f)
-        {
-            jumpVel = -1;
 
             tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
             tempY = preHeight + jumpVel * DELTA * jumpSpeed;
@@ -602,7 +558,8 @@ void Player::Jumping()
             tempY = heightLevel;
             tempJumpVel = 0.0f;
 
-            if (curState == JUMP2) {
+            if (curState == JUMP2) 
+            {
                 //landing = landingT;   //?????? ????? ???? ????? ????? ??????
                 SetState(JUMP3);
             }
