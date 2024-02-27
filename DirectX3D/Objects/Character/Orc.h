@@ -185,9 +185,15 @@ private:
     vector<Collider*> weaponColliders;
 
     ProgressBar* hpBar;
+
+  
+
     float curHP = 100, maxHp = 100;
     float destHP;
     bool isHit = false;
+    ProgressBar* rangeBar;
+    float curRange = 0.f, maxRange = 40.f;
+    float destRange;
 
     Quad* questionMark;
     Quad* exclamationMark;

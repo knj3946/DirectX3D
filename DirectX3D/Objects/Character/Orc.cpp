@@ -52,6 +52,11 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     hpBar->Scale() *= 0.01f;
     hpBar->SetAmount(curHP / maxHp);
 
+    rangeBar = new ProgressBar(L"Textures/UI/Range_bar_BG.png", L"Textures/UI/Range_bar.png");
+    rangeBar->SetAmount(curRange / maxRange);
+    rangeBar->SetParent(transform);
+
+
     exclamationMark = new Quad(L"Textures/UI/Exclamationmark.png");
     questionMark = new Quad(L"Textures/UI/QuestionMark.png");
     exclamationMark->Scale() *= 0.1f;
@@ -80,6 +85,8 @@ Orc::~Orc()
     delete transform;
     delete exclamationMark;
     delete questionMark;
+    delete rangeBar;
+    delete hpBar;
     for (Collider* wcollider : weaponColliders)
         delete wcollider;
 }
@@ -186,6 +193,7 @@ void Orc::Render()
     leftWeaponCollider->Render();
     rightWeaponCollider->Render();
     hpBar->Render();
+    rangeBar->Render();
     //aStar->Render();
 }
 
@@ -219,6 +227,8 @@ void Orc::GUIRender()
     ImGui::Text("bDetection : %d", bDetection);
     ImGui::Text("eyesRayDetect : %d", eyesRayDetect);
     ImGui::Text("isTracking : %d", isTracking);
+
+    rangeBar->GUIRender();
 
     /*
     if (!path.empty())
@@ -722,6 +732,8 @@ void Orc::UpdateUI()
     hpBar->Scale() = { scale, scale, scale };
     
     hpBar->UpdateWorld();
+
+    rangeBar->UpdateWorld();
 }
 
 void Orc::TimeCalculator()
@@ -861,6 +873,7 @@ void Orc::EndDying()
 {
     transform->SetActive(false);
     hpBar->SetActive(false);
+    rangeBar->SetActive(false);
     collider->SetActive(false);
     leftHand->SetActive(false);
     leftWeaponCollider->SetActive(false);

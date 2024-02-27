@@ -122,7 +122,7 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
 	if (mName == "building_V2")
 	{
 		mRot.x += XM_PIDIV2;
-		colCount = 12;
+		colCount = 13;
 		colPoss.push_back(Vector3(4.f, -1.6f, -1.5f));
 		colPoss.push_back(Vector3(4.f, 1.6f, -1.5f));
 		colPoss.push_back(Vector3(0.f, 0.f, -2.7f));
@@ -135,7 +135,9 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
 		colPoss.push_back(Vector3(1.5f, -2.4f, -2.6f));
 		colPoss.push_back(Vector3(1.5f, -2.4f, -1.6f));
 		colPoss.push_back(Vector3(1.5f, -2.4f, -0.6f));
+		colPoss.push_back(Vector3(0.f, 0.f, 0.23f));
 
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
 		colRots.push_back(Vector3(0.f, 0.f, 0.f));
 		colRots.push_back(Vector3(0.f, 0.f, 0.f));
 		colRots.push_back(Vector3(0.f, 0.f, 0.f));
@@ -161,15 +163,17 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
 		colScales.push_back(Vector3(3.9f, 0.4f, 1.1f));
 		colScales.push_back(Vector3(1.8f, 0.4f, 1.3f));
 		colScales.push_back(Vector3(3.7f, 0.4f, 1.2f));
+		colScales.push_back(Vector3(8.5f, 5.1f, 0.9f));
 
 	}
 	else if (mName == "building_V4")
 	{
 		mRot.x += XM_PIDIV2;
-		colCount = 17;
+		colCount = 19;
 		colPoss.push_back(Vector3(4.f, -1.6f, -1.5f));
 		colPoss.push_back(Vector3(4.f, 1.6f, -1.5f));
 		colPoss.push_back(Vector3(0.f, 0.f, -2.7f));
+		colPoss.push_back(Vector3(0.f, 0.f, 0.1f));
 		colPoss.push_back(Vector3(2.1f, 2.5f, -1.5f));
 		colPoss.push_back(Vector3(-3.9f, 2.4f, -1.5f));
 		colPoss.push_back(Vector3(0.f, -2.4f, -2.6f));
@@ -184,9 +188,12 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
 		colPoss.push_back(Vector3(-0.2f, 3.4f, -1.6f));
 		colPoss.push_back(Vector3(-0.2f, 6.2f, -1.6f));
 		colPoss.push_back(Vector3(-2.1f, 4.9f, -2.9f));
+		colPoss.push_back(Vector3(-2.2f, 4.9f, -0.1f));
 
 		colRots.push_back(Vector3(0.f, 0.f, 0.f));
 		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));//
 		colRots.push_back(Vector3(0.f, 0.f, 0.f));
 		colRots.push_back(Vector3(0.f, 0.f, 0.f));
 		colRots.push_back(Vector3(0.f, 0.f, 0.f));
@@ -206,6 +213,7 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
 		colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
 		colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
 		colScales.push_back(Vector3(8.5f, 5.1f, 0.9f));
+		colScales.push_back(Vector3(8.5f, 5.1f, 0.9f));//
 		colScales.push_back(Vector3(4.2f, 0.2f, 3.f));
 		colScales.push_back(Vector3(0.6f, 9.8f, 3.2f));
 		colScales.push_back(Vector3(8.4f, 0.4f, 1.f));
@@ -220,15 +228,17 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
 		colScales.push_back(Vector3(0.3f, 1.8f, 1.3f));
 		colScales.push_back(Vector3(0.3f, 2.0f, 1.3f));
 		colScales.push_back(Vector3(4.1f, 4.9f, 0.4));
+		colScales.push_back(Vector3(4.1f, 4.9f, 0.4));
 
 	}
 	else if (mName == "building_V5")
 	{
 		mRot.x += XMConvertToRadians(165);
-		colCount = 12;
+		colCount = 13;
 		colPoss.push_back(Vector3(4.f, -1.1f, -2.0f));
 		colPoss.push_back(Vector3(4.f, -2.0f, 1.2f));
 		colPoss.push_back(Vector3(0.f, -2.8f, -0.7f));
+		colPoss.push_back(Vector3(0.f, 0.f, 0.1f));
 		colPoss.push_back(Vector3(0.f, -0.9f, -2.7f));
 		colPoss.push_back(Vector3(-3.9f, -1.5f, -0.4f));
 		colPoss.push_back(Vector3(-3.6f, -2.1f, 1.9f));
@@ -250,10 +260,12 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
 		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
 		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
 		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
 		colRots.push_back(Vector3(XMConvertToRadians(180), 0.f, 0.f));
 
 		colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
 		colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
+		colScales.push_back(Vector3(8.5f, 5.1f, 0.4f));
 		colScales.push_back(Vector3(8.5f, 5.1f, 0.4f));
 		colScales.push_back(Vector3(8.3f, 0.4f, 3.1f));
 		colScales.push_back(Vector3(0.6f, 5.1f, 3.2f));

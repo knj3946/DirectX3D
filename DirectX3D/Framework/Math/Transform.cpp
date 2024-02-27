@@ -48,7 +48,7 @@ void Transform::GUIRender()
         rot.y = XMConvertToDegrees(localRotation.y);
         rot.z = XMConvertToDegrees(localRotation.z);
     
-        ImGui::DragFloat3(temp.c_str(), (float*)&rot, 0.001f, -180, 180);
+        ImGui::DragFloat3(temp.c_str(), (float*)&rot, 0.1f, -180, 180);
     
         localRotation.x = XMConvertToRadians(rot.x);
         localRotation.y = XMConvertToRadians(rot.y);
