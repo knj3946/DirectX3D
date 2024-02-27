@@ -5,11 +5,14 @@ Kunai::Kunai(Transform* transform) : transform(transform)
     transform->Scale() = { 200, 200, 200 }; // 크기 기본값은 1
                                       // 나중에 크기가 바뀌어야 하면 와서 수정하게
 
+
     collider = new SphereCollider();
     collider->SetParent(transform);
 
     collider->Scale() = { 0.5,0.5, 0.5 }; //크기 기본값은 1.0
     collider->Pos() = {};            //위치 기본값 : 부모 위치
+    
+    ColliderManager::Get()->PushCollision(ColliderManager::Collision_Type::ORC_KUNAI, collider);
 }
 
 Kunai::~Kunai()

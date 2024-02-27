@@ -37,6 +37,6 @@ private:
     float time = 0; //생성된 시간
 
     Vector3 direction;
-    Trail* trail;
+    class Trail* trail;
 };
 

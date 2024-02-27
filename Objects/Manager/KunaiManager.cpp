@@ -92,21 +92,34 @@ void KunaiManager::Throw(Vector3 pos, Vector3 dir)
     }
 }
 
-bool KunaiManager::IsCollision(Collider* collider)
+bool KunaiManager::IsCollision()
 {
-    for (Kunai* kunai : kunaies)
+    // 플레이어랑 부딪혔나 체크
+    if (ColliderManager::Get()->CollisionCheck(
+        ColliderManager::Collision_Type::PLAYER,
+        ColliderManager::Collision_Type::ORC_KUNAI))
     {
-        if (kunai->GetCollider()->IsCollision(collider))
-        {
-            //총알이 맞았을 때, "총알이" 수행할 코드를 추가
-            
-            particle->Play(kunai->GetCollider()->GlobalPos()); // 거기서 파티클 재생
-
-            //샘플 코드 : 충돌 후 사라지게 하기
-            kunai->GetTransform()->SetActive(false); // <-이 줄이 없으면 관통탄이 된다
-            return true;
-        }
+        // player->hit() 실행하기
+        
     }
+
+    // 다른 장애물과 부딪혔나 체크
+    if()
+
+
+    //for (Kunai* kunai : kunaies)
+    //{
+    //    if (kunai->GetCollider()->IsCollision(collider))
+    //    {
+    //        //총알이 맞았을 때, "총알이" 수행할 코드를 추가
+    //        
+    //        particle->Play(kunai->GetCollider()->GlobalPos()); // 거기서 파티클 재생
+
+    //        //샘플 코드 : 충돌 후 사라지게 하기
+    //        kunai->GetTransform()->SetActive(false); // <-이 줄이 없으면 관통탄이 된다
+    //        return true;
+    //    }
+    //}
 
     return false;
 }
