@@ -625,6 +625,10 @@ void Player::Targeting()
     Ray mouseRay = CAM->ScreenPointToRay(mousePos);
 
     MonsterManager::Get()->OnOutLineByRay(mouseRay);
+
+    Vector3 offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
+
+    MonsterManager::Get()->ActiveSpecialKey(Pos(), offset);
 }
 
 void Player::Cover()

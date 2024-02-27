@@ -36,6 +36,24 @@ MonsterManager::MonsterManager()
         orcs.push_back(orc);
         orc->Spawn(positions[i]);
     }
+
+    //특수키 빌보드 추가
+    {
+        SpecialKeyUI sk;
+        Quad* quad = new Quad(Vector2(100, 50));
+        quad->GetMaterial()->SetShader(L"Basic/Texture.hlsl");
+        quad->GetMaterial()->SetDiffuseMap(L"Textures/UI/SpecialKeyUI_ass.png");
+        sk.name = "assassination";
+        sk.quad = quad;
+        sk.active = false;
+        specialKeyUI.insert(make_pair(sk.name, sk));
+    }
+    
+    FOR(2) blendState[i] = new BlendState();
+    FOR(2) depthState[i] = new DepthStencilState();
+    blendState[1]->AlphaToCoverage(true); //투명색 적용 + 배경색 처리가 있으면 역시 적용
+    depthState[1]->DepthWriteMask(D3D11_DEPTH_WRITE_MASK_ALL);  // 다 가리기
+
 }
 
 MonsterManager::~MonsterManager()
@@ -97,6 +115,15 @@ void MonsterManager::Render()
 void MonsterManager::PostRender()
 {
     for (Orc* orc : orcs) orc->PostRender();
+
+    //특수키 출력
+    for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
+
+        if (iter.second.active)
+        {
+            iter.second.quad->Render();
+        }
+    }
 }
 
 void MonsterManager::GUIRender()
@@ -313,6 +340,29 @@ void MonsterManager::OnOutLineByRay(Ray ray)
     if (targetOrc)
     {
         targetOrc->SetOutLine(true);
+    }
+}
+
+void MonsterManager::ActiveSpecialKey(Vector3 playPos,Vector3 offset)
+{
+    for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
+
+        iter.second.active = false;
+        //iter.second.quad->Pos() = { 0,0,0 };
+        //iter.second.quad->UpdateWorld();
+    }
+
+    for (Orc* orc : orcs)
+    {
+        float dis = Distance(orc->GetTransform()->GlobalPos(), playPos);
+        if (orc->IsOutLine() && !orc->IsDetectTarget() && dis < 6.f)
+        {
+            //아웃라인이 활성화되고, 플레이어를 발견하지 못했을 때, 거리가 6 이하일때
+            SpecialKeyUI& sk = specialKeyUI["assassination"];
+            sk.active = true;
+            sk.quad->Pos() = CAM->WorldToScreen(orc->GetTransform()->Pos()+ offset);
+            sk.quad->UpdateWorld();
+        }
     }
 }
 

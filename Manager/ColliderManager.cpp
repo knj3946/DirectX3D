@@ -14,11 +14,21 @@ ColliderManager::~ColliderManager()
 {
 }
 
+void ColliderManager::SetObstacles(Collider* obstacle)
+{
+	PushCollision(ColliderManager::WALL, obstacle);
+}
+
+vector<Collider*>& ColliderManager::GetObstacles()
+{
+	return Getvector(ColliderManager::WALL);
+}
+
 void ColliderManager::PushPlayer()
 {
 	bool isPushed = false;
 
-	for (Collider* obstacle : obstacles)
+	for (Collider* obstacle : GetObstacles())
 	{
 		if (obstacle != onBlock && obstacle->PushCollision(playerCollider) && !isPushed)
 		{
@@ -43,7 +53,7 @@ void ColliderManager::SetHeight()
 
 	Contact underObj;
 
-	for (Collider* obstacle : obstacles)
+	for (Collider* obstacle : GetObstacles())
 	{
 		if (obstacle->IsCapsuleCollision(playerCollider) && obstacle->IsRayCollision(*headRay))
 		{
@@ -110,12 +120,12 @@ void ColliderManager::GuiRender()
 float ColliderManager::CloseRayCollisionColliderDistance(Ray ray)
 {
 	float minDistance = FLT_MAX;
-	for (Collider* ob : obstacles)
+	for (Collider* ob : GetObstacles())
 	{
 		Contact con;
 		ob->IsRayCollision(ray, &con);
 
-		if (con.distance > 0)
+		if (abs(con.distance) > 0)
 		{
 			float hitDistance = Distance(con.hitPoint, ray.pos);
 			if (minDistance > hitDistance)
@@ -129,12 +139,12 @@ bool ColliderManager::CloseRayCollisionColliderContact(Ray ray,Contact& con)
 {
 	float minDistance = FLT_MAX;
 	bool flag = false;
-	for (Collider* ob : obstacles)
+	for (Collider* ob : GetObstacles())
 	{
 		Contact tempCon;
 		ob->IsRayCollision(ray, &tempCon);
 
-		if (tempCon.distance > 0)
+		if (abs(tempCon.distance) > 0)
 		{
 			float hitDistance = Distance(tempCon.hitPoint, ray.pos);
 			if (minDistance > hitDistance)

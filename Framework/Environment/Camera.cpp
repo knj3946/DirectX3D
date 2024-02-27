@@ -90,8 +90,8 @@ Vector3 Camera::WorldToScreen(Vector3 worldPos)
 {
     Vector3 screenPos;
 
-    screenPos = XMVector3TransformCoord(worldPos, view);
-    screenPos = XMVector3TransformCoord(screenPos, projection);
+    screenPos = XMVector3TransformCoord(worldPos, view); // 월드좌표에 뷰 행렬을 곱한다 -> 뷰상에서의 좌표가 나옴
+    screenPos = XMVector3TransformCoord(screenPos, projection); // 뷰상에서의 좌표에 프로젝션 행렬을 곱한다 -> 프로젝션 상에서의 좌표가 나옴
     //NDC : -1 ~ 1
 
     screenPos = (screenPos + Vector3::One()) * 0.5f;//0~1
