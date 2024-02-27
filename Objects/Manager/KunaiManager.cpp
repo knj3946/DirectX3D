@@ -13,7 +13,7 @@ KunaiManager::KunaiManager()
         Kunai* kunai = new Kunai(transform);
         Transform* startEdge = new Transform(); // 준비만 하기
         Transform* endEdge = new Transform();
-        Trail* trail = new Trail(L"Textures/Etc/sun.jpg", startEdge, endEdge, 20, 100);
+        Trail* trail = new Trail(L"Textures/Etc/sun.jpg", startEdge, endEdge, 60, 30);
         trail->SetActive(false);
         kunai->SetTrail(trail);
         kunaies.push_back(kunai);
@@ -75,6 +75,12 @@ void KunaiManager::Render()
             kunai->GetTrail()->Render();
         }
     }
+}
+
+void KunaiManager::GUIRender()
+{
+    for (Kunai* kunai : kunaies)
+        kunai->GUIRender();
 }
 
 void KunaiManager::Throw(Vector3 pos, Vector3 dir)

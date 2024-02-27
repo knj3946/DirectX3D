@@ -36,6 +36,17 @@ Trail::~Trail()
 	//start, end는 다른 곳에서 만든 것을 받으므로, 여기서는 삭제 안함
 }
 
+
+void Trail::Init()
+{
+	vector<VertexUV>& vertices = mesh->GetVertices();
+	for (UINT i = 0; i <= width; i++)
+	{
+		vertices[i * 2 + 0].pos = start->Pos();
+		vertices[i * 2 + 1].pos = end->Pos();
+	}
+}
+
 void Trail::Update()
 {
 	if (!Active()) return; //<비활성화시 업데이트 안함

@@ -2,13 +2,13 @@
 
 Kunai::Kunai(Transform* transform) : transform(transform)
 {
-    transform->Scale() = { 200, 200, 200 }; // 크기 기본값은 1
+    transform->Scale() = { 3,3,3 }; // 크기 기본값은 1
                                       // 나중에 크기가 바뀌어야 하면 와서 수정하게
 
     collider = new SphereCollider();
     collider->SetParent(transform);
 
-    collider->Scale() = { 0.5,0.5, 0.5 }; //크기 기본값은 1.0
+    collider->Scale() = { 2,2,2 }; //크기 기본값은 1.0
     collider->Pos() = {};            //위치 기본값 : 부모 위치
 }
 
@@ -48,6 +48,11 @@ void Kunai::Render()
     collider->Render();
 }
 
+void Kunai::GUIRender()
+{
+    ImGui::Text("x : %f, y: %f, z : %f", transform->Pos().x, transform->Pos().y, transform->Pos().z);
+}
+
 void Kunai::Throw(Vector3 pos, Vector3 dir)
 {
     //활성화
@@ -56,6 +61,12 @@ void Kunai::Throw(Vector3 pos, Vector3 dir)
     transform->Pos() = pos;
     direction = dir;
 
+    startEdge->Pos() = transform->Pos();
+    endEdge->Pos() = transform->Pos();
+    startEdge->UpdateWorld();
+    endEdge->UpdateWorld();
+    trail->Init();
+    trail->SetActive(true);
     //방향에 맞게 모델(=트랜스폼) 회전 적용
     transform->Rot().y = atan2(dir.x, dir.z) - XM_PIDIV2; //방향 적용 + 모델 정면에 따른 보정
                                                           //쿠나이 모델은 90도 돌아가 있었음

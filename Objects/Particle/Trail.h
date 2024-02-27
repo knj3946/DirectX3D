@@ -9,6 +9,8 @@ public:
 	Trail(wstring imageFile,Transform* start, Transform* end, UINT width,float speed);
 	~Trail();
 
+	void Init();
+
 	void Update();
 	void Render();
 
