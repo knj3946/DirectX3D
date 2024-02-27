@@ -1,5 +1,5 @@
 #include "Framework.h"
-
+static int rangeTag=0;
 Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     :transform(transform), instancing(instancing), index(index)
 {
@@ -52,11 +52,15 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     hpBar->Scale() *= 0.01f;
     hpBar->SetAmount(curHP / maxHp);
 
-    rangeBar = new ProgressBar(L"Textures/UI/Range_bar_BG.png", L"Textures/UI/Range_bar.png");
-    rangeBar->SetAmount(curRange / maxRange);
-   // rangeBar->SetParent(transform);
-    rangeBar->Scale() *= 0.4f;
-
+    rangeBar = new ProgressBar(L"Textures/UI/Range_bar.png", L"Textures/UI/Range_bar_BG.png");
+    rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
+    rangeBar->SetParent(transform);
+   
+    rangeBar->SetTag(to_string(rangeTag));
+    rangeBar->Rot() = {XMConvertToRadians(90.f),0,XMConvertToRadians(-90.f)};
+    rangeBar->Pos() = { -15.f,1.f,-650.f };
+    rangeTag++;
+   
     exclamationMark = new Quad(L"Textures/UI/Exclamationmark.png");
     questionMark = new Quad(L"Textures/UI/QuestionMark.png");
     exclamationMark->Scale() *= 0.1f;
@@ -146,7 +150,7 @@ void Orc::Update()
         if (behaviorstate == NPC_BehaviorState::CHECK)return;
         if (isTracking == false && path.empty())
         {
-            //IdleAIMove();
+            IdleAIMove();
         }
         else
         {
@@ -217,8 +221,10 @@ void Orc::SetSRT(Vector3 scale, Vector3 rot, Vector3 pos)
     transform->Scale() = scale;
     transform->Rot() = rot;
     transform->Pos() = pos;
-
+    rangeBar->Scale() = { 1.f / scale.x,1.f / scale.y,1.f / scale.z };
+    rangeBar->Scale() *= (eyeSightRange/100);
     transform->UpdateWorld();
+
 }
 
 void Orc::GUIRender()
@@ -1047,6 +1053,7 @@ void Orc::Detection()
         if (curState == IDLE)
             SetState(RUN);
     }
+    rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
     
 }
 
