@@ -4,19 +4,19 @@ class Player : public ModelAnimator
 private:
     enum State
     {
-        IDLE,
-        RUN_F, RUN_B, RUN_L, RUN_R,
-        RUN_DL, RUN_DR,
-        JUMP1, JUMP2, JUMP3,
-        TO_COVER, C_IDLE, C_R, C_L, TO_STAND,
-        TO_ASSASIN,
-        HIT,
-        KICK,
-        DAGGER1, DAGGER2, DAGGER3,
+        IDLE,                                   //0
+        RUN_F, RUN_B, RUN_L, RUN_R,             //1 ~ 4
+        RUN_DL, RUN_DR,                         //5 ~ 6
+        JUMP1, JUMP2, JUMP3,                    //7 ~ 9
+        TO_COVER, C_IDLE, C_R, C_L, TO_STAND,   //10 ~ 14
+        TO_ASSASIN,                             //15
+        HIT,                                    //16
+        KICK,                                   //17
+        DAGGER1, DAGGER2, DAGGER3,              //18 ~ 20
 
-        B_IDLE,
-        B_RUN_F, B_RUN_B, B_RUN_L, B_RUN_R,
-        B_DRAW, B_ODRAW, B_RECOIL
+        B_IDLE,                                 //21
+        B_RUN_F, B_RUN_B, B_RUN_L, B_RUN_R,     //22 ~ 25
+        B_DRAW, B_ODRAW, B_AIM, B_RECOIL        //26 ~ 29
     };
 
     enum WeaponState
@@ -106,7 +106,9 @@ private:
 
     void SetAnimation();
     void SetState(State state, float scale = 1.0f, float takeTime = 0.2f);
+
     void SetIdle();
+    void SetBowAnim();
 
     void Searching();
     void Targeting();

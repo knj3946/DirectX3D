@@ -31,8 +31,9 @@ ModelAnimationScene::ModelAnimationScene()
 	}
 	*/
 	//클립 생성해두기 
-	//string modelName = "akai";
+	string modelName = "akai";
 	string clipNames[] = {
+		"Bow/Attack/Standing Aim Overdraw"
 		/*"character1@idle1"
 		,"character1@idle2"
 		,"character1@idle3"
@@ -46,31 +47,31 @@ ModelAnimationScene::ModelAnimationScene()
 		,"character1@walk3"
 		,"character1@walkshield"*/
 		//"character1@atack1"
-		 "character1@atack2"
-		,"character1@atack3"
-		,"character1@atack4"
-		,"character1@atack5"
-		,"character1@atack6"
-		,"character1@atack7"
-		,"character1@atack8"
-		,"character1@atack9"
-		,"character1@atack10"
-		,"character1@atack11"
-		,"character1@atack12"
-		,"character1@atack13"
-		,"character1@atack14"
-		,"character1@atack15"
-		,"character1@atack16"
-		,"character1@atack17"
-		,"character1@atack18"
-		,"character1@atack19"
-		,"character1@atack20"
-		,"character1@atack21"
-		,"character1@atack22"
-		,"character1@atack23"
-		,"character1@atack24"
-		,"character1@atack25"
-		,"character1@atack26"
+		// "character1@atack2"
+		//,"character1@atack3"
+		//,"character1@atack4"
+		//,"character1@atack5"
+		//,"character1@atack6"
+		//,"character1@atack7"
+		//,"character1@atack8"
+		//,"character1@atack9"
+		//,"character1@atack10"
+		//,"character1@atack11"
+		//,"character1@atack12"
+		//,"character1@atack13"
+		//,"character1@atack14"
+		//,"character1@atack15"
+		//,"character1@atack16"
+		//,"character1@atack17"
+		//,"character1@atack18"
+		//,"character1@atack19"
+		//,"character1@atack20"
+		//,"character1@atack21"
+		//,"character1@atack22"
+		//,"character1@atack23"
+		//,"character1@atack24"
+		//,"character1@atack25"
+		//,"character1@atack26"
 		//,"character1@backwalkshield"
 		//,"character1@sneakcrunchback"
 		//,"character1@sneakwalk"
@@ -97,6 +98,7 @@ ModelAnimationScene::ModelAnimationScene()
 		
 	};
 	*/
+	model = new ModelAnimator("akai");
 	clipSize = (sizeof(clipNames) / sizeof(*clipNames));
 	/*
 	for(string clipName : clipNames)
@@ -107,7 +109,7 @@ ModelAnimationScene::ModelAnimationScene()
 		delete exporter;
 	}
 	*/
-	model = new ModelAnimator("character1");
+	//model = new ModelAnimator("character1");
 	for (string clipName : clipNames)
 	{
 		model->ReadClip(clipName,0);

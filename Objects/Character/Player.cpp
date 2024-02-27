@@ -95,6 +95,7 @@ Player::Player()
 
     ReadClip(temp + "Standing Draw Arrow");
     ReadClip(temp + "Standing Aim Overdraw");
+    ReadClip(temp + "Standing Aim Idle");
     ReadClip(temp + "Standing Aim Recoil");
 
     GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.1f);  //????????
@@ -111,6 +112,9 @@ Player::Player()
     GetClip(DAGGER1)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
     GetClip(DAGGER2)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
     GetClip(DAGGER3)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
+
+    //GetClip(B_DRAW)->SetEvent(bind(&Player::SetBowAnim, this), 0.2f);
+    //GetClip(B_ODRAW)->SetEvent(bind(&Player::SetBowAnim, this), 0.6f);
 
     //GetClip(DAGGER1)->SetEvent(bind(&Player::CanCombo, this), 0.4f);
 
@@ -130,7 +134,15 @@ Player::~Player()
     delete targetObject;
 
     delete rightHand;
+    delete leftHand;
+    delete leftFoot;
+    delete rightFoot;
+
+    delete leftFootCollider;
+    delete rightFootCollider;
     delete dagger;
+    delete bow;
+    delete bowCol;
 }
 
 void Player::Update()
@@ -148,7 +160,9 @@ void Player::Update()
     Searching();
     Targeting();
 
-    SetAnimation();
+    //이 함수 내에서 조건으로 애니메이션 세팅을 중단하지 말고,
+    //특정 애니메이션이 동작하면 canSettingAnim같은 bool 변수를 false로 만들어서
+    //이 함수를 캔슬하는 방식 고려
 
     ModelAnimator::Update();
 
@@ -174,6 +188,7 @@ void Player::Update()
     rightFoot->SetWorld(this->GetTransformByNode(rightFootNode));
     rightFootCollider->UpdateWorld();
 
+    SetAnimation();
 }
 
 void Player::Render()
@@ -214,6 +229,8 @@ void Player::GUIRender()
     ImGui::Text("feedBackPosY : %f", feedBackPos.y);
     ImGui::Text("Pos.y : %f", Pos().y);
     ImGui::Text("heightLevel : %f", heightLevel);
+
+    ImGui::Text("curState : %d", curState);
 
     //???? ??
     ImGui::SliderFloat("force1", &force1, 1, 500);
@@ -300,19 +317,27 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
 
     Rotate();
 
-    switch (curState)
+    //switch (curState)
+    //{
+    //case KICK:
+    //{
+    //    //leftWeaponCollider->SetActive(true);
+    //    //rightWeaponCollider->SetActive(true);
+    //    break;
+    //}
+    //default:
+    //{
+    //    //leftWeaponCollider->SetActive(false);
+    //    //rightWeaponCollider->SetActive(false);
+    //}
+
+    if (KEY_UP(VK_LBUTTON))
     {
-    case KICK:
-    {
-        //leftWeaponCollider->SetActive(true);
-        //rightWeaponCollider->SetActive(true);
-        break;
-    }
-    default:
-    {
-        //leftWeaponCollider->SetActive(false);
-        //rightWeaponCollider->SetActive(false);
-    }
+        if (weaponState == BOW)
+        {
+            if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
+                SetState(B_IDLE);
+        }
     }
 
     if (KEY_PRESS(VK_LBUTTON))
@@ -753,8 +778,10 @@ void Player::SetState(State state, float scale, float takeTime)
     PlayClip((int)state, scale, takeTime);
 }
 
-void Player::SetAnimation()
+void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 매개변수로 값을 받아올 경우엔 바로 그 state로 변경하게 만들기
 {
+    SetState(B_ODRAW);
+    return;
     if (weaponState == DAGGER)
     {
         if (curState == JUMP1 || curState == JUMP3 || Pos().y > 0.0f) return;   //????? ???? ??찡 ????? ?????? Pos().y?? ???? ???? ?????? ????
@@ -781,6 +808,9 @@ void Player::SetAnimation()
     }
     else if (weaponState == BOW)
     {
+        if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
+            return;
+
         if (velocity.z > 0.1f)
             SetState(B_RUN_F);
         else if (velocity.z < -0.1f)
@@ -791,6 +821,20 @@ void Player::SetAnimation()
             SetState(B_RUN_L);
         else
             SetState(B_IDLE);
+    }
+}
+
+void Player::SetBowAnim()
+{
+    if (curState == B_DRAW)
+    {
+        SetState(B_ODRAW);
+        return;
+    }
+    else if (curState == B_ODRAW)
+    {
+        SetState(B_AIM);
+        return;
     }
 }
 
