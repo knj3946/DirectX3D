@@ -481,7 +481,8 @@ void Player::Jumping()
 
     float tempJumpVel;
     float tempY;
-    if (preHeight - heightLevel > 5.0f)
+
+    if (preHeight - heightLevel > 3.0f)
     {
         jumpVel = -1;
 
@@ -494,7 +495,7 @@ void Player::Jumping()
         tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
     }
 
-    heightLevel = feedBackPos.y;
+    //heightLevel = feedBackPos.y;
 
     if (tempY <= heightLevel)
     {
