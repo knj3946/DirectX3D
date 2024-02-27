@@ -55,16 +55,8 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     hpBar->Pos() = transform->Pos() + Vector3(0, 6, 0);
     Vector3 dir = hpBar->Pos() - CAM->Pos();
     hpBar->Rot().y = atan2(dir.x, dir.z);
-
-    float scale = 1 / velocity.Length();
-    scale *= 0.03f;
-    scale = Clamp(0.01f, 0.5f, scale);
-    hpBar->Scale() = { scale, scale, scale };
-
     hpBar->UpdateWorld();
     hpBar->Render();
-
-
 
     exclamationMark = new Quad(L"Textures/UI/Exclamationmark.png");
     questionMark = new Quad(L"Textures/UI/QuestionMark.png");
@@ -199,7 +191,7 @@ void Orc::Render()
     collider->Render();
     leftWeaponCollider->Render();
     rightWeaponCollider->Render();
-    //hpBar->Render();
+    hpBar->Render();
     //aStar->Render();
 }
 
@@ -742,7 +734,7 @@ void Orc::UpdateUI()
     Vector3 dir = hpBar->Pos() - CAM->Pos();
     hpBar->Rot().y = atan2(dir.x, dir.z);
 
-    float scale = 1 / velocity.Length();
+    float scale = 1 / (target->GlobalPos() - transform->GlobalPos()).Length();
     scale *= 0.03f;
     scale = Clamp(0.01f, 0.5f, scale);
     hpBar->Scale() = { scale, scale, scale };
