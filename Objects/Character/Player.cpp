@@ -5,7 +5,10 @@ Player::Player()
     : ModelAnimator("akai")
 {
     targetTransform = new Transform();
+    //straightRay = Ray(Pos(), Back());
 
+    //Scale() *= 0.1f;
+    // ?????? ????? ??????(?? ?????? ???)?? ?? ??° ????????? ????
     ClientToScreen(hWnd, &clientCenterPos);
     SetCursorPos(clientCenterPos.x, clientCenterPos.y);
 
@@ -14,18 +17,7 @@ Player::Player()
     collider->Pos().y += 20;
 
     rightHand = new Transform();
-    leftHand = new Transform();
-
     dagger = new Dagger(rightHand);
-
-    bow = new Model("hungarian_bow");
-    bow->SetParent(leftHand);
-    bow->Scale() *= 0.3f;
-    bow->Pos() = { 1.700, -1.6, 0 };
-    bow->Rot() = { 0, -0.200, 2.5 };
-
-    bowCol = new CapsuleCollider(25, 130);
-    bowCol->SetParent(bow);
 
 
     //left foot : 57
@@ -45,9 +37,9 @@ Player::Player()
     hpBar->Scale() *= 0.6f;
     hpBar->SetAmount(curHP / maxHp);
 
-    string temp;
+    string temp;    //???? ????
 
-    ReadClip("Idle");
+    ReadClip("Idle"); // ?????? 0??? 1???? ????
 
     ReadClip("Medium Run");
     ReadClip("Running Backward");
@@ -57,19 +49,17 @@ Player::Player()
     ReadClip("Jog Forward Diagonal Left");
     ReadClip("Jog Forward Diagonal Right");
 
-    ReadClip("Jumping"); 
-    ReadClip("IntheSky");
-    ReadClip("Falling To Landing"); 
+    ReadClip("Jumping"); // ?????? 0??? 1???? ????
+    ReadClip("IntheSky"); // ?????? 0??? 1???? ????
+    ReadClip("Falling To Landing"); // ?????? 0??? 1???? ????
 
-    ReadClip("Stand To Cover"); 
-    ReadClip("Cover Idle"); 
-    ReadClip("Crouched Sneaking Right"); 
-    ReadClip("Crouched Sneaking Left");
-    ReadClip("Crouch Turn To Stand");
+    ReadClip("Stand To Cover"); // ?????? 0??? 1???? ????
+    ReadClip("Cover Idle"); // ?????? 0??? 1???? ????
+    ReadClip("Crouched Sneaking Right"); // ?????? 0??? 1???? ????
+    ReadClip("Crouched Sneaking Left"); // ?????? 0??? 1???? ????
+    ReadClip("Crouch Turn To Stand"); // ?????? 0??? 1???? ????
 
-    ReadClip("Turning Right");
-
-    ReadClip("Head Hit");
+    ReadClip("Turning Right"); // TO_ASSASIN //???? ???? ?????? ????
 
     temp = "Attack/";
 
@@ -81,20 +71,8 @@ Player::Player()
     ReadClip(temp + "Stable Sword Inward Slash");
     ReadClip(temp + "Upward Thrust");
 
-    temp = "Bow/Walk/";
-
-    ReadClip(temp + "Standing Idle");
-    ReadClip(temp + "Standing Sprint Forward");
-    ReadClip(temp + "Standing Walk Back");
-    ReadClip(temp + "Standing Run Left");
-    ReadClip(temp + "Standing Run Right");
-
-    temp = "Bow/Attack/";
-
-    ReadClip(temp + "Standing Draw Arrow");
-    ReadClip(temp + "Standing Aim Overdraw");
-    ReadClip(temp + "Standing Aim Recoil");
-
+    // HIT
+    ReadClip("Head Hit");
 
     GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.1f);  //????????
     GetClip(JUMP1)->SetEvent(bind(&Player::AfterJumpAnimation, this), 0.20001f);   //???
@@ -110,8 +88,6 @@ Player::Player()
     GetClip(DAGGER1)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
     GetClip(DAGGER2)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
     GetClip(DAGGER3)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
-
-    //GetClip(B_DRAW)->SetEvent(bind(&Player::))
 
     //GetClip(DAGGER1)->SetEvent(bind(&Player::CanCombo, this), 0.4f);
 
@@ -131,22 +107,11 @@ Player::~Player()
     delete targetObject;
 
     delete rightHand;
-    delete leftHand;
     delete dagger;
-    delete bow;
-    delete bowCol;
-
-    delete leftFoot;
-    delete leftFootCollider;
-    delete rightFoot;
-    delete rightFootCollider;
 }
 
 void Player::Update()
 {
-    leftFootCollider->SetActive(false);
-    rightFootCollider->SetActive(false);
-
     ColliderManager::Get()->SetHeight();
     if (!isCeiling)
         ColliderManager::Get()->PushPlayer();
@@ -173,11 +138,7 @@ void Player::Update()
     }
 
     rightHand->SetWorld(this->GetTransformByNode(rightHandNode));
-    leftHand->SetWorld(this->GetTransformByNode(leftHandNode));
-    if(weaponState == DAGGER)
-        dagger->Update();
-    bow->UpdateWorld();
-    bowCol->UpdateWorld();
+    dagger->Update();
 
     leftFoot->SetWorld(this->GetTransformByNode(leftFootNode));
     leftFootCollider->UpdateWorld();
@@ -245,13 +206,8 @@ void Player::GUIRender()
     ImGui::InputFloat("landing", (float*)&landing);
 
     ImGui::InputInt("rightHandNode", &rightHandNode);
-    ImGui::InputInt("leftHandNode", &leftHandNode);
     ImGui::InputInt("leftFootNode", &leftFootNode);
     ImGui::InputInt("rightFootNode", &rightFootNode);
-
-    ImGui::DragFloat3("bowPos", (float*)&bow->Pos(), 0.1f);
-    ImGui::DragFloat3("bowRot", (float*)&bow->Rot(), 0.1f);
-    ImGui::DragFloat3("bowScale", (float*)&bow->Scale(), 0.1f);
 
     dagger->GUIRender();
 
@@ -327,20 +283,10 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     }
 
     if (KEY_PRESS(VK_LBUTTON))
-    {
-        if (weaponState == DAGGER)
-        {
-            if (curState != DAGGER1 && curState != DAGGER2 && curState != DAGGER3)
-                ComboAttack();
-        }
-        else if (weaponState == BOW)
-        {
-            if (curState == B_IDLE)
-                SetState(B_DRAW);
-        }
-    }
+        if (curState != DAGGER1 && curState != DAGGER2 && curState != DAGGER3)
+            ComboAttack();
 
-    if (isHit) 
+    if (isHit)   //?´°? ?????????? Jumping????? ?????? ????? ????? ????? ?ð??? ?þ?
     {
         return;
     }
@@ -353,16 +299,17 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     Move();
     Jumping();
 
-    //if (targetObject != nullptr && KEY_DOWN('F'))     ////보류
-    //{
-    //    velocity = 0;
-    //    SetState(TO_ASSASIN);
-    //}
+    if (targetObject != nullptr && KEY_DOWN('F'))
+    {
+        velocity = 0;
+        SetState(TO_ASSASIN);
+    }
 }
 
 void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ???????? ?? ??? ??)
 {
     //플레이어의 위에서 레이를 쏴서 현재 terrain 위치와 높이를 구함
+
     //if (!OnColliderFloor(feedBackPos))
     //{
         Vector3 PlayerSkyPos = Pos();
@@ -501,13 +448,10 @@ void Player::Walking()
     Vector3 PlayerSkyPos = destPos;
     PlayerSkyPos.y += 1000;
     Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
-    /*
     if (!OnColliderFloor(destFeedBackPos))
     {
-        
-    }*/
-
-    TerainComputePicking(destFeedBackPos, groundRay);
+        TerainComputePicking(destFeedBackPos, groundRay);
+    }
 
     //destFeedBackPos : 목적지 터레인Pos
     //feedBackPos : 현재 터레인Pos
@@ -545,14 +489,35 @@ void Player::AfterJumpAnimation()
 
 void Player::Jumping()
 {
+<<<<<<< HEAD
     if (weaponState == DAGGER)
+=======
+    if (heightLevel < feedBackPos.y)
+        heightLevel = feedBackPos.y;
+
+    if (isCeiling) {
+        jumpVel = -20;
+        isCeiling = false;
+    }
+
+    float tempJumpVel;
+    float tempY;
+
+    if (preHeight - heightLevel > 3.0f)
+>>>>>>> 89ac51b4a741b6bd86ff60734d9205eae5652e93
     {
-        float tempJumpVel;
-        float tempY;
+        jumpVel = -1;
 
-        if (heightLevel < feedBackPos.y)
-            heightLevel = feedBackPos.y;
+        tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
+        tempY = preHeight + jumpVel * DELTA * jumpSpeed;
+    }
+    else
+    {
+        tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
+        tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
+    }
 
+<<<<<<< HEAD
     if (isCeiling) {
         jumpVel = -20;
         isCeiling = false;
@@ -592,9 +557,28 @@ void Player::Jumping()
         preHeight = heightLevel;
     }
     else if (weaponState == BOW)
-    {
+=======
+    //heightLevel = feedBackPos.y;
 
+    if (tempY <= heightLevel)
+>>>>>>> 89ac51b4a741b6bd86ff60734d9205eae5652e93
+    {
+        tempY = heightLevel;
+        tempJumpVel = 0.0f;
+
+        if (curState == JUMP2) {
+            //landing = landingT;   //?????? ????? ???? ????? ????? ??????
+            SetState(JUMP3);
+        }
     }
+
+    Pos().y = tempY;
+    jumpVel = tempJumpVel;
+
+    if (jumpVel < 0.0f)
+        SetState(JUMP2);
+
+    preHeight = heightLevel;
 }
 
 void Player::Searching()
@@ -643,7 +627,7 @@ void Player::EndHit()
     collider->SetActive(true);
     SetState(IDLE);
 }
-/*
+
 bool Player::OnColliderFloor(Vector3& feedback)
 {
     Vector3 PlayerSkyPos = Pos();
@@ -659,7 +643,7 @@ bool Player::OnColliderFloor(Vector3& feedback)
     
     return false;
 }
-*/
+
 bool Player::TerainComputePicking(Vector3& feedback, Ray ray)
 {
     if (terrain && structuredBuffer)
@@ -739,7 +723,7 @@ void Player::Hit(float damage)
 
 }
 
-void Player::ComboAttack()
+void Player::AttackCombo()
 {
     switch (weaponState)
     {
@@ -748,9 +732,6 @@ void Player::ComboAttack()
         //    break;
     case DAGGER:
         SetState(static_cast<State>(DAGGER1 + comboStack));
-        break;
-    case BOW:
-        //SetState(static_cast<State>(DAGGER1 + comboStack));
         break;
     }
 
@@ -770,64 +751,43 @@ void Player::SetState(State state, float scale, float takeTime)
 
 void Player::SetAnimation()
 {
-    if (weaponState == DAGGER)
-    {
-        if (curState == JUMP1 || curState == JUMP3 || Pos().y > 0.0f) return;   //????? ???? ??찡 ????? ?????? Pos().y?? ???? ???? ?????? ????
-        /*   if (toCover)
-               return;*/
+    if (curState == JUMP1 || curState == JUMP3 || Pos().y > 0.0f) return;   //????? ???? ??찡 ????? ?????? Pos().y?? ???? ???? ?????? ????
+    /*   if (toCover)
+           return;*/
 
-        if (curState == HIT || curState == KICK || curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3)
-            return;
+    if (curState == HIT || curState == KICK || curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3)
+        return;
 
-        if (velocity.z > 0.01f && velocity.x < -0.1f)
-            SetState(RUN_DL);
-        else if (velocity.z > 0.01f && velocity.x > 0.1f)
-            SetState(RUN_DR);
-        else if (velocity.z > 0.1f)
-            SetState(RUN_F);
-        else if (velocity.z < -0.1f)
-            SetState(RUN_B);
-        else if (velocity.x > 0.1f)
-            SetState(RUN_R);
-        else if (velocity.x < -0.1f)
-            SetState(RUN_L);
-        else
-            SetState(IDLE);
-    }
-    else if (weaponState == BOW)
-    {
-        if (velocity.z > 0.1f)
-            SetState(B_RUN_F);
-        else if (velocity.z < -0.1f)
-            SetState(B_RUN_B);
-        else if (velocity.x > 0.1f)
-            SetState(B_RUN_R);
-        else if (velocity.x < -0.1f)
-            SetState(B_RUN_L);
-        else
-            SetState(B_IDLE);
-    }
+    if (velocity.z > 0.01f && velocity.x < -0.1f)
+        SetState(RUN_DL);
+    else if (velocity.z > 0.01f && velocity.x > 0.1f)
+        SetState(RUN_DR);
+    else if (velocity.z > 0.1f) // ??? ?????? ???? ?????? +??
+        SetState(RUN_F);
+    else if (velocity.z < -0.1f) // ?? ???? -??
+        SetState(RUN_B);
+    else if (velocity.x > 0.1f) // ?¿? ???? +??
+        SetState(RUN_R);
+    else if (velocity.x < -0.1f) //?¿? ???? -??
+        SetState(RUN_L);
+    else
+        SetState(IDLE); // ?????? ??????
 }
 
 void Player::SetIdle()
 {
-    if (weaponState == DAGGER)
-    {
-        if (curState == TO_COVER) {
-            Pos() = targetTransform->Pos();
-            Rot() = targetTransform->Rot();
 
-            SetState(C_IDLE);
+    if (curState == TO_COVER) {
+        Pos() = targetTransform->Pos();
+        Rot() = targetTransform->Rot();
 
-            //toCover = false;
-        }
-        //else if(curState == DAGGER1 && KEY_PRESS(VK_LBUTTON))
-        //    SetState(IDLE);
-        else
-            SetState(IDLE);
+        SetState(C_IDLE);
+
+        //toCover = false;
     }
-    else if (weaponState == BOW)
-    {
-        SetState(B_IDLE);
-    }
+    //else if(curState == DAGGER1 && KEY_PRESS(VK_LBUTTON))
+    //    SetState(IDLE);
+    else
+        SetState(IDLE);
+
 }
