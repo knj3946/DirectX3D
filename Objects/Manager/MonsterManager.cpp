@@ -14,6 +14,8 @@ MonsterManager::MonsterManager()
     orcInstancing->ReadClip("character1@atack22");
     orcInstancing->ReadClip("character1@atack23");
     orcInstancing->ReadClip("character1@atack24");
+
+    orcInstancing->ReadClip("character1@atack16");
     //orcInstancing->ReadClip("character1@atack4");
 
     orcInstancing->ReadClip("Orc_Death");

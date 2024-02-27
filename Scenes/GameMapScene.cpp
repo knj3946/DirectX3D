@@ -144,6 +144,7 @@ GameMapScene::GameMapScene()
 	CAM->LookAtTarget();
 
 	ColliderManager::Get()->SetPlayer(player);
+	KunaiManager::Get();
 }
 
 GameMapScene::~GameMapScene()
@@ -157,7 +158,7 @@ GameMapScene::~GameMapScene()
 	delete terrain;
 	delete aStar;
 	delete skyBox;
-
+	KunaiManager::Delete();
 	FOR(2)
 		delete blendState[i];
 }
@@ -202,7 +203,7 @@ void GameMapScene::Update()
 
 	player->Update();
 	MonsterManager::Get()->Update();
-
+	KunaiManager::Get()->Update();
 
 	for (ColliderModel* colliderModel : colliderModels)
 	{
@@ -238,6 +239,7 @@ void GameMapScene::Render()
 
 	player->Render();
 	MonsterManager::Get()->Render();
+	KunaiManager::Get()->Render();
 }
 
 void GameMapScene::PostRender()
@@ -248,7 +250,7 @@ void GameMapScene::PostRender()
 
 void GameMapScene::GUIRender()
 {
-	player->GUIRender();
+	//player->GUIRender();
 	/*
 	for (ColliderModel* cm : colliderModels)
 	{
@@ -257,4 +259,5 @@ void GameMapScene::GUIRender()
 	*/
 
 	//MonsterManager::Get()->GUIRender();
+	//KunaiManager::Get()->GUIRender();
 }

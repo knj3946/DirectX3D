@@ -12,12 +12,16 @@ private:
         TO_ASSASIN,
         KICK,
         DAGGER1, DAGGER2, DAGGER3,
-        HIT
+        HIT,
+
+        B_IDLE,
+        B_RUN_F, B_RUN_B, B_RUN_L, B_RUN_R,
+        B_DRAW, B_ODRAW, B_RECOIL
     };
 
     enum WeaponState
     {
-        NONE, DAGGER
+        NONE, DAGGER, BOW
     };
 
     class RayBuffer : public ConstBuffer
@@ -56,6 +60,7 @@ private:
     //typedef Terrain LevelData;
     typedef TerrainEditor LevelData;
     typedef VertexUVNormalTangentAlpha VertexType;
+
 public:
     Player();
     ~Player();
@@ -71,8 +76,6 @@ public:
     Vector3 GetVelocity() { return velocity; }
     CapsuleCollider* GetCollider() { return collider; }
 
-
-    Ray GetRay() { return straightRay; }    //���� �Ⱦ��°�
 
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
 
@@ -99,19 +102,19 @@ private:
     void Cover();
     void Assasination();
 
-    void Attack();
-    void AttackCombo();
+    void ComboAttack();
 
     void SetAnimation();
     void SetState(State state, float scale = 1.0f, float takeTime = 0.2f);
     void SetIdle();
+
     void Searching();
     void Targeting();
     bool InTheAir();
 
     void EndHit();
 
-    bool OnColliderFloor(Vector3& feedback);
+    //bool OnColliderFloor(Vector3& feedback);
     bool TerainComputePicking(Vector3& feedback, Ray ray);
 
 private:
@@ -119,7 +122,7 @@ private:
     POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- �����ڴ� ���� 
 
     State curState = IDLE;
-    WeaponState weaponState = DAGGER;
+    WeaponState weaponState = BOW;
 
     Vector3 velocity;
     Vector3 targetPos;
@@ -146,10 +149,6 @@ private:
 
     CapsuleCollider* collider;
     vector<Collider*> weaponColliders;
-
-    Ray straightRay;
-    Ray diagnolLRay;
-    Ray diagnolRRay;
 
     Collider* targetObject;
     Contact contact;
@@ -181,11 +180,13 @@ private:
     bool isHit = false;
 
     int comboStack = 0;
-    float comboHolding = 0.0f;   //comboStack�� �����Ǵ� �ð�, �� ������ ���� ������ ����ð����� �ٸ��� �ʱ�ȭ
-    //bool combo = false;    //��� 1�� 2�� ������ �������ϰ� ����ǵ��� ��� 1�� �ִϸ��̼� ���� �߰��뿡 �� ���� true�� �����
+    float comboHolding = 0.0f;
 
     Transform* rightHand;
+    Transform* leftHand;
     Dagger* dagger;
+    Model* bow;
+    CapsuleCollider* bowCol;
 
     Transform* leftFoot;
     CapsuleCollider* leftFootCollider;
@@ -195,7 +196,9 @@ private:
 
     //left foot : 57
     //right foot : 62
+
     int rightHandNode = 35;
+    int leftHandNode = 11;
     int leftFootNode = 57;
     int rightFootNode = 62;
 
@@ -203,4 +206,5 @@ private:
     bool isCeiling = false;
 
     float preHeight = 0.0f;
+
 };
