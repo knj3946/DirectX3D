@@ -3,32 +3,147 @@
 
 ModelExportScene::ModelExportScene()
 {
-    //string name = "dagger";
-    //string file = "Models/FBX/" + name + ".fbx";
-    //ModelExporter* exporter;
-    //string clipName;
+    string name = "hungarian_bow";
+    string file = "Models/FBX/" + name + ".fbx";
+    ModelExporter* exporter;
+    string clipName;
 
-    //exporter = new ModelExporter(name, file);
-    //exporter->ExportMaterial();
-    //exporter->ExportMesh();
-    //delete exporter;
+    exporter = new ModelExporter(name, file);
+    exporter->ExportMaterial();
+    exporter->ExportMesh();
+    delete exporter;
 
     {
-        string name = "akai";
-        string file = "Models/FBX/" + name + ".fbx";
-        ModelExporter* exporter;
-        string clipName;
+    //    string name = "akai Bow";
+    //    string file = "Models/FBX/" + name + ".fbx";
+    //    ModelExporter* exporter;
+    //    string clipName;
 
-        /*exporter = new ModelExporter(name, file);
-        exporter->ExportMaterial();
-        exporter->ExportMesh();
-        delete exporter;*/
+    //    exporter = new ModelExporter(name, file);
+    //    exporter->ExportMaterial();
+    //    exporter->ExportMesh();
+    //    delete exporter;
 
-        clipName = "Combo Stable Sword Inward Slash";
-        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
-        exporter = new ModelExporter(name, file);
-        exporter->ExportClip(clipName);
-        delete exporter;
+    //    string floderN1 = "Bow/Walk";
+
+    //    clipName = "Standing Idle 01";
+    //    file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //    exporter = new ModelExporter(name, file);
+    //    exporter->ExportClip(clipName);
+    //    delete exporter;
+
+    //    clipName = "Standing Sprint Forward";
+    //    file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //    exporter = new ModelExporter(name, file);
+    //    exporter->ExportClip(clipName);
+    //    delete exporter;
+
+    //    clipName = "Standing Walk Back";
+    //    file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //    exporter = new ModelExporter(name, file);
+    //    exporter->ExportClip(clipName);
+    //    delete exporter;
+
+    //    clipName = "Standing Run Right";
+    //    file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //    exporter = new ModelExporter(name, file);
+    //    exporter->ExportClip(clipName);
+    //    delete exporter;
+
+    //    clipName = "Standing Run Left";
+    //    file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //    exporter = new ModelExporter(name, file);
+    //    exporter->ExportClip(clipName);
+    //    delete exporter;
+
+    //    floderN1 = "Bow/Attack";
+
+    //    clipName = "Standing Draw Arrow";
+    //    file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //    exporter = new ModelExporter(name, file);
+    //    exporter->ExportClip(clipName);
+    //    delete exporter;
+
+    //    clipName = "Standing Aim Overdraw";
+    //    file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //    exporter = new ModelExporter(name, file);
+    //    exporter->ExportClip(clipName);
+    //    delete exporter;
+
+    //    clipName = "Standing Aim Recoil";
+    //    file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //    exporter = new ModelExporter(name, file);
+    //    exporter->ExportClip(clipName);
+    //    delete exporter;
+    }
+    {
+        //string name = "akai";
+        //string file = "Models/FBX/" + name + ".fbx";
+        //ModelExporter* exporter;
+        //string clipName;
+
+        //string floderN1 = "Bow/Walk";
+
+        //clipName = "Standing Idle 01";
+        //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+        //exporter = new ModelExporter(name, file);
+        //exporter->ExportClip(clipName);
+        //delete exporter;
+
+        //clipName = "Standing Sprint Forward";
+        //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+        //exporter = new ModelExporter(name, file);
+        //exporter->ExportClip(clipName);
+        //delete exporter;
+
+        //clipName = "Standing Walk Back";
+        //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+        //exporter = new ModelExporter(name, file);
+        //exporter->ExportClip(clipName);
+        //delete exporter;
+
+        //clipName = "Standing Run Right";
+        //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+        //exporter = new ModelExporter(name, file);
+        //exporter->ExportClip(clipName);
+        //delete exporter;
+
+        //clipName = "Standing Run Left";
+        //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+        //exporter = new ModelExporter(name, file);
+        //exporter->ExportClip(clipName);
+        //delete exporter;
+
+        //floderN1 = "Bow/Attack";
+
+        //clipName = "Standing Draw Arrow";
+        //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+        //exporter = new ModelExporter(name, file);
+        //exporter->ExportClip(clipName);
+        //delete exporter;
+
+        //clipName = "Standing Aim Overdraw";
+        //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+        //exporter = new ModelExporter(name, file);
+        //exporter->ExportClip(clipName);
+        //delete exporter;
+
+        //clipName = "Standing Aim Recoil";
+        //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+        //exporter = new ModelExporter(name, file);
+        //exporter->ExportClip(clipName);
+        //delete exporter;
+
+        ///*exporter = new ModelExporter(name, file);
+        //exporter->ExportMaterial();
+        //exporter->ExportMesh();
+        //delete exporter;*/
+
+        //clipName = "Combo Stable Sword Inward Slash";
+        //file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        //exporter = new ModelExporter(name, file);
+        //exporter->ExportClip(clipName);
+        //delete exporter;
         // 
         //clipName = "Upward Thrust";
         //file = "Models/Animations/" + name + "/" + clipName + ".fbx";

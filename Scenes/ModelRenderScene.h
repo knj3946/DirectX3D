@@ -14,4 +14,9 @@ public:
 
 private:
     Model* model;
+    Model* bow;
+
+    Transform* leftHand;
+
+    int leftHandNode = 0;
 };
