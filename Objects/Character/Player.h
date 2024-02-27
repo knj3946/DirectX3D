@@ -12,12 +12,16 @@ private:
         TO_ASSASIN,
         KICK,
         DAGGER1, DAGGER2, DAGGER3,
-        HIT
+        HIT,
+
+        B_IDLE,
+        B_RUN_F, B_RUN_B, B_RUN_L, B_RUN_R,
+        B_DRAW, B_ODRAW, B_RECOIL
     };
 
     enum WeaponState
     {
-        NONE, DAGGER
+        NONE, DAGGER, BOW
     };
 
     class RayBuffer : public ConstBuffer
@@ -56,6 +60,7 @@ private:
     //typedef Terrain LevelData;
     typedef TerrainEditor LevelData;
     typedef VertexUVNormalTangentAlpha VertexType;
+
 public:
     Player();
     ~Player();
@@ -117,7 +122,7 @@ private:
     POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- �����ڴ� ���� 
 
     State curState = IDLE;
-    WeaponState weaponState = DAGGER;
+    WeaponState weaponState = BOW;
 
     Vector3 velocity;
     Vector3 targetPos;
@@ -178,7 +183,10 @@ private:
     float comboHolding = 0.0f;
 
     Transform* rightHand;
+    Transform* leftHand;
     Dagger* dagger;
+    Model* bow;
+    CapsuleCollider* bowCol;
 
     Transform* leftFoot;
     CapsuleCollider* leftFootCollider;
@@ -190,6 +198,7 @@ private:
     //right foot : 62
 
     int rightHandNode = 35;
+    int leftHandNode = 11;
     int leftFootNode = 57;
     int rightFootNode = 62;
 
@@ -197,4 +206,5 @@ private:
     bool isCeiling = false;
 
     float preHeight = 0.0f;
+
 };
