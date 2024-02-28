@@ -4,6 +4,8 @@
 Player::Player()
     : ModelAnimator("akai")
 {
+    ArrowManager::Get();
+
     targetTransform = new Transform();
     //straightRay = Ray(Pos(), Back());
 
@@ -118,6 +120,8 @@ Player::Player()
 
     //GetClip(B_DRAW)->SetEvent(bind(&Player::SetBowAnim, this), 0.2f);
     //GetClip(B_ODRAW)->SetEvent(bind(&Player::SetBowAnim, this), 0.6f);
+    GetClip(B_DRAW)->SetEvent(bind(&Player::SetBowAnim, this), 0.4f);
+    GetClip(B_RECOIL)->SetEvent(bind(&Player::SetBowAnim, this), 0.2f);
 
     //GetClip(DAGGER1)->SetEvent(bind(&Player::CanCombo, this), 0.4f);
 
@@ -162,6 +166,8 @@ Player::~Player()
     delete dagger;
     delete bow;
     delete bowCol;
+
+    delete ArrowManager::Get();
 }
 
 void Player::Update()
@@ -199,24 +205,24 @@ void Player::Update()
         dagger->Update();
     else
         bow->UpdateWorld();
-        bowCol->UpdateWorld();  
+    bowCol->UpdateWorld();
 
-    leftFoot->SetWorld(this->GetTransformByNode(leftFootNode));
-    leftFootCollider->UpdateWorld();
+    //leftFoot->SetWorld(this->GetTransformByNode(leftFootNode));
+    //leftFootCollider->UpdateWorld();
 
-    rightFoot->SetWorld(this->GetTransformByNode(rightFootNode));
-    rightFootCollider->UpdateWorld();
+    //rightFoot->SetWorld(this->GetTransformByNode(rightFootNode));
+    //rightFootCollider->UpdateWorld();
 
     SetAnimation();
+
+    ArrowManager::Get()->Update();
+    ArrowManager::Get()->IsCollision();
 }
 
 void Player::Render()
 {
     ModelAnimator::Render();
-    collider->Render();
-
-    leftFootCollider->Render();
-    rightFootCollider->Render();
+    //collider->Render();
 
     switch (weaponState)
     {
@@ -228,6 +234,11 @@ void Player::Render()
         bowCol->Render();
         break;
     }
+
+    //leftFootCollider->Render();
+    //rightFootCollider->Render();
+
+    ArrowManager::Get()->Render();
 }
 
 void Player::PostRender()
@@ -352,12 +363,21 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     //    //rightWeaponCollider->SetActive(false);
     //}
 
-    if (KEY_UP(VK_LBUTTON))
+    //if (KEY_UP(VK_LBUTTON))
+    //{
+    //    if (weaponState == BOW)
+    //    {
+    //        if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
+    //            SetState(B_RECOIL);
+    //    }
+    //}
+
+    if (KEY_DOWN(VK_LBUTTON))
     {
         if (weaponState == BOW)
         {
-            if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
-                SetState(B_IDLE);
+            SetState(B_DRAW);
+            return;
         }
     }
 
@@ -368,11 +388,11 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             if (curState != DAGGER1 && curState != DAGGER2 && curState != DAGGER3)
                 ComboAttack();
         }
-        else if (weaponState == BOW)
-        {
-            if (curState == B_IDLE)
-                SetState(B_DRAW);
-        }
+        //else if (weaponState == BOW)
+        //{
+        //    if (curState == B_IDLE)
+        //        SetState(B_DRAW);
+        //}
     }
 
     if (isHit)   //?´°? ?????????? Jumping????? ?????? ????? ????? ????? ?ð??? ?þ?
@@ -810,8 +830,6 @@ void Player::SetState(State state, float scale, float takeTime)
 
 void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 매개변수로 값을 받아올 경우엔 바로 그 state로 변경하게 만들기
 {
-    //SetState(B_ODRAW);
-    //return;
     if (weaponState == DAGGER)
     {
         if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;   //????? ???? ??찡 ????? ?????? Pos().y?? ???? ???? ?????? ????
@@ -838,7 +856,7 @@ void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 매개변수로 값�
     }
     else if (weaponState == BOW)
     {
-        if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
+        if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM || curState == B_RECOIL)
             return;
 
         if (velocity.z > 0.1f)
@@ -858,13 +876,16 @@ void Player::SetBowAnim()
 {
     if (curState == B_DRAW)
     {
-        SetState(B_ODRAW);
-        return;
+        SetState(B_RECOIL);
     }
-    else if (curState == B_ODRAW)
+    //else if (curState == B_ODRAW)
+    //{
+    //    SetState(B_AIM);
+    //}
+    else if (curState == B_RECOIL)
     {
-        SetState(B_AIM);
-        return;
+        ArrowManager::Get()->Throw(bowCol->GlobalPos(), Back());
+        SetState(B_IDLE);
     }
 }
 

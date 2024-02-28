@@ -183,6 +183,7 @@ using namespace GameMath;
 #include "Objects/Items/Weapons/Kunai.h"
 #include "Objects/Items/Weapons/Crowbar.h"
 #include "Objects/Items/Weapons/Dagger.h"
+#include "Objects/Items/Weapons/Arrow.h"
 
 #include "Objects/Character/Human.h"
 #include "Objects/Character/Robot.h"
@@ -197,6 +198,7 @@ using namespace GameMath;
 #include "Objects/Manager/KunaiManager.h"
 #include "Objects/Manager/RobotManager.h"
 #include "Objects/Manager/MonsterManager.h"
+#include "Objects/Manager/ArrowManager.h"
 
 
 //Scene Header
