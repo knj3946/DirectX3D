@@ -126,7 +126,7 @@ private:
     POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- �����ڴ� ���� 
 
     State curState = IDLE;
-    WeaponState weaponState = BOW;
+    WeaponState weaponState = DAGGER;
 
     Vector3 velocity;
     Vector3 targetPos;

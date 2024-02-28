@@ -31,6 +31,11 @@ public:
         BOX, SPHERE, CAPSULE
     };
 
+    enum Collider_Role {
+        BLOCK,
+        OPEN
+    };
+
     const float PUSH_SPEED = 6.0f;
 
 public:
@@ -59,6 +64,8 @@ public:
     virtual Vector3 GetHalfSize() { return Vector3(0, 0, 0); };
 
     Type GetType() { return type; }
+
+    Collider_Role& Role() { return role; }
 private:
     virtual void MakeMesh() = 0;
 
@@ -66,6 +73,7 @@ protected:
     Type type;    
 
     Mesh<Vertex>* mesh;
+    Collider_Role role;
 
 private:
     static bool isRender;

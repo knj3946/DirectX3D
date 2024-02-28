@@ -399,13 +399,13 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
 {
     //플레이어의 위에서 레이를 쏴서 현재 terrain 위치와 높이를 구함
 
-    //if (!OnColliderFloor(feedBackPos))
-    //{
+    if (!OnColliderFloor(feedBackPos)) // 문턱올라가기 때문에 다시 살림
+    {
         Vector3 PlayerSkyPos = Pos();
         PlayerSkyPos.y += 1000;
         Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
         TerainComputePicking(feedBackPos, groundRay);
-    //}
+    }
 
     //if (curState == JUMP3 && landing > 0.0f)    //???? ??????? ???? ?ε? ??? ???? and ???? ?ð? ????
     //{
@@ -540,10 +540,10 @@ void Player::Walking()
     Vector3 PlayerSkyPos = destPos;
     PlayerSkyPos.y += 1000;
     Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
-    //if (!OnColliderFloor(destFeedBackPos))
-    //{
+    if (!OnColliderFloor(destFeedBackPos)) // 문턱올라가기 때문에 다시 살림
+    {
         TerainComputePicking(destFeedBackPos, groundRay);
-    //}
+    }
 
     //destFeedBackPos : 목적지 터레인Pos
     //feedBackPos : 현재 터레인Pos
@@ -558,7 +558,9 @@ void Player::Walking()
 
 
     if (/*ColliderManager::Get()->ControlPlayer(&direction)*/ !isPushed
-        && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y)) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????
+        && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y 
+            || destFeedBackPos.y - feedBackPos.y < 0.5f) // 바닥 올라가게 하기위해 추가함
+        ) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????
     {
         Pos() += direction * moveSpeed * DELTA * -1; // ??? ????
         feedBackPos.y = destFeedBackPos.y;
@@ -688,13 +690,13 @@ void Player::EndHit()
 bool Player::OnColliderFloor(Vector3& feedback)
 {
     Vector3 PlayerSkyPos = Pos();
-    PlayerSkyPos.y += 5;
+    PlayerSkyPos.y += 1;
     Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
     Contact con;
     if (ColliderManager::Get()->CloseRayCollisionColliderContact(groundRay, con))
     {
         feedback = con.hitPoint;
-        feedback.y += 0.1f; //살짝 띄움으로서 충돌 방지
+        //feedback.y += 0.1f; //살짝 띄움으로서 충돌 방지
         return true;
     }
     
@@ -812,7 +814,7 @@ void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 매개변수로 값�
     //return;
     if (weaponState == DAGGER)
     {
-        if (curState == JUMP1 || curState == JUMP3 || Pos().y > 0.0f) return;   //????? ???? ??찡 ????? ?????? Pos().y?? ???? ???? ?????? ????
+        if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;   //????? ???? ??찡 ????? ?????? Pos().y?? ???? ???? ?????? ????
         /*   if (toCover)
                return;*/
 
