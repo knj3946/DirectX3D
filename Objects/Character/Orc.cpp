@@ -25,7 +25,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     }
 
     //충돌체
-    collider = new CapsuleCollider(30, 120);
+    collider = new CapsuleCollider(50, 120);
     collider->SetParent(transform);
     //collider->Rot().z = XM_PIDIV2 - 0.2f;
     collider->Pos() = { -15, 80, 0 };
@@ -63,9 +63,6 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     exclamationMark->Scale() *= 0.1f;
     questionMark->Scale() *= 0.1f;
 
-    //aStar = new AStar(512, 512);
-    
-    //aStar->SetNode();
 
     computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
     rayBuffer = new RayBuffer();
@@ -125,6 +122,8 @@ void Orc::Update()
     ExecuteEvent();
     UpdateUI();
     TimeCalculator();
+
+    //if(curState==DYING)
 
     {
         Vector3 OrcSkyPos = transform->Pos();
@@ -221,9 +220,11 @@ void Orc::SetSRT(Vector3 scale, Vector3 rot, Vector3 pos)
 
 void Orc::GUIRender()
 {
-    ImGui::Text("bFind : %d", bFind);
-    ImGui::Text("bDetection : %d", bDetection);
-    ImGui::Text("isTracking : %d", isTracking);
+    //ImGui::Text("bFind : %d", bFind);
+    //ImGui::Text("bDetection : %d", bDetection);
+    //ImGui::Text("isTracking : %d", isTracking);
+    ImGui::Text("curhp : %f", curHP);
+    ImGui::Text("desthp : %f", destHP);
 
     /*
     if (!path.empty())
@@ -361,6 +362,7 @@ void Orc::Control()
 {
     if (behaviorstate == NPC_BehaviorState::CHECK)return;
     if (behaviorstate == NPC_BehaviorState::SOUNDCHECK)return;
+    if (curState == DYING)return;
     if (searchCoolDown > 1)
     {
         Vector3 dist = target->Pos() - transform->GlobalPos();
@@ -374,11 +376,11 @@ void Orc::Control()
                 // 공격 사정거리안에 들지 못하면
                 if (dist.Length() > 5.0f)
                 {
-                    if (dist.Length() < 15.f) // THROW 범위 : 5~15 임시 설정
-                    {
-                        SetState(THROW);
-                    }
-                    else
+                    //if (dist.Length() < 15.f) // THROW 범위 : 5~15 임시 설정
+                    //{
+                    //    SetState(ATTACK);
+                    //}
+                    //else
                     {
                         if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
                         {
@@ -398,7 +400,7 @@ void Orc::Control()
                 {
                     path.clear();
                     //SetState(ATTACK,3.0f);
-                    SetState(THROW);
+                    SetState(ATTACK);
                 }
 
             }
@@ -597,72 +599,7 @@ void Orc::IdleAIMove()
          transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI;
          transform->Pos() += DELTA * walkSpeed * transform->Back();
      }
-     /*
-     if (IsAiCooldown)
-    {
-        if (isAIWaitCooldown)
-        {
-            float randY = Random(0.0f, XM_2PI) * 2;
-            //float randY = Random(XM_PIDIV2, XM_PI) * 2;
-            transform->Rot().y = randY + XM_PI;
-            //XMMatrixRotationY(randY + XM_PI);
-            IsAiCooldown = false;
-            aiCoolTime = 3.f; // 나중에 랜덤으로
-            SetState(WALK);
-            isAIWaitCooldown = false;
-            aiWaitCoolTime = 1.5f;
-        }
-        else
-        {
-            aiWaitCoolTime -= DELTA;
-            if (aiWaitCoolTime <= 0)
-                isAIWaitCooldown = true;
-        }
-        
-    }
-    else
-    {
-        if (aiCoolTime <= 0)
-        {
-            IsAiCooldown = true;
-            SetState(IDLE);
-            return;
-        }
-
-        // TODO : 만약 벽 같은 곳에 부딪혔다면 바로 IsAiCooldown=true 로  
-        aiCoolTime -= DELTA;
-
-        //지형 오르기
-        Vector3 direction = transform->Back();
-
-        Vector3 destFeedBackPos;
-        Vector3 destPos = transform->Pos() + direction * walkSpeed * DELTA;
-        Vector3 OrcSkyPos = destPos;
-        OrcSkyPos.y += 100;
-        Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
-        TerainComputePicking(destFeedBackPos, groundRay);
-
-        //destFeedBackPos : 목적지 터레인Pos
-        //feedBackPos : 현재 터레인Pos
-
-        //방향으로 각도 구하기
-        Vector3 destDir = destFeedBackPos - feedBackPos;
-        Vector3 destDirXZ = destDir;
-        destDirXZ.y = 0;
-
-        //각도
-        float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
-
-
-        if ((radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y)) //각이 60도보다 작아야 이동, 혹은 목적지 높이가 더 낮아야함
-        {
-            transform->Pos() += direction * walkSpeed * DELTA; // 이동 수행
-            feedBackPos.y = destFeedBackPos.y;
-        }
-            
-        transform->Pos().y = feedBackPos.y;
-    }
-     */
+     
 }
 
 void Orc::UpdateUI()
@@ -725,7 +662,7 @@ void Orc::UpdateUI()
             leftWeaponCollider->SetActive(true);
             rightWeaponCollider->SetActive(true);
 
-            SetState(THROW); // 맞은 다음에 일단은 공격상태로 돌아가게 만듬 (나중에 수정 필요할 수도)
+            SetState(ATTACK); // 맞은 다음에 일단은 공격상태로 돌아가게 만듬 (나중에 수정 필요할 수도)
         }
         hpBar->SetAmount(curHP / maxHp);
     }
@@ -735,8 +672,8 @@ void Orc::UpdateUI()
     hpBar->Rot().y = atan2(dir.x, dir.z);
 
     float scale = 1 / (target->GlobalPos() - transform->GlobalPos()).Length();
-    scale *= 0.03f;
-    scale = Clamp(0.01f, 0.5f, scale);
+    scale = Clamp(0.01f, 0.02f, scale);
+    //scale *= 0.03f;
     hpBar->Scale() = { scale, scale, scale };
     
     hpBar->UpdateWorld();
@@ -790,6 +727,8 @@ void Orc::SetState(State state, float scale, float takeTime)
             break;
         }
     }
+    else if(curState==DYING)
+        instancing->PlayClip(index, (int)state+2,0.5);
     else
         instancing->PlayClip(index, (int)state); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
     eventIters[state] = totalEvent[state].begin(); //이벤트 반복자도 등록된 이벤트 시작시점으로
@@ -867,7 +806,7 @@ void Orc::EndAttack()
 {
     isAttackable = false;
     SetState(IDLE);
-    //SetState(THROW);
+    //SetState(ATTACK);
 }
 
 void Orc::EndHit()
@@ -884,6 +823,10 @@ void Orc::EndDying()
     leftWeaponCollider->SetActive(false);
     questionMark->SetActive(false);
     exclamationMark->SetActive(false);
+
+    // 삭제 전에 아이템 떨굴거면 여기서
+
+    instancing->Remove(index);
 }
 
 void Orc::CalculateEyeSight()
@@ -1292,6 +1235,7 @@ bool Orc::EyesRayToDetectTarget(Collider* targetCol,Vector3 orcEyesPos)
 
 void Orc::SetOutLine(bool flag)
 {
+    if (transform->Active() == false)return;
     outLine = flag;
     instancing->SetOutLine(index,flag);
 }

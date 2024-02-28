@@ -121,6 +121,8 @@ private:
     //bool OnColliderFloor(Vector3& feedback);
     bool TerainComputePicking(Vector3& feedback, Ray ray);
 
+    CapsuleCollider* GetDaggerCollider() { return dagger->GetCollider(); }
+
 private:
 
     POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- �����ڴ� ���� 

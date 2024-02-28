@@ -266,6 +266,7 @@ void MonsterManager::Blocking(Collider* collider)
 void MonsterManager::Fight(Player* player)
 {
 
+    // 플레이어의 무기, 손,발 콜라이더가 몬스터에 닿았나
     for (Collider* collider : player->GetWeaponColliders())
     {
         for (Orc* orc : orcs)
@@ -281,7 +282,9 @@ void MonsterManager::Fight(Player* player)
 
         }
     }
+    // bow 콜리전담기
 
+    // 오크의 검이 플레이어에게 닿았나
     for (Orc* orc : orcs)
     {
         for (Collider* collider : orc->GetWeaponColliders())
@@ -296,6 +299,8 @@ void MonsterManager::Fight(Player* player)
         }
 
     }
+    // 쿠나이 콜라이더 판정
+    KunaiManager::Get()->IsCollision();
 }
 
 void MonsterManager::CalculateDistance()

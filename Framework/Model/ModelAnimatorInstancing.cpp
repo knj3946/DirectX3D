@@ -97,6 +97,12 @@ Transform* ModelAnimatorInstancing::Add()
     return transform;
 }
 
+void ModelAnimatorInstancing::Remove(int index)
+{
+    outLines.erase(outLines.begin() + index);
+    transforms.erase(transforms.begin() + index);
+}
+
 void ModelAnimatorInstancing::PlayClip(UINT instanceID, int clip, float scale, float takeTime)
 {
     frameInstancingBuffer->Get().motions[instanceID].next.clip = clip;
