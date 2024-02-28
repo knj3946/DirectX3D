@@ -36,6 +36,8 @@ private:
 	UINT orcCount = 0;  
 	BlendState* blendState[2];
 
+	Boss* boss;
+
 	ModelAnimatorInstancing* instancing;
 
 	Cube* cube[4];

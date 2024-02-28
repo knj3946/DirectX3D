@@ -14,21 +14,23 @@ ModelExportScene::ModelExportScene()
     //delete exporter;
 
     {
-        string name = "akai";
+        string name = "Warrok W Kurniawan";
         string file = "Models/FBX/" + name + ".fbx";
         ModelExporter* exporter;
         string clipName;
 
-        /*exporter = new ModelExporter(name, file);
+        exporter = new ModelExporter(name, file);
         exporter->ExportMaterial();
         exporter->ExportMesh();
-        delete exporter;*/
+        delete exporter;
 
-        clipName = "Combo Stable Sword Inward Slash";
+        clipName = "Falling Forward Death";
         file = "Models/Animations/" + name + "/" + clipName + ".fbx";
         exporter = new ModelExporter(name, file);
         exporter->ExportClip(clipName);
         delete exporter;
+
+ 
         // 
         //clipName = "Upward Thrust";
         //file = "Models/Animations/" + name + "/" + clipName + ".fbx";

@@ -53,10 +53,10 @@ private:
         int picked;
         float distance;
     };
+    typedef VertexUVNormalTangentAlpha VertexType;
     
     typedef TerrainEditor LevelData;
     //typedef Terrain LevelData;
-    typedef VertexUVNormalTangentAlpha VertexType;
 
 public:
     enum class NPC_TYPE {

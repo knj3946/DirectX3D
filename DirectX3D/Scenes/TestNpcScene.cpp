@@ -7,6 +7,9 @@ TestNpcScene::TestNpcScene()
 
     aStar2 = new AStar();
     aStar2->SetNode(terrain);
+    boss = new Boss;
+    boss->SetActive(aStar2);
+    boss->SetTerrain(terrain);
 
     naruto = new Naruto();
     ColliderManager::Get()->PushCollision(ColliderManager::PLAYER, naruto->GetCollider());
@@ -74,6 +77,7 @@ TestNpcScene::~TestNpcScene()
   
     MonsterManager::Delete();
     delete naruto;
+    delete boss;
     FOR(4)
         delete cube[i];
     //delete shadow;
@@ -86,7 +90,7 @@ void TestNpcScene::Update()
     aStar2->Update();
  
     naruto->Update();
-
+    boss->Update();
     MonsterManager::Get()->Update();
     FOR(4)
         cube[i]->Update();
@@ -109,6 +113,7 @@ void TestNpcScene::Render()
 {
     blendState[1]->SetState();
     terrain->Render();
+    boss->Render();
     //aStar->Render();
    // aStar2->Render();
     naruto->Render();
@@ -137,7 +142,7 @@ void TestNpcScene::PostRender()
 
 void TestNpcScene::GUIRender()
 {
-    terrain->GUIRender();
-    MonsterManager::Get()->GetOrc(0)->GUIRender();
-    MonsterManager::Get()->GetOrc(1)->GUIRender();
+    //terrain->GUIRender();
+
+    boss->GUIRender();
 }

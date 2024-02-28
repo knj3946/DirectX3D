@@ -192,6 +192,8 @@ using namespace GameMath;
 #include "Objects/Character/RobotA.h"
 #include "Objects/Character/Orc.h"
 #include "Objects/Character/Player.h"
+#include "Objects/Character/Boss.h"
+
 
 #include "Objects/Manager/BlockManager.h"
 #include "Objects/Manager/KunaiManager.h"
