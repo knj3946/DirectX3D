@@ -216,4 +216,6 @@ private:
     Quad* portrait;
     Quad* form;
 
+public: //임시
+    bool headCrash;
 };

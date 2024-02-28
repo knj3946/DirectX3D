@@ -45,22 +45,25 @@ void ColliderManager::PushPlayer()
 
 void ColliderManager::SetHeight()
 {
-	onBlock = nullptr;
-
-	maxHeight = 0.0f;
-
 	headRay->pos = playerCollider->GlobalPos();
+    headRay->pos.y = player->Pos().y + 6.2f;
 	footRay->pos = playerCollider->GlobalPos();
 
-	headRay->pos.y = player->Pos().y + 6.2f;
+    Contact maxHeadPoint;
+    float maxHeadHeight = 99999.f;
+    player->headCrash = false;
 
 	Contact underObj;
+    maxHeight = 0.0f;
+    onBlock = nullptr;
 
 	for (Collider* obstacle : GetObstacles())
 	{
-		if (obstacle->IsCapsuleCollision(playerCollider) && obstacle->IsRayCollision(*headRay))
+        //위 물체의 높이가 너무 낮으면 스페이스 입력을 무시할지말지 결정하는 법도 고려
+		if (obstacle->IsRayCollision(*headRay, &maxHeadPoint) && maxHeadPoint.distance < FLT_EPSILON)
 		{
-			player->SetIsCeiling(true);
+            player->headCrash = true;
+
 			continue;
 		}
 		else if (obstacle->IsRayCollision(*footRay, &underObj))

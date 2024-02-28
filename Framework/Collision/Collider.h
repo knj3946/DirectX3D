@@ -36,7 +36,7 @@ public:
         OPEN
     };
 
-    const float PUSH_SPEED = 6.0f;
+    const float PUSH_SPEED = 10.0f;
 
 public:
     Collider();

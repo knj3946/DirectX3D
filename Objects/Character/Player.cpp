@@ -1,4 +1,4 @@
-#include "Framework.h"
+ï»¿#include "Framework.h"
 #include "Player.h"
 
 Player::Player()
@@ -10,7 +10,7 @@ Player::Player()
     //straightRay = Ray(Pos(), Back());
 
     //Scale() *= 0.1f;
-    // ?????? ????? ??????(?? ?????? ???)?? ?? ??¡Æ ????????? ????
+    // ?????? ????? ??????(?? ?????? ???)?? ?? ??Â° ????????? ????
     ClientToScreen(hWnd, &clientCenterPos);
     SetCursorPos(clientCenterPos.x, clientCenterPos.y);
 
@@ -47,7 +47,7 @@ Player::Player()
     rightFootCollider->SetParent(rightFoot);
     //weaponColliders.push_back(rightFootCollider);
 
-    // ¹«±â ÄÝ¶óÀÌ´õ °ø°ÝÇÒ¶§¸¸ È°¼ºÈ­
+    // ë¬´ê¸° ì½œë¼ì´ë” ê³µê²©í• ë•Œë§Œ í™œì„±í™”
     leftFootCollider->SetActive(false);
     rightFootCollider->SetActive(false);
     dagger->GetCollider()->SetActive(false);
@@ -182,12 +182,13 @@ Player::~Player()
 
 void Player::Update()
 {
+    collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
+    collider->UpdateWorld();
+
     ColliderManager::Get()->SetHeight();
     if (!isCeiling)
         ColliderManager::Get()->PushPlayer();
 
-    collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
-    collider->UpdateWorld();
 
     UpdateUI();
 
@@ -195,14 +196,14 @@ void Player::Update()
     Searching();
     Targeting();
 
-    //ÀÌ ÇÔ¼ö ³»¿¡¼­ Á¶°ÇÀ¸·Î ¾Ö´Ï¸ÞÀÌ¼Ç ¼¼ÆÃÀ» Áß´ÜÇÏÁö ¸»°í,
-    //Æ¯Á¤ ¾Ö´Ï¸ÞÀÌ¼ÇÀÌ µ¿ÀÛÇÏ¸é canSettingAnim°°Àº bool º¯¼ö¸¦ false·Î ¸¸µé¾î¼­
-    //ÀÌ ÇÔ¼ö¸¦ Äµ½½ÇÏ´Â ¹æ½Ä °í·Á
+    //ì´ í•¨ìˆ˜ ë‚´ì—ì„œ ì¡°ê±´ìœ¼ë¡œ ì• ë‹ˆë©”ì´ì…˜ ì„¸íŒ…ì„ ì¤‘ë‹¨í•˜ì§€ ë§ê³ ,
+    //íŠ¹ì • ì• ë‹ˆë©”ì´ì…˜ì´ ë™ìž‘í•˜ë©´ canSettingAnimê°™ì€ bool ë³€ìˆ˜ë¥¼ falseë¡œ ë§Œë“¤ì–´ì„œ
+    //ì´ í•¨ìˆ˜ë¥¼ ìº”ìŠ¬í•˜ëŠ” ë°©ì‹ ê³ ë ¤
 
     ModelAnimator::Update();
 
     if (comboHolding > 0.0f)
-        comboHolding -= DELTA;  //???? ???, ????©£? ?? ?©£? ???? ??? ?????
+        comboHolding -= DELTA;  //???? ???, ????Ã°? ?? ?Ã°? ???? ??? ?????
     else
     {
         comboHolding = 0.0f;
@@ -288,7 +289,7 @@ void Player::GUIRender()
     ImGui::InputFloat("jumpN", (float*)&jumpVel);
     ImGui::InputFloat("nextJump", (float*)&nextJump);
 
-    //?????? ?¥å??©£?
+    //?????? ?Îµ??Ã°?
     ImGui::InputFloat("landingT", (float*)&landingT);
     ImGui::InputFloat("landing", (float*)&landing);
 
@@ -334,7 +335,7 @@ void Player::SetTerrain(LevelData* terrain)
         sizeof(OutputDesc), terrainTriangleSize);
 }
 
-void Player::Control()  //??????? ?????, ???²J ??? ???
+void Player::Control()  //??????? ?????, ???ì½º ??? ???
 {
     if (KEY_DOWN(VK_TAB)) {
         if(static_cast<WeaponState>(weaponState + 1) >= 3)
@@ -412,7 +413,7 @@ void Player::Control()  //??????? ?????, ???²J ??? ???
         dagger->GetCollider()->SetActive(false);
     }
 
-    if (isHit)   //?¢¥¡Æ? ?????????? Jumping????? ?????? ????? ????? ????? ?©£??? ?©­?
+    if (isHit)   //?Â´Â°? ?????????? Jumping????? ?????? ????? ????? ????? ?Ã°??? ?Ã¾?
     {
         return;
     }
@@ -425,7 +426,7 @@ void Player::Control()  //??????? ?????, ???²J ??? ???
     Move();
     Jumping();
 
-    //if (targetObject != nullptr && KEY_DOWN('F'))     ////º¸·ù
+    //if (targetObject != nullptr && KEY_DOWN('F'))     ////ë³´ë¥˜
     //{
     //    velocity = 0;
     //    SetState(TO_ASSASIN);
@@ -434,34 +435,15 @@ void Player::Control()  //??????? ?????, ???²J ??? ???
 
 void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ???????? ?? ??? ??)
 {
-    //ÇÃ·¹ÀÌ¾îÀÇ À§¿¡¼­ ·¹ÀÌ¸¦ ½÷¼­ ÇöÀç terrain À§Ä¡¿Í ³ôÀÌ¸¦ ±¸ÇÔ
+    //í”Œë ˆì´ì–´ì˜ ìœ„ì—ì„œ ë ˆì´ë¥¼ ì´ì„œ í˜„ìž¬ terrain ìœ„ì¹˜ì™€ ë†’ì´ë¥¼ êµ¬í•¨
 
-    if (!OnColliderFloor(feedBackPos)) // ¹®ÅÎ¿Ã¶ó°¡±â ¶§¹®¿¡ ´Ù½Ã »ì¸²
+    if (!OnColliderFloor(feedBackPos)) // ë¬¸í„±ì˜¬ë¼ê°€ê¸° ë•Œë¬¸ì— ë‹¤ì‹œ ì‚´ë¦¼
     {
         Vector3 PlayerSkyPos = Pos();
         PlayerSkyPos.y += 1000;
         Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
         TerainComputePicking(feedBackPos, groundRay);
     }
-
-    //if (curState == JUMP3 && landing > 0.0f)    //???? ??????? ???? ?¥å? ??? ???? and ???? ?©£? ????
-    //{
-    //    landing -= DELTA;
-    //    return;
-    //}
-
-    //if (curState == TO_COVER)    //??????? ????? ???
-    //{  
-    //    if (Distance(Pos(), targetTransform->Pos()) < teleport)
-    //    {
-    //        SetState(TO_COVER);
-    //        return;
-    //    }
-    //    Pos() += (targetTransform->Pos() - Pos()).GetNormalized() * DELTA * 400;
-    //    SetState(RUN_F);
-    //    return;
-    //}
-
 
     Walking();
 }
@@ -520,14 +502,14 @@ void Player::Rotate()
 void Player::Walking()
 {
     bool isMoveZ = false; // ???? ??? ?? : ???? "???"
-    bool isMoveX = false; // ?¢¯? ??? ?? : ???? "???"
+    bool isMoveX = false; // ?Â¿? ??? ?? : ???? "???"
 
     if (KEY_PRESS('W'))
     {
         if (velocity.z + DELTA * 4.0f < 0.0f)
             velocity.z += DELTA * 4.0f;
         else
-            velocity.z += DELTA; //??? ????? ?©£? ?????? ?????? ???
+            velocity.z += DELTA; //??? ????? ?Ã°? ?????? ?????? ???
 
         isMoveZ = true; //???? ??? ????
     }
@@ -557,7 +539,7 @@ void Player::Walking()
         if (velocity.x + DELTA * 4.0f < 0.0f)
             velocity.x += DELTA * 4.0f;
         else
-            velocity.x += DELTA; //??? ????? ?©£? ?????? ?????? ???
+            velocity.x += DELTA; //??? ????? ?Ã°? ?????? ?????? ???
 
         isMoveX = true;
     }
@@ -579,13 +561,13 @@ void Player::Walking()
     Vector3 PlayerSkyPos = destPos;
     PlayerSkyPos.y += 1000;
     Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
-    if (!OnColliderFloor(destFeedBackPos)) // ¹®ÅÎ¿Ã¶ó°¡±â ¶§¹®¿¡ ´Ù½Ã »ì¸²
+    if (!OnColliderFloor(destFeedBackPos)) // ë¬¸í„±ì˜¬ë¼ê°€ê¸° ë•Œë¬¸ì— ë‹¤ì‹œ ì‚´ë¦¼
     {
         TerainComputePicking(destFeedBackPos, groundRay);
     }
 
-    //destFeedBackPos : ¸ñÀûÁö ÅÍ·¹ÀÎPos
-    //feedBackPos : ÇöÀç ÅÍ·¹ÀÎPos
+    //destFeedBackPos : ëª©ì ì§€ í„°ë ˆì¸Pos
+    //feedBackPos : í˜„ìž¬ í„°ë ˆì¸Pos
 
     //???????? ???? ?????
     Vector3 destDir = destFeedBackPos - feedBackPos;
@@ -598,14 +580,14 @@ void Player::Walking()
 
     if (/*ColliderManager::Get()->ControlPlayer(&direction)*/ !isPushed
         && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y 
-            || destFeedBackPos.y - feedBackPos.y < 0.5f) // ¹Ù´Ú ¿Ã¶ó°¡°Ô ÇÏ±âÀ§ÇØ Ãß°¡ÇÔ
+            || destFeedBackPos.y - feedBackPos.y < 0.5f) // ë°”ë‹¥ ì˜¬ë¼ê°€ê²Œ í•˜ê¸°ìœ„í•´ ì¶”ê°€í•¨
         ) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????
     {
         Pos() += direction * moveSpeed * DELTA * -1; // ??? ????
         feedBackPos.y = destFeedBackPos.y;
     }
 
-    //???????¡Æ? ????? ???? ???? ????? ???? ????
+    //???????Â°? ????? ???? ???? ????? ???? ????
     if (curState != JUMP1 && curState != JUMP2 && curState != JUMP3)
         Pos().y = feedBackPos.y;
 }
@@ -628,7 +610,7 @@ void Player::Jumping()
         if (heightLevel < feedBackPos.y)
             heightLevel = feedBackPos.y;
 
-        if (isCeiling) 
+        if (headCrash) 
         {
             jumpVel = -20;
             isCeiling = false;
@@ -735,7 +717,7 @@ bool Player::OnColliderFloor(Vector3& feedback)
     if (ColliderManager::Get()->CloseRayCollisionColliderContact(groundRay, con))
     {
         feedback = con.hitPoint;
-        //feedback.y += 0.1f; //»ìÂ¦ ¶ç¿òÀ¸·Î¼­ Ãæµ¹ ¹æÁö
+        //feedback.y += 0.1f; //ì‚´ì§ ë„ì›€ìœ¼ë¡œì„œ ì¶©ëŒ ë°©ì§€
         return true;
     }
     
@@ -799,7 +781,7 @@ float Player::GetDamage()
     }
     else if (curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3)
         r = dagger->GetDamaged();
-    // ¸ð¼Ç¸¶´Ù µ¿ÀÛ¸¶´Ù ¿©±â¼­ µ¥¹ÌÁö Ãß°¡ÇÒ °Í. 
+    // ëª¨ì…˜ë§ˆë‹¤ ë™ìž‘ë§ˆë‹¤ ì—¬ê¸°ì„œ ë°ë¯¸ì§€ ì¶”ê°€í•  ê²ƒ. 
     return r;
 }
 
@@ -850,11 +832,11 @@ void Player::SetState(State state, float scale, float takeTime)
     PlayClip((int)state, scale, takeTime);
 }
 
-void Player::SetAnimation()     //bind·Î ¸Å°³º¯¼ö ³Ö¾îÁÙ¼ö ÀÖÀ¸¸é ¸Å°³º¯¼ö·Î °ªÀ» ¹Þ¾Æ¿Ã °æ¿ì¿£ ¹Ù·Î ±× state·Î º¯°æÇÏ°Ô ¸¸µé±â
+void Player::SetAnimation()     //bindë¡œ ë§¤ê°œë³€ìˆ˜ ë„£ì–´ì¤„ìˆ˜ ìžˆìœ¼ë©´ ë§¤ê°œë³€ìˆ˜ë¡œ ê°’ì„ ë°›ì•„ì˜¬ ê²½ìš°ì—” ë°”ë¡œ ê·¸ stateë¡œ ë³€ê²½í•˜ê²Œ ë§Œë“¤ê¸°
 {
     if (weaponState == DAGGER)
     {
-        if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;   //????? ???? ??Âô ????? ?????? Pos().y?? ???? ???? ?????? ????
+        if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;   //????? ???? ??ì°¡ ????? ?????? Pos().y?? ???? ???? ?????? ????
         /*   if (toCover)
                return;*/
 
