@@ -115,6 +115,7 @@ TerrainEditorScene::~TerrainEditorScene()
 	{
 		delete colliderModel;
 	}
+	
 }
 
 void TerrainEditorScene::Update()
@@ -125,6 +126,7 @@ void TerrainEditorScene::Update()
 	{
 		cm->UpdateWorld();
 	}
+	
 }
 
 void TerrainEditorScene::PreRender()
@@ -138,6 +140,7 @@ void TerrainEditorScene::Render()
 	{
 		cm->Render();
 	}
+
 }
 
 void TerrainEditorScene::PostRender()

@@ -117,10 +117,7 @@ GameMapScene::GameMapScene()
 
 	Audio::Get()->Add("bgm1", "Sounds/dramatic-choir.wav", true, true, false);
 
-	player = new Player();
-	player->Scale() = { 0.03f,0.03f,0.03f };
-	player->Pos() = { 60,0,90 };
-	player->SetTerrain(terrain);
+
 
 	MonsterManager::Get()->SetTarget(player); //싱글턴 생성 후, 표적 설정까지
 	MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(80, 0, 80));
@@ -135,7 +132,10 @@ GameMapScene::GameMapScene()
 			MonsterManager::Get()->AddOrcObstacleObj(collider);
 		}
 	}
-
+	player = new Player();
+	player->Scale() = { 0.03f,0.03f,0.03f };
+	player->Pos() = { 60,0,90 };
+	player->SetTerrain(terrain);
 	player->SetMoveSpeed(50);
 
 	CAM->SetTarget(player);

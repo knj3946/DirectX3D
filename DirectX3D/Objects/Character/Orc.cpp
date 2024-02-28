@@ -348,6 +348,7 @@ void Orc::Findrange()
     // 탐지시 범위에 닿은 애에게 설정
     bFind = true; bDetection = true;
     DetectionStartTime = DetectionEndTime;
+    rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
     isTracking = true;
     SetState(RUN);
     if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
