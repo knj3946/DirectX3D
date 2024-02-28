@@ -47,6 +47,7 @@ public:
     void GUIRender();
 
     Transform* Add();
+    void Remove(int index);
 
     void PlayClip(UINT instanceID, int clip, float scale = 1.0f, float takeTime = 0.1f);
 

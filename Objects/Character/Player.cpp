@@ -20,6 +20,9 @@ Player::Player()
     leftHand = new Transform();
 
     dagger = new Dagger(rightHand);
+
+    weaponColliders.push_back(dagger->GetCollider());
+
     bow = new Model("hungarian_bow");
     bow->SetParent(leftHand);
     bow->Scale() *= 0.3f;
@@ -34,11 +37,18 @@ Player::Player()
     leftFoot = new Transform();
     leftFootCollider = new CapsuleCollider(10, 50);
     leftFootCollider->SetParent(leftFoot);
+    //weaponColliders.push_back(leftFootCollider);
 
     //right foot : 62
     rightFoot = new Transform();
     rightFootCollider = new CapsuleCollider(10, 50);
     rightFootCollider->SetParent(rightFoot);
+    //weaponColliders.push_back(rightFootCollider);
+
+    // 무기 콜라이더 공격할때만 활성화
+    leftFootCollider->SetActive(false);
+    rightFootCollider->SetActive(false);
+    dagger->GetCollider()->SetActive(false);
 
     computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
     rayBuffer = new RayBuffer();
@@ -366,13 +376,20 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
         if (weaponState == DAGGER)
         {
             if (curState != DAGGER1 && curState != DAGGER2 && curState != DAGGER3)
+            {
                 ComboAttack();
+                dagger->GetCollider()->SetActive(true);
+            }
         }
         else if (weaponState == BOW)
         {
             if (curState == B_IDLE)
                 SetState(B_DRAW);
         }
+    }
+    if (KEY_UP(VK_LBUTTON))
+    {
+        dagger->GetCollider()->SetActive(false);
     }
 
     if (isHit)   //?´°? ?????????? Jumping????? ?????? ????? ????? ????? ?ð??? ?þ?
@@ -439,7 +456,9 @@ void Player::UpdateUI()
         if (curHP <= destHP)
         {
             curHP = destHP;
+            isHit = false;
         }
+        
         hpBar->SetAmount(curHP / maxHp);
     }
 
@@ -756,6 +775,9 @@ float Player::GetDamage()
     {
         r = 10.0f;
     }
+    else if (curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3)
+        r = dagger->GetDamaged();
+    // 모션마다 동작마다 여기서 데미지 추가할 것. 
     return r;
 }
 

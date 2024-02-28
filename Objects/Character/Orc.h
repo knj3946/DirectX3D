@@ -2,10 +2,6 @@
 
 class Orc
 {
-    // NPC 스크립트
-    // 작성자 : 박성진
-    // 2월15일 작성
-
 private:
     enum State
     {
@@ -187,7 +183,6 @@ private:
 
     UINT index;
 
-    //Transform* root;
     Transform* transform;
     CapsuleCollider* collider;
     vector<Collider*> weaponColliders;

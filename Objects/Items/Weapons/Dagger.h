@@ -9,8 +9,10 @@ public:
 	void Render();
 	void PostRender();
 	void GUIRender();
-
+	CapsuleCollider* GetCollider() { return collider; }
+	float GetDamaged() { return damage; }
 private:
 	CapsuleCollider* collider;
+	float damage = 60.0f;
 };
 

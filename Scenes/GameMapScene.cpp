@@ -201,9 +201,9 @@ void GameMapScene::Update()
 		}
 	}
 
-	player->Update();
 	MonsterManager::Get()->Update();
 	KunaiManager::Get()->Update();
+	player->Update();
 
 	for (ColliderModel* colliderModel : colliderModels)
 	{
@@ -258,6 +258,6 @@ void GameMapScene::GUIRender()
 	}
 	*/
 
-	//MonsterManager::Get()->GUIRender();
+	MonsterManager::Get()->GUIRender();
 	//KunaiManager::Get()->GUIRender();
 }
