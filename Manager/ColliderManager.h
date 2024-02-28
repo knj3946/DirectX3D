@@ -38,7 +38,7 @@ public:
 
     vector<Collider*>& Getvector(Collision_Type _type) { return vecCol[_type]; }
 
-    //CapsuleCollider* GetPlayerCollider() { return playerCollider; }
+    Player* GetPlayer() { return player; }
     bool CollisionCheck(Collider* _pCollider, Collision_Type _vecCol);
     bool CollisionCheck(Collision_Type _type1, Collision_Type _type2);
 

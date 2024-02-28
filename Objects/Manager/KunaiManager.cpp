@@ -12,6 +12,8 @@ KunaiManager::KunaiManager()
 		Kunai* kunai = new Kunai(transform);
 		kunaies.push_back(kunai);
 	}
+	wallColiders = ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::WALL);
+	obstacleColiders = ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::WALL);
 }
 
 KunaiManager::~KunaiManager()
@@ -24,9 +26,12 @@ KunaiManager::~KunaiManager()
 
 void KunaiManager::Update()
 {
+	IsCollision();
+
 	kunaiInstancing->Update(); // 모델 업데이트
 	for (Kunai* kunai : kunaies)
 		kunai->Update(); // 데이터도 업데이트
+
 }
 
 void KunaiManager::Render()
@@ -53,16 +58,34 @@ void KunaiManager::Throw(Vector3 pos, Vector3 dir)
 bool KunaiManager::IsCollision()
 {
     // 플레이어랑 부딪혔나 체크
-    if (ColliderManager::Get()->CollisionCheck(
-        ColliderManager::Collision_Type::PLAYER,
-        ColliderManager::Collision_Type::ORC_KUNAI))
-    {
-        // player->hit() 실행하기
-        
-    }
+	for (Kunai* kunai : kunaies)
+	{
+		// 플레이어랑 부딪혔나
+		if (ColliderManager::Get()->GetPlayer()->GetCollider()->IsCollision(kunai->GetCollider()))
+		{
+			kunai->GetTransform()->SetActive(false);
+			ColliderManager::Get()->GetPlayer()->Hit(kunai->GetDamage());
+			return true;
+		}
+	}
+	
+
 
     // 다른 장애물과 부딪혔나 체크
-    //if()
+	// 맵이 정해진다면 배경에 따라 장애물에 따라 콜라이더가 안된다면 
+	// pos로 배경에 부딪혔나 판단을 추가할 것
+	for (Kunai* kunai : kunaies)
+	{
+		for (Collider* c : wallColiders)
+		{
+			if (c->IsCollision(kunai->GetCollider()))
+			{
+				kunai->GetTransform()->SetActive(false);
+				kunai->GetTrail()->SetActive(false);
+				return true;
+			}
+		}
+	}
 
 
     //for (Kunai* kunai : kunaies)

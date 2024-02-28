@@ -9,7 +9,7 @@ Kunai::Kunai(Transform* transform)
 	collider = new SphereCollider();
 	collider->SetParent(transform);
 
-	collider->Scale() = { 0.2,0.2,0.2 }; // 크기 기본 값은 1
+	collider->Scale() = { 0.1,0.1,0.1 }; // 크기 기본 값은 1
 	collider->Pos() = {};			// 위치 기본 값 : 부모 위치
 
 	// 궤적 사용하기
@@ -20,7 +20,7 @@ Kunai::Kunai(Transform* transform)
 	endEdge->Pos() = transform->Pos();
 	startEdge->UpdateWorld();
 	endEdge->UpdateWorld();
-	trail = new Trail(L"Textures/Effect/Trail.png", startEdge, endEdge, 5, 5);
+	trail = new Trail(L"Textures/Effect/Trail.png", startEdge, endEdge, 1.2f, 10);
 	trail->Init();
 	trail->SetActive(false);
 }
@@ -57,8 +57,8 @@ void Kunai::Update()
 
 	if (trail != nullptr)
 	{
-		startEdge->Pos() = transform->GlobalPos() + transform->Up() * 0.5f; // 20.0f :모델크기반영
-		endEdge->Pos() = transform->GlobalPos() + transform->Down() * 0.5f; // 20.0f :모델크기반영
+		startEdge->Pos() = transform->GlobalPos() + transform->Up() * 0.15f; // 20.0f :모델크기반영
+		endEdge->Pos() = transform->GlobalPos() + transform->Down() * 0.15f; // 20.0f :모델크기반영
 
 		// 찾아낸 꼭지점 위치를 업데이트 
 		startEdge->UpdateWorld();
@@ -69,6 +69,7 @@ void Kunai::Update()
 
 void Kunai::Render()
 {
+	if (!transform->Active())return;
 	collider->Render();
 
 	if (trail != nullptr)

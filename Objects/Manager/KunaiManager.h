@@ -21,5 +21,7 @@ private:
 	// Äí³ªÀÌ Ãâ·Â¿ë ¸ğµ¨
 	ModelInstancing* kunaiInstancing; // Äí³ªÀÌ ¸ğµ¨
 	vector<Kunai*> kunaies;
+	vector<Collider*> wallColiders;
+	vector<Collider*> obstacleColiders;
 };
 
