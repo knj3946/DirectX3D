@@ -599,72 +599,7 @@ void Orc::IdleAIMove()
          transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI;
          transform->Pos() += DELTA * walkSpeed * transform->Back();
      }
-     /*
-     if (IsAiCooldown)
-    {
-        if (isAIWaitCooldown)
-        {
-            float randY = Random(0.0f, XM_2PI) * 2;
-            //float randY = Random(XM_PIDIV2, XM_PI) * 2;
-            transform->Rot().y = randY + XM_PI;
-            //XMMatrixRotationY(randY + XM_PI);
-            IsAiCooldown = false;
-            aiCoolTime = 3.f; // 나중에 랜덤으로
-            SetState(WALK);
-            isAIWaitCooldown = false;
-            aiWaitCoolTime = 1.5f;
-        }
-        else
-        {
-            aiWaitCoolTime -= DELTA;
-            if (aiWaitCoolTime <= 0)
-                isAIWaitCooldown = true;
-        }
-        
-    }
-    else
-    {
-        if (aiCoolTime <= 0)
-        {
-            IsAiCooldown = true;
-            SetState(IDLE);
-            return;
-        }
-
-        // TODO : 만약 벽 같은 곳에 부딪혔다면 바로 IsAiCooldown=true 로  
-        aiCoolTime -= DELTA;
-
-        //지형 오르기
-        Vector3 direction = transform->Back();
-
-        Vector3 destFeedBackPos;
-        Vector3 destPos = transform->Pos() + direction * walkSpeed * DELTA;
-        Vector3 OrcSkyPos = destPos;
-        OrcSkyPos.y += 100;
-        Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
-        TerainComputePicking(destFeedBackPos, groundRay);
-
-        //destFeedBackPos : 목적지 터레인Pos
-        //feedBackPos : 현재 터레인Pos
-
-        //방향으로 각도 구하기
-        Vector3 destDir = destFeedBackPos - feedBackPos;
-        Vector3 destDirXZ = destDir;
-        destDirXZ.y = 0;
-
-        //각도
-        float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
-
-
-        if ((radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y)) //각이 60도보다 작아야 이동, 혹은 목적지 높이가 더 낮아야함
-        {
-            transform->Pos() += direction * walkSpeed * DELTA; // 이동 수행
-            feedBackPos.y = destFeedBackPos.y;
-        }
-            
-        transform->Pos().y = feedBackPos.y;
-    }
-     */
+     
 }
 
 void Orc::UpdateUI()
@@ -737,8 +672,8 @@ void Orc::UpdateUI()
     hpBar->Rot().y = atan2(dir.x, dir.z);
 
     float scale = 1 / (target->GlobalPos() - transform->GlobalPos()).Length();
-    scale *= 0.03f;
-    scale = Clamp(0.01f, 0.5f, scale);
+    scale = Clamp(0.01f, 0.02f, scale);
+    //scale *= 0.03f;
     hpBar->Scale() = { scale, scale, scale };
     
     hpBar->UpdateWorld();
