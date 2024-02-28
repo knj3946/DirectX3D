@@ -143,6 +143,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Objects\Items\Weapons\Arrow.h" />
+    <ClInclude Include="Objects\Manager\ArrowManager.h" />
     <ClInclude Include="Scenes\BuildingScene.h" />
     <ClInclude Include="Objects\Items\Weapons\Dagger.h" />
     <ClInclude Include="Scenes\EyesRaySearchScene.h" />
@@ -272,6 +274,8 @@
     <ClInclude Include="Scenes\TestNpcScene.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Objects\Items\Weapons\Arrow.cpp" />
+    <ClCompile Include="Objects\Manager\ArrowManager.cpp" />
     <ClCompile Include="Scenes\BuildingScene.cpp" />
     <ClCompile Include="Objects\Items\Weapons\Dagger.cpp" />
     <ClCompile Include="Scenes\EyesRaySearchScene.cpp" />
