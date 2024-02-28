@@ -19,6 +19,7 @@ public:
 private:
 	// Äí³ªÀÌ Ãâ·Â¿ë ¸ğµ¨
 	ModelInstancing* arrowInstancing; // Äí³ªÀÌ ¸ğµ¨
-	vector<Arrow*> Arrows;
+	vector<Arrow*> arrows;
+	vector<Collider*> wallColiders;
 };
 
