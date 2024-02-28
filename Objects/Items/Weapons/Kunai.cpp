@@ -20,7 +20,7 @@ Kunai::Kunai(Transform* transform)
 	endEdge->Pos() = transform->Pos();
 	startEdge->UpdateWorld();
 	endEdge->UpdateWorld();
-	trail = new Trail(L"Textures/Effect/Trail.png", startEdge, endEdge, 1.2f, 10);
+	trail = new Trail(L"Textures/Effect/images.jpg", startEdge, endEdge, 1.1f, 20);
 	trail->Init();
 	trail->SetActive(false);
 }

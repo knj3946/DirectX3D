@@ -19,6 +19,7 @@ Trail::Trail(wstring imageFile, Transform* start, Transform* end, UINT width, fl
 
 	rasterizerState[1]->CullMode(D3D11_CULL_NONE); // 앞이든, 뒤든 모두 출력하기
 	//blendState[1]->Alpha(true); // 투명색 지정
+	//blendState[1]->AlphaToCoverage(true);
 	blendState[1]->Additive();
 }
 
