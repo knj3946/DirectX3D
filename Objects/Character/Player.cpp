@@ -185,10 +185,17 @@ void Player::Update()
     collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
     collider->UpdateWorld();
 
+    rightHand->SetWorld(this->GetTransformByNode(rightHandNode));
+    leftHand->SetWorld(this->GetTransformByNode(leftHandNode));
+    if (weaponState == DAGGER)
+        dagger->Update();
+    else
+        bow->UpdateWorld();
+    bowCol->UpdateWorld();
+
     ColliderManager::Get()->SetHeight();
     if (!isCeiling)
         ColliderManager::Get()->PushPlayer();
-
 
     UpdateUI();
 
@@ -209,14 +216,6 @@ void Player::Update()
         comboHolding = 0.0f;
         comboStack = 0;
     }
-
-    rightHand->SetWorld(this->GetTransformByNode(rightHandNode));
-    leftHand->SetWorld(this->GetTransformByNode(leftHandNode));
-    if (weaponState == DAGGER)
-        dagger->Update();
-    else
-        bow->UpdateWorld();
-    bowCol->UpdateWorld();
 
     //leftFoot->SetWorld(this->GetTransformByNode(leftFootNode));
     //leftFootCollider->UpdateWorld();
@@ -335,7 +334,7 @@ void Player::SetTerrain(LevelData* terrain)
         sizeof(OutputDesc), terrainTriangleSize);
 }
 
-void Player::Control()  //??????? ?????, ???콺 ??? ???
+void Player::Control()
 {
     if (KEY_DOWN(VK_TAB)) {
         if(static_cast<WeaponState>(weaponState + 1) >= 3)
@@ -343,7 +342,6 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
         else
             weaponState = static_cast<WeaponState>(weaponState + 1);
     }
-
 
     if (KEY_DOWN(VK_ESCAPE))
     {
@@ -610,7 +608,7 @@ void Player::Jumping()
         if (heightLevel < feedBackPos.y)
             heightLevel = feedBackPos.y;
 
-        if (headCrash) 
+        if (headCrash)
         {
             jumpVel = -20;
             isCeiling = false;

@@ -63,16 +63,11 @@ void ColliderManager::SetHeight()
 		if (obstacle->IsRayCollision(*headRay, &maxHeadPoint) && maxHeadPoint.distance < FLT_EPSILON)
 		{
             player->headCrash = true;
-
-			continue;
 		}
-		else if (obstacle->IsRayCollision(*footRay, &underObj))
+		else if (obstacle->IsRayCollision(*footRay, &underObj) && underObj.hitPoint.y > maxHeight)
 		{
-			if (underObj.hitPoint.y > maxHeight)
-			{
-				maxHeight = underObj.hitPoint.y;
-				onBlock = obstacle;
-			}
+			maxHeight = underObj.hitPoint.y;
+			onBlock = obstacle;
 		}
 	}
 
