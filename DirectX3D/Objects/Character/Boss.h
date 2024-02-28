@@ -1,4 +1,4 @@
-#pragma once
+  #pragma once
 
 class Boss :
     public ModelAnimator
@@ -59,6 +59,7 @@ private:
 
 private:
     BOSS_STATE state =BOSS_STATE::IDLE;
+    STATE curState;
     CapsuleCollider* collider;
 
     float moveSpeed;
@@ -66,7 +67,8 @@ private:
     float maxHP = 200;
     Transform* leftHand;
     CapsuleCollider* leftCollider;
-    ProgressBar* hpbar;
+ 
+    ProgressBar* hpBar;
     vector<map<float, Event>> totalEvent;
     vector<map<float, Event>::iterator> eventIters;
 
@@ -77,36 +79,64 @@ private:
 
     vector<Vector3> path;
 
-    ProgressBar* hpBar;
+    ProgressBar* rangeBar;
     Quad* questionMark;
     Quad* exclamationMark;
     RayBuffer* rayBuffer;
     StructuredBuffer* structuredBuffer;
     vector<InputDesc> inputs;
     vector<OutputDesc> outputs;
-
     UINT terrainTriangleSize;
 
+    Collider* targetCollider;
+    float informRange;
+    Vector3 velocity;
 
+    bool bFind = false;
+    float DetectionStartTime = 0.f;
+    float DetectionEndTime = 2.f;
+    float eyeSightRange = 40.f;
+    float eyeSightangle = 45.f;
+    bool bDetection = false;
 private:
-    void Direction();// 방향지정
 
    // bool IsFindTarget() { return bFind; };
     void AddObstacleObj(Collider* collider);
+    void IDLE();
+    void Direction();// 방향지정
+    void Move();
+    void Attack();
+    void JumpAttack();
 
+    void Die();
+
+    void Control();// 패턴 조정
+    void UpdateUI();
+ 
+    void SetPath(Vector3 targetPos);
+    void ExecuteEvent();
+
+    void EndAttack();
+    void EndHit();
+    void EndDying();
+    void EndJumpAttack();
 public:
 
     Boss();
     ~Boss();
     void SetTerrain(LevelData* terrain) { this->terrain = terrain; }
     void SetAStar(AStar* aStar) { this->aStar = aStar; }
-
+    void SetTargetCollider(CapsuleCollider* collider) { targetCollider = collider; }
     Collider* GetCollider() { return collider; }
     void Render();
     void Update();
     void GUIRender();
+    float GetInformRange() { return informRange; }
 
     void SetTarget(Transform* _target) { this->target = _target; }
+    void CalculateEyeSight();
+    void CalculateEarSight();//귀
     
+
 };
 
