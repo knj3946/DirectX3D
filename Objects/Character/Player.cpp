@@ -131,7 +131,8 @@ Player::Player()
     //GetClip(B_DRAW)->SetEvent(bind(&Player::SetBowAnim, this), 0.2f);
     //GetClip(B_ODRAW)->SetEvent(bind(&Player::SetBowAnim, this), 0.6f);
     GetClip(B_DRAW)->SetEvent(bind(&Player::SetBowAnim, this), 0.4f);
-    GetClip(B_RECOIL)->SetEvent(bind(&Player::SetBowAnim, this), 0.2f);
+    GetClip(B_ODRAW)->SetEvent(bind(&Player::SetBowAnim, this), 0.4f);
+    GetClip(B_RECOIL)->SetEvent(bind(&Player::ShootArrow, this), 0.1f);
 
     //GetClip(DAGGER1)->SetEvent(bind(&Player::CanCombo, this), 0.4f);
 
@@ -182,20 +183,12 @@ Player::~Player()
 
 void Player::Update()
 {
-    collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
-    collider->UpdateWorld();
-
-    rightHand->SetWorld(this->GetTransformByNode(rightHandNode));
-    leftHand->SetWorld(this->GetTransformByNode(leftHandNode));
-    if (weaponState == DAGGER)
-        dagger->Update();
-    else
-        bow->UpdateWorld();
-    bowCol->UpdateWorld();
-
     ColliderManager::Get()->SetHeight();
     if (!isCeiling)
         ColliderManager::Get()->PushPlayer();
+
+    collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
+    collider->UpdateWorld();
 
     UpdateUI();
 
@@ -216,6 +209,14 @@ void Player::Update()
         comboHolding = 0.0f;
         comboStack = 0;
     }
+
+    rightHand->SetWorld(this->GetTransformByNode(rightHandNode));
+    leftHand->SetWorld(this->GetTransformByNode(leftHandNode));
+    if (weaponState == DAGGER)
+        dagger->Update();
+    else
+        bow->UpdateWorld();
+    bowCol->UpdateWorld();
 
     //leftFoot->SetWorld(this->GetTransformByNode(leftFootNode));
     //leftFootCollider->UpdateWorld();
@@ -334,7 +335,7 @@ void Player::SetTerrain(LevelData* terrain)
         sizeof(OutputDesc), terrainTriangleSize);
 }
 
-void Player::Control()
+void Player::Control()  //??????? ?????, ???콺 ??? ???
 {
     if (KEY_DOWN(VK_TAB)) {
         if(static_cast<WeaponState>(weaponState + 1) >= 3)
@@ -342,6 +343,7 @@ void Player::Control()
         else
             weaponState = static_cast<WeaponState>(weaponState + 1);
     }
+
 
     if (KEY_DOWN(VK_ESCAPE))
     {
@@ -372,14 +374,15 @@ void Player::Control()
     //    //rightWeaponCollider->SetActive(false);
     //}
 
-    //if (KEY_UP(VK_LBUTTON))
-    //{
-    //    if (weaponState == BOW)
-    //    {
-    //        if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
-    //            SetState(B_RECOIL);
-    //    }
-    //}
+    if (KEY_UP(VK_LBUTTON))
+    {
+        if (weaponState == BOW)
+        {
+            if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
+                SetState(B_RECOIL);
+            return;
+        }
+    }
 
     if (KEY_DOWN(VK_LBUTTON))
     {
@@ -442,6 +445,25 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
         Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
         TerainComputePicking(feedBackPos, groundRay);
     }
+
+    //if (curState == JUMP3 && landing > 0.0f)    //???? ??????? ???? ?ε? ??? ???? and ???? ?ð? ????
+    //{
+    //    landing -= DELTA;
+    //    return;
+    //}
+
+    //if (curState == TO_COVER)    //??????? ????? ???
+    //{  
+    //    if (Distance(Pos(), targetTransform->Pos()) < teleport)
+    //    {
+    //        SetState(TO_COVER);
+    //        return;
+    //    }
+    //    Pos() += (targetTransform->Pos() - Pos()).GetNormalized() * DELTA * 400;
+    //    SetState(RUN_F);
+    //    return;
+    //}
+
 
     Walking();
 }
@@ -608,7 +630,7 @@ void Player::Jumping()
         if (heightLevel < feedBackPos.y)
             heightLevel = feedBackPos.y;
 
-        if (headCrash)
+        if (isCeiling) 
         {
             jumpVel = -20;
             isCeiling = false;
@@ -822,6 +844,12 @@ void Player::ComboAttack()
         comboStack = 0;
 }
 
+void Player::ShootArrow()
+{
+    SetState(B_IDLE);
+    ArrowManager::Get()->Throw(bowCol->GlobalPos(), Back());
+}
+
 void Player::SetState(State state, float scale, float takeTime)
 {
     if (state == curState) return;
@@ -878,16 +906,11 @@ void Player::SetBowAnim()
 {
     if (curState == B_DRAW)
     {
-        SetState(B_RECOIL);
+        SetState(B_ODRAW);
     }
-    //else if (curState == B_ODRAW)
-    //{
-    //    SetState(B_AIM);
-    //}
-    else if (curState == B_RECOIL)
+    else if (curState == B_ODRAW)
     {
-        ArrowManager::Get()->Throw(bowCol->GlobalPos(), Back());
-        SetState(B_IDLE);
+        SetState(B_AIM, 0.3f);
     }
 }
 

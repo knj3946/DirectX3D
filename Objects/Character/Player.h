@@ -103,6 +103,7 @@ private:
     void Assasination();
 
     void ComboAttack();
+    void ShootArrow();
 
     void SetAnimation();
     void SetState(State state, float scale = 1.0f, float takeTime = 0.2f);
