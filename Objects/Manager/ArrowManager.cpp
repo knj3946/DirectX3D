@@ -77,7 +77,8 @@ void ArrowManager::Throw(Vector3 pos, Vector3 dir)
 	for (Arrow* arrow : arrows)
 	{
 		// 아직 안 던진 순번을 처음부터 판별해서 하나만 던지고 바로 종료
-		if (!arrow->GetTransform()->Active())
+		// 떨어져 있지 않은 화살이면
+		if (!arrow->GetTransform()->Active() && arrow->IsDropItem())
 		{
 			arrow->Throw(pos, dir);
 			playerArrowCount--;
