@@ -340,7 +340,7 @@ void Player::SetTerrain(LevelData* terrain)
 void Player::Control()  //??????? ?????, ???콺 ??? ???
 {
     if (KEY_DOWN(VK_TAB)) {
-        if(static_cast<WeaponState>(weaponState + 1) >= 3)
+        if (static_cast<WeaponState>(weaponState + 1) >= 3)
             weaponState = DAGGER;
         else
             weaponState = static_cast<WeaponState>(weaponState + 1);
@@ -492,7 +492,7 @@ void Player::UpdateUI()
             curHP = destHP;
             isHit = false;
         }
-        
+
         hpBar->SetAmount(curHP / maxHp);
     }
 
@@ -611,7 +611,7 @@ void Player::Walking()
 
 
     if (/*ColliderManager::Get()->ControlPlayer(&direction)*/ !isPushed
-        && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y 
+        && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y
             || destFeedBackPos.y - feedBackPos.y < 0.5f) // 바닥 올라가게 하기위해 추가함
         ) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????
     {
@@ -642,7 +642,7 @@ void Player::Jumping()
         if (heightLevel < feedBackPos.y)
             heightLevel = feedBackPos.y;
 
-        if (isCeiling) 
+        if (isCeiling)
         {
             jumpVel = -20;
             isCeiling = false;
@@ -651,7 +651,7 @@ void Player::Jumping()
         float tempJumpVel;
         float tempY;
 
-        if (preHeight - heightLevel > 5.0f)
+        if (curState!= JUMP1 && curState!= JUMP2 && preHeight - heightLevel > 5.0f)
         {
             jumpVel = -1;
 
@@ -759,7 +759,7 @@ bool Player::OnColliderFloor(Vector3& feedback)
         //feedback.y += 0.1f; //살짝 띄움으로서 충돌 방지
         return true;
     }
-    
+
     return false;
 }
 
