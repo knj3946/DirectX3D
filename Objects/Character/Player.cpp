@@ -263,6 +263,8 @@ void Player::GUIRender()
 {
     Model::GUIRender();
 
+    ImGui::Text("playerArrowCount : %d", ArrowManager::Get()->GetPlayerArrowCount());
+
     ImGui::DragFloat3("Velocity", (float*)&velocity, 0.5f);
     //???
     ImGui::SliderFloat("moveSpeed", &moveSpeed, 10, 1000);
@@ -270,7 +272,9 @@ void Player::GUIRender()
     ImGui::SliderFloat("deceleration", &deceleration, 1, 10);
     ImGui::Text("isPushed : %d", isPushed);
     ImGui::Text("feedBackPosY : %f", feedBackPos.y);
+    ImGui::Text("Pos.x : %f", Pos().x);
     ImGui::Text("Pos.y : %f", Pos().y);
+    ImGui::Text("Pos.z : %f", Pos().z);
     ImGui::Text("heightLevel : %f", heightLevel);
 
     ImGui::Text("curState : %d", curState);
@@ -388,6 +392,8 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     {
         if (weaponState == BOW)
         {
+            // 보유한 화살이 있는가
+            if (ArrowManager::Get()->GetPlayerArrowCount() <= 0)return;
             SetState(B_DRAW);
             return;
         }
@@ -423,6 +429,19 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     {
         SetState(JUMP1);
     }
+
+    // 스페셜 키
+    if (KEY_DOWN('C'))
+    {
+        // 화살 줍기
+        ArrowManager::Get()->ExecuteSpecialKey();
+    }
+    if (KEY_DOWN('Z'))
+    {
+        // 암살
+        MonsterManager::Get()->ExecuteSpecialKey();
+    }
+
 
     Move();
     Jumping();
@@ -696,6 +715,13 @@ void Player::Targeting()
     Vector3 offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
 
     MonsterManager::Get()->ActiveSpecialKey(Pos(), offset);
+
+    ArrowManager::Get()->OnOutLineByRay(mouseRay);
+
+    offset = (CAM->Right() * 1.5f) + (CAM->Up() * 3.f);
+
+    ArrowManager::Get()->ActiveSpecialKey(Pos(), offset);
+    
 }
 
 void Player::Cover()

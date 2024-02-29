@@ -11,7 +11,7 @@ private:
 
 
 public:
-	Arrow(Transform* transform); // 인스턴싱을 전제한 트랜스폼 매개 생성
+	Arrow(Transform* transform,int id,bool isDropItem=false); // 인스턴싱을 전제한 트랜스폼 매개 생성
 	~Arrow();
 
 	void Update();
@@ -23,8 +23,15 @@ public:
 	Transform* GetTransform() { return transform; }
 
 	float GetDamage() { return damage; }
+	int GetIndex() { return index; }
 
 	class Trail* GetTrail() { return trail; }
+
+	void SetOutLine(bool flag);
+	bool IsOutLine() { return outLine; };
+
+	void GetItem();
+	bool IsDropItem() { return isDropItem; }
 private:
 
 
@@ -42,5 +49,9 @@ private:
 	class Trail* trail; // 궤적 파티클
 	Transform* startEdge; // 궤적이 시작될 곳
 	Transform* endEdge;
+
+	bool outLine = false;
+	int index;
+	bool isDropItem;
 };
 

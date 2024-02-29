@@ -35,6 +35,7 @@ public:
     bool SetPlayerHeight(Collider* obstacle);
 
     void PushCollision(Collision_Type Type, Collider* _pCollider) { vecCol[Type].push_back(_pCollider); }
+    void PopCollision(Collision_Type Type, int index) { vecCol[Type].erase(vecCol[Type].begin() + index); }
 
     vector<Collider*>& Getvector(Collision_Type _type) { return vecCol[_type]; }
 
