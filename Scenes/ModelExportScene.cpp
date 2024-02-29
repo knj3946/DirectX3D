@@ -3,23 +3,23 @@
 
 ModelExportScene::ModelExportScene()
 {
-    string name = "akai";
+    string name = "character2";
     string file = "Models/FBX/" + name + ".fbx";
     ModelExporter* exporter;
     string clipName;
 
-    //exporter = new ModelExporter(name, file);
-    //exporter->ExportMaterial();
-    //exporter->ExportMesh();
-    //delete exporter;
+    exporter = new ModelExporter(name, file);
+    exporter->ExportMaterial();
+    exporter->ExportMesh();
+    delete exporter;
 
-    string floderN1 = "Bow/Attack";
+    /*string floderN1 = "Bow/Attack";
 
     clipName = "Standing Aim Overdraw";
     file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
     exporter = new ModelExporter(name, file);
     exporter->ExportClip(clipName);
-    delete exporter;
+    delete exporter;*/
 }
 
 ModelExportScene::~ModelExportScene()
