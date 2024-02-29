@@ -9,7 +9,7 @@ Crowbar::Crowbar() : Model("crowbar")
     collider = new BoxCollider();
     collider->SetTag("CrowbarCollider"); // 태그 정하기 (부모와 같은 키워드를 공유하면 좋다)
     collider->SetParent(this);           // 부모 정하기
-    collider->Load();                    // 트랜스폼 정보 로드하기 (파일이 있다면)
+    collider->Load();                    // 트랜스폼 정보 로드하기 (파일이 있다면
 }
 
 Crowbar::~Crowbar()
