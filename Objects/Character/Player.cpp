@@ -339,6 +339,11 @@ void Player::SetTerrain(LevelData* terrain)
         sizeof(OutputDesc), terrainTriangleSize);
 }
 
+void Player::CameraMove()
+{
+    Ray cameraRay = Camera::ScreenPointToRay(mousePos);
+}
+
 void Player::Control()  //??????? ?????, ???콺 ??? ???
 {
     if (KEY_DOWN(VK_TAB)) {

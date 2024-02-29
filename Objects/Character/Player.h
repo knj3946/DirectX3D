@@ -90,6 +90,8 @@ public:
     void SetIsCeiling(bool value) { isCeiling = value; }
 
 private:
+    void CameraMove(); // 벽에 가려지는 플레이어 현상 해결을 위한 함수
+
     void Control();
     void Move();
     void UpdateUI();
