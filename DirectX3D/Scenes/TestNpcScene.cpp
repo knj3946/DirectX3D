@@ -8,10 +8,12 @@ TestNpcScene::TestNpcScene()
     aStar2 = new AStar();
     aStar2->SetNode(terrain);
     boss = new Boss;
-    boss->SetActive(aStar2);
+    boss->SetAStar(aStar2);
     boss->SetTerrain(terrain);
-
     naruto = new Naruto();
+    boss->SetTarget(naruto);
+    boss->SetPatrolPos(Vector3(0, 0, 0));
+    boss->SetPatrolPos(Vector3(100, 0, 100));
     ColliderManager::Get()->PushCollision(ColliderManager::PLAYER, naruto->GetCollider());
 
     MonsterManager::Get()->SetTarget(naruto); //싱글턴 생성 후, 표적 설정까지
@@ -91,7 +93,7 @@ void TestNpcScene::Update()
  
     naruto->Update();
     boss->Update();
-    MonsterManager::Get()->Update();
+ //   MonsterManager::Get()->Update();
     FOR(4)
         cube[i]->Update();
     //if (KEY_DOWN('1')) light->type = 0;
@@ -118,7 +120,7 @@ void TestNpcScene::Render()
    // aStar2->Render();
     naruto->Render();
     
-    MonsterManager::Get()->Render();
+  //  MonsterManager::Get()->Render();
     FOR(4)
         cube[i]->Render();
 
@@ -137,7 +139,7 @@ void TestNpcScene::Render()
 
 void TestNpcScene::PostRender()
 {
-  
+    boss->PostRender();
 }
 
 void TestNpcScene::GUIRender()

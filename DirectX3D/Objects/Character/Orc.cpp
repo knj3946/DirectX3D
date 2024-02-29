@@ -65,7 +65,8 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     questionMark = new Quad(L"Textures/UI/QuestionMark.png");
     exclamationMark->Scale() *= 0.1f;
     questionMark->Scale() *= 0.1f;
-
+    questionMark->SetActive(false);
+    exclamationMark->SetActive(false);
     //aStar = new AStar(512, 512);
     
     //aStar->SetNode();
@@ -888,15 +889,11 @@ void Orc::EndDying()
     exclamationMark->SetActive(false);
 }
 
+
+
 void Orc::CalculateEyeSight()
 {
-    float rad = XMConvertToRadians(eyeSightangle);
-    Vector3 front = Vector3(transform->Forward().x, 0, transform->Forward().z).GetNormalized();
-
-    Vector3 eyevector = Vector3(sinf(rad) + transform->GlobalPos().x, 0, cos(rad) + transform->GlobalPos().z);
-    Vector3 rightdir = eyevector * eyeSightRange;
-    Vector3 leftdir = -eyevector * eyeSightRange;
-
+  
     Vector3 direction = target->GlobalPos() - transform->GlobalPos();
     direction.Normalize();
 
@@ -907,20 +904,6 @@ void Orc::CalculateEyeSight()
 
     bool breverse = false;
     float leftdir1 = (180.f - eyeSightangle) + degree;
-
-
- 
-
-    /*
-        -135    135
-        -135 -45 135-45
-        -180    90
-
-
-    */
-
-    //degree
-
     float Enemytothisangle = XMConvertToDegrees(atan2(direction.x, direction.z));
     if (Enemytothisangle < 0) {
         Enemytothisangle += 360;
@@ -1023,10 +1006,8 @@ void Orc::Detection()
     }
     else {
         if (DetectionStartTime > 0.f) {
-            if (missTargetTrigger)
-            {
-                DetectionStartTime -= DELTA * 2;
-            }
+            DetectionStartTime -= DELTA * 2;
+           
             if (DetectionStartTime <= 0.f) {
                 DetectionStartTime = 0.f;
                 bFind = false;

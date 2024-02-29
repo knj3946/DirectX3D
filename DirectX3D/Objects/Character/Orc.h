@@ -121,6 +121,7 @@ private:
     void EndAttack();
     void EndHit();
     void EndDying();
+   
 
     void CalculateEyeSight();
     void CalculateEarSight();//±Í

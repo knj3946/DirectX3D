@@ -24,7 +24,7 @@ ModelExportScene::ModelExportScene()
         exporter->ExportMesh();
         delete exporter;
 
-        clipName = "Falling Forward Death";
+        clipName = "Walking";
         file = "Models/Animations/" + name + "/" + clipName + ".fbx";
         exporter = new ModelExporter(name, file);
         exporter->ExportClip(clipName);

@@ -51,6 +51,8 @@ public:
 
     ModelClip* GetClip(UINT index) { return clips[index]; }
 
+
+
 protected:
     void CreateTexture();
     void CreateClipTransform(UINT index);
