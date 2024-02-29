@@ -16,10 +16,15 @@ public:
 
 	bool IsCollision(); //각 쿠나이가 다른 물체와 충돌했는지 판별하기 위함
 
+	void OnOutLineByRay(Ray ray);
+
+	ModelInstancing* GetInstancing() { return arrowInstancing; }
+
 private:
 	// 쿠나이 출력용 모델
 	ModelInstancing* arrowInstancing; // 쿠나이 모델
 	vector<Arrow*> arrows;
 	vector<Collider*> wallColiders;
+	int count = 0;
 };
 

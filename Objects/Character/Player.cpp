@@ -270,7 +270,9 @@ void Player::GUIRender()
     ImGui::SliderFloat("deceleration", &deceleration, 1, 10);
     ImGui::Text("isPushed : %d", isPushed);
     ImGui::Text("feedBackPosY : %f", feedBackPos.y);
+    ImGui::Text("Pos.x : %f", Pos().x);
     ImGui::Text("Pos.y : %f", Pos().y);
+    ImGui::Text("Pos.z : %f", Pos().z);
     ImGui::Text("heightLevel : %f", heightLevel);
 
     ImGui::Text("curState : %d", curState);
@@ -696,6 +698,9 @@ void Player::Targeting()
     Vector3 offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
 
     MonsterManager::Get()->ActiveSpecialKey(Pos(), offset);
+
+    ArrowManager::Get()->OnOutLineByRay(mouseRay);
+    
 }
 
 void Player::Cover()

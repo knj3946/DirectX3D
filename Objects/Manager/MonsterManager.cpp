@@ -15,7 +15,7 @@ MonsterManager::MonsterManager()
     orcInstancing->ReadClip("character1@atack23");
     orcInstancing->ReadClip("character1@atack24");
 
-    orcInstancing->ReadClip("character1@atack16");
+    orcInstancing->ReadClip("character1@atack16");// 쿠나이던지기
     //orcInstancing->ReadClip("character1@atack4");
 
     orcInstancing->ReadClip("Orc_Death");

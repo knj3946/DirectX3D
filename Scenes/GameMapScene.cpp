@@ -250,7 +250,7 @@ void GameMapScene::PostRender()
 
 void GameMapScene::GUIRender()
 {
-	//player->GUIRender();
+	player->GUIRender();
 	/*
 	for (ColliderModel* cm : colliderModels)
 	{

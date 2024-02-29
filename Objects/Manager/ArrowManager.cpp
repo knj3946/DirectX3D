@@ -9,9 +9,19 @@ ArrowManager::ArrowManager()
 	{
 		Transform* transform = arrowInstancing->Add();
 		transform->SetActive(false);
-		Arrow* arrow = new Arrow(transform);
+		Arrow* arrow = new Arrow(transform,count++);
 		arrows.push_back(arrow);
 	}
+
+	// 임시로 떨어진 화살들 세팅
+	Transform* transform = arrowInstancing->Add(true);
+	transform->SetActive(true);
+	Arrow* arrow = new Arrow(transform, count++,true);
+	arrow->GetTransform()->Pos() = Vector3(60, 5, 90);
+	arrow->GetTransform()->Scale() *= 3;
+	arrows.push_back(arrow);
+
+
 	wallColiders = ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::WALL);
 }
 
@@ -76,4 +86,30 @@ bool ArrowManager::IsCollision()
 	}
 
 	return false;
+}
+
+void ArrowManager::OnOutLineByRay(Ray ray)
+{
+	float minDistance = FLT_MAX;
+	Arrow* targetArrow = nullptr;
+
+	for (Arrow* arrow : arrows)
+	{
+		Contact con;
+		if (arrow->GetCollider()->IsRayCollision(ray, &con))
+		{
+			float hitDistance = Distance(con.hitPoint, ray.pos);
+			if (minDistance > hitDistance)
+			{
+				minDistance = hitDistance;
+				targetArrow = arrow;
+			}
+		}
+		arrow->SetOutLine(false);
+	}
+
+	if (targetArrow)
+	{
+		targetArrow->SetOutLine(true);
+	}
 }

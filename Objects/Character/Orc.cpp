@@ -824,7 +824,8 @@ void Orc::EndDying()
     questionMark->SetActive(false);
     exclamationMark->SetActive(false);
 
-    // 삭제 전에 아이템 떨굴거면 여기서
+    MonsterManager::Get()->specialKeyUI["assassination"].active = false;
+    ColliderManager::Get()->PopCollision(ColliderManager::Collision_Type::ORC, index);
 
     instancing->Remove(index);
 }
