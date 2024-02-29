@@ -380,6 +380,8 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     {
         if (weaponState == BOW)
         {
+            // 보유한 화살이 있는가
+            if (ArrowManager::Get()->GetPlayerArrowCount() <= 0)return;
             if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
                 SetState(B_RECOIL);
             return;
@@ -425,6 +427,14 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     {
         SetState(JUMP1);
     }
+
+    // 스페셜 키
+    if (KEY_DOWN('C'))
+    {
+        ArrowManager::Get()->ExecuteSpecialKey();
+    }
+
+
 
     Move();
     Jumping();

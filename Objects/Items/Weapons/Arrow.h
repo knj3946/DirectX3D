@@ -23,11 +23,14 @@ public:
 	Transform* GetTransform() { return transform; }
 
 	float GetDamage() { return damage; }
+	int GetIndex() { return index; }
 
 	class Trail* GetTrail() { return trail; }
 
 	void SetOutLine(bool flag);
 	bool IsOutLine() { return outLine; };
+
+	void GetItem();
 private:
 
 

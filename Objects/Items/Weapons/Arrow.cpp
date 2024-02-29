@@ -107,3 +107,13 @@ void Arrow::SetOutLine(bool flag)
 	outLine = flag;
 	ArrowManager::Get()->GetInstancing()->SetOutLine(index, flag);
 }
+
+void Arrow::GetItem()// 이 아이템을 플레이어가 주웠을 때
+{
+	transform->SetActive(false);
+	collider->SetActive(false);
+	ArrowManager::Get()->SetActiveSpecialKey(false);
+	ColliderManager::Get()->PushCollision(ColliderManager::Collision_Type::ARROW, collider);
+
+	isDropItem = false;
+}

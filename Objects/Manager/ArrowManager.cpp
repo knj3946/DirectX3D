@@ -80,6 +80,7 @@ void ArrowManager::Throw(Vector3 pos, Vector3 dir)
 		if (!arrow->GetTransform()->Active())
 		{
 			arrow->Throw(pos, dir);
+			playerArrowCount--;
 			return;
 		}
 	}
@@ -157,6 +158,18 @@ void ArrowManager::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
 			sk.active = true;
 			sk.quad->Pos() = CAM->WorldToScreen(arrow->GetTransform()->Pos() + offset);
 			sk.quad->UpdateWorld();
+		}
+	}
+}
+
+void ArrowManager::ExecuteSpecialKey()// 아이템을 주웠을떄 하게될 동작
+{
+	for (Arrow* arrow : arrows)
+	{
+		if (arrow->IsOutLine())
+		{
+			arrow->GetItem();
+			playerArrowCount++;
 		}
 	}
 }

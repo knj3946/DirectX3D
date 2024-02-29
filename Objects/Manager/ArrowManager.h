@@ -26,16 +26,23 @@ public:
 
 	void OnOutLineByRay(Ray ray);
 	void ActiveSpecialKey(Vector3 playPos, Vector3 offset);
+	void ExecuteSpecialKey();
+	void SetActiveSpecialKey(bool active){ specialKeyUI["getItem"].active = active; }
 
 
 	ModelInstancing* GetInstancing() { return arrowInstancing; }
+
+	int GetCount() { return count; }
+	int GetPlayerArrowCount() { return playerArrowCount; }
 
 private:
 	// 쿠나이 출력용 모델
 	ModelInstancing* arrowInstancing; // 쿠나이 모델
 	vector<Arrow*> arrows;
 	vector<Collider*> wallColiders;
-	int count = 0;
+	int count = 0; // 인덱스를 위함
+
+	int playerArrowCount = 3; // 처음에 3개 가지고 시작
 
 	map<string, SpecialKeyUI> specialKeyUI;
 };
