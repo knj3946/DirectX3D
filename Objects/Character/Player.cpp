@@ -263,6 +263,8 @@ void Player::GUIRender()
 {
     Model::GUIRender();
 
+    ImGui::Text("playerArrowCount : %d", ArrowManager::Get()->GetPlayerArrowCount());
+
     ImGui::DragFloat3("Velocity", (float*)&velocity, 0.5f);
     //???
     ImGui::SliderFloat("moveSpeed", &moveSpeed, 10, 1000);
@@ -380,8 +382,6 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     {
         if (weaponState == BOW)
         {
-            // 보유한 화살이 있는가
-            if (ArrowManager::Get()->GetPlayerArrowCount() <= 0)return;
             if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
                 SetState(B_RECOIL);
             return;
@@ -392,6 +392,8 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     {
         if (weaponState == BOW)
         {
+            // 보유한 화살이 있는가
+            if (ArrowManager::Get()->GetPlayerArrowCount() <= 0)return;
             SetState(B_DRAW);
             return;
         }
@@ -431,9 +433,14 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     // 스페셜 키
     if (KEY_DOWN('C'))
     {
+        // 화살 줍기
         ArrowManager::Get()->ExecuteSpecialKey();
     }
-
+    if (KEY_DOWN('Z'))
+    {
+        // 암살
+        MonsterManager::Get()->ExecuteSpecialKey();
+    }
 
 
     Move();

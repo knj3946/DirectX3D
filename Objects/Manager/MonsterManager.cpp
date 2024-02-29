@@ -371,6 +371,17 @@ void MonsterManager::ActiveSpecialKey(Vector3 playPos,Vector3 offset)
     }
 }
 
+void MonsterManager::ExecuteSpecialKey()
+{
+    for (Orc* orc : orcs)
+    {
+        if (orc->IsOutLine())
+        {
+            orc->Assassination();
+        }
+    }
+}
+
 void MonsterManager::Collision()
 {
     for (Orc* orc : orcs)

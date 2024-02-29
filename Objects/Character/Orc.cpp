@@ -358,6 +358,14 @@ void Orc::Findrange()
     }
     behaviorstate = NPC_BehaviorState::DETECT;
 }
+
+void Orc::Assassination()
+{
+    // 임시로 나중에 암살로 죽는 애니메이션 설정하기
+    // hpbar도
+    Hit(120);
+}
+
 void Orc::Control()
 {
     if (behaviorstate == NPC_BehaviorState::CHECK)return;

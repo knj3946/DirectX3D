@@ -11,6 +11,7 @@ ArrowManager::ArrowManager()
 		transform->SetActive(false);
 		Arrow* arrow = new Arrow(transform,count++);
 		arrows.push_back(arrow);
+		ColliderManager::Get()->PushCollision(ColliderManager::Collision_Type::ARROW, arrow->GetCollider());
 	}
 
 	// 임시로 떨어진 화살들 세팅
@@ -20,6 +21,7 @@ ArrowManager::ArrowManager()
 	arrow->GetTransform()->Pos() = Vector3(60, 5, 90);
 	arrow->GetTransform()->Scale() *= 3;
 	arrows.push_back(arrow);
+	ColliderManager::Get()->PushCollision(ColliderManager::Collision_Type::ARROW, arrow->GetCollider());
 
 
 	wallColiders = ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::WALL);
@@ -78,7 +80,7 @@ void ArrowManager::Throw(Vector3 pos, Vector3 dir)
 	{
 		// 아직 안 던진 순번을 처음부터 판별해서 하나만 던지고 바로 종료
 		// 떨어져 있지 않은 화살이면
-		if (!arrow->GetTransform()->Active() && arrow->IsDropItem())
+		if (!arrow->GetTransform()->Active()&& !arrow->IsDropItem())
 		{
 			arrow->Throw(pos, dir);
 			playerArrowCount--;
@@ -165,6 +167,7 @@ void ArrowManager::ExecuteSpecialKey()// 아이템을 주웠을떄 하게될 동작
 	{
 		if (arrow->IsOutLine())
 		{
+			arrow->SetOutLine(false);
 			arrow->GetItem();
 			playerArrowCount++;
 		}

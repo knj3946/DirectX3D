@@ -81,6 +81,7 @@ void Arrow::Throw(Vector3 pos, Vector3 dir)
 {
 	// 활성화
 	transform->SetActive(true);
+	collider->SetActive(true);
 	transform->Pos() = pos;
 	direction = dir;
 
@@ -110,10 +111,9 @@ void Arrow::SetOutLine(bool flag)
 
 void Arrow::GetItem()// 이 아이템을 플레이어가 주웠을 때
 {
-	transform->SetActive(false);
 	collider->SetActive(false);
 	ArrowManager::Get()->SetActiveSpecialKey(false);
-	ColliderManager::Get()->PushCollision(ColliderManager::Collision_Type::ARROW, collider);
-
+	
 	isDropItem = false;
+	transform->SetActive(false);
 }
