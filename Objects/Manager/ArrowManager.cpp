@@ -54,11 +54,7 @@ void ArrowManager::Throw(Vector3 pos, Vector3 dir)
 bool ArrowManager::IsCollision()
 {
 	// 플레이어랑 부딪혔나 체크
-	for (Arrow* arrow : arrows)
-	{
-		//콜라이더 메니저든, 여기든 몬스터 벡터가 없어서 가져온 다음
-		//이중반복문으로 충돌 체크하기
-	}
+	// 
 	// 다른 장애물과 부딪혔나 체크
 	// 맵이 정해진다면 배경에 따라 장애물에 따라 콜라이더가 안된다면 
 	// pos로 배경에 부딪혔나 판단을 추가할 것

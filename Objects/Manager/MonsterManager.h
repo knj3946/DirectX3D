@@ -44,6 +44,7 @@ public:
     void CalculateDistance();
     void PushPosition(Float4 _pos) { vecDetectionPos.push_back(_pos); }
 
+    UINT GetOrcN() { return SIZE; }
     Orc* GetOrc(UINT idx) { return orcs[idx]; }
 
     void OnOutLineByRay(Ray ray);
