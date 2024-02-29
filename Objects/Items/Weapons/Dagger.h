@@ -9,10 +9,15 @@ public:
 	void Render();
 	void PostRender();
 	void GUIRender();
+
 	CapsuleCollider* GetCollider() { return collider; }
 	float GetDamaged() { return damage; }
 private:
 	CapsuleCollider* collider;
 	float damage = 60.0f;
+
+	class Trail* trail; // 궤적 파티클
+	Transform* startEdge; // 궤적이 시작될 곳
+	Transform* endEdge;
 };
 
