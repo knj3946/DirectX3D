@@ -245,6 +245,7 @@ void GameMapScene::Render()
 void GameMapScene::PostRender()
 {
 	MonsterManager::Get()->PostRender();
+	ArrowManager::Get()->PostRender();
 	player->PostRender();
 }
 

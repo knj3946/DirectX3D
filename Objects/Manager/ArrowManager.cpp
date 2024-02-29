@@ -23,6 +23,18 @@ ArrowManager::ArrowManager()
 
 
 	wallColiders = ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::WALL);
+
+	//특수키 추가
+	{
+		SpecialKeyUI sk;
+		Quad* quad = new Quad(Vector2(100, 50));
+		quad->GetMaterial()->SetShader(L"Basic/Texture.hlsl");
+		quad->GetMaterial()->SetDiffuseMap(L"Textures/UI/SpecialKeyUI_dropItem.png");
+		sk.name = "getItem";
+		sk.quad = quad;
+		sk.active = false;
+		specialKeyUI.insert(make_pair(sk.name, sk));
+	}
 }
 
 ArrowManager::~ArrowManager()
@@ -46,6 +58,18 @@ void ArrowManager::Render()
 	for (Arrow* arrow : arrows)
 		arrow->Render();	// 데이터 render
 	// 지금 호출된 쿠나이 render는 원래 필요없다.(어디까지나 충돌체 렌더용)
+}
+
+void ArrowManager::PostRender()
+{
+	//특수키 출력
+	for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
+
+		if (iter.second.active)
+		{
+			iter.second.quad->Render();
+		}
+	}
 }
 
 void ArrowManager::Throw(Vector3 pos, Vector3 dir)
@@ -111,5 +135,28 @@ void ArrowManager::OnOutLineByRay(Ray ray)
 	if (targetArrow)
 	{
 		targetArrow->SetOutLine(true);
+	}
+}
+
+void ArrowManager::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
+{
+	for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
+
+		iter.second.active = false;
+		//iter.second.quad->Pos() = { 0,0,0 };
+		//iter.second.quad->UpdateWorld();
+	}
+
+	for (Arrow* arrow : arrows)
+	{
+		float dis = Distance(arrow->GetTransform()->GlobalPos(), playPos);
+		if (arrow->IsOutLine() &&  dis < 10.f)
+		{
+			//아웃라인이 활성화되고, 거리가 10 이하일때
+			SpecialKeyUI& sk = specialKeyUI["getItem"];
+			sk.active = true;
+			sk.quad->Pos() = CAM->WorldToScreen(arrow->GetTransform()->Pos() + offset);
+			sk.quad->UpdateWorld();
+		}
 	}
 }

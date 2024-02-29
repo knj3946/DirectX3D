@@ -700,6 +700,10 @@ void Player::Targeting()
     MonsterManager::Get()->ActiveSpecialKey(Pos(), offset);
 
     ArrowManager::Get()->OnOutLineByRay(mouseRay);
+
+    offset = (CAM->Right() * 1.5f) + (CAM->Up() * 3.f);
+
+    ArrowManager::Get()->ActiveSpecialKey(Pos(), offset);
     
 }
 
