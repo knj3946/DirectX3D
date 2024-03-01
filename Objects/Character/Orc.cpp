@@ -194,8 +194,8 @@ void Orc::GUIRender()
     ImGui::Text("NPC_BehaviorState : %d", behaviorstate);
     ImGui::Text("curState : %d", curState);
 
-    ImGui::Text("curhp : %f", curHP);
-    ImGui::Text("desthp : %f", destHP);
+    //ImGui::Text("curhp : %f", curHP);
+    //ImGui::Text("desthp : %f", destHP);
 
     /*
     if (!path.empty())
@@ -281,8 +281,9 @@ bool Orc::CalculateHit()
             DetectionStartTime = DetectionEndTime;
             behaviorstate = NPC_BehaviorState::DETECT;
 
-            Vector3 dir = (target->GlobalPos() - transform->Pos()).GetNormalized();
-            transform->Rot().y = atan2(dir.x, dir.z) + XM_PI;
+            Vector3 dir = (target->GlobalPos() - transform->GlobalPos()).GetNormalized();
+            float rotY = atan2(dir.x, dir.z)+XM_PI;
+            transform->Rot().y = rotY;
             transform->UpdateWorld();
         }
 
@@ -910,6 +911,7 @@ void Orc::CalculateEyeSight()
     direction.Normalize();
 
     float degree = XMConvertToDegrees(transform->Rot().y);
+    degree = degree < 0.0f ? degree + 360.0f : degree;
 
     float dirz = transform->Forward().z;
     float rightdir1 = -(180.f - eyeSightangle) + degree + 360;
