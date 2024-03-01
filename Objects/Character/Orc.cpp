@@ -415,6 +415,14 @@ void Orc::Findrange()
     }
     behaviorstate = NPC_BehaviorState::DETECT;
 }
+
+void Orc::Assassination()
+{
+    // 임시로 나중에 암살로 죽는 애니메이션 설정하기
+    // hpbar도
+    Hit(120);
+}
+
 void Orc::Control()
 {
     if (behaviorstate == NPC_BehaviorState::CHECK)return;
@@ -880,6 +888,9 @@ void Orc::EndDying()
     leftWeaponCollider->SetActive(false);
     questionMark->SetActive(false);
     exclamationMark->SetActive(false);
+
+    MonsterManager::Get()->specialKeyUI["assassination"].active = false;
+    ColliderManager::Get()->PopCollision(ColliderManager::Collision_Type::ORC, index);
     particleHit->Stop();
     // 삭제 전에 아이템 떨굴거면 여기서
 

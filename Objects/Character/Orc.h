@@ -105,6 +105,7 @@ public:
     bool IsOutLine() { return outLine; };
     bool IsDetectTarget() { return bDetection; };
 
+    void Assassination();
 private:
     void Control();
     void Move();

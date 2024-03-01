@@ -245,12 +245,13 @@ void GameMapScene::Render()
 void GameMapScene::PostRender()
 {
 	MonsterManager::Get()->PostRender();
+	ArrowManager::Get()->PostRender();
 	player->PostRender();
 }
 
 void GameMapScene::GUIRender()
 {
-	//player->GUIRender();
+	player->GUIRender();
 	/*
 	for (ColliderModel* cm : colliderModels)
 	{

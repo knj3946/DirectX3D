@@ -273,6 +273,8 @@ void Player::GUIRender()
 {
     Model::GUIRender();
 
+    ImGui::Text("playerArrowCount : %d", ArrowManager::Get()->GetPlayerArrowCount());
+
     ImGui::DragFloat3("Velocity", (float*)&velocity, 0.5f);
     //???
     ImGui::SliderFloat("moveSpeed", &moveSpeed, 10, 1000);
@@ -280,7 +282,9 @@ void Player::GUIRender()
     ImGui::SliderFloat("deceleration", &deceleration, 1, 10);
     ImGui::Text("isPushed : %d", isPushed);
     ImGui::Text("feedBackPosY : %f", feedBackPos.y);
+    ImGui::Text("Pos.x : %f", Pos().x);
     ImGui::Text("Pos.y : %f", Pos().y);
+    ImGui::Text("Pos.z : %f", Pos().z);
     ImGui::Text("heightLevel : %f", heightLevel);
 
     ImGui::Text("curState : %d", curState);
@@ -345,10 +349,15 @@ void Player::SetTerrain(LevelData* terrain)
         sizeof(OutputDesc), terrainTriangleSize);
 }
 
+void Player::CameraMove()
+{
+    Ray cameraRay = Camera::ScreenPointToRay(mousePos);
+}
+
 void Player::Control()  //??????? ?????, ???콺 ??? ???
 {
     if (KEY_DOWN(VK_TAB)) {
-        if(static_cast<WeaponState>(weaponState + 1) >= 3)
+        if (static_cast<WeaponState>(weaponState + 1) >= 3)
             weaponState = DAGGER;
         else
             weaponState = static_cast<WeaponState>(weaponState + 1);
@@ -398,6 +407,8 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     {
         if (weaponState == BOW)
         {
+            // 보유한 화살이 있는가
+            if (ArrowManager::Get()->GetPlayerArrowCount() <= 0)return;
             SetState(B_DRAW);
             return;
         }
@@ -433,6 +444,19 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     {
         SetState(JUMP1);
     }
+
+    // 스페셜 키
+    if (KEY_DOWN('C'))
+    {
+        // 화살 줍기
+        ArrowManager::Get()->ExecuteSpecialKey();
+    }
+    if (KEY_DOWN('Z'))
+    {
+        // 암살
+        MonsterManager::Get()->ExecuteSpecialKey();
+    }
+
 
     Move();
     Jumping();
@@ -490,7 +514,7 @@ void Player::UpdateUI()
             curHP = destHP;
             isHit = false;
         }
-        
+
         hpBar->SetAmount(curHP / maxHp);
     }
 
@@ -609,8 +633,7 @@ void Player::Walking()
 
 
     if (/*ColliderManager::Get()->ControlPlayer(&direction)*/ !isPushed
-        && (radianHeightAngle < XMConvertToRadians(60) 
-            || destFeedBackPos.y <= feedBackPos.y // 
+        && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y
             || destFeedBackPos.y - feedBackPos.y < 0.5f) // 바닥 올라가게 하기위해 추가함
         ) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????
     {
@@ -641,7 +664,7 @@ void Player::Jumping()
         if (heightLevel < feedBackPos.y)
             heightLevel = feedBackPos.y;
 
-        if (isCeiling) 
+        if (isCeiling)
         {
             jumpVel = -20;
             isCeiling = false;
@@ -650,7 +673,7 @@ void Player::Jumping()
         float tempJumpVel;
         float tempY;
 
-        if (preHeight - heightLevel > 5.0f && curState != JUMP1 && curState != JUMP2)
+        if (curState!= JUMP1 && curState!= JUMP2 && preHeight - heightLevel > 5.0f)
         {
             jumpVel = -1;
 
@@ -707,6 +730,13 @@ void Player::Targeting()
     Vector3 offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
 
     MonsterManager::Get()->ActiveSpecialKey(Pos(), offset);
+
+    ArrowManager::Get()->OnOutLineByRay(mouseRay);
+
+    offset = (CAM->Right() * 1.5f) + (CAM->Up() * 3.f);
+
+    ArrowManager::Get()->ActiveSpecialKey(Pos(), offset);
+    
 }
 
 void Player::Cover()
@@ -751,7 +781,7 @@ bool Player::OnColliderFloor(Vector3& feedback)
         //feedback.y += 0.1f; //살짝 띄움으로서 충돌 방지
         return true;
     }
-    
+
     return false;
 }
 

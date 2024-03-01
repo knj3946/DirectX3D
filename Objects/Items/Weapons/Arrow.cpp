@@ -1,8 +1,8 @@
 #include "Framework.h"
 #include "Arrow.h"
 
-Arrow::Arrow(Transform* transform)
-	: transform(transform)
+Arrow::Arrow(Transform* transform, int id,bool isDropItem)
+	: transform(transform),index(id),isDropItem(isDropItem)
 {
 	transform->Scale() = { 3,3,3 }; // 크기 기본 값은 1 -> 수정하기 쉽게 작성된 코드
 
@@ -37,7 +37,7 @@ Arrow::~Arrow()
 void Arrow::Update()
 {
 	// 비활성화 중에는 안 움직임
-	if (!transform->Active())
+	if (!transform->Active()||isDropItem)
 	{
 		return;
 	}
@@ -71,6 +71,8 @@ void Arrow::Render()
 {
 	collider->Render();
 
+	if (isDropItem)return;
+
 	if (trail != nullptr)
 		trail->Render();
 }
@@ -79,6 +81,7 @@ void Arrow::Throw(Vector3 pos, Vector3 dir)
 {
 	// 활성화
 	transform->SetActive(true);
+	collider->SetActive(true);
 	transform->Pos() = pos;
 	direction = dir;
 
@@ -97,4 +100,20 @@ void Arrow::Throw(Vector3 pos, Vector3 dir)
 // XMConvertToRadians 는 각도를 호도로 바꿔주는 함수 - 추천 x
 
 	time = 0; // 경과시간 리셋
+}
+
+void Arrow::SetOutLine(bool flag)
+{
+	if (transform->Active() == false)return;
+	outLine = flag;
+	ArrowManager::Get()->GetInstancing()->SetOutLine(index, flag);
+}
+
+void Arrow::GetItem()// 이 아이템을 플레이어가 주웠을 때
+{
+	collider->SetActive(false);
+	ArrowManager::Get()->SetActiveSpecialKey(false);
+	
+	isDropItem = false;
+	transform->SetActive(false);
 }
