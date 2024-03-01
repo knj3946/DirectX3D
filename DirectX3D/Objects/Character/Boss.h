@@ -15,8 +15,8 @@ private:
         WALK,
         RUN,
         ATTACK,
-        ROAR,
     
+        ROAR,
         DEATH
 
     };
@@ -102,6 +102,12 @@ private:
     Collider* targetCollider;
     float informRange;
     Vector3 velocity;
+
+
+    Transform* Mouth;
+    CapsuleCollider* RoarCollider;
+    ParticleSystem* Roarparticle;
+
   
   
 
@@ -125,12 +131,13 @@ private:
 
   
     float AttackRange = 5.f;
-    float JumpAttackRange = 20.f;
-    float JumpAttackSpeed = 100.f;
-   
+    float RoarRange = 10.f;
+    float RoarCoolTime = 0.f;
+    bool bRoar = false;
   
   private:
 
+    void CoolTimeCheck();
    // bool IsFindTarget() { return bFind; };
     void AddObstacleObj(Collider* collider);
     void Idle();
@@ -152,9 +159,10 @@ private:
     void Detection();
 
     void EndAttack();
-    void EndJumpAttack();
+
     void StartAttack();
-    void StartJumpAttack();
+  
+    void EndRoar();
     void EndHit();
     void EndDying();
  //   void EndJumpAttack();

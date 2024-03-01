@@ -78,11 +78,12 @@ public:
 	void Play(Vector3 pos,Vector3 rot = Vector3()); // 파티클을 재생할 장소와, 회전정보
 													//회전정보가 필요한 이유 = 빌보드가 아닐 수도 있어서
 													//매개변수 기본이 {0,0,0}인 이유 = 빌보드가 기본이라서
-
+	void Play();
 	void Stop(); //단독 클래스라서 멈추는 것도 함수가 따로 필요하다
-	
-	bool IsActive() { return quad->Active(); } // 쿼드의 활성화 여부에서 파티클의 활성화를 판단
 
+
+	bool IsActive() { return quad->Active(); } // 쿼드의 활성화 여부에서 파티클의 활성화를 판단
+	Quad* GetQuad() { return quad; }
 private:
 	void UpdatePhysical(); // 물리적 대상 = 정점 등을 업데이트
 	void UpdateColor(); // 색상 업데이트

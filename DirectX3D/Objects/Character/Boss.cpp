@@ -9,8 +9,8 @@ Boss::Boss()
 	instancing->ReadClip("Walking");
 	instancing->ReadClip("Run Forward");
 	instancing->ReadClip("Mutant Swiping");
-	instancing->ReadClip("Mutant Roaring");
 	
+	instancing->ReadClip("Mutant Roaring");
 	instancing->ReadClip("Falling Forward Death");
 	
 	totalEvent.resize(instancing->GetClipSize()); //모델이 가진 동작 숫자만큼 이벤트 리사이징
@@ -18,8 +18,20 @@ Boss::Boss()
 	index = 0;
 	collider = new CapsuleCollider(50, 100);
 	collider->SetParent(transform);
-	collider->Pos().y += 100;
 
+	collider->Pos().y += 100;
+	
+	Mouth = new Transform;
+	RoarCollider = new CapsuleCollider();
+	RoarCollider->Pos().z -= 140.f;
+	RoarCollider->Rot().x = XMConvertToRadians(90);
+	RoarCollider->Scale() = { 95.f,60.f,93.f };
+	RoarCollider->SetParent(Mouth);
+	RoarCollider->SetActive(false);
+	Roarparticle = new ParticleSystem("TextData/Particles/Roar.fx");
+	Roarparticle->GetQuad()->SetParent(Mouth);
+	Roarparticle->GetQuad()->Pos() = { 4.f,-9.f,-6.f };
+	Roarparticle->GetQuad()->Scale() = { 25.f,36.f,42.f };
 	leftHand = new Transform;
 	leftCollider = new CapsuleCollider(10, 10);
 	leftCollider->Scale() *= 2.2f;
@@ -39,7 +51,8 @@ Boss::Boss()
 	SetEvent(ATTACK, bind(&Boss::StartAttack, this), 0.f);
 	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.99f);
 	SetEvent(ATTACK, bind(&Boss::DoingAttack, this), 0.6f);
-	SetEvent(ROAR, bind(&Boss::Roar, this), 0.5f);
+	SetEvent(ROAR, bind(&Boss::Roar, this), 0.3f);
+	SetEvent(ROAR, bind(&Boss::EndRoar, this), 0.99f);
 	SetEvent(DEATH, bind(&Boss::EndDying, this), 0.9f);
 
 
@@ -71,6 +84,9 @@ Boss::~Boss()
 	delete hpBar;
 	delete exclamationMark;
 	delete questionMark;
+	delete Mouth;
+	delete RoarCollider;
+	delete Roarparticle;
 }
 void Boss::DoingAttack() {
 	//if(leftCollider->IsCollision(target->))
@@ -84,13 +100,16 @@ void Boss::Render()
 		rangeBar->Render();
 	leftCollider->Render();
 	
+	RoarCollider->Render();
 	collider->Render();
+	Roarparticle->Render();
 
 
 }
 
 void Boss::Update()
 {
+
 
 
 
@@ -103,9 +122,7 @@ void Boss::Update()
 	
 	Die();
 	Control();
-	ExecuteEvent();
-	
-
+	CoolTimeCheck();
 
 	instancing->Update();
 	leftHand->SetWorld(instancing->GetTransformByNode(index, 14));
@@ -120,8 +137,15 @@ void Boss::Update()
 	hpBar->Rot().y = atan2(dir.x, dir.z);
 
 
+	ExecuteEvent();
+
+	Mouth->SetWorld(instancing->GetTransformByNode(index, 9));
+	RoarCollider->UpdateWorld();
+	Roarparticle->Update();
 	hpBar->UpdateWorld();
 	rangeBar->UpdateWorld();
+
+
 
 
 	UpdateUI();
@@ -136,9 +160,9 @@ void Boss::PostRender()
 }
 
 void Boss::GUIRender() {
-	
-	
+	ImGui::DragInt("count",(int*)&count,1,0,15);
 
+	Roarparticle->GUIRender();
 }
 
 void Boss::CalculateEyeSight()
@@ -184,6 +208,17 @@ void Boss::CalculateEyeSight()
 
 void Boss::CalculateEarSight()
 {
+}
+
+void Boss::CoolTimeCheck()
+{
+	if (bRoar) {
+		RoarCoolTime += DELTA;
+	}
+	if (RoarCoolTime >= 5.f) {
+		bRoar = false;
+		RoarCoolTime = 0.f;
+	}
 }
 
 void Boss::AddObstacleObj(Collider* collider)
@@ -275,6 +310,8 @@ void Boss::IdleMove() {
 void Boss::Roar()
 {
 	//맵에있는 오크들 다부르며 원거리 공격
+	RoarCollider->SetActive(true);
+	Roarparticle->Play();
 }
 
 
@@ -311,7 +348,12 @@ void Boss::UpdateUI()
 
 void Boss::SetState(STATE state, float scale, float takeTime)
 {
-	if (state == curState) return; // 이미 그 상태라면 굳이 변환 필요 없음
+	if (state == curState)
+	{
+	
+		return; // 이미 그 상태라면 굳이 변환 필요 없음
+
+	}
 
 
 	curState = state;
@@ -441,42 +483,36 @@ void Boss::EndDying()
 {
 }
 
-void Boss::EndJumpAttack()
-{
-	velocity = target->GlobalPos() - transform->GlobalPos();
-	totargetlength = velocity.Length();
-	bWait = false;
-	if (totargetlength > AttackRange) {
-		if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
-		{
-			SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
-		}
-		else
-		{
-			path.clear(); // 굳이 장애물없는데 길찾기 필요 x
-			path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
-		}
-	}
-	else
-	{
-		UINT random = rand() % 2;
-		path.clear();
-		if (!random)
-			SetState(ATTACK, 3.0f);
-	
 
-	}
-	
-}
 
 void Boss::StartAttack()
 {
 	bWait = true;
 }
 
-void Boss::StartJumpAttack()
+
+void Boss::EndRoar()
 {
-	bWait = true;
+	RoarCollider->SetActive(false);
+	Roarparticle->Stop();
+	bRoar = true;
+	velocity = target->GlobalPos() - transform->GlobalPos();
+	totargetlength = velocity.Length();
+	moveSpeed = runSpeed;
+	dir = velocity.GetNormalized();
+	if (totargetlength > AttackRange) {
+		SetState(RUN);
+		bWait = false;
+
+	}
+	else
+	{
+		path.clear();
+		SetState(ATTACK, 3.0f);
+		bWait = true;
+
+	}
+	
 }
 
 bool Boss::IsPatrolPos()
@@ -510,7 +546,15 @@ void Boss::Run()
 	moveSpeed = runSpeed;
 	dir = velocity.GetNormalized();
 	if (totargetlength > AttackRange) {
-
+		if (totargetlength < RoarRange) {
+			if (RoarCoolTime <= 0.f)
+			{
+				path.clear();
+				SetState(ROAR);
+				bWait = true;
+				
+			}
+		}
 
 		if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
 		{
