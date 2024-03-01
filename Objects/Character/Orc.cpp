@@ -172,6 +172,29 @@ void Orc::PostRender()
 void Orc::SetTerrain(LevelData* terrain)
 {
     this->terrain = terrain;
+
+    vector<VertexType> vertices = terrain->GetMesh()->GetVertices();
+    vector<UINT> indices = terrain->GetMesh()->GetIndices();
+
+    terrainTriangleSize = indices.size() / 3;
+
+    inputs.resize(terrainTriangleSize);
+    outputs.resize(terrainTriangleSize);
+
+    for (UINT i = 0; i < terrainTriangleSize; i++)
+    {
+        UINT index0 = indices[i * 3 + 0];
+        UINT index1 = indices[i * 3 + 1];
+        UINT index2 = indices[i * 3 + 2];
+
+        inputs[i].v0 = vertices[index0].pos;
+        inputs[i].v1 = vertices[index1].pos;
+        inputs[i].v2 = vertices[index2].pos;
+    }
+
+    structuredBuffer = new StructuredBuffer(
+        inputs.data(), sizeof(InputDesc), terrainTriangleSize,
+        sizeof(OutputDesc), terrainTriangleSize);
    
 }
 
@@ -625,7 +648,7 @@ void Orc::Move()
         //지형 오르기
         
         Vector3 destFeedBackPos;
-        Vector3 destPos = transform->Pos() + velocity * moveSpeed * DELTA;
+        Vector3 destPos = transform->GlobalPos() + velocity * moveSpeed * DELTA;
         Vector3 OrcSkyPos = destPos;
         OrcSkyPos.y += 100;
         Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
@@ -912,6 +935,8 @@ void Orc::CalculateEyeSight()
 
     float degree = XMConvertToDegrees(transform->Rot().y);
     degree = degree < 0.0f ? degree + 360.0f : degree;
+    while (degree > 360.0f)
+        degree -= 360.0f;
 
     float dirz = transform->Forward().z;
     float rightdir1 = -(180.f - eyeSightangle) + degree + 360;
@@ -934,75 +959,39 @@ void Orc::CalculateEyeSight()
         Enemytothisangle += 360;
     }
 
-    if (Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange) {
-
-        //SetRay(target->GlobalPos()); //레이 여러개 사용
+    if ((Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange)
+        &&((leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle)
+                    //|| behaviorstate == NPC_BehaviorState::DETECT //발견된 상태에서는 시야각 상관없이 추적할지??
+        )) 
+    {
+        //SetRay(target->GlobalPos()); //레이 여러개 사용을 위해 주석처리
         SetEyePos(); //눈 위치만 설정
 
-            if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
-
-                //발각
-                /*
-                for (UINT i = 0; i < ColliderManager::Get()->Getvector(ColliderManager::WALL).size(); ++i) {
-                    if (ColliderManager::Get()->Getvector(ColliderManager::WALL)[i]->IsRayCollision(ray))
-                    {
-                        if (bDetection) {
-                            bDetection = false;
-                            DetectionStartTime = 0.001f;
-                        }
-                        return;
-                   }
+        //발각
+        /*
+        for (UINT i = 0; i < ColliderManager::Get()->Getvector(ColliderManager::WALL).size(); ++i) {
+            if (ColliderManager::Get()->Getvector(ColliderManager::WALL)[i]->IsRayCollision(ray))
+            {
+                if (bDetection) {
+                    bDetection = false;
+                    DetectionStartTime = 0.001f;
                 }
-                */
-
-                if (!EyesRayToDetectTarget(targetCollider, eyesPos)) //리턴 값 false면 가려서 안보이는 것
-                {
-                    if (bDetection) {
-                        bDetection = false;
-                        DetectionStartTime = 0.001f;
-                    }
-                    return;
-                }
-                
-                // 추후 오크매니저에서 씬에 깔린 모든 벽들 체크해서 ray충돌페크
-                // behaviorstate = NPC_BehaviorState::DETECT;
-                bDetection = true;
+                return;
             }
-            else {
-                if (Enemytothisangle > 0) {
-                    Enemytothisangle += 360;
-                }
+        }
+        */
 
-                if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
-                    //발각
-                    /*
-                    for (UINT i = 0; i < ColliderManager::Get()->Getvector(ColliderManager::WALL).size(); ++i) {
-                        if (ColliderManager::Get()->Getvector(ColliderManager::WALL)[i]->IsRayCollision(ray))
-                        {
-                            if (bDetection) {
-                                bDetection = false;
-                                DetectionStartTime = 0.001f;
-                            }
-                            return;
-                        }
-                    }
-                    */
-
-                    if (!EyesRayToDetectTarget(targetCollider, eyesPos))
-                    {
-                        if (bDetection) {
-                            bDetection = false;
-                            DetectionStartTime = 0.001f;
-                        }
-                        return;
-                    }
-                    // 추후 오크매니저에서 씬에 깔린 모든 벽들 체크해서 ray충돌페크
-                    //  behaviorstate = NPC_BehaviorState::DETECT;
-                    bDetection = true;
-                }
-                else
-                    bDetection = false; //범위 내이지만 최종적으로 시야각 안에 없을시에 false 처리
+        if (!EyesRayToDetectTarget(targetCollider, eyesPos)) //리턴 값 false면 가려서 안보이는 것
+        {
+            if (bDetection) {
+                bDetection = false;
+                DetectionStartTime = 0.001f;
             }
+            return;
+        }
+        // 추후 오크매니저에서 씬에 깔린 모든 벽들 체크해서 ray충돌페크
+        // behaviorstate = NPC_BehaviorState::DETECT;
+        bDetection = true;
     }
     else
         bDetection = false;
