@@ -215,7 +215,7 @@ private:
     bool bDetection = false;
     bool bFind = false;
     float DetectionStartTime = 0.f;
-    float DetectionEndTime = 2.f;
+    float DetectionEndTime = 0.3f;
     bool missTarget = false;
     bool missTargetTrigger = false;
     float missStartTime = 0.f;

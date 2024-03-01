@@ -117,7 +117,7 @@ void Orc::SetType(NPC_TYPE _type) {
 void Orc::Update()
 {
     if (!transform->Active()) return; //활성화 객체가 아니면 리턴
-  
+
     Direction();// 방향지정 함수
     CalculateEyeSight(); //시야에 발각됬는지 확인하는 함수 (bDetection 설정)
     CalculateEarSight(); //소리가 들렸는지 확인하는 함수
@@ -125,11 +125,13 @@ void Orc::Update()
     RangeCheck(); //발견되었다가 사라진 플레이어 탐지
     TimeCalculator(); //공격 간격을 두기 위한 설정
     PartsUpdate(); //모델 각 파츠 업데이트
-    ExecuteEvent(); //이벤트 있으면 실행
     StateRevision(); //애니메이션 중간에 끊겨서 변경안된 값들 보정
     ParticleUpdate(); //파티클이펙트 업데이트
     UpdateUI(); //UI 업데이트
+    ExecuteEvent(); //이벤트 있으면 실행
 
+    if (curState == DYING)
+        return;
 
     //====================== 이동관련==============================
     if (CalculateHit()) return; //맞는 중이면 리턴 (이 아래는 이동과 관련된 것인데 맞는중에는 필요없음)
@@ -375,7 +377,6 @@ void Orc::Hit(float damage,Vector3 collisionPos)
         if (destHP <= 0)
         {
             SetState(DYING);
-
             return;
         }
 
@@ -642,8 +643,6 @@ void Orc::Move()
             transform->Rot().y = XMConvertToRadians(value);
 
         }
-
-        
 
         //지형 오르기
         
@@ -966,7 +965,7 @@ void Orc::CalculateEyeSight()
 
     if ((Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange)
         &&((leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle)
-                    //|| behaviorstate == NPC_BehaviorState::DETECT //발견된 상태에서는 시야각 상관없이 추적할지??
+                    || behaviorstate == NPC_BehaviorState::DETECT //발견된 상태에서는 시야각 상관없이 추적
         )) 
     {
         //SetRay(target->GlobalPos()); //레이 여러개 사용을 위해 주석처리
