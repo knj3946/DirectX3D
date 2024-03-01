@@ -6,7 +6,7 @@ private:
     enum State
     {
         IDLE, WALK
-        , RUN, HIT, ATTACK, THROW, DYING
+        , RUN, HIT, ASSASSINATED, ATTACK, THROW, DYING
     };// throw ´Â attack16 Å¬¸³
     
 
@@ -105,7 +105,7 @@ public:
     bool IsOutLine() { return outLine; };
     bool IsDetectTarget() { return bDetection; };
 
-    void Assassination(Vector3 collisionPos);
+    void Assassinated(Vector3 collisionPos, Transform* attackerTrf);
 private:
     void Control();
     void Move();
@@ -122,6 +122,7 @@ private:
 
     void EndAttack();
     void EndHit();
+    void EndAssassinated();
     void EndDying();
 
     void CalculateEyeSight();

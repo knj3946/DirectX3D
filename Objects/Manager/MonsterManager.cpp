@@ -9,7 +9,8 @@ MonsterManager::MonsterManager()
     orcInstancing->ReadClip("character1@walk3");
     orcInstancing->ReadClip("Orc_Run");
     orcInstancing->ReadClip("Orc_Hit");
-    
+    orcInstancing->ReadClip("character1@dodge"); //암살당하기
+
     // 아래 3개중 1개 모션으로 공격
     orcInstancing->ReadClip("character1@atack22");
     orcInstancing->ReadClip("character1@atack23");
@@ -44,6 +45,7 @@ MonsterManager::MonsterManager()
         quad->GetMaterial()->SetShader(L"Basic/Texture.hlsl");
         quad->GetMaterial()->SetDiffuseMap(L"Textures/UI/SpecialKeyUI_ass.png");
         sk.name = "assassination";
+        sk.key = 'Z';
         sk.quad = quad;
         sk.active = false;
         specialKeyUI.insert(make_pair(sk.name, sk));
@@ -350,6 +352,8 @@ void MonsterManager::OnOutLineByRay(Ray ray)
 
 void MonsterManager::ActiveSpecialKey(Vector3 playPos,Vector3 offset)
 {
+    InteractManager::Get()->ClearSkill();
+
     for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
 
         iter.second.active = false;
@@ -367,17 +371,8 @@ void MonsterManager::ActiveSpecialKey(Vector3 playPos,Vector3 offset)
             sk.active = true;
             sk.quad->Pos() = CAM->WorldToScreen(orc->GetTransform()->GlobalPos()+ offset);
             sk.quad->UpdateWorld();
-        }
-    }
-}
 
-void MonsterManager::ExecuteSpecialKey()
-{
-    for (Orc* orc : orcs)
-    {
-        if (orc->IsOutLine())
-        {
-            orc->Assassination(orc->GetCollider()->GlobalPos()); // 나중에 파티클 재생 위치 수정
+            InteractManager::Get()->ActiveSkill("assassination",sk.key, bind(&InteractManager::Assassination, InteractManager::Get(), orc));
         }
     }
 }

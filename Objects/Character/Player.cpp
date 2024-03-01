@@ -84,14 +84,16 @@ Player::Player()
     ReadClip("Crouched Sneaking Left"); // ?????? 0??? 1???? ????
     ReadClip("Crouch Turn To Stand"); // ?????? 0??? 1???? ????
 
-    ReadClip("Turning Right"); // TO_ASSASIN //???? ???? ?????? ????
-
     ReadClip("Head Hit");
+
+    ReadClip("Climbing");
 
     temp = "Attack/";
 
     //NONE
     ReadClip(temp + "Side Kick");
+    ReadClip(temp + "Assassination1");
+    ReadClip(temp + "Assassination2");
 
     //DAGGER
     ReadClip(temp + "Stable Sword Outward Slash");
@@ -120,9 +122,10 @@ Player::Player()
 
     GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //????
 
-    //GetClip(TO_ASSASIN)->SetEvent(bind(&Player::Assasination, this), 0.01f);   //???
-
     GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f); // ????? ??????
+
+    GetClip(ASSASSINATION1)->SetEvent(bind(&Player::EndAssassination, this,1), 0.9f);
+    GetClip(ASSASSINATION2)->SetEvent(bind(&Player::EndAssassination, this,2), 0.9f);
 
     GetClip(DAGGER1)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
     GetClip(DAGGER2)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
@@ -205,6 +208,7 @@ void Player::Update()
     Control();
     Searching();
     Targeting();
+    UseSkill();
 
     //이 함수 내에서 조건으로 애니메이션 세팅을 중단하지 말고,
     //특정 애니메이션이 동작하면 canSettingAnim같은 bool 변수를 false로 만들어서
@@ -349,6 +353,11 @@ void Player::SetTerrain(LevelData* terrain)
         sizeof(OutputDesc), terrainTriangleSize);
 }
 
+void Player::Assassination()
+{
+    SetState(ASSASSINATION1,2.0f);
+}
+
 void Player::CameraMove()
 {
     Ray cameraRay = CAM->ScreenPointToRay(mousePos);
@@ -451,12 +460,6 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
         // 화살 줍기
         ArrowManager::Get()->ExecuteSpecialKey();
     }
-    if (KEY_DOWN('Z'))
-    {
-        // 암살
-        MonsterManager::Get()->ExecuteSpecialKey();
-    }
-
 
     Move();
     Jumping();
@@ -739,6 +742,17 @@ void Player::Targeting()
     
 }
 
+void Player::UseSkill()
+{
+    for (InteractManager::Skill s : InteractManager::Get()->GetActiveSkills())
+    {
+        if (KEY_DOWN(s.key)) // 등록되어있는 키를 누르면
+        {
+            s.event(); //등록되어있는 함수 실행
+        }
+    }
+}
+
 void Player::Cover()
 {
     targetTransform->Pos() = { contact.hitPoint.x, Pos().y, contact.hitPoint.z };
@@ -752,14 +766,24 @@ void Player::Cover()
     targetTransform->Pos() -= BACK * 30;
 }
 
-void Player::Assasination()
-{
-    //targetTransform->Pos() = { contact.x, Pos().y, contact.hitPoint.z };
-
-}
-
 bool Player::InTheAir() {
     return ((curState == JUMP1 || curState == JUMP2 || curState == JUMP3) && Pos().y > feedBackPos.y);
+}
+
+void Player::EndAssassination(UINT num)
+{
+    if (num == 1)
+        SetState(ASSASSINATION2);
+    else
+    {
+        if (weaponState == DAGGER)
+            SetState(IDLE);
+        else if (weaponState == BOW)
+            SetState(B_IDLE);
+        else
+            SetState(IDLE);
+    }
+        
 }
 
 void Player::EndHit()
@@ -901,6 +925,8 @@ void Player::SetState(State state, float scale, float takeTime)
 
 void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 매개변수로 값을 받아올 경우엔 바로 그 state로 변경하게 만들기
 {
+    if (curState == ASSASSINATION1 || curState == ASSASSINATION2) return;
+        
     if (weaponState == DAGGER)
     {
         if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;   //????? ???? ??찡 ????? ?????? Pos().y?? ???? ???? ?????? ????

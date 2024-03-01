@@ -6,6 +6,7 @@ private:
     struct SpecialKeyUI
     {
         string name;
+        char key;
         Quad* quad;
         bool active;
     };
@@ -49,7 +50,6 @@ public:
 
     void OnOutLineByRay(Ray ray);
     void ActiveSpecialKey(Vector3 playPos, Vector3 offset);
-    void ExecuteSpecialKey();
 
 private:
     void Collision();   

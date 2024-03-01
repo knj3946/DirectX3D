@@ -207,6 +207,7 @@ using namespace GameMath;
 #include "Manager/SceneManager.h"
 #include "Manager/GameManager.h"
 #include "Manager/ColliderManager.h"
+#include "Manager/InteractManager.h"
 
 extern HWND hWnd;
 extern Vector3 mousePos;

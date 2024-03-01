@@ -41,6 +41,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     SetEvent(ATTACK, bind(&Orc::EndAttack, this), 0.99f);
     SetEvent(THROW, bind(&Orc::Throw, this), 0.59f);
     SetEvent(HIT, bind(&Orc::EndHit, this), 0.99f);
+    SetEvent(ASSASSINATED, bind(&Orc::EndAssassinated, this), 0.9f);
     SetEvent(DYING, bind(&Orc::EndDying, this), 0.9f);
 
     SetEvent(ATTACK,bind(&Collider::SetActive, leftWeaponCollider, true), 0.11f); //콜라이더 켜는 시점 설정
@@ -118,11 +119,15 @@ void Orc::Update()
 {
     if (!transform->Active()) return; //활성화 객체가 아니면 리턴
 
-    Direction();// 방향지정 함수
-    CalculateEyeSight(); //시야에 발각됬는지 확인하는 함수 (bDetection 설정)
-    CalculateEarSight(); //소리가 들렸는지 확인하는 함수
-    Detection(); //플레이어를 인지했는지 확인하는 함수
-    RangeCheck(); //발견되었다가 사라진 플레이어 탐지
+    if (curState != DYING || curState != ASSASSINATED)
+    {
+        Direction();// 방향지정 함수
+        CalculateEyeSight(); //시야에 발각됬는지 확인하는 함수 (bDetection 설정)
+        CalculateEarSight(); //소리가 들렸는지 확인하는 함수
+        Detection(); //플레이어를 인지했는지 확인하는 함수
+        RangeCheck(); //발견되었다가 사라진 플레이어 탐지
+    }
+
     TimeCalculator(); //공격 간격을 두기 위한 설정
     PartsUpdate(); //모델 각 파츠 업데이트
     StateRevision(); //애니메이션 중간에 끊겨서 변경안된 값들 보정
@@ -130,7 +135,7 @@ void Orc::Update()
     UpdateUI(); //UI 업데이트
     ExecuteEvent(); //이벤트 있으면 실행
 
-    if (curState == DYING)
+    if (curState == DYING || curState == ASSASSINATED)
         return;
 
     //====================== 이동관련==============================
@@ -386,6 +391,17 @@ void Orc::Hit(float damage,Vector3 collisionPos)
 
         particleHit->Play(collisionPos); // 해당위치에서 파티클 재생
     }
+
+    if (curState == ASSASSINATED)
+    {
+        collider->SetActive(false);
+        leftWeaponCollider->SetActive(false);
+        rightWeaponCollider->SetActive(false);
+        destHP = 0;
+        curHP = 0;
+        SetState(DYING);
+        return;
+    }
     //// 아직 안 죽었으면 산 로봇답게 맞는 동작 수행
     //curState = HIT;
     //instancing->PlayClip(index, HIT);
@@ -441,11 +457,27 @@ void Orc::Findrange()
     behaviorstate = NPC_BehaviorState::DETECT;
 }
 
-void Orc::Assassination(Vector3 collisionPos)
+void Orc::Assassinated(Vector3 collisionPos,Transform* attackerTrf)
 {
-    // 임시로 나중에 암살로 죽는 애니메이션 설정하기
-    // hpbar도
-    Hit(120, collisionPos);
+    transform->Rot() = attackerTrf->Rot();
+    transform->UpdateWorld();
+   
+    float dis = Distance(transform->GlobalPos(), attackerTrf->GlobalPos());
+
+    if (dis < 4.f)
+    {
+        transform->Pos() += transform->Back() * (4 - dis);
+    }
+    transform->UpdateWorld();
+
+    PartsUpdate();
+
+    //암살 애니메이션 재생
+    SetState(ASSASSINATED,0.3f);
+
+    //암살했을시 피통 시각적 효과를 위해서
+    isHit = true;
+    destHP = 1; 
 }
 
 void Orc::Control()
@@ -818,7 +850,7 @@ void Orc::SetState(State state, float scale, float takeTime)
     else if(curState==DYING)
         instancing->PlayClip(index, (int)state+2,0.5);
     else
-        instancing->PlayClip(index, (int)state); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
+        instancing->PlayClip(index, (int)state, scale); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
     eventIters[state] = totalEvent[state].begin(); //이벤트 반복자도 등록된 이벤트 시작시점으로
 
     // ->이렇게 상태와 동작을 하나로 통합해두면
@@ -900,6 +932,13 @@ void Orc::EndAttack()
 void Orc::EndHit()
 {
     collider->SetActive(true);
+}
+
+void Orc::EndAssassinated()
+{
+    Vector3 pos = transform->GlobalPos();
+    pos.y += 5;
+    Hit(120, pos);
 }
 
 void Orc::EndDying()
