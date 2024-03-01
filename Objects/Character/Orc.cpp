@@ -359,7 +359,7 @@ void Orc::Hit(float damage,Vector3 collisionPos)
 
         isHit = true;
 
-        particleHit->Play(collider->GlobalPos()); // 웨폰위치에서 파티클 재생
+        particleHit->Play(collisionPos); // 해당위치에서 파티클 재생
     }
     //// 아직 안 죽었으면 산 로봇답게 맞는 동작 수행
     //curState = HIT;
@@ -416,11 +416,11 @@ void Orc::Findrange()
     behaviorstate = NPC_BehaviorState::DETECT;
 }
 
-void Orc::Assassination()
+void Orc::Assassination(Vector3 collisionPos)
 {
     // 임시로 나중에 암살로 죽는 애니메이션 설정하기
     // hpbar도
-    Hit(120);
+    Hit(120, collisionPos);
 }
 
 void Orc::Control()

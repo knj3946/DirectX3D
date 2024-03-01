@@ -105,7 +105,7 @@ public:
     bool IsOutLine() { return outLine; };
     bool IsDetectTarget() { return bDetection; };
 
-    void Assassination();
+    void Assassination(Vector3 collisionPos);
 private:
     void Control();
     void Move();

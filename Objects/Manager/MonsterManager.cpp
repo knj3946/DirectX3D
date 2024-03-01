@@ -377,7 +377,7 @@ void MonsterManager::ExecuteSpecialKey()
     {
         if (orc->IsOutLine())
         {
-            orc->Assassination();
+            orc->Assassination(orc->GetCollider()->Pos()); // 나중에 파티클 재생 위치 수정
         }
     }
 }
