@@ -8,6 +8,30 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
 
     //root = new Transform();
 
+    //충돌체
+    collider = new CapsuleCollider(50, 120);
+    collider->SetParent(transform);
+    //collider->Rot().z = XM_PIDIV2 - 0.2f;
+    collider->Pos() = { -15, 80, 0 };
+    collider->SetActive(false); //spawn 할때 활성화
+
+    // 무기 충돌체
+    leftHand = new Transform();
+    leftWeaponCollider = new CapsuleCollider(8, 50);
+    leftWeaponCollider->Pos().y += 20;
+    leftWeaponCollider->SetParent(leftHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
+    leftWeaponCollider->SetActive(false); //attack 할때 활성화
+
+    weaponColliders.push_back(leftWeaponCollider);
+
+    rightHand = new Transform();
+    rightWeaponCollider = new CapsuleCollider(6, 30);
+    rightWeaponCollider->Pos().y += 20;
+    rightWeaponCollider->SetParent(rightHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
+    rightWeaponCollider->SetActive(false); //attack 할때 활성화
+
+    weaponColliders.push_back(rightWeaponCollider);
+
  
     motion = instancing->GetMotion(index);
     totalEvent.resize(instancing->GetClipSize()); //모델이 가진 동작 숫자만큼 이벤트 리사이징
@@ -19,34 +43,16 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     SetEvent(HIT, bind(&Orc::EndHit, this), 0.99f);
     SetEvent(DYING, bind(&Orc::EndDying, this), 0.9f);
 
+    SetEvent(ATTACK,bind(&Collider::SetActive, leftWeaponCollider, true), 0.11f); //콜라이더 켜는 시점 설정
+    SetEvent(ATTACK,bind(&Collider::SetActive, rightWeaponCollider, true), 0.12f); //콜라이더 켜는 시점 설정
+
+    SetEvent(ATTACK,bind(&Collider::SetActive, leftWeaponCollider, false), 0.98f); //콜라이더 꺼지는 시점 설정
+    SetEvent(ATTACK,bind(&Collider::SetActive, rightWeaponCollider, false), 0.99f); //콜라이더 꺼지는 시점 설정
+
     FOR(totalEvent.size())
     {
         eventIters[i] = totalEvent[i].begin(); // 등록되어 있을 이벤트의 시작지점으로 반복자 설정
     }
-
-    //충돌체
-    collider = new CapsuleCollider(50, 120);
-    collider->SetParent(transform);
-    //collider->Rot().z = XM_PIDIV2 - 0.2f;
-    collider->Pos() = { -15, 80, 0 };
-    collider->SetActive(false); //spawn 할때 활성화
-
-    // 무기 충돌체
-    leftHand = new Transform();
-    leftWeaponCollider = new CapsuleCollider(8,50);
-    leftWeaponCollider->Pos().y += 20;
-    leftWeaponCollider->SetParent(leftHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
-    leftWeaponCollider->SetActive(false); //attack 할때 활성화
-
-    weaponColliders.push_back(leftWeaponCollider);
-
-    rightHand = new Transform();
-    rightWeaponCollider = new CapsuleCollider(6, 30);
-    //rightWeaponCollider->Pos().y += 20;
-    rightWeaponCollider->SetParent(rightHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
-    rightWeaponCollider->SetActive(false); //attack 할때 활성화
-
-    weaponColliders.push_back(rightWeaponCollider);
 
     // hp UI
     hpBar = new ProgressBar(L"Textures/UI/hp_bar.png", L"Textures/UI/hp_bar_BG.png");
@@ -66,6 +72,8 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
 
     computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
     rayBuffer = new RayBuffer();
+
+    particleHit = new ParticleSystem("TextData/Particles/SlowHit.fx");
     
 }
 
@@ -86,6 +94,7 @@ Orc::~Orc()
     delete questionMark;
     for (Collider* wcollider : weaponColliders)
         delete wcollider;
+    delete particleHit;
 }
 
 void Orc::SetType(NPC_TYPE _type) {
@@ -107,82 +116,38 @@ void Orc::SetType(NPC_TYPE _type) {
 
 void Orc::Update()
 {
-    if (!transform->Active()) return;
+    if (!transform->Active()) return; //활성화 객체가 아니면 리턴
   
-    Direction();//
-    
-    CalculateEyeSight();
-    CalculateEarSight();
-    SoundPositionCheck();
+    Direction();// 방향지정 함수
+    CalculateEyeSight(); //시야에 발각됬는지 확인하는 함수 (bDetection 설정)
+    CalculateEarSight(); //소리가 들렸는지 확인하는 함수
+    Detection(); //플레이어를 인지했는지 확인하는 함수
+    RangeCheck(); //발견되었다가 사라진 플레이어 탐지
+    TimeCalculator(); //공격 간격을 두기 위한 설정
+    PartsUpdate(); //모델 각 파츠 업데이트
+    ExecuteEvent(); //이벤트 있으면 실행
+    StateRevision(); //애니메이션 중간에 끊겨서 변경안된 값들 보정
+    ParticleUpdate(); //파티클이펙트 업데이트
+    UpdateUI(); //UI 업데이트
 
-    Detection();
-  
-    RangeCheck();
-   
-    ExecuteEvent();
-    UpdateUI();
-    TimeCalculator();
 
-    //if(curState==DYING)
-
+    //====================== 이동관련==============================
+    if (CalculateHit()) return; //맞는 중이면 리턴 (이 아래는 이동과 관련된 것인데 맞는중에는 필요없음)
+    if (!GetDutyFlag()) //해야할일(움직임)이 생겼는지 확인
     {
-        Vector3 OrcSkyPos = transform->Pos();
-        OrcSkyPos.y += 100;
-        Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
-        TerainComputePicking(feedBackPos, groundRay);
+        //해야할일이 없을때
+        SetState(IDLE);
+        //IdleAIMove();
+        return;
     }
 
-    if (!collider->Active())return;
+    SetParameter(); //필요한 변수들 세팅
+    Control(); // 경로설정등 오크가 움직이기 위한 정보들 계산
+    Move(); //실제 움직임
 
-    if (isHit)
-    {
-        //맞는 중이면 다른동작 할 수 없음
-        wateTime = 0;
-    }
-    else
-    {
-        if (behaviorstate == NPC_BehaviorState::CHECK)return;
-        if (isTracking == false && path.empty())
-        {
-            //IdleAIMove();
-        }
-        else
-        {
-            Control();
 
-            switch (curState)
-            {
-            case ATTACK:
-            {
-                if (wateTime <= 0)
-                {
-                    Move();
-                    wateTime = 1.0f; //ATTACK 애니메이션이 끝나고 이동해야 하기 때문
-                }
-                leftWeaponCollider->SetActive(true);
-                rightWeaponCollider->SetActive(true);
-                break;
-            }
-            default:
-                //if (!isAttackable)break;
-                Move();
-                leftWeaponCollider->SetActive(false);
-                rightWeaponCollider->SetActive(false);
-            }
-            wateTime -= DELTA;
-        }
-    }
-    
-    //root->SetWorld(instancing->GetTransformByNode(index, 3));
-    transform->SetWorld(instancing->GetTransformByNode(index, 5));
-    collider->UpdateWorld();
-    transform->UpdateWorld();
-
-    leftHand->SetWorld(instancing->GetTransformByNode(index, 170));
-    leftWeaponCollider->UpdateWorld();
-    rightHand->SetWorld(instancing->GetTransformByNode(index, 187)); 
-    rightWeaponCollider->UpdateWorld();
-   
+    //현재 대놓고 오크 뒤로가면 오크가 플레이어를 찾지 못함
+    //추적중인 상태일때는 시야각을 360도로 늘려야할 필요가 있을것 같음(가려져서 숨은 경우만 찾지 못하게)  
 }
 
 void Orc::Render()
@@ -192,6 +157,8 @@ void Orc::Render()
     rightWeaponCollider->Render();
     hpBar->Render();
     //aStar->Render();
+
+    particleHit->Render();
 }
 
 void Orc::PostRender()
@@ -220,9 +187,13 @@ void Orc::SetSRT(Vector3 scale, Vector3 rot, Vector3 pos)
 
 void Orc::GUIRender()
 {
-    //ImGui::Text("bFind : %d", bFind);
-    //ImGui::Text("bDetection : %d", bDetection);
-    //ImGui::Text("isTracking : %d", isTracking);
+    ImGui::Text("bFind : %d", bFind);
+    ImGui::Text("bDetection : %d", bDetection);
+    ImGui::Text("isTracking : %d", isTracking);
+    ImGui::Text("missTargetTrigger : %d", missTargetTrigger);
+    ImGui::Text("NPC_BehaviorState : %d", behaviorstate);
+    ImGui::Text("curState : %d", curState);
+
     ImGui::Text("curhp : %f", curHP);
     ImGui::Text("desthp : %f", destHP);
 
@@ -257,7 +228,7 @@ void Orc::Direction()
         velocity = target->GlobalPos() - transform->GlobalPos();
     }
 }
-
+/*
 float Orc::Hit()
 {
     float r = 0.0f;
@@ -267,11 +238,95 @@ float Orc::Hit()
     }
     return r;
 }
-
+*/
 void Orc::Throw()
 {
     KunaiManager::Get()->Throw(transform->Pos()+Vector3(0,3,0), transform->Back());
     SetState(IDLE);
+}
+
+bool Orc::GetDutyFlag()
+{
+    if (isTracking == false && path.empty())
+        return false;
+
+    return true;
+}
+
+void Orc::SetParameter()
+{
+    SetGroundPos(); //현재 서있는 땅 위치 계산
+}
+
+void Orc::SetGroundPos()
+{
+    Vector3 OrcSkyPos = transform->Pos();
+    OrcSkyPos.y += 100;
+    Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
+    TerainComputePicking(feedBackPos, groundRay);
+}
+
+bool Orc::CalculateHit()
+{
+    if (isHit)
+    {
+        SetState(HIT);
+
+        if (!bFind)
+        {
+            // 탐지 안된 상태에서 맞았을경우 바로 찾기
+            bDetection = true;
+            isTracking = true;
+            bFind = true;
+            DetectionStartTime = DetectionEndTime;
+            behaviorstate = NPC_BehaviorState::DETECT;
+
+            Vector3 dir = (target->GlobalPos() - transform->Pos()).GetNormalized();
+            transform->Rot().y = atan2(dir.x, dir.z) + XM_PI;
+            transform->UpdateWorld();
+        }
+
+        if (curHP <= destHP)
+        {
+            isHit = false;
+            collider->SetActive(true);
+            leftWeaponCollider->SetActive(true);
+            rightWeaponCollider->SetActive(true);
+            SetState(IDLE);
+        }
+
+        return true; 
+    }
+    else
+        return false;
+}
+
+void Orc::PartsUpdate()
+{
+    //root->SetWorld(instancing->GetTransformByNode(index, 3));
+    transform->SetWorld(instancing->GetTransformByNode(index, 5));
+    collider->UpdateWorld();
+    transform->UpdateWorld();
+
+    leftHand->SetWorld(instancing->GetTransformByNode(index, 170));//170
+    leftWeaponCollider->UpdateWorld();
+
+    rightHand->SetWorld(instancing->GetTransformByNode(index, 187));//187
+    rightWeaponCollider->UpdateWorld();
+}
+
+void Orc::StateRevision()
+{
+    if (curState != ATTACK)
+    {
+        leftWeaponCollider->SetActive(false);
+        rightWeaponCollider->SetActive(false);
+    }
+}
+
+void Orc::ParticleUpdate()
+{
+    particleHit->Update();
 }
 
 float Orc::GetDamage()
@@ -284,7 +339,7 @@ float Orc::GetDamage()
     return r;
 }
 
-void Orc::Hit(float damage)
+void Orc::Hit(float damage,Vector3 collisionPos)
 {
     if (!isHit)
     {
@@ -303,6 +358,8 @@ void Orc::Hit(float damage)
         SetState(HIT);
 
         isHit = true;
+
+        particleHit->Play(collider->GlobalPos()); // 웨폰위치에서 파티클 재생
     }
     //// 아직 안 죽었으면 산 로봇답게 맞는 동작 수행
     //curState = HIT;
@@ -374,7 +431,7 @@ void Orc::Control()
             if (bFind)
             {
                 // 공격 사정거리안에 들지 못하면
-                if (dist.Length() > 5.0f)
+                if (dist.Length() > 4.0f)
                 {
                     //if (dist.Length() < 15.f) // THROW 범위 : 5~15 임시 설정
                     //{
@@ -484,13 +541,20 @@ void Orc::Move()
         }
     }
 
-    if (velocity.Length() >= 5 && curState == ATTACK)
+    if (behaviorstate == NPC_BehaviorState::DETECT)
     {
-        if (behaviorstate == NPC_BehaviorState::CHECK)
-            return;
-        SetState(RUN);
-        return;
+        if (Distance(target->GlobalPos(),transform->GlobalPos()) >= 4) //공격텀일때는 IDLE 상태임
+        {
+            if(curState == IDLE)
+                SetState(RUN);
+        }
+        else
+        {
+            SetState(ATTACK);
+        }
     }
+    
+    
     float f=velocity.Length();
     if (curState == IDLE) return; 
     if (curState == ATTACK) return;
@@ -656,13 +720,6 @@ void Orc::UpdateUI()
         if (curHP <= destHP)
         {
             curHP = destHP;
-            isHit = false;
-
-            collider->SetActive(true);
-            leftWeaponCollider->SetActive(true);
-            rightWeaponCollider->SetActive(true);
-
-            SetState(ATTACK); // 맞은 다음에 일단은 공격상태로 돌아가게 만듬 (나중에 수정 필요할 수도)
         }
         hpBar->SetAmount(curHP / maxHp);
     }
@@ -823,7 +880,7 @@ void Orc::EndDying()
     leftWeaponCollider->SetActive(false);
     questionMark->SetActive(false);
     exclamationMark->SetActive(false);
-
+    particleHit->Stop();
     // 삭제 전에 아이템 떨굴거면 여기서
 
     instancing->Remove(index);
@@ -972,7 +1029,7 @@ void Orc::CalculateEarSight()
        
     }
 
-
+    SoundPositionCheck(); //소리가 들렸다면 소리의 위치 확인하는 함수
 }
 
 void Orc::Detection()

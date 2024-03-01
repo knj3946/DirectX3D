@@ -128,6 +128,16 @@ Player::Player()
     GetClip(DAGGER2)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
     GetClip(DAGGER3)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
 
+    GetClip(DAGGER1)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), true), 0.2f); //콜라이더 켜는 시점 설정
+    GetClip(DAGGER2)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), true), 0.3f); //콜라이더 켜는 시점 설정
+    GetClip(DAGGER3)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), true), 0.15f); //콜라이더 켜는 시점 설정
+
+    GetClip(DAGGER1)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(),false), 0.3f); //콜라이더 꺼지는 시점 설정
+    GetClip(DAGGER2)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(),false), 0.45f); //콜라이더 꺼지는 시점 설정
+    GetClip(DAGGER3)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(),false), 0.35f); //콜라이더 꺼지는 시점 설정
+
+
+
     //GetClip(B_DRAW)->SetEvent(bind(&Player::SetBowAnim, this), 0.2f);
     //GetClip(B_ODRAW)->SetEvent(bind(&Player::SetBowAnim, this), 0.6f);
     GetClip(B_DRAW)->SetEvent(bind(&Player::SetBowAnim, this), 0.4f);
@@ -400,7 +410,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             if (curState != DAGGER1 && curState != DAGGER2 && curState != DAGGER3)
             {
                 ComboAttack();
-                dagger->GetCollider()->SetActive(true);
+                //dagger->GetCollider()->SetActive(true); //콜라이더 켜지는 시점은 이벤트로 설정
             }
         }
         //else if (weaponState == BOW)
@@ -411,7 +421,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     }
     if (KEY_UP(VK_LBUTTON))
     {
-        dagger->GetCollider()->SetActive(false);
+        //dagger->GetCollider()->SetActive(false); //콜라이더 꺼지는 시점은 이벤트로 설정
     }
 
     if (isHit)   //?´°? ?????????? Jumping????? ?????? ????? ????? ????? ?ð??? ?þ?
@@ -599,7 +609,8 @@ void Player::Walking()
 
 
     if (/*ColliderManager::Get()->ControlPlayer(&direction)*/ !isPushed
-        && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y 
+        && (radianHeightAngle < XMConvertToRadians(60) 
+            || destFeedBackPos.y <= feedBackPos.y // 
             || destFeedBackPos.y - feedBackPos.y < 0.5f) // 바닥 올라가게 하기위해 추가함
         ) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????
     {
@@ -639,7 +650,7 @@ void Player::Jumping()
         float tempJumpVel;
         float tempY;
 
-        if (preHeight - heightLevel > 5.0f)
+        if (preHeight - heightLevel > 5.0f && curState != JUMP1 && curState != JUMP2)
         {
             jumpVel = -1;
 
@@ -929,5 +940,4 @@ void Player::SetIdle()
     //    SetState(IDLE);
     else
         SetState(IDLE);
-
 }

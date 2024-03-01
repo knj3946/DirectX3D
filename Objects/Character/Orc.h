@@ -88,7 +88,7 @@ public:
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
     
     float GetDamage();
-    void Hit(float damage);
+    void Hit(float damage,Vector3 collisionPos);
     void Spawn(Vector3 pos);
 
     void AddObstacleObj(Collider* collider);
@@ -134,8 +134,17 @@ private:
     bool EyesRayToDetectTarget(Collider* targetCol, Vector3 orcEyesPos);
     void RangeCheck();
     void  SoundPositionCheck();;
-    float Hit();
+    //float Hit();
     void Throw();
+
+
+    bool GetDutyFlag();
+    void SetParameter();
+    void SetGroundPos();
+    bool CalculateHit();
+    void PartsUpdate();
+    void StateRevision();
+    void ParticleUpdate();
 private:
     Ray ray;// 레이
     Vector3 StorePos;// 소리난 곳 가기 전 위치 저장
@@ -241,4 +250,6 @@ private:
     UINT m_uiRangeCheck = 0;
 
     bool outLine = false;
+
+    ParticleSystem* particleHit;
 };

@@ -276,7 +276,7 @@ void MonsterManager::Fight(Player* player)
             {
                 if (collider->Active() && collider->IsCapsuleCollision(orc->GetCollider())) //¼Õ Ãæµ¹Ã¼°¡ Å¸°ÙÀÌ¶û °ãÄ¥¶§
                 {
-                    orc->Hit(player->GetDamage());
+                    orc->Hit(player->GetDamage(), collider->GlobalPos());
                 }
             }
 
