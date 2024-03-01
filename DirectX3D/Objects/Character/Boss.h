@@ -7,6 +7,7 @@ private:
         IDLE,
         DETECT,
         ATTACK,
+        FIND,
     };
 
     enum STATE {
@@ -15,7 +16,7 @@ private:
         RUN,
         ATTACK,
         ROAR,
-        JUMPATTACK,
+    
         DEATH
 
     };
@@ -101,6 +102,8 @@ private:
     Collider* targetCollider;
     float informRange;
     Vector3 velocity;
+  
+  
 
     ComputeShader* computeShader;
 
@@ -124,9 +127,9 @@ private:
     float AttackRange = 5.f;
     float JumpAttackRange = 20.f;
     float JumpAttackSpeed = 100.f;
-    bool bJumpAttack;
-
-private:
+   
+  
+  private:
 
    // bool IsFindTarget() { return bFind; };
     void AddObstacleObj(Collider* collider);
@@ -134,6 +137,7 @@ private:
     void Direction();// 방향지정
     void Move();
     void IdleMove();
+    void Roar();
     void DoingAttack();
     void JumpAttack();
 
@@ -149,15 +153,17 @@ private:
 
     void EndAttack();
     void EndJumpAttack();
+    void StartAttack();
+    void StartJumpAttack();
     void EndHit();
     void EndDying();
  //   void EndJumpAttack();
     bool IsPatrolPos();
     void IdleWalk();
 
-
-
     void Run();
+
+
 public:
 
     Boss();

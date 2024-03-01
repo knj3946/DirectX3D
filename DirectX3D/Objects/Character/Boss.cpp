@@ -10,14 +10,16 @@ Boss::Boss()
 	instancing->ReadClip("Run Forward");
 	instancing->ReadClip("Mutant Swiping");
 	instancing->ReadClip("Mutant Roaring");
-	instancing->ReadClip("Jump Attack");
+	
 	instancing->ReadClip("Falling Forward Death");
+	
 	totalEvent.resize(instancing->GetClipSize()); //모델이 가진 동작 숫자만큼 이벤트 리사이징
 	eventIters.resize(instancing->GetClipSize());
 	index = 0;
 	collider = new CapsuleCollider(50, 100);
 	collider->SetParent(transform);
 	collider->Pos().y += 100;
+
 	leftHand = new Transform;
 	leftCollider = new CapsuleCollider(10, 10);
 	leftCollider->Scale() *= 2.2f;
@@ -33,9 +35,11 @@ Boss::Boss()
 	motion = instancing->GetMotion(index);
 	transform->Scale() *= 0.03f;
 
+
+	SetEvent(ATTACK, bind(&Boss::StartAttack, this), 0.f);
 	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.99f);
-	SetEvent(JUMPATTACK, bind(&Boss::EndJumpAttack, this), 0.99f);
 	SetEvent(ATTACK, bind(&Boss::DoingAttack, this), 0.6f);
+	SetEvent(ROAR, bind(&Boss::Roar, this), 0.5f);
 	SetEvent(DEATH, bind(&Boss::EndDying, this), 0.9f);
 
 
@@ -79,6 +83,7 @@ void Boss::Render()
 	if(!bFind)
 		rangeBar->Render();
 	leftCollider->Render();
+	
 	collider->Render();
 
 
@@ -86,6 +91,9 @@ void Boss::Render()
 
 void Boss::Update()
 {
+
+
+
 
 	Idle();
 	Direction();
@@ -99,19 +107,22 @@ void Boss::Update()
 	
 
 
-	
-	leftHand->SetWorld(instancing->GetTransformByNode(index,14));
-	transform->UpdateWorld();
 	instancing->Update();
+	leftHand->SetWorld(instancing->GetTransformByNode(index, 14));
+
+	transform->UpdateWorld();
+
+
 	leftCollider->UpdateWorld();
 	collider->UpdateWorld();
 	hpBar->Pos() = transform->Pos() + Vector3(0, 6, 0);
 	Vector3 dir = hpBar->Pos() - CAM->Pos();
 	hpBar->Rot().y = atan2(dir.x, dir.z);
 
-	
+
 	hpBar->UpdateWorld();
 	rangeBar->UpdateWorld();
+
 
 	UpdateUI();
 }
@@ -121,11 +132,12 @@ void Boss::PostRender()
 	if (!transform->Active())return;
 	questionMark->Render();
 	exclamationMark->Render();
+	
 }
 
 void Boss::GUIRender() {
-
-
+	
+	
 
 }
 
@@ -206,13 +218,12 @@ void Boss::Move()
 	case Boss::RUN:
 		Run();
 		break;
-	case Boss::ATTACK:
 
-		break;
-	case Boss::JUMPATTACK:
-		JumpAttack();
-		break;
 	}
+	
+
+	if (bWait)
+		return;
 	transform->Rot().y = atan2(dir.x, dir.z) + XM_PI;
 	float value = XMConvertToDegrees(transform->Rot().y);
 
@@ -228,8 +239,6 @@ void Boss::Move()
 		transform->Rot().y = XMConvertToRadians(value);
 
 	}
-	if (bWait)
-		return;
 	transform->Pos() += DELTA * moveSpeed * transform->Back();
 
 }
@@ -263,17 +272,16 @@ void Boss::IdleMove() {
 
 }
 
+void Boss::Roar()
+{
+	//맵에있는 오크들 다부르며 원거리 공격
+}
+
 
 
 void Boss::JumpAttack()
 {
-	if (!bJumpAttack) {
-		bJumpAttack = true;
-		velocity = target->GlobalPos() - transform->GlobalPos();
-		totargetlength = velocity.Length();
-		moveSpeed = JumpAttackSpeed;
-		dir = velocity.GetNormalized();
-	}
+
 }
 
 void Boss::Die()
@@ -413,12 +421,13 @@ void Boss::EndAttack()
 	if (totargetlength > AttackRange) {
 		SetState(RUN);
 		bWait = false;
-
+	
 	}
 	else
 	{
-		SetState(ATTACK, 3.0f);
-		bWait = true;
+		eventIters[ATTACK] = totalEvent[ATTACK].begin(); //이벤트 반복자도 등록된 이벤트 시작시점으로
+
+	
 	}
 
 	
@@ -436,6 +445,7 @@ void Boss::EndJumpAttack()
 {
 	velocity = target->GlobalPos() - transform->GlobalPos();
 	totargetlength = velocity.Length();
+	bWait = false;
 	if (totargetlength > AttackRange) {
 		if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
 		{
@@ -449,11 +459,24 @@ void Boss::EndJumpAttack()
 	}
 	else
 	{
+		UINT random = rand() % 2;
 		path.clear();
-		SetState(ATTACK, 3.0f);
-		bWait = true;
+		if (!random)
+			SetState(ATTACK, 3.0f);
+	
+
 	}
-	bJumpAttack = false;
+	
+}
+
+void Boss::StartAttack()
+{
+	bWait = true;
+}
+
+void Boss::StartJumpAttack()
+{
+	bWait = true;
 }
 
 bool Boss::IsPatrolPos()
@@ -487,6 +510,8 @@ void Boss::Run()
 	moveSpeed = runSpeed;
 	dir = velocity.GetNormalized();
 	if (totargetlength > AttackRange) {
+
+
 		if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
 		{
 			SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
@@ -497,15 +522,15 @@ void Boss::Run()
 			path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
 		}
 	}
-	else if (JumpAttackRange - 0.5f < totargetlength &&
-		JumpAttackRange + 0.5f > totargetlength) {
-		path.clear();
-		SetState(JUMPATTACK, 3.0f);
-	}
+
 	else
 	{
+			
 		path.clear();
+	
 		SetState(ATTACK, 3.0f);
+	
 		bWait = true;
 	}
 }
+
