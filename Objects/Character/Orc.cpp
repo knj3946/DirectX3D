@@ -944,6 +944,11 @@ void Orc::CalculateEyeSight()
     bool breverse = false;
     float leftdir1 = (180.f - eyeSightangle) + degree;
 
+    while (rightdir1 > 360.0f)
+        rightdir1 -= 360.0f;
+    while (leftdir1 > 360.0f)
+        leftdir1 -= 360.0f;
+
     /*
         -135    135
         -135 -45 135-45
