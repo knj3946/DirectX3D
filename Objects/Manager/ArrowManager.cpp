@@ -103,7 +103,7 @@ bool ArrowManager::IsCollision()
 		{
 			if (ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC)[i]->IsSphereCollision(arrow->GetCollider()))
 			{
-				MonsterManager::Get()->GetOrc(i)->Hit(50);
+				MonsterManager::Get()->GetOrc(i)->Hit(50, arrow->GetTransform()->GlobalPos());
 			}
 		}
 	}

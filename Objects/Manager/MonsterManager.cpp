@@ -365,7 +365,7 @@ void MonsterManager::ActiveSpecialKey(Vector3 playPos,Vector3 offset)
             //아웃라인이 활성화되고, 플레이어를 발견하지 못했을 때, 거리가 6 이하일때
             SpecialKeyUI& sk = specialKeyUI["assassination"];
             sk.active = true;
-            sk.quad->Pos() = CAM->WorldToScreen(orc->GetTransform()->Pos()+ offset);
+            sk.quad->Pos() = CAM->WorldToScreen(orc->GetTransform()->GlobalPos()+ offset);
             sk.quad->UpdateWorld();
         }
     }
@@ -377,7 +377,7 @@ void MonsterManager::ExecuteSpecialKey()
     {
         if (orc->IsOutLine())
         {
-            orc->Assassination(orc->GetCollider()->Pos()); // 나중에 파티클 재생 위치 수정
+            orc->Assassination(orc->GetCollider()->GlobalPos()); // 나중에 파티클 재생 위치 수정
         }
     }
 }
