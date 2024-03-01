@@ -351,7 +351,7 @@ void Player::SetTerrain(LevelData* terrain)
 
 void Player::CameraMove()
 {
-    Ray cameraRay = Camera::ScreenPointToRay(mousePos);
+    Ray cameraRay = CAM->ScreenPointToRay(mousePos);
 }
 
 void Player::Control()  //??????? ?????, ???콺 ??? ???
