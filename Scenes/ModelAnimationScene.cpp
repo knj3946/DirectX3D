@@ -31,21 +31,20 @@ ModelAnimationScene::ModelAnimationScene()
 	}
 	*/
 	//클립 생성해두기 
-	string modelName = "akai";
+	string modelName = "character1";
 	string clipNames[] = {
-		"Bow/Attack/Standing Aim Overdraw"
-		/*"character1@idle1"
-		,"character1@idle2"
-		,"character1@idle3"
-		,"character1@idle4"
-		,"character1@idle5"
-		,"character1@jump"
-		,"character1@run"
-		,"character1@run2"
-		,"character1@run3"
-		,"character1@walk"
-		,"character1@walk3"
-		,"character1@walkshield"*/
+		//"character1@idle1"
+		"character1@idle2"
+		//,"character1@idle3"
+		//,"character1@idle4"
+		//,"character1@idle5"
+		//,"character1@jump"
+		//,"character1@run"
+		//,"character1@run2"
+		//,"character1@run3"
+		//,"character1@walk"
+		//,"character1@walk3"
+		//,"character1@walkshield"
 		//"character1@atack1"
 		// "character1@atack2"
 		//,"character1@atack3"
@@ -81,8 +80,8 @@ ModelAnimationScene::ModelAnimationScene()
 		//,"character1@death1"
 		//,"character1@death2"
 		//,"character1@death3"
-		//,"character1@death4"
-		//,"character1@dodge"
+		,"character1@death4"
+		,"character1@dodge"
 		//,"character1@gethit"
 	};
 	/*string clipNames[] = {
@@ -98,7 +97,7 @@ ModelAnimationScene::ModelAnimationScene()
 		
 	};
 	*/
-	model = new ModelAnimator("akai");
+	model = new ModelAnimator("character1");
 	clipSize = (sizeof(clipNames) / sizeof(*clipNames));
 	/*
 	for(string clipName : clipNames)

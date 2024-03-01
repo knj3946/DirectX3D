@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Manager\InteractManager.h" />
     <ClInclude Include="Objects\Items\Weapons\Arrow.h" />
     <ClInclude Include="Objects\Manager\ArrowManager.h" />
     <ClInclude Include="Scenes\BuildingScene.h" />
@@ -274,6 +275,7 @@
     <ClInclude Include="Scenes\TestNpcScene.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Manager\InteractManager.cpp" />
     <ClCompile Include="Objects\Items\Weapons\Arrow.cpp" />
     <ClCompile Include="Objects\Manager\ArrowManager.cpp" />
     <ClCompile Include="Scenes\BuildingScene.cpp" />

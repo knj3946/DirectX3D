@@ -9,14 +9,14 @@ private:
         RUN_DL, RUN_DR,                         //5 ~ 6
         JUMP1, JUMP2, JUMP3,                    //7 ~ 9
         TO_COVER, C_IDLE, C_R, C_L, TO_STAND,   //10 ~ 14
-        TO_ASSASIN,                             //15
-        HIT,                                    //16
+        HIT,                                    //15
+        CLIMBING,                               //16
         KICK,                                   //17
-        DAGGER1, DAGGER2, DAGGER3,              //18 ~ 20
-
-        B_IDLE,                                 //21
-        B_RUN_F, B_RUN_B, B_RUN_L, B_RUN_R,     //22 ~ 25
-        B_DRAW, B_ODRAW, B_AIM, B_RECOIL        //26 ~ 29
+        ASSASSINATION1, ASSASSINATION2,         //18 ~ 19
+        DAGGER1, DAGGER2, DAGGER3,              //20 ~ 22
+        B_IDLE,                                 //23
+        B_RUN_F, B_RUN_B, B_RUN_L, B_RUN_R,     //24 ~ 27
+        B_DRAW, B_ODRAW, B_AIM, B_RECOIL        //28 ~ 31
     };
 
     enum WeaponState
@@ -89,6 +89,8 @@ public:
     void SetIsPushed(bool value) { isPushed = value; }
     void SetIsCeiling(bool value) { isCeiling = value; }
 
+    void Assassination();
+
 private:
     void CameraMove(); // 벽에 가려지는 플레이어 현상 해결을 위한 함수
 
@@ -102,7 +104,6 @@ private:
     void AfterJumpAnimation();
     void Jumping();
     void Cover();
-    void Assasination();
 
     void ComboAttack();
     void ShootArrow();
@@ -115,8 +116,10 @@ private:
 
     void Searching();
     void Targeting();
+    void UseSkill();
     bool InTheAir();
 
+    void EndAssassination(UINT num);
     void EndHit();
 
     bool OnColliderFloor(Vector3& feedback);
