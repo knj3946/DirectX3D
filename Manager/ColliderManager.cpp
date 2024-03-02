@@ -43,25 +43,6 @@ void ColliderManager::PushPlayer()
 	player->SetIsPushed(isPushed);
 }
 
-void ColliderManager::SetCameraPos()
-{
-	bool isPushed = false;
-    Ray playerBackRay = Ray(player->Pos(), player->Forward());
-
-    Contact temp;
-    float distance = 12.f;
-
-    for(Collider* obstacle : GetObstacles())
-	{
-        if (obstacle->IsRayCollision(playerBackRay, &temp) && temp.distance < distance)
-        {
-            distance = temp.distance;
-        }
-	}
-
-    CAM->SetDistance(distance);
-}
-
 void ColliderManager::SetHeight()
 {
 	headRay->pos = playerCollider->GlobalPos();

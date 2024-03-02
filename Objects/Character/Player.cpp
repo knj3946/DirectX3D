@@ -25,14 +25,11 @@ Player::Player()
 
     weaponColliders.push_back(dagger->GetCollider());
 
-    bow = new Model("hungarian_bow");
+    bow = new Model("Elven Long Bow");
     bow->SetParent(leftHand);
-    bow->Scale() *= 0.3f;
-    bow->Pos() = { 1.700, -1.6, 0 };
-    bow->Rot() = { 0, -0.200, 2.5 };
-
-    bowCol = new CapsuleCollider(25, 130);
-    bowCol->SetParent(bow);
+    bow->Scale() *= 6.f;
+    bow->Pos() = { 0, 6.300, -2.400 };
+    bow->Rot() = { 3.000, 0, 0 };
 
 
     //left foot : 57
@@ -189,7 +186,6 @@ Player::~Player()
     delete rightFootCollider;
     delete dagger;
     delete bow;
-    delete bowCol;
 
     delete ArrowManager::Get();
 }
@@ -198,7 +194,8 @@ void Player::Update()
 {
     ColliderManager::Get()->SetHeight();
     ColliderManager::Get()->PushPlayer();
-    ColliderManager::Get()->SetCameraPos();
+
+    SetCameraPos();
 
     collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
     collider->UpdateWorld();
@@ -230,7 +227,6 @@ void Player::Update()
         dagger->Update();
     else
         bow->UpdateWorld();
-    bowCol->UpdateWorld();
 
     //leftFoot->SetWorld(this->GetTransformByNode(leftFootNode));
     //leftFootCollider->UpdateWorld();
@@ -256,7 +252,6 @@ void Player::Render()
         break;
     case BOW:
         bow->Render();
-        bowCol->Render();
         break;
     }
 
@@ -372,15 +367,13 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             weaponState = static_cast<WeaponState>(weaponState + 1);
     }
 
-
     if (KEY_DOWN(VK_ESCAPE))
-    {
         camera = !camera;
-    }
-    if (camera)
-        CAM->SetTarget(this);
-    else
-        CAM->SetTarget(nullptr);
+
+        if (camera)
+            CAM->SetTarget(this);
+        else
+            CAM->SetTarget(nullptr);
 
 
     if (KEY_PRESS(VK_RBUTTON))
@@ -912,7 +905,7 @@ void Player::ComboAttack()
 void Player::ShootArrow()
 {
     SetState(B_IDLE);
-    ArrowManager::Get()->Throw(bowCol->GlobalPos(), Back());
+    ArrowManager::Get()->Throw(bow->GlobalPos(), Back());
 }
 
 void Player::SetState(State state, float scale, float takeTime)
@@ -977,7 +970,7 @@ void Player::SetBowAnim()
     }
     else if (curState == B_ODRAW)
     {
-        SetState(B_AIM, 0.3f);
+        SetState(B_AIM);
     }
 }
 
@@ -996,4 +989,33 @@ void Player::SetIdle()
     //    SetState(IDLE);
     else
         SetState(IDLE);
+}
+
+void Player::SetCameraPos()
+{
+    if (curState == B_AIM || curState == B_DRAW || curState == B_ODRAW)
+    {
+        CAM->SetTarget(rightHand);
+        CAM->SetDistance(5.0f);
+        return;
+    }
+    CAM->SetTarget(this);
+
+    Ray playerBackRay = Ray(Pos(), Forward());
+    Contact temp;
+
+    float distance = 13.f;
+
+    for (Collider* obstacle : ColliderManager::Get()->GetObstacles())
+    {
+        if (obstacle->Role() == Collider::BLOCK)
+        {
+            if (obstacle->IsRayCollision(playerBackRay, &temp) && temp.distance < distance)
+            {
+                distance = temp.distance;
+            }
+        }
+    }
+
+    CAM->SetDistance(distance);
 }

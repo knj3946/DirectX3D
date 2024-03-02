@@ -112,6 +112,7 @@ private:
     void SetState(State state, float scale = 1.0f, float takeTime = 0.2f);
 
     void SetIdle();
+    void SetCameraPos();
     void SetBowAnim();
 
     void Searching();
@@ -198,7 +199,6 @@ private:
     Transform* leftHand;
     Dagger* dagger;
     Model* bow;
-    CapsuleCollider* bowCol;
 
     Transform* leftFoot;
     CapsuleCollider* leftFootCollider;
