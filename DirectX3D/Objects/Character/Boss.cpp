@@ -29,9 +29,11 @@ Boss::Boss()
 	RoarCollider->SetParent(Mouth);
 	RoarCollider->SetActive(false);
 	Roarparticle = new ParticleSystem("TextData/Particles/Roar.fx");
+
 	Roarparticle->GetQuad()->SetParent(Mouth);
 	Roarparticle->GetQuad()->Pos() = { 4.f,-9.f,-6.f };
 	Roarparticle->GetQuad()->Scale() = { 25.f,36.f,42.f };
+	Runparticle = new ParticleSystem("TextData/Particles/Smoke.fx");
 	leftHand = new Transform;
 	leftCollider = new CapsuleCollider(10, 10);
 	leftCollider->Scale() *= 2.2f;
@@ -87,6 +89,7 @@ Boss::~Boss()
 	delete Mouth;
 	delete RoarCollider;
 	delete Roarparticle;
+	delete Runparticle;
 }
 void Boss::DoingAttack() {
 	//if(leftCollider->IsCollision(target->))
@@ -103,6 +106,7 @@ void Boss::Render()
 	RoarCollider->Render();
 	collider->Render();
 	Roarparticle->Render();
+	Runparticle->Render();
 
 
 }
@@ -145,7 +149,7 @@ void Boss::Update()
 	hpBar->UpdateWorld();
 	rangeBar->UpdateWorld();
 
-
+	Runparticle->Update();
 
 
 	UpdateUI();
@@ -545,6 +549,9 @@ void Boss::Run()
 	totargetlength = velocity.Length();
 	moveSpeed = runSpeed;
 	dir = velocity.GetNormalized();
+	if (!Runparticle->IsActive()) {
+		Runparticle->Play(transform->GlobalPos());
+	}
 	if (totargetlength > AttackRange) {
 		if (totargetlength < RoarRange) {
 			if (RoarCoolTime <= 0.f)
@@ -569,12 +576,21 @@ void Boss::Run()
 
 	else
 	{
-			
+		SetRay();
+		
 		path.clear();
 	
 		SetState(ATTACK, 3.0f);
 	
 		bWait = true;
 	}
+}
+
+void Boss::SetRay()
+{
+	ray.pos = transform->GlobalPos();
+	Vector3 dir = target->GlobalPos() - transform->GlobalPos();
+	dir.Normalize();
+	ray.dir = dir;
 }
 

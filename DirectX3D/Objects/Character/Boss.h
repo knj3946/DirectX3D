@@ -108,7 +108,9 @@ private:
     CapsuleCollider* RoarCollider;
     ParticleSystem* Roarparticle;
 
-  
+    ParticleSystem* Runparticle;
+
+    Ray ray;
   
 
     ComputeShader* computeShader;
