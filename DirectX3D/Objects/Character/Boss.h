@@ -172,7 +172,7 @@ private:
     void IdleWalk();
 
     void Run();
-
+    void SetRay();
 
 public:
 
