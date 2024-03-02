@@ -22,6 +22,7 @@ public:
     vector<Collider*>& GetObstacles();
 
     void PushPlayer();
+    void SetCameraPos();
     void SetHeight();
 
     void GuiRender();

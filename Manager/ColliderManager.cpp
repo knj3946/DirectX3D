@@ -43,6 +43,25 @@ void ColliderManager::PushPlayer()
 	player->SetIsPushed(isPushed);
 }
 
+void ColliderManager::SetCameraPos()
+{
+	bool isPushed = false;
+    Ray playerBackRay = Ray(player->Pos(), player->Forward());
+
+    Contact temp;
+    float distance = 12.f;
+
+    for(Collider* obstacle : GetObstacles())
+	{
+        if (obstacle->IsRayCollision(playerBackRay, &temp) && temp.distance < distance)
+        {
+            distance = temp.distance;
+        }
+	}
+
+    CAM->SetDistance(distance);
+}
+
 void ColliderManager::SetHeight()
 {
 	headRay->pos = playerCollider->GlobalPos();
@@ -78,6 +97,7 @@ void ColliderManager::GuiRender()
 {
 	//ImGui::DragFloat3("fds", (float*)&rayHeight, 0.5f);
 	ImGui::DragFloat3("fds", (float*)&headRay->pos, 0.5f);
+	ImGui::Value("CamDistance", Distance(CAM->GlobalPos(), player->Pos()));
 }
 
 //bool ColliderManager::ControlPlayer(Vector3* dir)

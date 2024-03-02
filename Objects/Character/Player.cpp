@@ -197,8 +197,8 @@ Player::~Player()
 void Player::Update()
 {
     ColliderManager::Get()->SetHeight();
-    if (!isCeiling)
-        ColliderManager::Get()->PushPlayer();
+    ColliderManager::Get()->PushPlayer();
+    ColliderManager::Get()->SetCameraPos();
 
     collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
     collider->UpdateWorld();

@@ -12,6 +12,7 @@ public:
     void SetView();
 
     void SetTarget(Transform* target) { this->target = target; }    
+    void SetDistance(float dist) { this->distance = dist; }
 
     Vector3 ScreenToWorld(Vector3 screenPos);
     Vector3 WorldToScreen(Vector3 worldPos);
