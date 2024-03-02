@@ -33,7 +33,8 @@ Boss::Boss()
 	Roarparticle->GetQuad()->SetParent(Mouth);
 	Roarparticle->GetQuad()->Pos() = { 4.f,-9.f,-6.f };
 	Roarparticle->GetQuad()->Scale() = { 25.f,36.f,42.f };
-	Runparticle = new ParticleSystem("TextData/Particles/Smoke.fx");
+	for(int i=0;i<3;++i)
+		Runparticle[i] = new ParticleSystem("TextData/Particles/Smoke.fx");
 	leftHand = new Transform;
 	leftCollider = new CapsuleCollider(10, 10);
 	leftCollider->Scale() *= 2.2f;
@@ -89,7 +90,8 @@ Boss::~Boss()
 	delete Mouth;
 	delete RoarCollider;
 	delete Roarparticle;
-	delete Runparticle;
+	for (int i = 0; i < 3; ++i)
+		delete Runparticle[i];
 }
 void Boss::DoingAttack() {
 	//if(leftCollider->IsCollision(target->))
@@ -106,7 +108,8 @@ void Boss::Render()
 	RoarCollider->Render();
 	collider->Render();
 	Roarparticle->Render();
-	Runparticle->Render();
+	for (int i = 0; i < 3; ++i)
+		Runparticle[i]->Render();
 
 
 }
@@ -149,7 +152,8 @@ void Boss::Update()
 	hpBar->UpdateWorld();
 	rangeBar->UpdateWorld();
 
-	Runparticle->Update();
+	for (int i = 0; i < 3; ++i)
+		Runparticle[i]->Update();
 
 
 	UpdateUI();
@@ -549,9 +553,7 @@ void Boss::Run()
 	totargetlength = velocity.Length();
 	moveSpeed = runSpeed;
 	dir = velocity.GetNormalized();
-	if (!Runparticle->IsActive()) {
-		Runparticle->Play(transform->GlobalPos());
-	}
+
 	if (totargetlength > AttackRange) {
 		if (totargetlength < RoarRange) {
 			if (RoarCoolTime <= 0.f)
@@ -559,7 +561,7 @@ void Boss::Run()
 				path.clear();
 				SetState(ROAR);
 				bWait = true;
-				
+				return;
 			}
 		}
 
@@ -572,6 +574,10 @@ void Boss::Run()
 			path.clear(); // 굳이 장애물없는데 길찾기 필요 x
 			path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
 		}
+		Runparticle[currunparticle]->Play(transform->GlobalPos());
+		currunparticle++;
+		if (currunparticle >= 3)
+			currunparticle = 0;
 	}
 
 	else

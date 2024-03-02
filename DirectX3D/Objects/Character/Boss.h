@@ -108,7 +108,8 @@ private:
     CapsuleCollider* RoarCollider;
     ParticleSystem* Roarparticle;
 
-    ParticleSystem* Runparticle;
+    ParticleSystem* Runparticle[3];
+    UINT currunparticle = 0;
 
     Ray ray;
   
