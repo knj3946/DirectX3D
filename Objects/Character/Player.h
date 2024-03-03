@@ -91,6 +91,8 @@ public:
 
     void Assassination();
 
+    void Climb(Collider* col, Vector3 climbPos);
+
 private:
     void CameraMove(); // 벽에 가려지는 플레이어 현상 해결을 위한 함수
 
@@ -122,6 +124,7 @@ private:
 
     void EndAssassination(UINT num);
     void EndHit();
+    void EndClimbing();
 
     bool OnColliderFloor(Vector3& feedback);
 
@@ -222,6 +225,8 @@ private:
     Quad* portrait;
     Quad* form;
 
+    float remainClimbDis = 0.0f;
+    bool isClimb = false;
 public: //임시
     bool headCrash;
 };

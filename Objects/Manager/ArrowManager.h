@@ -20,6 +20,8 @@ public:
 	void Render();
 	void PostRender();
 
+	void GUIRender();
+
 	void Throw(Vector3 pos, Vector3 dir); // 개별 객체에게 전달하기 위한 매개 함수
 
 	bool IsCollision(); //각 쿠나이가 다른 물체와 충돌했는지 판별하기 위함

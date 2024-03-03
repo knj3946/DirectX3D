@@ -3,11 +3,26 @@
 
 ColliderManager::ColliderManager()
 {
-	footRay = new Ray();
-	headRay = new Ray();
+    footRay = new Ray();
+    headRay = new Ray();
 
-	headRay->dir = { 0, 1, 0 };
-	footRay->dir = { 0, -1, 0 };
+    headRay->dir = { 0, 1, 0 };
+    footRay->dir = { 0, -1, 0 };
+
+
+
+    //특수키 추가
+    {
+        SpecialKeyUI sk;
+        Quad* quad = new Quad(Vector2(130, 50));
+        quad->GetMaterial()->SetShader(L"Basic/Texture.hlsl");
+        quad->GetMaterial()->SetDiffuseMap(L"Textures/UI/SpecialKeyUI_climb.png");
+        sk.name = "climb";
+        sk.key = 'H';
+        sk.quad = quad;
+        sk.active = false;
+        specialKeyUI.insert(make_pair(sk.name, sk));
+    }
 }
 
 ColliderManager::~ColliderManager()
@@ -16,20 +31,20 @@ ColliderManager::~ColliderManager()
 
 void ColliderManager::SetObstacles(Collider* obstacle)
 {
-	PushCollision(ColliderManager::WALL, obstacle);
+    PushCollision(ColliderManager::WALL, obstacle);
 }
 
 vector<Collider*>& ColliderManager::GetObstacles()
 {
-	return Getvector(ColliderManager::WALL);
+    return Getvector(ColliderManager::WALL);
 }
 
 void ColliderManager::PushPlayer()
 {
-	bool isPushed = false;
+    bool isPushed = false;
 
-	for (Collider* obstacle : GetObstacles())
-	{
+    for (Collider* obstacle : GetObstacles())
+    {
         if (obstacle->Role() == Collider::BLOCK)
         {
             if (obstacle != onBlock && obstacle->PushCollision(playerCollider) && !isPushed)
@@ -38,47 +53,63 @@ void ColliderManager::PushPlayer()
                 break;
             }
         }
-	}
+    }
 
-	player->SetIsPushed(isPushed);
+    player->SetIsPushed(isPushed);
 }
 
 void ColliderManager::SetHeight()
 {
-	headRay->pos = playerCollider->GlobalPos();
+    headRay->pos = playerCollider->GlobalPos();
     headRay->pos.y = player->Pos().y + 6.2f;
-	footRay->pos = playerCollider->GlobalPos();
+    footRay->pos = playerCollider->GlobalPos();
 
     Contact maxHeadPoint;
     float maxHeadHeight = 99999.f;
     player->headCrash = false;
 
-	Contact underObj;
+    Contact underObj;
     maxHeight = 0.0f;
     onBlock = nullptr;
 
-	for (Collider* obstacle : GetObstacles())
-	{
+    for (Collider* obstacle : GetObstacles())
+    {
         //위 물체의 높이가 너무 낮으면 스페이스 입력을 무시할지말지 결정하는 법도 고려
-		if (obstacle->IsRayCollision(*headRay, &maxHeadPoint) && maxHeadPoint.distance < FLT_EPSILON)
-		{
+        if (obstacle->IsRayCollision(*headRay, &maxHeadPoint) && maxHeadPoint.distance < FLT_EPSILON)
+        {
             player->headCrash = true;
-		}
-		else if (obstacle->IsRayCollision(*footRay, &underObj) && underObj.hitPoint.y > maxHeight)
-		{
-			maxHeight = underObj.hitPoint.y;
-			onBlock = obstacle;
-		}
-	}
+        }
+        else if (obstacle->IsRayCollision(*footRay, &underObj) && underObj.hitPoint.y > maxHeight)
+        {
+            maxHeight = underObj.hitPoint.y;
+            onBlock = obstacle;
+        }
+    }
 
-	player->SetHeightLevel(maxHeight);
+    player->SetHeightLevel(maxHeight);
+}
+
+void ColliderManager::Render()
+{
+}
+
+void ColliderManager::PostRender()
+{
+    //특수키 출력
+    for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
+
+        if (iter.second.active)
+        {
+            iter.second.quad->Render();
+        }
+    }
 }
 
 void ColliderManager::GuiRender()
 {
-	//ImGui::DragFloat3("fds", (float*)&rayHeight, 0.5f);
-	ImGui::DragFloat3("fds", (float*)&headRay->pos, 0.5f);
-	ImGui::Value("CamDistance", Distance(CAM->GlobalPos(), player->Pos()));
+    //ImGui::DragFloat3("fds", (float*)&rayHeight, 0.5f);
+    ImGui::DragFloat3("fds", (float*)&headRay->pos, 0.5f);
+    ImGui::Value("CamDistance", Distance(CAM->GlobalPos(), player->Pos()));
 }
 
 //bool ColliderManager::ControlPlayer(Vector3* dir)
@@ -121,10 +152,10 @@ void ColliderManager::GuiRender()
 
 float ColliderManager::CloseRayCollisionColliderDistance(Ray ray)
 {
-	float minDistance = FLT_MAX;
-	for (Collider* ob : GetObstacles())
-	{
-		Contact con;
+    float minDistance = FLT_MAX;
+    for (Collider* ob : GetObstacles())
+    {
+        Contact con;
         if (ob->IsRayCollision(ray, &con))
         {
             if (abs(con.distance) > 0)
@@ -134,17 +165,17 @@ float ColliderManager::CloseRayCollisionColliderDistance(Ray ray)
                     minDistance = hitDistance;
             }
         }
-	}
+    }
 
-	return minDistance;
+    return minDistance;
 }
-bool ColliderManager::CloseRayCollisionColliderContact(Ray ray,Contact& con)
+bool ColliderManager::CloseRayCollisionColliderContact(Ray ray, Contact& con)
 {
-	float minDistance = FLT_MAX;
-	bool flag = false;
-	for (Collider* ob : GetObstacles())
-	{
-		Contact tempCon;
+    float minDistance = FLT_MAX;
+    bool flag = false;
+    for (Collider* ob : GetObstacles())
+    {
+        Contact tempCon;
         if (ob->IsRayCollision(ray, &tempCon))
         {
             if (abs(tempCon.distance) > 0)
@@ -158,8 +189,8 @@ bool ColliderManager::CloseRayCollisionColliderContact(Ray ray,Contact& con)
                 }
             }
         }
-	}
-	return flag;
+    }
+    return flag;
 }
 
 ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot, Vector3 mPos)
@@ -169,6 +200,7 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
     vector<Vector3> colScales;
     vector<Vector3> colRots;
     vector<Collider::Collider_Role> colRole;
+    vector<Collider::Collider_Special> colSpecials;
 
     if (mName == "building_V2")
     {
@@ -230,6 +262,20 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
         colRole.push_back(Collider::BLOCK);
         colRole.push_back(Collider::BLOCK);
         colRole.push_back(Collider::OPEN); //바닥 콜라이더
+
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::TYPE_Z_OVER); //Z축기준 콜라이더 포지션보다 큰 부분에서만 등반 가능
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
 
     }
     else if (mName == "building_V4")
@@ -318,6 +364,26 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
         colRole.push_back(Collider::OPEN); //바닥 콜라이더
         colRole.push_back(Collider::OPEN); //바닥 콜라이더
 
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+
     }
     else if (mName == "building_V5")
     {
@@ -378,6 +444,20 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
         colRole.push_back(Collider::BLOCK);
         colRole.push_back(Collider::BLOCK);
         colRole.push_back(Collider::OPEN); //바닥 콜라이더
+
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
     }
 
     ColliderModel* model = new ColliderModel(mName);
@@ -398,6 +478,7 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
         col->Rot() = colRots[i];
         col->Pos() = colPoss[i];
         col->Role() = colRole[i];
+        col->Special() = colSpecials[i];
         col->UpdateWorld();
         model->AddCollider(col);
     }
@@ -412,26 +493,75 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
 
 bool ColliderManager::CollisionCheck(Collider* _pCollider, Collision_Type _type)
 {
-	for (int i = 0; i < vecCol[_type].size(); ++i) {
-		if (_pCollider->IsCollision(vecCol[_type][i]))
-		{
-			return true;
-		}
-	}
-	return false;
+    for (int i = 0; i < vecCol[_type].size(); ++i) {
+        if (_pCollider->IsCollision(vecCol[_type][i]))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 
 
 bool ColliderManager::CollisionCheck(Collision_Type _type1, Collision_Type _type2)
 {
-	for (int i = 0; i < vecCol[_type1].size(); ++i) {
-		for (int j = 0; j < vecCol[_type2].size(); ++j) {
-			if (vecCol[_type1][i]->IsCollision(vecCol[_type2][j]))
-			{
-				return true;
-			}
-		}
-	}
-	return false;
+    for (int i = 0; i < vecCol[_type1].size(); ++i) {
+        for (int j = 0; j < vecCol[_type2].size(); ++j) {
+            if (vecCol[_type1][i]->IsCollision(vecCol[_type2][j]))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void ColliderManager::PickFlagByRay(Ray ray)
+{
+    float minDistance = FLT_MAX;
+    Collider* targetCol = nullptr;
+
+    for (Collider* col : GetObstacles())
+    {
+        Contact con;
+        if (col->IsRayCollision(ray, &con))
+        {
+            float hitDistance = Distance(con.hitPoint, ray.pos);
+            if (minDistance > hitDistance)
+            {
+                minDistance = hitDistance;
+                targetCol = col;
+            }
+        }
+        col->SetPickFlag(false);
+        col->SetPickContact(con);
+    }
+
+    if (targetCol)
+    {
+        targetCol->SetPickFlag(true);
+    }
+}
+
+void ColliderManager::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
+{
+    for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
+
+        iter.second.active = false;
+    }
+
+    for (Collider* col : GetObstacles())
+    {
+        float dis = Distance(col->GlobalPos(), playPos);
+        if (col->IsPickFlag() && col->IsTrustedRelation(playPos) && dis < 20.f)
+        {
+            SpecialKeyUI& sk = specialKeyUI["climb"];
+            sk.active = true;
+            sk.quad->Pos() = CAM->WorldToScreen(col->GlobalPos() + offset);
+            sk.quad->UpdateWorld();
+
+            InteractManager::Get()->ActiveSkill("climb", sk.key, bind(&InteractManager::Climb, InteractManager::Get(), col));
+        }
+    }
 }

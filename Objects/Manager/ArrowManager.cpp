@@ -2,7 +2,7 @@
 
 ArrowManager::ArrowManager()
 {
-	arrowInstancing = new ModelInstancing("Kunai");
+	arrowInstancing = new ModelInstancing("arrow");
 
 	arrows.reserve(SIZE);
 	FOR(SIZE)

@@ -31,6 +31,7 @@ public:
 	bool IsOutLine() { return outLine; };
 
 	void GetItem();
+	void GUIRender();
 	bool IsDropItem() { return isDropItem; }
 private:
 

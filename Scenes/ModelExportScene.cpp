@@ -3,7 +3,7 @@
 
 ModelExportScene::ModelExportScene()
 {
-    string name = "Elven Long Bow";
+    string name = "akai";
     string file = "Models/FBX/" + name + ".fbx";
     ModelExporter* exporter;
     string clipName;
@@ -13,13 +13,19 @@ ModelExportScene::ModelExportScene()
     exporter->ExportMesh();
     delete exporter;
 
-    /*string floderN1 = "Bow/Attack";
+    //string floderN1 = "Bow/Attack";
 
-    clipName = "Standing Aim Overdraw";
-    file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //clipName = "Hanging Idle";
+    //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //exporter = new ModelExporter(name, file);
+    //exporter->ExportClip(clipName);
+    //delete exporter;
+
+    clipName = "Idle To Braced Hang";
+    file = "Models/Animations/" + name + "/" + clipName + ".fbx";
     exporter = new ModelExporter(name, file);
     exporter->ExportClip(clipName);
-    delete exporter;*/
+    delete exporter;
 }
 
 ModelExportScene::~ModelExportScene()

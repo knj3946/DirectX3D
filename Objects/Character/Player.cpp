@@ -120,9 +120,10 @@ Player::Player()
     GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //????
 
     GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f); // ????? ??????
+    GetClip(CLIMBING)->SetEvent(bind(&Player::EndClimbing, this), 0.98f);
 
-    GetClip(ASSASSINATION1)->SetEvent(bind(&Player::EndAssassination, this,1), 0.9f);
-    GetClip(ASSASSINATION2)->SetEvent(bind(&Player::EndAssassination, this,2), 0.9f);
+    GetClip(ASSASSINATION1)->SetEvent(bind(&Player::EndAssassination, this, 1), 0.9f);
+    GetClip(ASSASSINATION2)->SetEvent(bind(&Player::EndAssassination, this, 2), 0.9f);
 
     GetClip(DAGGER1)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
     GetClip(DAGGER2)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
@@ -132,9 +133,9 @@ Player::Player()
     GetClip(DAGGER2)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), true), 0.3f); //콜라이더 켜는 시점 설정
     GetClip(DAGGER3)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), true), 0.15f); //콜라이더 켜는 시점 설정
 
-    GetClip(DAGGER1)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(),false), 0.3f); //콜라이더 꺼지는 시점 설정
-    GetClip(DAGGER2)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(),false), 0.45f); //콜라이더 꺼지는 시점 설정
-    GetClip(DAGGER3)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(),false), 0.35f); //콜라이더 꺼지는 시점 설정
+    GetClip(DAGGER1)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), false), 0.3f); //콜라이더 꺼지는 시점 설정
+    GetClip(DAGGER2)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), false), 0.45f); //콜라이더 꺼지는 시점 설정
+    GetClip(DAGGER3)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), false), 0.35f); //콜라이더 꺼지는 시점 설정
 
 
 
@@ -350,7 +351,18 @@ void Player::SetTerrain(LevelData* terrain)
 
 void Player::Assassination()
 {
-    SetState(ASSASSINATION1,2.0f);
+    SetState(ASSASSINATION1, 2.0f);
+}
+
+void Player::Climb(Collider* col, Vector3 climbPos)
+{
+    Pos() = { climbPos.x,heightLevel,climbPos.z };
+    UpdateWorld();
+
+    remainClimbDis = col->GetHalfSize().y * 2;
+    isClimb = true;
+
+    SetState(CLIMBING, (1.0f / remainClimbDis));
 }
 
 void Player::CameraMove()
@@ -370,10 +382,10 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     if (KEY_DOWN(VK_ESCAPE))
         camera = !camera;
 
-        if (camera)
-            CAM->SetTarget(this);
-        else
-            CAM->SetTarget(nullptr);
+    if (camera)
+        CAM->SetTarget(this);
+    else
+        CAM->SetTarget(nullptr);
 
 
     if (KEY_PRESS(VK_RBUTTON))
@@ -669,7 +681,7 @@ void Player::Jumping()
         float tempJumpVel;
         float tempY;
 
-        if (curState!= JUMP1 && curState!= JUMP2 && preHeight - heightLevel > 5.0f)
+        if (curState != JUMP1 && curState != JUMP2 && preHeight - heightLevel > 5.0f)
         {
             jumpVel = -1;
 
@@ -719,6 +731,8 @@ void Player::Searching()
 
 void Player::Targeting()
 {
+    InteractManager::Get()->ClearSkill();
+
     Ray mouseRay = CAM->ScreenPointToRay(mousePos);
 
     MonsterManager::Get()->OnOutLineByRay(mouseRay);
@@ -732,7 +746,13 @@ void Player::Targeting()
     offset = (CAM->Right() * 1.5f) + (CAM->Up() * 3.f);
 
     ArrowManager::Get()->ActiveSpecialKey(Pos(), offset);
-    
+
+    ColliderManager::Get()->PickFlagByRay(mouseRay);
+
+    offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
+
+    ColliderManager::Get()->ActiveSpecialKey(GlobalPos(), offset);
+
 }
 
 void Player::UseSkill()
@@ -776,13 +796,19 @@ void Player::EndAssassination(UINT num)
         else
             SetState(IDLE);
     }
-        
+
 }
 
 void Player::EndHit()
 {
     isHit = false;
     collider->SetActive(true);
+    SetState(IDLE);
+}
+
+void Player::EndClimbing()
+{
+    isClimb = false;
     SetState(IDLE);
 }
 
@@ -919,7 +945,8 @@ void Player::SetState(State state, float scale, float takeTime)
 void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 매개변수로 값을 받아올 경우엔 바로 그 state로 변경하게 만들기
 {
     if (curState == ASSASSINATION1 || curState == ASSASSINATION2) return;
-        
+    if (curState == CLIMBING) return;
+
     if (weaponState == DAGGER)
     {
         if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;   //????? ???? ??찡 ????? ?????? Pos().y?? ???? ???? ?????? ????
