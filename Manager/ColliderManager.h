@@ -2,13 +2,22 @@
 class ColliderManager : public Singleton<ColliderManager>
 {
 private:
+    struct SpecialKeyUI
+    {
+        string name;
+        char key;
+        Quad* quad;
+        bool active;
+    };
+
+private:
     friend class Singleton;
 
     ColliderManager();
     ~ColliderManager();
 
 public:
-     enum Collision_Type {
+    enum Collision_Type {
         PLAYER,
         ORC,
         WALL,
@@ -16,7 +25,7 @@ public:
         ORC_KUNAI,
         END,
     };
-    
+
     void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); }
     void SetObstacles(Collider* obstacle);
     vector<Collider*>& GetObstacles();
@@ -25,6 +34,8 @@ public:
     void SetCameraPos();
     void SetHeight();
 
+    void Render();
+    void PostRender();
     void GuiRender();
 
     float CloseRayCollisionColliderDistance(Ray ray);
@@ -44,12 +55,15 @@ public:
     bool CollisionCheck(Collider* _pCollider, Collision_Type _vecCol);
     bool CollisionCheck(Collision_Type _type1, Collision_Type _type2);
 
+    void PickFlagByRay(Ray ray);
+    void ActiveSpecialKey(Vector3 playPos, Vector3 offset);
+
 private:
     Player* player;
     CapsuleCollider* playerCollider;
     //vector<Collider*> obstacles; // 밑의 vecCol에 통합
 
-    Collider * onBlock; 
+    Collider* onBlock;
 
     vector<Collider*> vecCol[Collision_Type::END];
 
@@ -59,4 +73,10 @@ private:
 
     Ray* footRay;
     Ray* headRay;
+
+    map<string, SpecialKeyUI> specialKeyUI;
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> 7219856f45c0ce2d6117c5b5c97a56ca9f02ca40

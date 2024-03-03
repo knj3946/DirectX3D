@@ -50,7 +50,7 @@ void ModelAnimatorInstancing::Render()
     drawCount = 0;
     FOR(transforms.size())
     {
-        UpdateFrame(i, frameInstancingBuffer->Get().motions[i]);
+        //UpdateFrame(i, frameInstancingBuffer->Get().motions[i]);
         if (outLines[i])
         {
             transforms[i]->Scale() *= 1.1f;

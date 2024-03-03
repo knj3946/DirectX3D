@@ -248,6 +248,7 @@ void GameMapScene::PostRender()
 {
 	MonsterManager::Get()->PostRender();
 	ArrowManager::Get()->PostRender();
+	ColliderManager::Get()->PostRender();
 	player->PostRender();
 }
 

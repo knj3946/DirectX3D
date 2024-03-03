@@ -23,6 +23,7 @@ public:
 
 
     void Assassination(Orc* orc);
+    void Climb(Collider* col);
 private:
     Player* player;
     vector<Skill> activeSkills;
