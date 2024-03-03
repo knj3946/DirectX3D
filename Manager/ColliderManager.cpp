@@ -6,8 +6,13 @@ ColliderManager::ColliderManager()
     footRay = new Ray();
     headRay = new Ray();
 
+<<<<<<< HEAD
     headRay->dir = { 0, 1, 0 };
     footRay->dir = { 0, -1, 0 };
+=======
+	headRay->dir = { 0, 1, 0 };
+	footRay->dir = { 0, -1, 0 };
+>>>>>>> 7219856f45c0ce2d6117c5b5c97a56ca9f02ca40
 
 
 
@@ -87,6 +92,22 @@ void ColliderManager::SetHeight()
     }
 
     player->SetHeightLevel(maxHeight);
+}
+
+void ColliderManager::Render()
+{
+}
+
+void ColliderManager::PostRender()
+{
+    //특수키 출력
+    for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
+
+        if (iter.second.active)
+        {
+            iter.second.quad->Render();
+        }
+    }
 }
 
 void ColliderManager::Render()
@@ -564,4 +585,8 @@ void ColliderManager::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
             InteractManager::Get()->ActiveSkill("climb", sk.key, bind(&InteractManager::Climb, InteractManager::Get(), col));
         }
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 7219856f45c0ce2d6117c5b5c97a56ca9f02ca40

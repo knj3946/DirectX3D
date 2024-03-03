@@ -352,8 +352,6 @@ void MonsterManager::OnOutLineByRay(Ray ray)
 
 void MonsterManager::ActiveSpecialKey(Vector3 playPos,Vector3 offset)
 {
-    InteractManager::Get()->ClearSkill();
-
     for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
 
         iter.second.active = false;

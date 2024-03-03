@@ -36,6 +36,12 @@ public:
         OPEN
     };
 
+    enum Collider_Special {
+        NONE,
+        TYPE_Z_OVER, //Z축기준 콜라이더 포지션보다 큰 부분에서만 등반 가능
+        TYPE_Z_UNDER //Z축기준 콜라이더 포지션보다 작은 부분에서만 등반 가능
+    };
+
     const float PUSH_SPEED = 10.0f;
 
 public:
@@ -66,6 +72,15 @@ public:
     Type GetType() { return type; }
 
     Collider_Role& Role() { return role; }
+    Collider_Special& Special() { return special; }
+
+    void SetPickFlag(bool flag) { this->pickFlag = flag; }
+
+    bool IsPickFlag() { return pickFlag; }
+    bool IsTrustedRelation(Vector3 playPos);
+
+    void SetPickContact(Contact con) { this->pickContact = con; }
+    Contact GetPickContact() { return pickContact; }
 private:
     virtual void MakeMesh() = 0;
 
@@ -74,6 +89,9 @@ protected:
 
     Mesh<Vertex>* mesh;
     Collider_Role role;
+    Collider_Special special;
+    bool pickFlag = false;
+    Contact pickContact;
 
 private:
     static bool isRender;

@@ -202,6 +202,7 @@ private:
     float curHP = 100, maxHp = 100;
     float destHP;
     bool isHit = false;
+    bool isDying = false;
 
     Quad* questionMark;
     Quad* exclamationMark;

@@ -95,3 +95,22 @@ bool Collider::PushCollision(Collider* collider)
 
     return true;
 }
+
+bool Collider::IsTrustedRelation(Vector3 playPos)
+{
+    bool r = false;
+    switch (special)
+    {
+        case TYPE_Z_OVER:
+        {
+            if (GlobalPos().z < playPos.z)
+            {
+                r = true;
+            }
+            break;
+        }   
+        default:
+            r = false;
+    }
+    return r;
+}

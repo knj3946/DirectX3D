@@ -91,7 +91,7 @@ public:
 
     void Assassination();
 
-    void Climb(Collider* col, Vector3 climbPos);
+    void Climb(Collider* col,Vector3 climbPos);
 
 private:
     void CameraMove(); // 벽에 가려지는 플레이어 현상 해결을 위한 함수
