@@ -381,6 +381,7 @@ void Orc::Hit(float damage,Vector3 collisionPos)
         rightWeaponCollider->SetActive(false);
         if (destHP <= 0)
         {
+            isDying = true;
             SetState(DYING);
             return;
         }
@@ -476,8 +477,12 @@ void Orc::Assassinated(Vector3 collisionPos,Transform* attackerTrf)
     SetState(ASSASSINATED,0.3f);
 
     //암살했을시 피통 시각적 효과를 위해서
-    isHit = true;
-    destHP = 1; 
+    //isHit = true;
+    //isDying = true;
+    //destHP = 0; 
+    Vector3 pos = transform->GlobalPos();
+    pos.y += 5;
+    Hit(120, pos);
 }
 
 void Orc::Control()
@@ -776,9 +781,12 @@ void Orc::UpdateUI()
         }
     }
 
-    if (isHit)
+    if (isHit||isDying)
     {
-        curHP -= DELTA * 30 * 2;
+        if (isDying)
+            curHP -= DELTA * 30 * 7;
+        else 
+            curHP -= DELTA * 30 * 2;
 
         if (curHP <= destHP)
         {
@@ -936,9 +944,9 @@ void Orc::EndHit()
 
 void Orc::EndAssassinated()
 {
-    Vector3 pos = transform->GlobalPos();
+    /*Vector3 pos = transform->GlobalPos();
     pos.y += 5;
-    Hit(120, pos);
+    Hit(120, pos);*/
 }
 
 void Orc::EndDying()
