@@ -33,8 +33,10 @@ Boss::Boss()
 	Roarparticle->GetQuad()->SetParent(Mouth);
 	Roarparticle->GetQuad()->Pos() = { 4.f,-9.f,-6.f };
 	Roarparticle->GetQuad()->Scale() = { 25.f,36.f,42.f };
-	for(int i=0;i<3;++i)
+	for (int i = 0; i < 3; ++i) {
 		Runparticle[i] = new ParticleSystem("TextData/Particles/Smoke.fx");
+		
+	}
 	leftHand = new Transform;
 	leftCollider = new CapsuleCollider(10, 10);
 	leftCollider->Scale() *= 2.2f;
@@ -123,13 +125,13 @@ void Boss::Update()
 
 	Idle();
 	Direction();
+	Find();
 	
+	CoolTimeCheck();
 	Move();
-
 	
 	Die();
 	Control();
-	CoolTimeCheck();
 
 	instancing->Update();
 	leftHand->SetWorld(instancing->GetTransformByNode(index, 14));
@@ -223,7 +225,7 @@ void Boss::CoolTimeCheck()
 	if (bRoar) {
 		RoarCoolTime += DELTA;
 	}
-	if (RoarCoolTime >= 5.f) {
+	if (RoarCoolTime >= 10.f) {
 		bRoar = false;
 		RoarCoolTime = 0.f;
 	}
@@ -236,9 +238,9 @@ void Boss::AddObstacleObj(Collider* collider)
 void Boss::Idle()
 {
 	//if (curState != STATE::IDLE)return;
+	Detection();
 	if (state != BOSS_STATE::IDLE)return;
 	CalculateEyeSight();
-	Detection();
 
 
 
@@ -333,6 +335,17 @@ void Boss::Die()
 {
 }
 
+void Boss::Find()
+{
+	if (state == BOSS_STATE::DETECT) {
+		if (dynamic_cast<Naruto*>(target)->GetTest()) {
+			state == BOSS_STATE::FIND;
+			questionMark->SetActive(true);
+			exclamationMark->SetActive(false);
+		}
+	}
+}
+
 void Boss::Control()
 {
 }
@@ -350,6 +363,9 @@ void Boss::UpdateUI()
 	
 	exclamationMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 1, 0));
 	exclamationMark->UpdateWorld();
+
+	questionMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 1, 0));
+	questionMark->UpdateWorld();
 }
 
 
@@ -455,9 +471,7 @@ void Boss::Detection()
 		SetState(RUN);
 	}
 	rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
-	if (DetectionEndTime*2.f <= DetectionStartTime) {
-		exclamationMark->SetActive(false);
-	}
+	
 
 
 }
@@ -549,46 +563,49 @@ void Boss::IdleWalk()
 }
 void Boss::Run()
 {
-	velocity = target->GlobalPos() - transform->GlobalPos();
-	totargetlength = velocity.Length();
-	moveSpeed = runSpeed;
-	dir = velocity.GetNormalized();
+	if (state == BOSS_STATE::DETECT) {
 
-	if (totargetlength > AttackRange) {
-		if (totargetlength < RoarRange) {
-			if (RoarCoolTime <= 0.f)
-			{
-				path.clear();
-				SetState(ROAR);
-				bWait = true;
-				return;
+		velocity = target->GlobalPos() - transform->GlobalPos();
+		totargetlength = velocity.Length();
+		moveSpeed = runSpeed;
+		dir = velocity.GetNormalized();
+
+		if (totargetlength > AttackRange) {
+			if (totargetlength < RoarRange) {
+				if (RoarCoolTime <= 0.f)
+				{
+					path.clear();
+					SetState(ROAR);
+					bWait = true;
+					return;
+				}
 			}
+
+			if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
+			{
+				SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
+			}
+			else
+			{
+				path.clear(); // 굳이 장애물없는데 길찾기 필요 x
+				path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
+			}
+			Runparticle[currunparticle]->Play(transform->GlobalPos(), transform->Rot());
+			currunparticle++;
+			if (currunparticle >= 3)
+				currunparticle = 0;
 		}
 
-		if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
-		{
-			SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
-		}
 		else
 		{
-			path.clear(); // 굳이 장애물없는데 길찾기 필요 x
-			path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
-		}
-		Runparticle[currunparticle]->Play(transform->GlobalPos());
-		currunparticle++;
-		if (currunparticle >= 3)
-			currunparticle = 0;
-	}
+			SetRay();
 
-	else
-	{
-		SetRay();
-		
-		path.clear();
-	
-		SetState(ATTACK, 3.0f);
-	
-		bWait = true;
+			path.clear();
+
+			SetState(ATTACK, 3.0f);
+
+			bWait = true;
+		}
 	}
 }
 

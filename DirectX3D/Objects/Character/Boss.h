@@ -152,6 +152,7 @@ private:
     void JumpAttack();
 
     void Die();
+    void Find();
 
     void Control();// 패턴 조정
     void UpdateUI();

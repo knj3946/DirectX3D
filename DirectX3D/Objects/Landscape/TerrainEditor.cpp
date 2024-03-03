@@ -108,7 +108,7 @@ void TerrainEditor::GUIRender()
 {
     Transform::GUIRender();
     ImGui::Text("TerrainEdit Option");
-    //ImGui::Text("x : %.1f, y : %.1f, z : %.1f", pickingPos.x, pickingPos.y, pickingPos.z);
+    ImGui::Text("x : %.1f, y : %.1f, z : %.1f", pickingPos.x, pickingPos.y, pickingPos.z);
     if (ImGui::DragInt("Width", (int*)&width, 1.0f, 2, MAX_SIZE))
         Resize();
     if (ImGui::DragInt("Height", (int*)&height, 1.0f, 2, MAX_SIZE))
@@ -120,7 +120,7 @@ void TerrainEditor::GUIRender()
     const char* brushList[] = { "Circle", "SoftCircle", "Rect" };
     if (ImGui::Combo("BrushType", (int*)&brushType, brushList, 3))
         brushBuffer->Get().type = brushType;
-
+        
     ImGui::DragFloat("Range", &brushBuffer->Get().range, 1.0f, 1.0f, 20.0f);
     ImGui::DragFloat("AdjustValue", &adjustValue, 1.0f, -50.0f, 50.0f);
     ImGui::ColorEdit3("Color", (float*)&brushBuffer->Get().color);

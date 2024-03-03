@@ -20,7 +20,8 @@ public:
 
     };
 
-    void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); playerFoot = player->GetFootRay(); }    void SetObstacles(Collider* obstacle) { obstacles.push_back(obstacle); }
+    void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); playerFoot = player->GetFootRay(); }    
+    void SetObstacles(Collider* obstacle) { obstacles.push_back(obstacle); vecCol[Collision_Type::WALL].push_back(obstacle); }
 
     void PushPlayer();
     void SetHeight();
@@ -28,7 +29,8 @@ public:
     void GuiRender();
 
     float CloseRayCollisionColliderDistance(Ray ray);
-
+    float CloseRayCollisionColliderDistance(Ray ray,Collider* _pCollider);
+    bool CompareDistanceObstacleandPlayer(Ray ray);
     ColliderModel* CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot, Vector3 mPos);
 
 

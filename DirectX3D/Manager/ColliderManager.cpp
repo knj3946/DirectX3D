@@ -112,6 +112,44 @@ float ColliderManager::CloseRayCollisionColliderDistance(Ray ray)
 	return minDistance;
 }
 
+float ColliderManager::CloseRayCollisionColliderDistance(Ray ray, Collider* _pCollider)
+{
+	float minDistance = FLT_MAX;
+	
+	Contact con;
+	_pCollider->IsRayCollision(ray, &con);
+
+	float hitDistance = Distance(con.hitPoint, ray.pos);
+	if (minDistance > hitDistance)
+		minDistance = hitDistance;
+	
+
+	return minDistance;
+}
+
+bool ColliderManager::CompareDistanceObstacleandPlayer(Ray ray)
+{
+	Collider* tmpCol=nullptr;
+	for (Collider* ob : vecCol[WALL])
+	{
+		Contact con;
+		if (ob->IsRayCollision(ray, &con))
+		{
+			tmpCol = ob;
+			break;
+		}
+	}
+	if (!tmpCol)
+		return false;
+
+	if (CloseRayCollisionColliderDistance(ray, tmpCol) >= CloseRayCollisionColliderDistance(ray, vecCol[Collision_Type::PLAYER][0])) {
+		return true;// 플레이어가 벽보다 가깝다.
+	}
+	return false;
+
+
+}
+
 ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot, Vector3 mPos)
 {
 	int colCount = 0;
