@@ -2,6 +2,15 @@
 class ColliderManager : public Singleton<ColliderManager>
 {
 private:
+    struct SpecialKeyUI
+    {
+        string name;
+        char key;
+        Quad* quad;
+        bool active;
+    };
+
+private:
     friend class Singleton;
 
     ColliderManager();
@@ -25,6 +34,8 @@ public:
     void SetCameraPos();
     void SetHeight();
 
+    void Render();
+    void PostRender();
     void GuiRender();
 
     float CloseRayCollisionColliderDistance(Ray ray);
@@ -44,6 +55,9 @@ public:
     bool CollisionCheck(Collider* _pCollider, Collision_Type _vecCol);
     bool CollisionCheck(Collision_Type _type1, Collision_Type _type2);
 
+    void PickFlagByRay(Ray ray);
+    void ActiveSpecialKey(Vector3 playPos, Vector3 offset);
+
 private:
     Player* player;
     CapsuleCollider* playerCollider;
@@ -59,4 +73,6 @@ private:
 
     Ray* footRay;
     Ray* headRay;
+
+    map<string, SpecialKeyUI> specialKeyUI;
 };

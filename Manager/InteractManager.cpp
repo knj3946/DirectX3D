@@ -30,3 +30,8 @@ void InteractManager::Assassination(Orc* orc)
 	pos.y += 5.0f;
 	orc->Assassinated(pos,player);
 }
+
+void InteractManager::Climb(Collider* col)
+{
+	player->Climb(col,col->GetPickContact().hitPoint);
+}

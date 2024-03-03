@@ -120,6 +120,7 @@ Player::Player()
     GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //????
 
     GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f); // ????? ??????
+    GetClip(CLIMBING)->SetEvent(bind(&Player::EndClimbing, this), 0.98f);
 
     GetClip(ASSASSINATION1)->SetEvent(bind(&Player::EndAssassination, this,1), 0.9f);
     GetClip(ASSASSINATION2)->SetEvent(bind(&Player::EndAssassination, this,2), 0.9f);
@@ -351,6 +352,17 @@ void Player::SetTerrain(LevelData* terrain)
 void Player::Assassination()
 {
     SetState(ASSASSINATION1,2.0f);
+}
+
+void Player::Climb(Collider* col, Vector3 climbPos)
+{
+    Pos() = { climbPos.x,heightLevel,climbPos.z };
+    UpdateWorld();
+
+    remainClimbDis = col->GetHalfSize().y * 2;
+    isClimb = true;
+
+    SetState(CLIMBING,(1.0f/remainClimbDis));
 }
 
 void Player::CameraMove()
@@ -719,6 +731,8 @@ void Player::Searching()
 
 void Player::Targeting()
 {
+    InteractManager::Get()->ClearSkill();
+
     Ray mouseRay = CAM->ScreenPointToRay(mousePos);
 
     MonsterManager::Get()->OnOutLineByRay(mouseRay);
@@ -732,6 +746,12 @@ void Player::Targeting()
     offset = (CAM->Right() * 1.5f) + (CAM->Up() * 3.f);
 
     ArrowManager::Get()->ActiveSpecialKey(Pos(), offset);
+
+    ColliderManager::Get()->PickFlagByRay(mouseRay);
+
+    offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
+
+    ColliderManager::Get()->ActiveSpecialKey(GlobalPos(), offset);
     
 }
 
@@ -783,6 +803,12 @@ void Player::EndHit()
 {
     isHit = false;
     collider->SetActive(true);
+    SetState(IDLE);
+}
+
+void Player::EndClimbing()
+{
+    isClimb = false;
     SetState(IDLE);
 }
 
@@ -919,6 +945,7 @@ void Player::SetState(State state, float scale, float takeTime)
 void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 매개변수로 값을 받아올 경우엔 바로 그 state로 변경하게 만들기
 {
     if (curState == ASSASSINATION1 || curState == ASSASSINATION2) return;
+    if (curState == CLIMBING) return;
         
     if (weaponState == DAGGER)
     {

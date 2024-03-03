@@ -8,6 +8,21 @@ ColliderManager::ColliderManager()
 
 	headRay->dir = { 0, 1, 0 };
 	footRay->dir = { 0, -1, 0 };
+
+
+
+    //특수키 추가
+    {
+        SpecialKeyUI sk;
+        Quad* quad = new Quad(Vector2(130, 50));
+        quad->GetMaterial()->SetShader(L"Basic/Texture.hlsl");
+        quad->GetMaterial()->SetDiffuseMap(L"Textures/UI/SpecialKeyUI_climb.png");
+        sk.name = "climb";
+        sk.key = 'H';
+        sk.quad = quad;
+        sk.active = false;
+        specialKeyUI.insert(make_pair(sk.name, sk));
+    }
 }
 
 ColliderManager::~ColliderManager()
@@ -72,6 +87,22 @@ void ColliderManager::SetHeight()
 	}
 
 	player->SetHeightLevel(maxHeight);
+}
+
+void ColliderManager::Render()
+{
+}
+
+void ColliderManager::PostRender()
+{
+    //특수키 출력
+    for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
+
+        if (iter.second.active)
+        {
+            iter.second.quad->Render();
+        }
+    }
 }
 
 void ColliderManager::GuiRender()
@@ -169,6 +200,7 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
     vector<Vector3> colScales;
     vector<Vector3> colRots;
     vector<Collider::Collider_Role> colRole;
+    vector<Collider::Collider_Special> colSpecials;
 
     if (mName == "building_V2")
     {
@@ -230,6 +262,20 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
         colRole.push_back(Collider::BLOCK);
         colRole.push_back(Collider::BLOCK);
         colRole.push_back(Collider::OPEN); //바닥 콜라이더
+
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::TYPE_Z_OVER); //Z축기준 콜라이더 포지션보다 큰 부분에서만 등반 가능
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
 
     }
     else if (mName == "building_V4")
@@ -318,6 +364,26 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
         colRole.push_back(Collider::OPEN); //바닥 콜라이더
         colRole.push_back(Collider::OPEN); //바닥 콜라이더
 
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+
     }
     else if (mName == "building_V5")
     {
@@ -378,6 +444,20 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
         colRole.push_back(Collider::BLOCK);
         colRole.push_back(Collider::BLOCK);
         colRole.push_back(Collider::OPEN); //바닥 콜라이더
+
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::NONE);
     }
 
     ColliderModel* model = new ColliderModel(mName);
@@ -398,6 +478,7 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
         col->Rot() = colRots[i];
         col->Pos() = colPoss[i];
         col->Role() = colRole[i];
+        col->Special() = colSpecials[i];
         col->UpdateWorld();
         model->AddCollider(col);
     }
@@ -434,4 +515,53 @@ bool ColliderManager::CollisionCheck(Collision_Type _type1, Collision_Type _type
 		}
 	}
 	return false;
+}
+
+void ColliderManager::PickFlagByRay(Ray ray)
+{
+    float minDistance = FLT_MAX;
+    Collider* targetCol = nullptr;
+
+    for (Collider* col : GetObstacles())
+    {
+        Contact con;
+        if (col->IsRayCollision(ray, &con))
+        {
+            float hitDistance = Distance(con.hitPoint, ray.pos);
+            if (minDistance > hitDistance)
+            {
+                minDistance = hitDistance;
+                targetCol = col;
+            }
+        }
+        col->SetPickFlag(false);
+        col->SetPickContact(con);
+    }
+
+    if (targetCol)
+    {
+        targetCol->SetPickFlag(true);
+    }
+}
+
+void ColliderManager::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
+{
+    for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
+
+        iter.second.active = false;
+    }
+
+    for (Collider* col : GetObstacles())
+    {
+        float dis = Distance(col->GlobalPos(), playPos);
+        if (col->IsPickFlag() && col->IsTrustedRelation(playPos) && dis < 20.f)
+        {
+            SpecialKeyUI& sk = specialKeyUI["climb"];
+            sk.active = true;
+            sk.quad->Pos() = CAM->WorldToScreen(col->GlobalPos() + offset);
+            sk.quad->UpdateWorld();
+
+            InteractManager::Get()->ActiveSkill("climb", sk.key, bind(&InteractManager::Climb, InteractManager::Get(), col));
+        }
+    }
 }
