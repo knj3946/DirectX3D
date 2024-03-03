@@ -56,6 +56,7 @@ Boss::Boss()
 	SetEvent(ATTACK, bind(&Boss::StartAttack, this), 0.f);
 	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.99f);
 	SetEvent(ATTACK, bind(&Boss::DoingAttack, this), 0.6f);
+
 	SetEvent(ROAR, bind(&Boss::Roar, this), 0.3f);
 	SetEvent(ROAR, bind(&Boss::EndRoar, this), 0.99f);
 	SetEvent(DEATH, bind(&Boss::EndDying, this), 0.9f);
@@ -75,6 +76,10 @@ Boss::Boss()
 	rangeBar->Pos() = { -15.f,1.f,-650.f };
 	rangeBar->Scale() = { 1.f / transform->Scale().x,1.f / transform->Scale().y,1.f / transform->Scale().z};
 	rangeBar->Scale() *= (eyeSightRange / 100);
+	Audio::Get()->Add("Boss_Roar", "Sounds/Roar.mp3",false,false,true);
+	Audio::Get()->Add("Boss_Splash", "Sounds/BossSplash.mp3", false, false, true);
+	Audio::Get()->Add("Boss_Run", "Sounds/Bossfootstep.mp3", false, false, true);
+	Audio::Get()->Add("Boss_Walk", "Sounds/Bosswalk.mp3", false, false, true);
 }
 
 Boss::~Boss()
@@ -320,6 +325,7 @@ void Boss::IdleMove() {
 void Boss::Roar()
 {
 	//맵에있는 오크들 다부르며 원거리 공격
+	Audio::Get()->Play("Boss_Roar",transform->GlobalPos());
 	RoarCollider->SetActive(true);
 	Roarparticle->Play();
 }
@@ -490,7 +496,7 @@ void Boss::EndAttack()
 	else
 	{
 		eventIters[ATTACK] = totalEvent[ATTACK].begin(); //이벤트 반복자도 등록된 이벤트 시작시점으로
-
+		Audio::Get()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
 	
 	}
 
@@ -510,6 +516,7 @@ void Boss::EndDying()
 void Boss::StartAttack()
 {
 	bWait = true;
+
 }
 
 
@@ -532,6 +539,7 @@ void Boss::EndRoar()
 		path.clear();
 		SetState(ATTACK, 3.0f);
 		bWait = true;
+		Audio::Get()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
 
 	}
 	
@@ -560,6 +568,7 @@ void Boss::IdleWalk()
 	totargetlength = velocity.Length();
 	moveSpeed = walkSpeed;
 	dir = velocity.GetNormalized();
+	Audio::Get()->Play("Boss_Walk",transform->GlobalPos(),0.3f);
 }
 void Boss::Run()
 {
@@ -584,6 +593,8 @@ void Boss::Run()
 			if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
 			{
 				SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
+
+
 			}
 			else
 			{
@@ -591,6 +602,8 @@ void Boss::Run()
 				path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
 			}
 			Runparticle[currunparticle]->Play(transform->GlobalPos(), transform->Rot());
+			if(!Audio::Get()->IsPlaySound("Boss_Run"))
+				Audio::Get()->Play("Boss_Run", transform->GlobalPos(), 1.f);
 			currunparticle++;
 			if (currunparticle >= 3)
 				currunparticle = 0;
@@ -603,7 +616,7 @@ void Boss::Run()
 			path.clear();
 
 			SetState(ATTACK, 3.0f);
-
+			Audio::Get()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
 			bWait = true;
 		}
 	}
