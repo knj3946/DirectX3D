@@ -13,19 +13,49 @@ ModelExportScene::ModelExportScene()
     exporter->ExportMesh();
     delete exporter;
 
-    //string floderN1 = "Bow/Attack";
+    string floderN1 = "Bow/Crouch";
 
-    //clipName = "Hanging Idle";
+    //clipName = "Standing To Crouch";
     //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
     //exporter = new ModelExporter(name, file);
     //exporter->ExportClip(clipName);
     //delete exporter;
 
-    clipName = "Idle To Braced Hang";
-    file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+    //clipName = "Crouch To Standing";
+    //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //exporter = new ModelExporter(name, file);
+    //exporter->ExportClip(clipName);
+    //delete exporter;
+
+    //clipName = "Crouch Idle";
+    //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //exporter = new ModelExporter(name, file);
+    //exporter->ExportClip(clipName);
+    //delete exporter;
+
+    //clipName = "Crouch Walk Forward";
+    //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //exporter = new ModelExporter(name, file);
+    //exporter->ExportClip(clipName);
+    //delete exporter;
+
+    //clipName = "Crouch Walk Back";
+    //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //exporter = new ModelExporter(name, file);
+    //exporter->ExportClip(clipName);
+    //delete exporter;
+
+    clipName = "Crouch Walk Right";
+    file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
     exporter = new ModelExporter(name, file);
     exporter->ExportClip(clipName);
     delete exporter;
+
+    //clipName = "Crouch Walk Left";
+    //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //exporter = new ModelExporter(name, file);
+    //exporter->ExportClip(clipName);
+    //delete exporter;
 }
 
 ModelExportScene::~ModelExportScene()

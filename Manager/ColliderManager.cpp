@@ -8,8 +8,6 @@ ColliderManager::ColliderManager()
 
     headRay->dir = { 0, 1, 0 };
     footRay->dir = { 0, -1, 0 };
-	/*headRay->dir = { 0, 1, 0 };
-	footRay->dir = { 0, -1, 0 };*/
 
 
 

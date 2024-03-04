@@ -112,6 +112,18 @@ Player::Player()
     ReadClip(temp + "Standing Aim Idle");
     ReadClip(temp + "Standing Aim Recoil");
 
+    temp = "Bow/Crouch/";
+
+    ReadClip(temp + "Standing To Crouch");
+    ReadClip(temp + "Crouch To Standing");
+    ReadClip(temp + "Crouch Idle");
+    ReadClip(temp + "Crouch Walk Forward");
+    ReadClip(temp + "Crouch Walk Back");
+    ReadClip(temp + "Crouch Walk Left");
+    ReadClip(temp + "Crouch Walk Right");
+
+
+
     GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.1f);  //????????
     GetClip(JUMP1)->SetEvent(bind(&Player::AfterJumpAnimation, this), 0.20001f);   //???
 
@@ -164,6 +176,14 @@ Player::Player()
         form->Pos() = { 245, WIN_HEIGHT - 100, 0 };
         form->UpdateWorld();
     }
+
+    aimT = new Transform();
+    aimT->SetParent(this);
+    aimT->Pos().x += -40.0f;
+    aimT->Pos().y += -15.0f;
+
+    crosshair = new Quad(L"Textures/UI/cursor.png");
+    crosshair->Pos() = { CENTER_X, CENTER_Y, 0 };
 }
 
 Player::~Player()
@@ -189,6 +209,9 @@ Player::~Player()
     delete bow;
 
     delete ArrowManager::Get();
+
+    delete aimT;
+    delete crosshair;
 }
 
 void Player::Update()
@@ -239,6 +262,10 @@ void Player::Update()
 
     ArrowManager::Get()->Update();
     ArrowManager::Get()->IsCollision();
+
+    aimT->Rot() = Rot();
+    aimT->UpdateWorld();
+    crosshair->UpdateWorld();
 }
 
 void Player::Render()
@@ -260,6 +287,7 @@ void Player::Render()
     //rightFootCollider->Render();
 
     ArrowManager::Get()->Render();
+
 }
 
 void Player::PostRender()
@@ -272,6 +300,9 @@ void Player::PostRender()
     Vector3 tmp = form->Pos() + Vector3(60, 10, 0);
     Font::Get()->RenderText("X ", { tmp.x, tmp.y }, Float2(12, 12));
     Font::Get()->RenderText(str, { tmp.x + 30, tmp.y }, Float2(12, 12));
+
+    if(crosshair->Active())
+        crosshair->Render();
 }
 
 void Player::GUIRender()
@@ -282,7 +313,8 @@ void Player::GUIRender()
 
     ImGui::DragFloat3("Velocity", (float*)&velocity, 0.5f);
     //???
-    ImGui::SliderFloat("moveSpeed", &moveSpeed, 10, 1000);
+    ImGui::SliderFloat("moveSpeed", &moveSpeed1, 10, 1000);
+    ImGui::SliderFloat("moveSpeed", &moveSpeed2, 10, 1000);
     ImGui::SliderFloat("rotSpeed", &rotSpeed, 1, 10);
     ImGui::SliderFloat("deceleration", &deceleration, 1, 10);
     ImGui::Text("isPushed : %d", isPushed);
@@ -367,7 +399,7 @@ void Player::Climb(Collider* col, Vector3 climbPos)
     remainClimbDis = col->GetHalfSize().y * 2;
     isClimb = true;
 
-    SetState(CLIMBING,(1.0f/remainClimbDis));
+    SetState(CLIMBING, (1.0f / remainClimbDis));
 }
 
 void Player::CameraMove()
@@ -387,10 +419,10 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     if (KEY_DOWN(VK_ESCAPE))
         camera = !camera;
 
-    if (camera)
-        CAM->SetTarget(this);
-    else
-        CAM->SetTarget(nullptr);
+    //if (camera)
+    //    CAM->SetTarget(this);
+    //else
+    //    CAM->SetTarget(nullptr);
 
 
     if (KEY_PRESS(VK_RBUTTON))
@@ -428,7 +460,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
         {
             // 보유한 화살이 있는가
             if (ArrowManager::Get()->GetPlayerArrowCount() <= 0)return;
-            SetState(B_DRAW);
+                SetState(B_DRAW);
             return;
         }
     }
@@ -624,7 +656,11 @@ void Player::Walking()
 
 
     Vector3 destFeedBackPos;
-    Vector3 destPos = Pos() + direction * moveSpeed * DELTA * -1;
+    Vector3 destPos;
+    if(!KEY_PRESS(VK_LSHIFT))
+        destPos = Pos() + direction * moveSpeed1 * DELTA * -1;
+    else
+        destPos = Pos() + direction * moveSpeed2 * DELTA * -1;
     Vector3 PlayerSkyPos = destPos;
     PlayerSkyPos.y += 1000;
     Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
@@ -640,7 +676,7 @@ void Player::Walking()
     Vector3 destDir = destFeedBackPos - feedBackPos;
     Vector3 destDirXZ = destDir;
     destDirXZ.y = 0;
-
+ 
     //????
     float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
 
@@ -650,7 +686,10 @@ void Player::Walking()
             || destFeedBackPos.y - feedBackPos.y < 0.5f) // 바닥 올라가게 하기위해 추가함
         ) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????
     {
-        Pos() += direction * moveSpeed * DELTA * -1; // ??? ????
+        if (!KEY_PRESS(VK_LSHIFT))
+            Pos() += direction * moveSpeed1 * DELTA * -1; // ??? ????
+        else
+            Pos() += direction * moveSpeed2 * DELTA * -1; // ??? ????
         feedBackPos.y = destFeedBackPos.y;
     }
 
@@ -672,8 +711,6 @@ void Player::AfterJumpAnimation()
 void Player::Jumping()
 {
 
-    if (weaponState == DAGGER)
-    {
         if (heightLevel < feedBackPos.y)
             heightLevel = feedBackPos.y;
 
@@ -717,11 +754,6 @@ void Player::Jumping()
             SetState(JUMP2);
 
         preHeight = heightLevel;
-    }
-    else if (weaponState == BOW)
-    {
-
-    }
 }
 
 void Player::Searching()
@@ -757,7 +789,6 @@ void Player::Targeting()
     offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
 
     ColliderManager::Get()->ActiveSpecialKey(GlobalPos(), offset);
-
 }
 
 void Player::UseSkill()
@@ -954,9 +985,7 @@ void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 �
 
     if (weaponState == DAGGER)
     {
-        if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;   //????? ???? ??찡 ????? ?????? Pos().y?? ???? ???? ?????? ????
-        /*   if (toCover)
-               return;*/
+        if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;
 
         if (curState == HIT || curState == KICK || curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3)
             return;
@@ -978,19 +1007,37 @@ void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 �
     }
     else if (weaponState == BOW)
     {
+        if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;
+
+
         if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM || curState == B_RECOIL)
             return;
 
-        if (velocity.z > 0.1f)
-            SetState(B_RUN_F);
-        else if (velocity.z < -0.1f)
-            SetState(B_RUN_B);
-        else if (velocity.x > 0.1f)
-            SetState(B_RUN_R);
-        else if (velocity.x < -0.1f)
-            SetState(B_RUN_L);
+        if (KEY_PRESS(VK_LSHIFT)) {
+            if (velocity.z > 0.1f)
+                SetState(B_C_F);
+            else if (velocity.z < -0.1f)
+                SetState(B_C_B);
+            else if (velocity.x > 0.1f)
+                SetState(B_C_R);
+            else if (velocity.x < -0.1f)
+                SetState(B_C_L);
+            else
+                SetState(B_C_IDLE);
+        }
         else
-            SetState(B_IDLE);
+        {
+            if (velocity.z > 0.1f)
+                SetState(B_RUN_F);
+            else if (velocity.z < -0.1f)
+                SetState(B_RUN_B);
+            else if (velocity.x > 0.1f)
+                SetState(B_RUN_R);
+            else if (velocity.x < -0.1f)
+                SetState(B_RUN_L);
+            else
+                SetState(B_IDLE);
+        }
     }
 }
 
@@ -1027,10 +1074,15 @@ void Player::SetCameraPos()
 {
     if (curState == B_AIM || curState == B_DRAW || curState == B_ODRAW)
     {
-        CAM->SetTarget(rightHand);
-        CAM->SetDistance(5.0f);
+        CAM->SetTarget(aimT);
+        CAM->SetDistance(1.0f);
+
+        crosshair->SetActive(true);
         return;
     }
+
+    crosshair->SetActive(false);
+
     CAM->SetTarget(this);
 
     Ray playerBackRay = Ray(Pos(), Forward());

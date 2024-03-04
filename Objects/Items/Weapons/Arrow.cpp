@@ -8,6 +8,7 @@ Arrow::Arrow(Transform* transform, int id,bool isDropItem)
 	//transform->Rot().y += 1.57f;
 
 	collider = new SphereCollider();
+	collider->Scale().z *= 10.0f;
 	collider->SetParent(transform);
 
 	collider->Pos() = {};			// 위치 기본 값 : 부모 위치
@@ -20,7 +21,8 @@ Arrow::Arrow(Transform* transform, int id,bool isDropItem)
 	endEdge->Pos() = transform->Pos();
 	startEdge->UpdateWorld();
 	endEdge->UpdateWorld();
-	trail = new Trail(L"Textures/Effect/Trail.png", startEdge, endEdge, 5, 5);
+	//trail = new Trail(L"Textures/Effect/Trail.png", startEdge, endEdge, 5, 5);
+	trail = new Trail(L"Textures/Effect/wind.jpg", startEdge, endEdge, 3, 3);
 	trail->Init();
 	trail->SetActive(false);
 }
@@ -50,7 +52,12 @@ void Arrow::Update()
 		transform->SetActive(false);
 	}
 
-	transform->Pos() += direction * speed * DELTA;
+	if (isDropItem)
+		transform->Pos() += direction * speed * DELTA;
+	else
+	{
+		transform->Pos() += direction * speed * DELTA;
+	}
 
 	collider->UpdateWorld();
 
