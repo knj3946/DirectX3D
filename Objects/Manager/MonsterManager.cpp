@@ -95,6 +95,8 @@ void MonsterManager::Update()
         if(item.second.orc->GetIsDelete())
             MonsterManager::Get()->DieOrc(item.first);
     }*/
+
+
     /*orcs[0]->Update();
     orcs[1]->Update();*/
   //  for (Orc* orc : orcs)

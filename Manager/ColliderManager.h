@@ -47,7 +47,8 @@ public:
     bool SetPlayerHeight(Collider* obstacle);
 
     void PushCollision(Collision_Type Type, Collider* _pCollider) { vecCol[Type].push_back(_pCollider); }
-    void PopCollision(Collision_Type Type, int index) { vecCol[Type].erase(vecCol[Type].begin() + index); }
+    //void PopCollision(Collision_Type Type, int index);
+    void PopCollision(Collision_Type Type, Collider* collider); // 우선 포인터 주소 비교를 통해 삭제하도록 함
 
     vector<Collider*>& Getvector(Collision_Type _type) { return vecCol[_type]; }
 
@@ -66,7 +67,7 @@ private:
     Collider* onBlock;
 
     vector<Collider*> vecCol[Collision_Type::END];
-    //map<Collision_Type::END,>
+    //vector<map<int, Collider*>> vecCol[Collision_Type::END];
 
     float maxHeight;
 

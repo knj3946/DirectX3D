@@ -966,11 +966,11 @@ void Orc::EndAssassinated()
 void Orc::EndDying()
 {
 
-    collider->SetActive(false);
 
     instancing->SetOutLine(index, false);
     MonsterManager::Get()->specialKeyUI["assassination"].active = false;
-    ColliderManager::Get()->PopCollision(ColliderManager::Collision_Type::ORC, index);
+    ColliderManager::Get()->PopCollision(ColliderManager::Collision_Type::ORC, collider);
+    collider->SetActive(false);
 
     transform->SetActive(false);
     hpBar->SetActive(false);

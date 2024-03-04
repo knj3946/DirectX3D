@@ -492,6 +492,18 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
     return model;
 }
 
+void ColliderManager::PopCollision(Collision_Type Type, Collider* collider)
+{
+    for (int i = 0; i < vecCol[Type].size(); i++)
+    {
+        if (collider == vecCol[Type][i])
+        {
+            vecCol[Type].erase(vecCol[Type].begin() + i);
+            return;
+        }
+    }
+}
+
 bool ColliderManager::CollisionCheck(Collider* _pCollider, Collision_Type _type)
 {
     for (int i = 0; i < vecCol[_type].size(); ++i) {
