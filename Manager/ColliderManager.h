@@ -75,8 +75,4 @@ private:
     Ray* headRay;
 
     map<string, SpecialKeyUI> specialKeyUI;
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> 7219856f45c0ce2d6117c5b5c97a56ca9f02ca40
