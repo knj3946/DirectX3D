@@ -126,7 +126,7 @@ void Boss::Update()
 
 
 
-
+	bool b=aStar->IsObstacle();
 
 	Idle();
 	Direction();
@@ -345,9 +345,11 @@ void Boss::Find()
 {
 	if (state == BOSS_STATE::DETECT) {
 		if (dynamic_cast<Naruto*>(target)->GetTest()) {
-			state == BOSS_STATE::FIND;
+			state = BOSS_STATE::FIND;
 			questionMark->SetActive(true);
 			exclamationMark->SetActive(false);
+			FindPos = aStar->FindPos(transform->GlobalPos(), 30.f);
+			
 		}
 	}
 }
@@ -553,6 +555,14 @@ bool Boss::IsPatrolPos()
 	return false;
 }
 
+bool Boss::IsFindPos()
+{
+	if ((FindPos.x - 1.f < transform->GlobalPos().x && FindPos.x + 1.f > transform->GlobalPos().x)
+		&& (FindPos.z - 1.f < transform->GlobalPos().z && FindPos.z + 1.f > transform->GlobalPos().z))
+		return true;
+	return false;
+}
+
 void Boss::IdleWalk()
 {
 	if (state != BOSS_STATE::IDLE)return;
@@ -618,6 +628,28 @@ void Boss::Run()
 			SetState(ATTACK, 3.0f);
 			Audio::Get()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
 			bWait = true;
+		}
+	}
+	else if(state==BOSS_STATE::FIND) {
+		if (IsFindPos()) {
+			FindPos = aStar->FindPos(transform->GlobalPos(), 30.f);
+
+		}
+
+		velocity = FindPos - transform->GlobalPos();
+		totargetlength = velocity.Length();
+		moveSpeed = runSpeed;
+		dir = velocity.GetNormalized();
+		if (aStar->IsCollisionObstacle(transform->GlobalPos(),FindPos))// 중간에 장애물이 있으면
+		{
+			SetPath(FindPos); // 구체적인 경로 내어서 가기
+
+
+		}
+		else
+		{
+			path.clear(); // 굳이 장애물없는데 길찾기 필요 x
+			path.push_back(FindPos); // 가야할 곳만 경로에 집어넣기
 		}
 	}
 }

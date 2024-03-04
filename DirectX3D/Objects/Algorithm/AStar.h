@@ -35,6 +35,17 @@ public:
     void AddObstacle(Collider* collider); //장애물 수동추가 (클래스 내 호출도 가능)
     void AddObstacleObj(Collider* collider);
 
+    Vector3 FindPos(Vector3 _pos,float _range);
+
+    bool IsObstacle() {
+        for (auto p : nodes) {
+            if (p->state == Node::OBSTACLE)
+                return true;
+     } 
+        return false;
+    }
+    
+
 private:
     void SetEdge(); // 인접지 추가
     int GetMinNode(); //최소비용 노드 구하기

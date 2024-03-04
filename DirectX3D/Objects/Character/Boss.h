@@ -137,7 +137,10 @@ private:
     float RoarRange = 10.f;
     float RoarCoolTime = 0.f;
     bool bRoar = false;
-  
+
+    Vector3 FindPos;
+    bool bArriveFindPos = false;
+
   private:
 
     void CoolTimeCheck();
@@ -171,6 +174,7 @@ private:
     void EndDying();
  //   void EndJumpAttack();
     bool IsPatrolPos();
+    bool IsFindPos();
     void IdleWalk();
 
     void Run();

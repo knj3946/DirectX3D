@@ -123,6 +123,8 @@ int AStar::FindRandomPos(Vector3 pos, float range)
     return findNode->index; // 랜덤으로 나온 노드의 인덱스
 }
 
+
+
 void AStar::GetPath(IN int start, IN int end, OUT vector<Vector3>& path)
 {
     // 노드 입력을 받지 못했을 때 그대로 종료
@@ -292,6 +294,18 @@ void AStar::AddObstacleObj(Collider* collider)
             AddObstacle(node);
         }
     }
+}
+
+Vector3 AStar::FindPos(Vector3 _pos, float _range)
+{
+    int idx= FindRandomPos(_pos, _range);
+  
+    while (nodes[idx]->state == Node::OBSTACLE)
+    {
+        idx = FindRandomPos(_pos, _range);
+    }
+
+    return nodes[idx]->Pos();
 }
 
 void AStar::SetEdge()
