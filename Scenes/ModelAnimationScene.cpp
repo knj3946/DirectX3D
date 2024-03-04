@@ -31,10 +31,13 @@ ModelAnimationScene::ModelAnimationScene()
 	}
 	*/
 	//클립 생성해두기 
-	string modelName = "character1";
+	string modelName = "akai";
 	string clipNames[] = {
+		"Climbing1",
+		"Climbing2",
+		"Climbing3"
 		//"character1@idle1"
-		"character1@idle2"
+		//"character1@idle2"
 		//,"character1@idle3"
 		//,"character1@idle4"
 		//,"character1@idle5"
@@ -80,8 +83,8 @@ ModelAnimationScene::ModelAnimationScene()
 		//,"character1@death1"
 		//,"character1@death2"
 		//,"character1@death3"
-		,"character1@death4"
-		,"character1@dodge"
+		//,"character1@death4"
+		//,"character1@dodge"
 		//,"character1@gethit"
 	};
 	/*string clipNames[] = {
@@ -97,9 +100,9 @@ ModelAnimationScene::ModelAnimationScene()
 		
 	};
 	*/
-	model = new ModelAnimator("character1");
+	model = new ModelAnimator("akai");
 	clipSize = (sizeof(clipNames) / sizeof(*clipNames));
-	/*
+	
 	for(string clipName : clipNames)
 	{
 		string clipPath = "Models/Animations/" + modelName + "/" + clipName + ".fbx";
@@ -107,7 +110,7 @@ ModelAnimationScene::ModelAnimationScene()
 		exporter->ExportClip(clipName);
 		delete exporter;
 	}
-	*/
+	
 	//model = new ModelAnimator("character1");
 	for (string clipName : clipNames)
 	{

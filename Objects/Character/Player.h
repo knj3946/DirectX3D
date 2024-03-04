@@ -10,13 +10,13 @@ private:
         JUMP1, JUMP2, JUMP3,                    //7 ~ 9
         TO_COVER, C_IDLE, C_R, C_L, TO_STAND,   //10 ~ 14
         HIT,                                    //15
-        CLIMBING,                               //16
-        KICK,                                   //17
-        ASSASSINATION1, ASSASSINATION2,         //18 ~ 19
-        DAGGER1, DAGGER2, DAGGER3,              //20 ~ 22
-        B_IDLE,                                 //23
-        B_RUN_F, B_RUN_B, B_RUN_L, B_RUN_R,     //24 ~ 27
-        B_DRAW, B_ODRAW, B_AIM, B_RECOIL        //28 ~ 31
+        CLIMBING1, CLIMBING2, CLIMBING3,        //16 ~ 18
+        KICK,                                   //19
+        ASSASSINATION1, ASSASSINATION2,         //20 ~ 21
+        DAGGER1, DAGGER2, DAGGER3,              //22 ~ 24
+        B_IDLE,                                 //25
+        B_RUN_F, B_RUN_B, B_RUN_L, B_RUN_R,     //26 ~ 29
+        B_DRAW, B_ODRAW, B_AIM, B_RECOIL        //30 ~ 33
     };
 
     enum WeaponState

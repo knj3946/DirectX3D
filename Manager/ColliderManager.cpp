@@ -546,22 +546,27 @@ void ColliderManager::PickFlagByRay(Ray ray)
 
 void ColliderManager::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
 {
-    for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
-
-        iter.second.active = false;
-    }
+    ClearSpecialKey();
 
     for (Collider* col : GetObstacles())
     {
-        float dis = Distance(col->GlobalPos(), playPos);
-        if (col->IsPickFlag() && col->IsTrustedRelation(playPos) && dis < 20.f)
+        float dis = Distance(col->GetPickContact().hitPoint, playPos);
+        if (col->IsPickFlag() && col->IsTrustedRelation(playPos) && dis < 8.f)
         {
             SpecialKeyUI& sk = specialKeyUI["climb"];
             sk.active = true;
-            sk.quad->Pos() = CAM->WorldToScreen(col->GlobalPos() + offset);
+            sk.quad->Pos() = CAM->WorldToScreen(col->GetPickContact().hitPoint + offset);
             sk.quad->UpdateWorld();
 
             InteractManager::Get()->ActiveSkill("climb", sk.key, bind(&InteractManager::Climb, InteractManager::Get(), col));
         }
+    }
+}
+
+void ColliderManager::ClearSpecialKey()
+{
+    for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
+
+        iter.second.active = false;
     }
 }
