@@ -84,7 +84,7 @@ void MonsterManager::Update()
     int i = 0;
 
     
-    for (pair<int, OrcInfo> item : orcs)
+    for (const pair<int, OrcInfo>& item : orcs)
     {
         if(item.second.isActive)
             item.second.orc->Update();
@@ -109,7 +109,7 @@ void MonsterManager::Update()
   //      i++;
   //  }
 
-    for (pair<int, OrcInfo> item : orcs)
+    for (const pair<int, OrcInfo>& item : orcs)
     {
         if (item.second.orc->IsFindTarget()) // 오크가 발견상태라면
         {
@@ -134,12 +134,12 @@ void MonsterManager::Update()
 void MonsterManager::Render()
 {
     orcInstancing->Render();
-    for (pair<int, OrcInfo> item : orcs) item.second.orc->Render();
+    for (const pair<int, OrcInfo>& item : orcs) item.second.orc->Render();
 }
 
 void MonsterManager::PostRender()
 {
-    for (pair<int, OrcInfo> item : orcs) item.second.orc->PostRender();
+    for (const pair<int, OrcInfo>& item : orcs) item.second.orc->PostRender();
 
     //특수키 출력
     for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
@@ -153,19 +153,19 @@ void MonsterManager::PostRender()
 
 void MonsterManager::GUIRender()
 {
-    for (pair<int, OrcInfo> item : orcs) item.second.orc->GUIRender();
+    for (const pair<int, OrcInfo>& item : orcs) item.second.orc->GUIRender();
 }
 
 void MonsterManager::SetTarget(Transform* target)
 {
     this->target = target;
-    for (pair<int, OrcInfo> item : orcs)
+    for (const pair<int, OrcInfo>& item : orcs)
         item.second.orc->SetTarget(target);
 }
 
 void MonsterManager::SetTargetCollider(CapsuleCollider* collider)
 {
-    for (pair<int, OrcInfo> item : orcs)
+    for (const pair<int, OrcInfo>& item : orcs)
         item.second.orc->SetTargetCollider(collider);
 }
 
@@ -176,7 +176,7 @@ bool MonsterManager::IsCollision(Ray ray, Vector3& hitPoint)
     Contact contact;
     float minDistance = FLT_MAX;
 
-    for (pair<int, OrcInfo> item : orcs)
+    for (const pair<int, OrcInfo>& item : orcs)
     {
         if (item.second.orc->GetCollider()->IsRayCollision(ray, &contact))
         {
@@ -206,7 +206,7 @@ void MonsterManager::SetPatrolPos(UINT idx, Vector3 Pos)
 
 void MonsterManager::AddOrcObstacleObj(Collider* collider)
 {
-    for (pair<int, OrcInfo> item : orcs)
+    for (const pair<int, OrcInfo>& item : orcs)
     {
         item.second.orc->AddObstacleObj(collider);
     }
@@ -214,7 +214,7 @@ void MonsterManager::AddOrcObstacleObj(Collider* collider)
 
 void MonsterManager::SetTerrain(LevelData* terrain)
 {
-    for (pair<int, OrcInfo> item : orcs)
+    for (const pair<int, OrcInfo>& item : orcs)
     {
         item.second.orc->SetTerrain(terrain);
     }
@@ -222,7 +222,7 @@ void MonsterManager::SetTerrain(LevelData* terrain)
 
 void MonsterManager::SetAStar(AStar* astar)
 {
-    for (pair<int, OrcInfo> item : orcs)
+    for (const pair<int, OrcInfo>& item : orcs)
     {
         item.second.orc->SetAStar(astar);
     }
@@ -230,7 +230,7 @@ void MonsterManager::SetAStar(AStar* astar)
 
 void MonsterManager::Blocking(Collider* collider)
 {
-    for (pair<int, OrcInfo> item : orcs)
+    for (const pair<int, OrcInfo>& item : orcs)
     {
         if (collider->IsCollision(item.second.orc->GetCollider()))
         {
@@ -294,7 +294,7 @@ void MonsterManager::Fight(Player* player)
     // 플레이어의 무기, 손,발 콜라이더가 몬스터에 닿았나
     for (Collider* collider : player->GetWeaponColliders())
     {
-        for (pair<int, OrcInfo> item : orcs)
+        for (const pair<int, OrcInfo>& item : orcs)
         {
             //몬스터가 맞을때
             if (collider)
@@ -310,7 +310,7 @@ void MonsterManager::Fight(Player* player)
     // bow 콜리전담기
 
     // 오크의 검이 플레이어에게 닿았나
-    for (pair<int, OrcInfo> item : orcs)
+    for (const pair<int, OrcInfo>& item : orcs)
     {
         for (Collider* collider : item.second.orc->GetWeaponColliders())
         {
@@ -330,7 +330,7 @@ void MonsterManager::Fight(Player* player)
 
 void MonsterManager::CalculateDistance()
 {
-    for (pair<int, OrcInfo> item : orcs)
+    for (const pair<int, OrcInfo>& item : orcs)
     {
         if (item.second.orc->FindTarget()) continue;
         else {
@@ -352,7 +352,7 @@ void MonsterManager::OnOutLineByRay(Ray ray)
     float minDistance = FLT_MAX;
     Orc* targetOrc = nullptr;
 
-    for (pair<int, OrcInfo> item : orcs)
+    for (const pair<int, OrcInfo>& item : orcs)
     {
         Contact con;
         if (item.second.orc->GetCollider()->IsRayCollision(ray, &con))
@@ -382,7 +382,7 @@ void MonsterManager::ActiveSpecialKey(Vector3 playPos,Vector3 offset)
         //iter.second.quad->UpdateWorld();
     }
 
-    for (pair<int, OrcInfo> item : orcs)
+    for (const pair<int, OrcInfo>& item : orcs)
     {
         float dis = Distance(item.second.orc->GetTransform()->GlobalPos(), playPos);
         if (!item.second.orc->GetIsDying() && item.second.orc->IsOutLine() && !item.second.orc->IsDetectTarget() && dis < 6.f)
@@ -409,7 +409,7 @@ void MonsterManager::DieOrc(int index)
 
 void MonsterManager::Collision()
 {
-    for (pair<int, OrcInfo> item : orcs)
+    for (const pair<int, OrcInfo>& item : orcs)
     {
 
     }

@@ -866,7 +866,7 @@ void Orc::SetState(State state, float scale, float takeTime)
         }
     }
     else if(curState==DYING)
-        instancing->PlayClip(index, (int)state+2,0.5);
+        instancing->PlayClip(index, (int)state+2,0.8);
     else
         instancing->PlayClip(index, (int)state, scale); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
     eventIters[state] = totalEvent[state].begin(); //이벤트 반복자도 등록된 이벤트 시작시점으로
@@ -965,8 +965,6 @@ void Orc::EndAssassinated()
 
 void Orc::EndDying()
 {
-
-
     instancing->SetOutLine(index, false);
     MonsterManager::Get()->specialKeyUI["assassination"].active = false;
     ColliderManager::Get()->PopCollision(ColliderManager::Collision_Type::ORC, collider);
@@ -989,7 +987,6 @@ void Orc::EndDying()
     
     //isDelete = true;
     MonsterManager::Get()->DieOrc(index);
-    
 }
 
 void Orc::CalculateEyeSight()
