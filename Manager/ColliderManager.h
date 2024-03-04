@@ -17,7 +17,7 @@ private:
     ~ColliderManager();
 
 public:
-     enum Collision_Type {
+    enum Collision_Type {
         PLAYER,
         ORC,
         WALL,
@@ -25,7 +25,7 @@ public:
         ORC_KUNAI,
         END,
     };
-    
+
     void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); }
     void SetObstacles(Collider* obstacle);
     vector<Collider*>& GetObstacles();
@@ -47,7 +47,8 @@ public:
     bool SetPlayerHeight(Collider* obstacle);
 
     void PushCollision(Collision_Type Type, Collider* _pCollider) { vecCol[Type].push_back(_pCollider); }
-    void PopCollision(Collision_Type Type, int index) { vecCol[Type].erase(vecCol[Type].begin() + index); }
+    //void PopCollision(Collision_Type Type, int index);
+    void PopCollision(Collision_Type Type, Collider* collider); // 우선 포인터 주소 비교를 통해 삭제하도록 함
 
     vector<Collider*>& Getvector(Collision_Type _type) { return vecCol[_type]; }
 
@@ -65,9 +66,10 @@ private:
     CapsuleCollider* playerCollider;
     //vector<Collider*> obstacles; // 밑의 vecCol에 통합
 
-    Collider * onBlock; 
+    Collider* onBlock;
 
     vector<Collider*> vecCol[Collision_Type::END];
+    //vector<map<int, Collider*>> vecCol[Collision_Type::END];
 
     float maxHeight;
 
@@ -77,4 +79,5 @@ private:
     Ray* headRay;
 
     map<string, SpecialKeyUI> specialKeyUI;
+
 };

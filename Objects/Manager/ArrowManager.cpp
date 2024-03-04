@@ -2,7 +2,7 @@
 
 ArrowManager::ArrowManager()
 {
-	arrowInstancing = new ModelInstancing("Kunai");
+	arrowInstancing = new ModelInstancing("arrow");
 
 	arrows.reserve(SIZE);
 	FOR(SIZE)
@@ -161,7 +161,7 @@ void ArrowManager::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
 	for (Arrow* arrow : arrows)
 	{
 		float dis = Distance(arrow->GetTransform()->GlobalPos(), playPos);
-		if (arrow->IsOutLine() &&  dis < 10.f)
+		if (arrow->IsDropItem() && arrow->IsOutLine() &&  dis < 10.f)
 		{
 			//아웃라인이 활성화되고, 거리가 10 이하일때
 			SpecialKeyUI& sk = specialKeyUI["getItem"];
@@ -176,7 +176,7 @@ void ArrowManager::ExecuteSpecialKey()// 아이템을 주웠을떄 하게될 동작
 {
 	for (Arrow* arrow : arrows)
 	{
-		if (arrow->IsOutLine())
+		if (arrow->IsDropItem() && arrow->IsOutLine())
 		{
 			arrow->SetOutLine(false);
 			arrow->GetItem();

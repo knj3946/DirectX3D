@@ -123,7 +123,7 @@ GameMapScene::GameMapScene()
 	player->SetTerrain(terrain);
 
 	InteractManager::Get()->SetPlayer(player);
-
+	MonsterManager::Get();
 	MonsterManager::Get()->SetTarget(player); //싱글턴 생성 후, 표적 설정까지
 	MonsterManager::Get()->SetTargetCollider(player->GetCollider());
 	MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(80, 0, 80));

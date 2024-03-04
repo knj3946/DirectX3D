@@ -42,6 +42,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     SetEvent(THROW, bind(&Orc::Throw, this), 0.59f);
     SetEvent(HIT, bind(&Orc::EndHit, this), 0.99f);
     SetEvent(ASSASSINATED, bind(&Orc::EndAssassinated, this), 0.9f);
+    SetEvent(DYING, bind(&Orc::EndAssassinated, this), 0.1f);
     SetEvent(DYING, bind(&Orc::EndDying, this), 0.9f);
 
     SetEvent(ATTACK,bind(&Collider::SetActive, leftWeaponCollider, true), 0.11f); //콜라이더 켜는 시점 설정
@@ -90,12 +91,12 @@ Orc::~Orc()
     delete instancing;
     delete motion;
     //delete root;
-    delete transform;
     delete exclamationMark;
     delete questionMark;
     for (Collider* wcollider : weaponColliders)
         delete wcollider;
     delete particleHit;
+    delete transform;
 }
 
 void Orc::SetType(NPC_TYPE _type) {
@@ -129,14 +130,18 @@ void Orc::Update()
     }
 
     TimeCalculator(); //공격 간격을 두기 위한 설정
-    PartsUpdate(); //모델 각 파츠 업데이트
-    StateRevision(); //애니메이션 중간에 끊겨서 변경안된 값들 보정
     ParticleUpdate(); //파티클이펙트 업데이트
     UpdateUI(); //UI 업데이트
     ExecuteEvent(); //이벤트 있으면 실행
 
     if (curState == DYING || curState == ASSASSINATED)
         return;
+
+    PartsUpdate(); //모델 각 파츠 업데이트
+    StateRevision(); //애니메이션 중간에 끊겨서 변경안된 값들 보정
+    
+
+   
 
     //====================== 이동관련==============================
     if (CalculateHit()) return; //맞는 중이면 리턴 (이 아래는 이동과 관련된 것인데 맞는중에는 필요없음)
@@ -334,6 +339,7 @@ bool Orc::CalculateHit()
 
 void Orc::PartsUpdate()
 {
+    if (transform->Active()==false || isDying == true)return;
     //root->SetWorld(instancing->GetTransformByNode(index, 3));
     transform->SetWorld(instancing->GetTransformByNode(index, 5));
     collider->UpdateWorld();
@@ -393,7 +399,7 @@ void Orc::Hit(float damage,Vector3 collisionPos)
         particleHit->Play(collisionPos); // 해당위치에서 파티클 재생
     }
 
-    if (curState == ASSASSINATED)
+    /*if (curState == ASSASSINATED)
     {
         collider->SetActive(false);
         leftWeaponCollider->SetActive(false);
@@ -402,7 +408,7 @@ void Orc::Hit(float damage,Vector3 collisionPos)
         curHP = 0;
         SetState(DYING);
         return;
-    }
+    }*/
     //// 아직 안 죽었으면 산 로봇답게 맞는 동작 수행
     //curState = HIT;
     //instancing->PlayClip(index, HIT);
@@ -471,10 +477,12 @@ void Orc::Assassinated(Vector3 collisionPos,Transform* attackerTrf)
     }
     transform->UpdateWorld();
 
-    PartsUpdate();
+    instancing->SetOutLine(index, false);
+    //MonsterManager::Get()->specialKeyUI["assassination"].active = false;
+    //MonsterManager::Get()->specialKeyUI["assassination"].quad->UpdateWorld();
 
     //암살 애니메이션 재생
-    SetState(ASSASSINATED,0.3f);
+    SetState(ASSASSINATED, 0.3f);
 
     //암살했을시 피통 시각적 효과를 위해서
     //isHit = true;
@@ -483,6 +491,8 @@ void Orc::Assassinated(Vector3 collisionPos,Transform* attackerTrf)
     Vector3 pos = transform->GlobalPos();
     pos.y += 5;
     Hit(120, pos);
+
+    PartsUpdate();
 }
 
 void Orc::Control()
@@ -947,24 +957,39 @@ void Orc::EndAssassinated()
     /*Vector3 pos = transform->GlobalPos();
     pos.y += 5;
     Hit(120, pos);*/
+
+    /*instancing->SetOutLine(index, false);
+    MonsterManager::Get()->specialKeyUI["assassination"].active = false;
+    instancing->Remove(index);*/
 }
 
 void Orc::EndDying()
 {
+
+
+    instancing->SetOutLine(index, false);
+    MonsterManager::Get()->specialKeyUI["assassination"].active = false;
+    ColliderManager::Get()->PopCollision(ColliderManager::Collision_Type::ORC, collider);
+    collider->SetActive(false);
+
     transform->SetActive(false);
     hpBar->SetActive(false);
-    collider->SetActive(false);
     leftHand->SetActive(false);
     leftWeaponCollider->SetActive(false);
     questionMark->SetActive(false);
     exclamationMark->SetActive(false);
 
-    MonsterManager::Get()->specialKeyUI["assassination"].active = false;
-    ColliderManager::Get()->PopCollision(ColliderManager::Collision_Type::ORC, index);
     particleHit->Stop();
-    // 삭제 전에 아이템 떨굴거면 여기서
 
+    /*instancing->SetOutLine(index, false);
+    MonsterManager::Get()->specialKeyUI["assassination"].active = false;*/
     instancing->Remove(index);
+    //instancing->Remove(index);
+    // 삭제 전에 아이템 떨굴거면 여기서
+    
+    //isDelete = true;
+    MonsterManager::Get()->DieOrc(index);
+    
 }
 
 void Orc::CalculateEyeSight()

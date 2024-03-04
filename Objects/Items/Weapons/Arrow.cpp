@@ -4,12 +4,13 @@
 Arrow::Arrow(Transform* transform, int id,bool isDropItem)
 	: transform(transform),index(id),isDropItem(isDropItem)
 {
-	transform->Scale() = { 3,3,3 }; // 크기 기본 값은 1 -> 수정하기 쉽게 작성된 코드
+	transform->Scale() = { 0.05, 0.05 , 0.02 }; // 크기 기본 값은 1 -> 수정하기 쉽게 작성된 코드
+	//transform->Rot().y += 1.57f;
 
 	collider = new SphereCollider();
+	collider->Scale().z *= 10.0f;
 	collider->SetParent(transform);
 
-	collider->Scale() = { 0.2,0.2,0.2 }; // 크기 기본 값은 1
 	collider->Pos() = {};			// 위치 기본 값 : 부모 위치
 
 	// 궤적 사용하기
@@ -20,7 +21,8 @@ Arrow::Arrow(Transform* transform, int id,bool isDropItem)
 	endEdge->Pos() = transform->Pos();
 	startEdge->UpdateWorld();
 	endEdge->UpdateWorld();
-	trail = new Trail(L"Textures/Effect/Trail.png", startEdge, endEdge, 5, 5);
+	//trail = new Trail(L"Textures/Effect/Trail.png", startEdge, endEdge, 5, 5);
+	trail = new Trail(L"Textures/Effect/wind.jpg", startEdge, endEdge, 3, 3);
 	trail->Init();
 	trail->SetActive(false);
 }
@@ -50,7 +52,12 @@ void Arrow::Update()
 		transform->SetActive(false);
 	}
 
-	transform->Pos() += direction * speed * DELTA;
+	if (isDropItem)
+		transform->Pos() += direction * speed * DELTA;
+	else
+	{
+		transform->Pos() += direction * speed * DELTA;
+	}
 
 	collider->UpdateWorld();
 
@@ -93,7 +100,7 @@ void Arrow::Throw(Vector3 pos, Vector3 dir)
 	trail->SetActive(true);
 
 	// 방향에 맞게 모델(=트랜스폼) 회전 적용
-	transform->Rot().y = atan2(dir.x, dir.z) - XM_PIDIV2; // 방향 적용 + 모델 정면에 따른 보정
+	transform->Rot().y = atan2(dir.x, dir.z) - XM_PI; // 방향 적용 + 모델 정면에 따른 보정
 	// 쿠나이 모델은 90도 돌아가 있었음
 
 //transform->Rot().y = atan2(dir.x, dir.z) - XMConvertToRadians(90);

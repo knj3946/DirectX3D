@@ -16,7 +16,9 @@ private:
         DAGGER1, DAGGER2, DAGGER3,              //22 ~ 24
         B_IDLE,                                 //25
         B_RUN_F, B_RUN_B, B_RUN_L, B_RUN_R,     //26 ~ 29
-        B_DRAW, B_ODRAW, B_AIM, B_RECOIL        //30 ~ 33
+        B_DRAW, B_ODRAW, B_AIM, B_RECOIL,       //30 ~ 33
+        B_S_TO_C, B_C_TO_S, B_C_IDLE,           //34 ~ 36
+        B_C_F, B_C_B, B_C_L, B_C_R              //37 ~ 40
     };
 
     enum WeaponState
@@ -70,7 +72,7 @@ public:
     void PostRender();
     void GUIRender();
 
-    void SetMoveSpeed(float speed) { this->moveSpeed = speed; }
+    void SetMoveSpeed(float speed) { this->moveSpeed1 = speed; }
     void SetHeightLevel(float heightLevel) { this->heightLevel = heightLevel; }
 
     Vector3 GetVelocity() { return velocity; }
@@ -143,7 +145,8 @@ private:
     Vector3 velocity;
     Vector3 targetPos;
 
-    float moveSpeed = 20;
+    float moveSpeed1 = 50;
+    float moveSpeed2 = 20;
     float rotSpeed = 0.3;
     float deceleration = 10; //����
 
@@ -229,4 +232,6 @@ private:
     bool isClimb = false;
 public: //임시
     bool headCrash;
+    Transform* aimT;
+    Quad* crosshair;
 };

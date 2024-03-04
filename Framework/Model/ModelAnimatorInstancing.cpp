@@ -23,8 +23,10 @@ ModelAnimatorInstancing::~ModelAnimatorInstancing()
     delete instanceBuffer;
     delete frameInstancingBuffer;
 
-    for (Transform* transform : transforms)
-        delete transform;
+    for (pair<int, OrcInfo> item : orcInfoes)
+        delete item.second.transform;
+
+    orcInfoes.clear();
 }
 
 void ModelAnimatorInstancing::Update()
@@ -48,18 +50,18 @@ void ModelAnimatorInstancing::Render()
 
     //아웃라이너
     drawCount = 0;
-    FOR(transforms.size())
+    for(pair<int,OrcInfo> item : orcInfoes)
     {
         //UpdateFrame(i, frameInstancingBuffer->Get().motions[i]);
-        if (outLines[i])
+        if (item.second.isOutLine)
         {
-            transforms[i]->Scale() *= 1.1f;
-            transforms[i]->Pos().y -= 0.35f;
-            transforms[i]->UpdateWorld();
-            instanceDatas[drawCount].world = XMMatrixTranspose(transforms[i]->GetWorld());
-            transforms[i]->Scale() /= 1.1f;
-            transforms[i]->Pos().y += 0.35f;
-            instanceDatas[drawCount].index = i;
+            item.second.transform->Scale() *= 1.1f;
+            item.second.transform->Pos().y -= 0.35f;
+            item.second.transform->UpdateWorld();
+            instanceDatas[drawCount].world = XMMatrixTranspose(item.second.transform->GetWorld());
+            item.second.transform->Scale() /= 1.1f;
+            item.second.transform->Pos().y += 0.35f;
+            instanceDatas[drawCount].index = item.first;
             drawCount++;
         }
     }
@@ -82,25 +84,40 @@ void ModelAnimatorInstancing::GUIRender()
 {
     ImGui::Text("DrawCount : %d", drawCount);
 
-    for (Transform* transform : transforms)
-        transform->GUIRender();
+    for (pair<int, OrcInfo> item : orcInfoes)
+        item.second.transform->GUIRender();
 }
 
 Transform* ModelAnimatorInstancing::Add()
 {
     Transform* transform = new Transform();
-    transform->SetTag(name + "_" + to_string(transforms.size()));
-    outLines.push_back(false);
-    transforms.push_back(transform);
+    //transform->SetTag(name + "_" + to_string(transforms.size()));
+    ////outLines.push_back(false);
+    //
+    //transforms.insert(make_pair(, transform));
     
 
     return transform;
 }
 
+void ModelAnimatorInstancing::AddOrc(Transform* transform, int index)
+{
+    transform->SetTag(name + "_" + to_string(index));
+    OrcInfo orc = { transform, false };
+
+    if (orcInfoes.find(index) == orcInfoes.end())
+        orcInfoes.insert(make_pair(index, orc));
+    else
+        assert("Orc Key Crash!!!");
+}
+
 void ModelAnimatorInstancing::Remove(int index)
 {
-    outLines.erase(outLines.begin() + index);
-    transforms.erase(transforms.begin() + index);
+    // orc에서 삭제함
+    //delete orcInfoes[index].transform;
+    orcInfoes.erase(index);
+    //outLines.erase(outLines.begin() + index);
+    //transforms.erase(transforms.begin() + index);
 }
 
 void ModelAnimatorInstancing::PlayClip(UINT instanceID, int clip, float scale, float takeTime)
@@ -123,7 +140,7 @@ Matrix ModelAnimatorInstancing::GetTransformByNode(UINT instanceID, int nodeInde
         Matrix cur = nodeTransforms[curFrame.clip].transform[curFrame.curFrame][nodeIndex];
         Matrix next = nodeTransforms[curFrame.clip].transform[curFrame.curFrame + 1][nodeIndex];
 
-        curAnim = Lerp(cur, next, curFrame.time) * transforms[instanceID]->GetWorld();
+        curAnim = Lerp(cur, next, curFrame.time) * orcInfoes[instanceID].transform->GetWorld();
     }
 
     {//NextAnim
@@ -135,7 +152,7 @@ Matrix ModelAnimatorInstancing::GetTransformByNode(UINT instanceID, int nodeInde
         Matrix cur = nodeTransforms[nextFrame.clip].transform[nextFrame.curFrame][nodeIndex];
         Matrix next = nodeTransforms[nextFrame.clip].transform[nextFrame.curFrame + 1][nodeIndex];
 
-        Matrix nextAnim = Lerp(cur, next, nextFrame.time) * transforms[instanceID]->GetWorld();
+        Matrix nextAnim = Lerp(cur, next, nextFrame.time) * orcInfoes[instanceID].transform->GetWorld();
 
         float tweenTime = frameInstancingBuffer->Get().motions[instanceID].tweenTime;
 
@@ -145,7 +162,8 @@ Matrix ModelAnimatorInstancing::GetTransformByNode(UINT instanceID, int nodeInde
 
 void ModelAnimatorInstancing::SetOutLine(UINT index,bool flag)
 {
-    outLines[index] = flag;
+    orcInfoes[index].isOutLine = flag;
+    //outLines[index] = flag;
 }
 
 void ModelAnimatorInstancing::UpdateFrame(UINT instanceID, Motion& motion)
@@ -196,14 +214,14 @@ void ModelAnimatorInstancing::UpdateTransforms()
 {
     drawCount = 0;
 
-    FOR(transforms.size())
+    for(pair<int,OrcInfo> item : orcInfoes)
     {
-        if (transforms[i]->Active())
+        if (item.second.transform->Active())
         {
-            UpdateFrame(i, frameInstancingBuffer->Get().motions[i]);
-            transforms[i]->UpdateWorld();
-            instanceDatas[drawCount].world = XMMatrixTranspose(transforms[i]->GetWorld());
-            instanceDatas[drawCount].index = i;
+            UpdateFrame(item.first, frameInstancingBuffer->Get().motions[item.first]);
+            item.second.transform->UpdateWorld();
+            instanceDatas[drawCount].world = XMMatrixTranspose(item.second.transform->GetWorld());
+            instanceDatas[drawCount].index = item.first;
             drawCount++;
         }
     }

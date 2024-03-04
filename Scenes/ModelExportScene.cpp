@@ -3,7 +3,7 @@
 
 ModelExportScene::ModelExportScene()
 {
-    string name = "Elven Long Bow";
+    string name = "akai";
     string file = "Models/FBX/" + name + ".fbx";
     ModelExporter* exporter;
     string clipName;
@@ -13,13 +13,49 @@ ModelExportScene::ModelExportScene()
     exporter->ExportMesh();
     delete exporter;
 
-    /*string floderN1 = "Bow/Attack";
+    string floderN1 = "Bow/Crouch";
 
-    clipName = "Standing Aim Overdraw";
+    //clipName = "Standing To Crouch";
+    //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //exporter = new ModelExporter(name, file);
+    //exporter->ExportClip(clipName);
+    //delete exporter;
+
+    //clipName = "Crouch To Standing";
+    //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //exporter = new ModelExporter(name, file);
+    //exporter->ExportClip(clipName);
+    //delete exporter;
+
+    //clipName = "Crouch Idle";
+    //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //exporter = new ModelExporter(name, file);
+    //exporter->ExportClip(clipName);
+    //delete exporter;
+
+    //clipName = "Crouch Walk Forward";
+    //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //exporter = new ModelExporter(name, file);
+    //exporter->ExportClip(clipName);
+    //delete exporter;
+
+    //clipName = "Crouch Walk Back";
+    //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //exporter = new ModelExporter(name, file);
+    //exporter->ExportClip(clipName);
+    //delete exporter;
+
+    clipName = "Crouch Walk Right";
     file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
     exporter = new ModelExporter(name, file);
     exporter->ExportClip(clipName);
-    delete exporter;*/
+    delete exporter;
+
+    //clipName = "Crouch Walk Left";
+    //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
+    //exporter = new ModelExporter(name, file);
+    //exporter->ExportClip(clipName);
+    //delete exporter;
 }
 
 ModelExportScene::~ModelExportScene()

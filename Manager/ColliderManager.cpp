@@ -3,11 +3,11 @@
 
 ColliderManager::ColliderManager()
 {
-	footRay = new Ray();
-	headRay = new Ray();
+    footRay = new Ray();
+    headRay = new Ray();
 
-	headRay->dir = { 0, 1, 0 };
-	footRay->dir = { 0, -1, 0 };
+    headRay->dir = { 0, 1, 0 };
+    footRay->dir = { 0, -1, 0 };
 
 
 
@@ -31,20 +31,20 @@ ColliderManager::~ColliderManager()
 
 void ColliderManager::SetObstacles(Collider* obstacle)
 {
-	PushCollision(ColliderManager::WALL, obstacle);
+    PushCollision(ColliderManager::WALL, obstacle);
 }
 
 vector<Collider*>& ColliderManager::GetObstacles()
 {
-	return Getvector(ColliderManager::WALL);
+    return Getvector(ColliderManager::WALL);
 }
 
 void ColliderManager::PushPlayer()
 {
-	bool isPushed = false;
+    bool isPushed = false;
 
-	for (Collider* obstacle : GetObstacles())
-	{
+    for (Collider* obstacle : GetObstacles())
+    {
         if (obstacle->Role() == Collider::BLOCK)
         {
             if (obstacle != onBlock && obstacle->PushCollision(playerCollider) && !isPushed)
@@ -53,45 +53,46 @@ void ColliderManager::PushPlayer()
                 break;
             }
         }
-	}
+    }
 
-	player->SetIsPushed(isPushed);
+    player->SetIsPushed(isPushed);
 }
 
 void ColliderManager::SetHeight()
 {
-	headRay->pos = playerCollider->GlobalPos();
+    headRay->pos = playerCollider->GlobalPos();
     headRay->pos.y = player->Pos().y + 6.2f;
-	footRay->pos = playerCollider->GlobalPos();
+    footRay->pos = playerCollider->GlobalPos();
 
     Contact maxHeadPoint;
     float maxHeadHeight = 99999.f;
     player->headCrash = false;
 
-	Contact underObj;
+    Contact underObj;
     maxHeight = 0.0f;
     onBlock = nullptr;
 
-	for (Collider* obstacle : GetObstacles())
-	{
+    for (Collider* obstacle : GetObstacles())
+    {
         //위 물체의 높이가 너무 낮으면 스페이스 입력을 무시할지말지 결정하는 법도 고려
-		if (obstacle->IsRayCollision(*headRay, &maxHeadPoint) && maxHeadPoint.distance < FLT_EPSILON)
-		{
+        if (obstacle->IsRayCollision(*headRay, &maxHeadPoint) && maxHeadPoint.distance < FLT_EPSILON)
+        {
             player->headCrash = true;
-		}
-		else if (obstacle->IsRayCollision(*footRay, &underObj) && underObj.hitPoint.y > maxHeight)
-		{
-			maxHeight = underObj.hitPoint.y;
-			onBlock = obstacle;
-		}
-	}
+        }
+        else if (obstacle->IsRayCollision(*footRay, &underObj) && underObj.hitPoint.y > maxHeight)
+        {
+            maxHeight = underObj.hitPoint.y;
+            onBlock = obstacle;
+        }
+    }
 
-	player->SetHeightLevel(maxHeight);
+    player->SetHeightLevel(maxHeight);
 }
 
 void ColliderManager::Render()
 {
 }
+
 
 void ColliderManager::PostRender()
 {
@@ -107,9 +108,9 @@ void ColliderManager::PostRender()
 
 void ColliderManager::GuiRender()
 {
-	//ImGui::DragFloat3("fds", (float*)&rayHeight, 0.5f);
-	ImGui::DragFloat3("fds", (float*)&headRay->pos, 0.5f);
-	ImGui::Value("CamDistance", Distance(CAM->GlobalPos(), player->Pos()));
+    //ImGui::DragFloat3("fds", (float*)&rayHeight, 0.5f);
+    ImGui::DragFloat3("fds", (float*)&headRay->pos, 0.5f);
+    ImGui::Value("CamDistance", Distance(CAM->GlobalPos(), player->Pos()));
 }
 
 //bool ColliderManager::ControlPlayer(Vector3* dir)
@@ -152,10 +153,10 @@ void ColliderManager::GuiRender()
 
 float ColliderManager::CloseRayCollisionColliderDistance(Ray ray)
 {
-	float minDistance = FLT_MAX;
-	for (Collider* ob : GetObstacles())
-	{
-		Contact con;
+    float minDistance = FLT_MAX;
+    for (Collider* ob : GetObstacles())
+    {
+        Contact con;
         if (ob->IsRayCollision(ray, &con))
         {
             if (abs(con.distance) > 0)
@@ -165,17 +166,17 @@ float ColliderManager::CloseRayCollisionColliderDistance(Ray ray)
                     minDistance = hitDistance;
             }
         }
-	}
+    }
 
-	return minDistance;
+    return minDistance;
 }
-bool ColliderManager::CloseRayCollisionColliderContact(Ray ray,Contact& con)
+bool ColliderManager::CloseRayCollisionColliderContact(Ray ray, Contact& con)
 {
-	float minDistance = FLT_MAX;
-	bool flag = false;
-	for (Collider* ob : GetObstacles())
-	{
-		Contact tempCon;
+    float minDistance = FLT_MAX;
+    bool flag = false;
+    for (Collider* ob : GetObstacles())
+    {
+        Contact tempCon;
         if (ob->IsRayCollision(ray, &tempCon))
         {
             if (abs(tempCon.distance) > 0)
@@ -189,8 +190,8 @@ bool ColliderManager::CloseRayCollisionColliderContact(Ray ray,Contact& con)
                 }
             }
         }
-	}
-	return flag;
+    }
+    return flag;
 }
 
 ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot, Vector3 mPos)
@@ -491,30 +492,42 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
     return model;
 }
 
+void ColliderManager::PopCollision(Collision_Type Type, Collider* collider)
+{
+    for (int i = 0; i < vecCol[Type].size(); i++)
+    {
+        if (collider == vecCol[Type][i])
+        {
+            vecCol[Type].erase(vecCol[Type].begin() + i);
+            return;
+        }
+    }
+}
+
 bool ColliderManager::CollisionCheck(Collider* _pCollider, Collision_Type _type)
 {
-	for (int i = 0; i < vecCol[_type].size(); ++i) {
-		if (_pCollider->IsCollision(vecCol[_type][i]))
-		{
-			return true;
-		}
-	}
-	return false;
+    for (int i = 0; i < vecCol[_type].size(); ++i) {
+        if (_pCollider->IsCollision(vecCol[_type][i]))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 
 
 bool ColliderManager::CollisionCheck(Collision_Type _type1, Collision_Type _type2)
 {
-	for (int i = 0; i < vecCol[_type1].size(); ++i) {
-		for (int j = 0; j < vecCol[_type2].size(); ++j) {
-			if (vecCol[_type1][i]->IsCollision(vecCol[_type2][j]))
-			{
-				return true;
-			}
-		}
-	}
-	return false;
+    for (int i = 0; i < vecCol[_type1].size(); ++i) {
+        for (int j = 0; j < vecCol[_type2].size(); ++j) {
+            if (vecCol[_type1][i]->IsCollision(vecCol[_type2][j]))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void ColliderManager::PickFlagByRay(Ray ray)
@@ -561,6 +574,7 @@ void ColliderManager::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
             InteractManager::Get()->ActiveSkill("climb", sk.key, bind(&InteractManager::Climb, InteractManager::Get(), col));
         }
     }
+
 }
 
 void ColliderManager::ClearSpecialKey()
