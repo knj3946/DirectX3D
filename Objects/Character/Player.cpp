@@ -367,17 +367,6 @@ void Player::Climb(Collider* col, Vector3 climbPos)
     remainClimbDis = col->GetHalfSize().y * 2;
     isClimb = true;
 
-    SetState(CLIMBING, (1.0f / remainClimbDis));
-}
-
-void Player::Climb(Collider* col, Vector3 climbPos)
-{
-    Pos() = { climbPos.x,heightLevel,climbPos.z };
-    UpdateWorld();
-
-    remainClimbDis = col->GetHalfSize().y * 2;
-    isClimb = true;
-
     SetState(CLIMBING,(1.0f/remainClimbDis));
 }
 
@@ -768,11 +757,7 @@ void Player::Targeting()
     offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
 
     ColliderManager::Get()->ActiveSpecialKey(GlobalPos(), offset);
-<<<<<<< HEAD
 
-=======
-    
->>>>>>> 7219856f45c0ce2d6117c5b5c97a56ca9f02ca40
 }
 
 void Player::UseSkill()
@@ -966,11 +951,7 @@ void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 �
 {
     if (curState == ASSASSINATION1 || curState == ASSASSINATION2) return;
     if (curState == CLIMBING) return;
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> 7219856f45c0ce2d6117c5b5c97a56ca9f02ca40
     if (weaponState == DAGGER)
     {
         if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;   //????? ???? ??찡 ????? ?????? Pos().y?? ???? ???? ?????? ????

@@ -66,6 +66,7 @@ private:
     Collider* onBlock;
 
     vector<Collider*> vecCol[Collision_Type::END];
+    //map<Collision_Type::END,>
 
     float maxHeight;
 
@@ -75,8 +76,5 @@ private:
     Ray* headRay;
 
     map<string, SpecialKeyUI> specialKeyUI;
-<<<<<<< HEAD
+
 };
-=======
-};
->>>>>>> 7219856f45c0ce2d6117c5b5c97a56ca9f02ca40

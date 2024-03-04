@@ -21,21 +21,10 @@ MonsterManager::MonsterManager()
 
     orcInstancing->ReadClip("Orc_Death");
 
+    // 몬스터 생성
     FOR(SIZE)
     {
-        scales.push_back(Vector3(0, 0, 0));
-        rots.push_back(Vector3(0, 0, 0));
-        positions.push_back(Vector3(0, 0, 0));
-    }
-
-    FOR(SIZE)
-    {
-        Transform* transform = orcInstancing->Add();
-        transform->SetActive(false);
-        Orc* orc = new Orc(transform, orcInstancing, i);
-        ColliderManager::Get()->PushCollision(ColliderManager::ORC, orc->GetCollider());
-        orcs.push_back(orc);
-        orc->Spawn(positions[i]);
+        CreateOrc();
     }
 
     //특수키 추가
@@ -62,20 +51,52 @@ MonsterManager::~MonsterManager()
 {
     delete orcInstancing;
 
-    for (Orc* orc : orcs)
-        delete orc;
+    for (pair<int,OrcInfo> item : orcs)
+        delete item.second.orc;
+}
+
+void MonsterManager::CreateOrc()
+{
+    OrcInfo orcInfo;
+    Transform* transform = new Transform();
+    transform->SetActive(false);
+    Orc* orc = new Orc(transform, orcInstancing, orcIndex);
+    orcInstancing->AddOrc(transform, orcIndex);
+
+    ColliderManager::Get()->PushCollision(ColliderManager::ORC, orc->GetCollider());
+
+    orcInfo.orc = orc;
+    orcInfo.scale=Vector3(0, 0, 0);
+    orcInfo.rot=Vector3(0, 0, 0);
+    orcInfo.position=Vector3(0, 0, 0);
+    
+    orcs.insert(make_pair(orcIndex,orcInfo));
+    orc->Spawn(orcInfo.position);
+
+    orcIndex++;
 }
 
 void MonsterManager::Update()
 {
     Collision();
-    orcInstancing->Update();
+    
 
     int i = 0;
 
+    
+    for (pair<int, OrcInfo> item : orcs)
+    {
+        if(item.second.isActive)
+            item.second.orc->Update();
+    }
 
-    orcs[0]->Update();
-    orcs[1]->Update();
+    /*for (pair<int, OrcInfo>item : orcs)
+    {
+        if(item.second.orc->GetIsDelete())
+            MonsterManager::Get()->DieOrc(item.first);
+    }*/
+    /*orcs[0]->Update();
+    orcs[1]->Update();*/
   //  for (Orc* orc : orcs)
   //  {
   //
@@ -86,37 +107,37 @@ void MonsterManager::Update()
   //      i++;
   //  }
 
-    for (Orc* orc : orcs)
+    for (pair<int, OrcInfo> item : orcs)
     {
-        if (orc->IsFindTarget()) // 오크가 발견상태라면
+        if (item.second.orc->IsFindTarget()) // 오크가 발견상태라면
         {
-            for (Orc* nearOrc : orcs)
+            for (pair<int, OrcInfo> nearItem : orcs)
             {
-                if (orc != nearOrc) // 자기 자신 제외
+                if (item.first != nearItem.first) // 자기 자신 제외
                 {
-                    float dis = Distance(orc->GetTransform()->GlobalPos(), nearOrc->GetTransform()->GlobalPos());
+                    float dis = Distance(item.second.orc->GetTransform()->GlobalPos(), nearItem.second.orc->GetTransform()->GlobalPos());
 
                     if (dis < 20.0f) // 거리가 20 미만이면
                     {
-                        nearOrc->AttackTarget();
+                        nearItem.second.orc->AttackTarget();
                     }
                 }
             }
         }
     }
-
+    orcInstancing->Update();
     vecDetectionPos.clear();
 }
 
 void MonsterManager::Render()
 {
     orcInstancing->Render();
-    for (Orc* orc : orcs) orc->Render();
+    for (pair<int, OrcInfo> item : orcs) item.second.orc->Render();
 }
 
 void MonsterManager::PostRender()
 {
-    for (Orc* orc : orcs) orc->PostRender();
+    for (pair<int, OrcInfo> item : orcs) item.second.orc->PostRender();
 
     //특수키 출력
     for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
@@ -130,20 +151,20 @@ void MonsterManager::PostRender()
 
 void MonsterManager::GUIRender()
 {
-    for (Orc* orc : orcs) orc->GUIRender();
+    for (pair<int, OrcInfo> item : orcs) item.second.orc->GUIRender();
 }
 
 void MonsterManager::SetTarget(Transform* target)
 {
     this->target = target;
-    for (Orc* orc : orcs)
-        orc->SetTarget(target);
+    for (pair<int, OrcInfo> item : orcs)
+        item.second.orc->SetTarget(target);
 }
 
 void MonsterManager::SetTargetCollider(CapsuleCollider* collider)
 {
-    for (Orc* orc : orcs)
-        orc->SetTargetCollider(collider);
+    for (pair<int, OrcInfo> item : orcs)
+        item.second.orc->SetTargetCollider(collider);
 }
 
 bool MonsterManager::IsCollision(Ray ray, Vector3& hitPoint)
@@ -153,9 +174,9 @@ bool MonsterManager::IsCollision(Ray ray, Vector3& hitPoint)
     Contact contact;
     float minDistance = FLT_MAX;
 
-    for (Orc* orc : orcs)
+    for (pair<int, OrcInfo> item : orcs)
     {
-        if (orc->GetCollider()->IsRayCollision(ray, &contact))
+        if (item.second.orc->GetCollider()->IsRayCollision(ray, &contact))
         {
             if (contact.distance < minDistance)
             {
@@ -170,48 +191,48 @@ bool MonsterManager::IsCollision(Ray ray, Vector3& hitPoint)
 
 void MonsterManager::SetOrcSRT(int index, Vector3 scale, Vector3 rot, Vector3 pos)
 {
-    orcs[index]->SetSRT(scale, rot, pos);
-    orcs[index]->SetStartPos(pos);
+    orcs[index].orc->SetSRT(scale, rot, pos);
+    orcs[index].orc->SetStartPos(pos);
 }
 
 void MonsterManager::SetPatrolPos(UINT idx, Vector3 Pos)
 {
-    orcs[idx]->SetPatrolPos(Pos);
+    orcs[idx].orc->SetPatrolPos(Pos);
 }
 
 
 
 void MonsterManager::AddOrcObstacleObj(Collider* collider)
 {
-    for (Orc* orc : orcs)
+    for (pair<int, OrcInfo> item : orcs)
     {
-        orc->AddObstacleObj(collider);
+        item.second.orc->AddObstacleObj(collider);
     }
 }
 
 void MonsterManager::SetTerrain(LevelData* terrain)
 {
-    for (Orc* orc : orcs)
+    for (pair<int, OrcInfo> item : orcs)
     {
-        orc->SetTerrain(terrain);
+        item.second.orc->SetTerrain(terrain);
     }
 }
 
 void MonsterManager::SetAStar(AStar* astar)
 {
-    for (Orc* orc : orcs)
+    for (pair<int, OrcInfo> item : orcs)
     {
-        orc->SetAStar(astar);
+        item.second.orc->SetAStar(astar);
     }
 }
 
 void MonsterManager::Blocking(Collider* collider)
 {
-    for (Orc* orc : orcs)
+    for (pair<int, OrcInfo> item : orcs)
     {
-        if (collider->IsCollision(orc->GetCollider()))
+        if (collider->IsCollision(item.second.orc->GetCollider()))
         {
-            Vector3 dir = orc->GetCollider()->GlobalPos() - collider->GlobalPos();
+            Vector3 dir = item.second.orc->GetCollider()->GlobalPos() - collider->GlobalPos();
 
             int maxIndex = 0;
             float maxValue = -99999.0f;
@@ -258,7 +279,7 @@ void MonsterManager::Blocking(Collider* collider)
 
             if (NearlyEqual(dir.y, 1.0f)) continue; // 법선이 밑인 경우
 
-            orc->GetTransform()->Pos() += dir * 50.0f * DELTA;
+            item.second.orc->GetTransform()->Pos() += dir * 50.0f * DELTA;
 
         }
     }
@@ -271,14 +292,14 @@ void MonsterManager::Fight(Player* player)
     // 플레이어의 무기, 손,발 콜라이더가 몬스터에 닿았나
     for (Collider* collider : player->GetWeaponColliders())
     {
-        for (Orc* orc : orcs)
+        for (pair<int, OrcInfo> item : orcs)
         {
             //몬스터가 맞을때
             if (collider)
             {
-                if (collider->Active() && collider->IsCapsuleCollision(orc->GetCollider())) //손 충돌체가 타겟이랑 겹칠때
+                if (collider->Active() && collider->IsCapsuleCollision(item.second.orc->GetCollider())) //손 충돌체가 타겟이랑 겹칠때
                 {
-                    orc->Hit(player->GetDamage(), collider->GlobalPos());
+                    item.second.orc->Hit(player->GetDamage(), collider->GlobalPos());
                 }
             }
 
@@ -287,15 +308,15 @@ void MonsterManager::Fight(Player* player)
     // bow 콜리전담기
 
     // 오크의 검이 플레이어에게 닿았나
-    for (Orc* orc : orcs)
+    for (pair<int, OrcInfo> item : orcs)
     {
-        for (Collider* collider : orc->GetWeaponColliders())
+        for (Collider* collider : item.second.orc->GetWeaponColliders())
         {
             if (collider)
             {
                 if (collider->Active() && collider->IsCapsuleCollision(player->GetCollider())) //오크의 웨폰 충돌체가 타겟이랑 겹칠때
                 {
-                    player->Hit(orc->GetDamage());
+                    player->Hit(item.second.orc->GetDamage());
                 }
             }
         }
@@ -307,17 +328,17 @@ void MonsterManager::Fight(Player* player)
 
 void MonsterManager::CalculateDistance()
 {
-    for (auto p : orcs)
+    for (pair<int, OrcInfo> item : orcs)
     {
-        if (p->FindTarget()) continue;
+        if (item.second.orc->FindTarget()) continue;
         else {
             Vector3 pos;
             for (UINT i = 0; i < vecDetectionPos.size(); ++i) {
                 pos.x = vecDetectionPos[i].x;   
                 pos.y = vecDetectionPos[i].y;
                 pos.z = vecDetectionPos[i].z;
-                if (Distance(pos, p->GetTransform()->GlobalPos()) <= vecDetectionPos[i].w) {
-                    p->Findrange();
+                if (Distance(pos, item.second.orc->GetTransform()->GlobalPos()) <= vecDetectionPos[i].w) {
+                    item.second.orc->Findrange();
                 }
             }
         }
@@ -329,19 +350,19 @@ void MonsterManager::OnOutLineByRay(Ray ray)
     float minDistance = FLT_MAX;
     Orc* targetOrc = nullptr;
 
-    for (Orc* orc : orcs)
+    for (pair<int, OrcInfo> item : orcs)
     {
         Contact con;
-        if (orc->GetCollider()->IsRayCollision(ray, &con))
+        if (item.second.orc->GetCollider()->IsRayCollision(ray, &con))
         {
             float hitDistance = Distance(con.hitPoint, ray.pos);
             if (minDistance > hitDistance)
             {
                 minDistance = hitDistance;
-                targetOrc = orc;
+                targetOrc = item.second.orc;
             }  
         }
-        orc->SetOutLine(false);
+        item.second.orc->SetOutLine(false);
     }
 
     if (targetOrc)
@@ -359,25 +380,34 @@ void MonsterManager::ActiveSpecialKey(Vector3 playPos,Vector3 offset)
         //iter.second.quad->UpdateWorld();
     }
 
-    for (Orc* orc : orcs)
+    for (pair<int, OrcInfo> item : orcs)
     {
-        float dis = Distance(orc->GetTransform()->GlobalPos(), playPos);
-        if (orc->IsOutLine() && !orc->IsDetectTarget() && dis < 6.f)
+        float dis = Distance(item.second.orc->GetTransform()->GlobalPos(), playPos);
+        if (!item.second.orc->GetIsDying() && item.second.orc->IsOutLine() && !item.second.orc->IsDetectTarget() && dis < 6.f)
         {
             //아웃라인이 활성화되고, 플레이어를 발견하지 못했을 때, 거리가 6 이하일때
             SpecialKeyUI& sk = specialKeyUI["assassination"];
             sk.active = true;
-            sk.quad->Pos() = CAM->WorldToScreen(orc->GetTransform()->GlobalPos()+ offset);
+            sk.quad->Pos() = CAM->WorldToScreen(item.second.orc->GetTransform()->GlobalPos()+ offset);
             sk.quad->UpdateWorld();
 
-            InteractManager::Get()->ActiveSkill("assassination",sk.key, bind(&InteractManager::Assassination, InteractManager::Get(), orc));
+            InteractManager::Get()->ActiveSkill("assassination",sk.key, bind(&InteractManager::Assassination, InteractManager::Get(), item.second.orc));
+            /*sk.active = false;
+            sk.quad->UpdateWorld();*/
         }
     }
 }
 
+void MonsterManager::DieOrc(int index)
+{
+    //delete orcs[index].orc;
+    //orcs.erase(index);
+    orcs[index].isActive = false;
+}
+
 void MonsterManager::Collision()
 {
-    for (Orc* orc : orcs)
+    for (pair<int, OrcInfo> item : orcs)
     {
 
     }
@@ -385,5 +415,5 @@ void MonsterManager::Collision()
 
 
 void MonsterManager::SetType(int index, Orc::NPC_TYPE _type) {
-    orcs[index]->SetType(_type);
+    orcs[index].orc->SetType(_type);
 }

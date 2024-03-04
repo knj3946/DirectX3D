@@ -3,6 +3,15 @@ class MonsterManager : public Singleton<MonsterManager>
 {
 private:
 
+    struct OrcInfo
+    {
+        Orc* orc = nullptr;
+        Vector3 scale;
+        Vector3 rot;
+        Vector3 position;
+        bool isActive = true;
+    };
+
     struct SpecialKeyUI
     {
         string name;
@@ -17,6 +26,8 @@ private:
 public:
     MonsterManager();
     ~MonsterManager();
+
+    void CreateOrc();
 
     void Update();
     void Render();
@@ -46,10 +57,12 @@ public:
     void PushPosition(Float4 _pos) { vecDetectionPos.push_back(_pos); }
 
     UINT GetOrcN() { return SIZE; }
-    Orc* GetOrc(UINT idx) { return orcs[idx]; }
+    Orc* GetOrc(UINT idx) { return orcs[idx].orc; }
 
     void OnOutLineByRay(Ray ray);
     void ActiveSpecialKey(Vector3 playPos, Vector3 offset);
+
+    void DieOrc(int index);
 
 private:
     void Collision();   
@@ -57,11 +70,15 @@ private:
 private:
 
     ModelAnimatorInstancing* orcInstancing;
-    vector<Orc*> orcs;
-    vector<Vector3> scales;
+    
+    //vector<Orc*> orcs;
+    map<int, OrcInfo> orcs;
+    
+    /*vector<Vector3> scales;
     vector<Vector3> rots;
-    vector<Vector3> positions;
+    vector<Vector3> positions;*/
 
+    int orcIndex = 0;
 
     Transform* target;
 

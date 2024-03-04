@@ -106,6 +106,10 @@ public:
     bool IsDetectTarget() { return bDetection; };
 
     void Assassinated(Vector3 collisionPos, Transform* attackerTrf);
+
+    bool GetIsDelete() { return isDelete; }
+    bool GetIsDying() { return isDying; }
+
 private:
     void Control();
     void Move();
@@ -253,6 +257,8 @@ private:
     UINT m_uiRangeCheck = 0;
 
     bool outLine = false;
+
+    bool isDelete = false;
 
     ParticleSystem* particleHit;
 };
