@@ -82,25 +82,20 @@ void MonsterManager::Update()
 {
     Collision();
     
-
-
-
-    /*
     for (const pair<int, OrcInfo>& item : orcs)
     {
         if(item.second.isActive)
             item.second.orc->Update();
     }
-    */
-    /*for (pair<int, OrcInfo>item : orcs)
+    
+    for (pair<int, OrcInfo>item : orcs)
     {
         if(item.second.orc->GetIsDelete())
             MonsterManager::Get()->DieOrc(item.first);
-    }*/
-
+    }
 
     //orcs[0]->Update();
-    orcs[1].orc->Update();
+    //orcs[1].orc->Update();
   //  for (Orc* orc : orcs)
   //  {
   //

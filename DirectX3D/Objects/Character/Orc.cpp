@@ -1111,7 +1111,7 @@ void Orc::CalculateEyeSight()
         }
 
         if (leftdir1 > 270 && rightdir1 < 90) {
-            if (!(leftdir1 <= Enemytothisangle + 360 && rightdir1 >= Enemytothisangle))
+            if (!((leftdir1 <= Enemytothisangle && rightdir1 + 360 >= Enemytothisangle) || (leftdir1 <= Enemytothisangle + 360 && rightdir1 >= Enemytothisangle)))
             {
                 bDetection = false;
                 return;
