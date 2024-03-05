@@ -5,6 +5,8 @@ Boss::Boss()
 {
 	instancing = new ModelAnimatorInstancing("Warrok W Kurniawan");
 	transform = instancing->Add();
+	instancing->AddModelInfo(transform, 0);
+
 	instancing->ReadClip("Idle");
 	instancing->ReadClip("Walking");
 	instancing->ReadClip("Run Forward");

@@ -144,9 +144,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Manager\InteractManager.h" />
+    <ClInclude Include="Objects\Character\Boss.h" />
     <ClInclude Include="Objects\Items\Weapons\Arrow.h" />
     <ClInclude Include="Objects\Manager\ArrowManager.h" />
-    <ClInclude Include="Objects\Character\Boss.h" />
     <ClInclude Include="Scenes\BuildingScene.h" />
     <ClInclude Include="Objects\Items\Weapons\Dagger.h" />
     <ClInclude Include="Scenes\EyesRaySearchScene.h" />
@@ -277,9 +277,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Manager\InteractManager.cpp" />
+    <ClCompile Include="Objects\Character\Boss.cpp" />
     <ClCompile Include="Objects\Items\Weapons\Arrow.cpp" />
     <ClCompile Include="Objects\Manager\ArrowManager.cpp" />
-    <ClCompile Include="Objects\Character\Boss.cpp" />
     <ClCompile Include="Scenes\BuildingScene.cpp" />
     <ClCompile Include="Objects\Items\Weapons\Dagger.cpp" />
     <ClCompile Include="Scenes\EyesRaySearchScene.cpp" />

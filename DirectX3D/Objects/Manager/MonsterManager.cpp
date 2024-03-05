@@ -63,7 +63,7 @@ void MonsterManager::CreateOrc()
     Transform* transform = new Transform();
     transform->SetActive(false);
     Orc* orc = new Orc(transform, orcInstancing, orcIndex);
-    orcInstancing->AddOrc(transform, orcIndex);
+    orcInstancing->AddModelInfo(transform, orcIndex);
 
     ColliderManager::Get()->PushCollision(ColliderManager::ORC, orc->GetCollider());
 
