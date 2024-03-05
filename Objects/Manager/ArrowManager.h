@@ -44,7 +44,7 @@ private:
 	vector<Collider*> wallColiders;
 	int count = 0; // 인덱스를 위함
 
-	int playerArrowCount = 1; // 처음에 3개 가지고 시작
+	int playerArrowCount = 10; // 처음에 3개 가지고 시작
 
 	map<string, SpecialKeyUI> specialKeyUI;
 };

@@ -220,6 +220,7 @@ Player::~Player()
 
 void Player::Update()
 {
+    
     ColliderManager::Get()->SetHeight();
     ColliderManager::Get()->PushPlayer();
 
@@ -229,6 +230,8 @@ void Player::Update()
     collider->UpdateWorld();
 
     UpdateUI();
+
+    if (isDying)return;
 
     Control();
     Searching();
@@ -453,7 +456,10 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
         if (weaponState == BOW)
         {
             if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
+            {
+                ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos));
                 SetState(B_RECOIL);
+            }
             return;
         }
     }
@@ -562,9 +568,12 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
 
 void Player::UpdateUI()
 {
-    if (isHit)
+    if (isHit || isDying)
     {
-        curHP -= DELTA * 10 * 2;
+        if (isHit)
+            curHP -= DELTA * 10 * 4; // 2 -> 4
+        else
+            curHP -= DELTA * 10 * 6;
         State aa = curState;
 
         if (curHP <= destHP)
@@ -670,8 +679,14 @@ void Player::Walking()
 
     Vector3 destFeedBackPos;
     Vector3 destPos;
-    if(!KEY_PRESS(VK_LSHIFT))
+    if (!KEY_PRESS(VK_LSHIFT))
+    {
+        /*if (curState == B_AIM || curState == B_DRAW || curState == B_ODRAW)
+            destPos = Pos() + direction * aimMoveSpeed * DELTA * -1;
+        else*/
         destPos = Pos() + direction * moveSpeed1 * DELTA * -1;
+    }
+        
     else
         destPos = Pos() + direction * moveSpeed2 * DELTA * -1;
     Vector3 PlayerSkyPos = destPos;
@@ -977,6 +992,7 @@ void Player::Hit(float damage)
         {
             //SetState(DYING);
             //???????
+            isDying = true;
             return;
         }
 
@@ -1007,8 +1023,9 @@ void Player::ComboAttack()
 
 void Player::ShootArrow()
 {
+    //ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos));
     SetState(B_IDLE);
-    ArrowManager::Get()->Throw(bow->GlobalPos(), Back());
+    
 }
 
 void Player::SetState(State state, float scale, float takeTime)

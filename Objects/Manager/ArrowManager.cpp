@@ -103,6 +103,7 @@ bool ArrowManager::IsCollision()
 		{
 			if (ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC)[i]->IsSphereCollision(arrow->GetCollider()))
 			{
+				arrow->GetCollider()->SetActive(false);
 				MonsterManager::Get()->GetOrc(i)->Hit(50, arrow->GetTransform()->GlobalPos());
 			}
 		}
@@ -113,6 +114,7 @@ bool ArrowManager::IsCollision()
 		{
 			if (c->IsCollision(arrow->GetCollider()))
 			{
+				arrow->GetCollider()->SetActive(false);
 				arrow->GetTransform()->SetActive(false);
 				arrow->GetTrail()->SetActive(false);
 				return true;

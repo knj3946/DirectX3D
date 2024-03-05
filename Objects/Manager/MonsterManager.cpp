@@ -304,7 +304,6 @@ void MonsterManager::Fight(Player* player)
                     item.second.orc->Hit(player->GetDamage(), collider->GlobalPos());
                 }
             }
-
         }
     }
     // bow 콜리전담기

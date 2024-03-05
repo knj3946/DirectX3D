@@ -197,6 +197,7 @@ private:
     float curHP = 100, maxHp = 100;
     float destHP;
     bool isHit = false;
+    bool isDying = false;
 
     int comboStack = 0;
     float comboHolding = 0.0f;

@@ -371,7 +371,7 @@ float Orc::GetDamage()
     float r = 0.0f;
     if (curState == ATTACK)
     {
-        r = 10.0f;
+        r = 60.0f;// ÀÓ½Ã·Î ¹Ù²Ş 10 -> 60
     }
     return r;
 }
