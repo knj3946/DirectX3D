@@ -50,8 +50,8 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("ParticleConfig", new ParticleConfigScene());
     //SceneManager::Get()->Create("Human", new HumanScene());
     //SceneManager::Get()->Create("QuadTree", new QuadTreeScene());
-    SceneManager::Get()->Create("GameMap", new GameMapScene());
-    //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
+ //   SceneManager::Get()->Create("GameMap", new GameMapScene());
+    SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
     //SceneManager::Get()->Create("Player", new PlayerScene());
     //SceneManager::Get()->Create("PlayerMap", new PlayerMapScene());
     //SceneManager::Get()->Create("EyesRaySearch", new EyesRaySearchScene());
@@ -77,8 +77,8 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("ParticleConfig");
     //SceneManager::Get()->Add("Human");
     //SceneManager::Get()->Add("QuadTree");
-    SceneManager::Get()->Add("GameMap");
-    //SceneManager::Get()->Add("TestNpcScene");
+   // SceneManager::Get()->Add("GameMap");
+    SceneManager::Get()->Add("TestNpcScene");
     //SceneManager::Get()->Add("Player");
     //SceneManager::Get()->Add("PlayerMap");
     //SceneManager::Get()->Add("EyesRaySearch");
