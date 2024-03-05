@@ -1,0 +1,10 @@
+<Material Name="Ch28_hair">
+    <Shader Vertex="" Pixel=""/>
+    <Texture Diffuse="Textures/Model/david/Ch28_1001_Diffuse.png" Specular="Textures/Color/White.png" Normal="Textures/Model/david/Ch28_1001_Normal.png"/>
+    <Property Shininess="20" HasNormalMap="1">
+        <Diffuse R="0.80000001" G="0.80000001" B="0.80000001" A="1"/>
+        <Specular R="0" G="0" B="0" A="1"/>
+        <Ambient R="0" G="0" B="0" A="1"/>
+        <Emissive R="0" G="0" B="0" A="1"/>
+    </Property>
+</Material>

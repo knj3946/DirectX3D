@@ -1,0 +1,10 @@
+<Material Name="Bow_MAT">
+    <Shader Vertex="" Pixel=""/>
+    <Texture Diffuse="Textures/Model/akai Bow/Bow_DIFF.jpg" Specular="Textures/Color/White.png" Normal="Textures/Model/akai Bow/Bow_NM.jpg"/>
+    <Property Shininess="13.136364" HasNormalMap="1">
+        <Diffuse R="0.80000001" G="0.80000001" B="0.80000001" A="1"/>
+        <Specular R="0.11363394" G="0.11363394" B="0.11363394" A="1"/>
+        <Ambient R="0" G="0" B="0" A="1"/>
+        <Emissive R="0" G="0" B="0" A="1"/>
+    </Property>
+</Material>

@@ -1,0 +1,10 @@
+<Material Name="Wolf_Fur">
+    <Shader Vertex="" Pixel=""/>
+    <Texture Diffuse="Textures/Model/wolf_v1/wolf_v1.fbm/Wolf_Fur.jpg" Specular="Textures/Color/White.png" Normal="Textures/Color/White.png"/>
+    <Property Shininess="0" HasNormalMap="0">
+        <Diffuse R="1" G="0.86982143" B="0.77218759" A="1"/>
+        <Specular R="1" G="0.86982143" B="0.77218759" A="1"/>
+        <Ambient R="0" G="0" B="0" A="1"/>
+        <Emissive R="0" G="0" B="0" A="1"/>
+    </Property>
+</Material>

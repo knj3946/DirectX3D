@@ -1,0 +1,10 @@
+<Material Name="DefaultMaterial">
+    <Shader Vertex="" Pixel=""/>
+    <Texture Diffuse="Textures/Model/Elven Long Bow/Elven Long Bow Diffuse.png" Specular="Textures/Model/Elven Long Bow/Elven Long Bow Specular.png" Normal="Textures/Model/Elven Long Bow/Elven Long Bow Normal.png"/>
+    <Property Shininess="24" HasNormalMap="0">
+        <Diffuse R="0.60000002" G="0.60000002" B="0.60000002" A="1"/>
+        <Specular R="0" G="0" B="0" A="1"/>
+        <Ambient R="0" G="0" B="0" A="1"/>
+        <Emissive R="0" G="0" B="0" A="1"/>
+    </Property>
+</Material>
