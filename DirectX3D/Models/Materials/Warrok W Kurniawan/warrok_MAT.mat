@@ -1,0 +1,10 @@
+<Material Name="warrok_MAT">
+    <Shader Vertex="" Pixel=""/>
+    <Texture Diffuse="Textures/Model/Warrok W Kurniawan/bear_diffuse.png" Specular="Textures/Model/Warrok W Kurniawan/bear_specular.png" Normal="Textures/Model/Warrok W Kurniawan/bear_normal.png"/>
+    <Property Shininess="20" HasNormalMap="1">
+        <Diffuse R="0.80000001" G="0.80000001" B="0.80000001" A="1"/>
+        <Specular R="0.5" G="0.5" B="0.5" A="1"/>
+        <Ambient R="0" G="0" B="0" A="1"/>
+        <Emissive R="0" G="0" B="0" A="1"/>
+    </Property>
+</Material>
