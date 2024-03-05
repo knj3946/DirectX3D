@@ -232,57 +232,60 @@ void MonsterManager::Blocking(Collider* collider)
 {
     for (const pair<int, OrcInfo>& item : orcs)
     {
-        if (collider->IsCollision(item.second.orc->GetCollider()))
+        if (collider->Role() == Collider::Collider_Role::BLOCK)
         {
-            Vector3 dir = item.second.orc->GetCollider()->GlobalPos() - collider->GlobalPos();
-
-            int maxIndex = 0;
-            float maxValue = -99999.0f;
-
-            for (int i = 0; i < 3; ++i)
+            if (collider->IsCollision(item.second.orc->GetCollider()))
             {
+                Vector3 dir = item.second.orc->GetCollider()->GlobalPos() - collider->GlobalPos();
 
-                Vector3 halfSize = ((BoxCollider*)collider)->GetHalfSize();
+                int maxIndex = 0;
+                float maxValue = -99999.0f;
 
-                if (i != 1)
+                for (int i = 0; i < 3; ++i)
                 {
-                    if (abs(dir[i]) - abs(halfSize[i]) > maxValue)
+
+                    Vector3 halfSize = ((BoxCollider*)collider)->GetHalfSize();
+
+                    if (i != 1)
                     {
-                        maxIndex = i;
-                        maxValue = abs(dir[i]) - abs(halfSize[i]);
+                        if (abs(dir[i]) - abs(halfSize[i]) > maxValue)
+                        {
+                            maxIndex = i;
+                            maxValue = abs(dir[i]) - abs(halfSize[i]);
+                        }
                     }
                 }
-            }
 
-            switch (maxIndex)
-            {
-            case 0: // x
-                dir.x = dir.x > 0 ? 1.0f : -1.0f;
+                switch (maxIndex)
+                {
+                case 0: // x
+                    dir.x = dir.x > 0 ? 1.0f : -1.0f;
+                    dir.y = 0;
+                    dir.z = 0;
+                    break;
+
+                case 1: // y
+                    dir.x = 0;
+                    dir.y = dir.y > 0 ? 1.0f : -1.0f;;
+                    dir.z = 0;
+                    break;
+
+                case 2: // z
+                    dir.x = 0;
+                    dir.y = 0;
+                    dir.z = dir.z > 0 ? 1.0f : -1.0f;;
+                    break;
+                }
+
                 dir.y = 0;
-                dir.z = 0;
-                break;
 
-            case 1: // y
-                dir.x = 0;
-                dir.y = dir.y > 0 ? 1.0f : -1.0f;;
-                dir.z = 0;
-                break;
+                // --- 이하 샘플 코드 : 대상은 블록으로부터 밀림 ---
 
-            case 2: // z
-                dir.x = 0;
-                dir.y = 0;
-                dir.z = dir.z > 0 ? 1.0f : -1.0f;;
-                break;
+                if (NearlyEqual(dir.y, 1.0f)) continue; // 법선이 밑인 경우
+
+                item.second.orc->GetTransform()->Pos() += dir * 50.0f * DELTA;
+
             }
-
-            dir.y = 0;
-
-            // --- 이하 샘플 코드 : 대상은 블록으로부터 밀림 ---
-
-            if (NearlyEqual(dir.y, 1.0f)) continue; // 법선이 밑인 경우
-
-            item.second.orc->GetTransform()->Pos() += dir * 50.0f * DELTA;
-
         }
     }
 

@@ -906,8 +906,8 @@ void Player::EndClimbing()
 
 bool Player::OnColliderFloor(Vector3& feedback)
 {
-    Vector3 PlayerSkyPos = Pos();
-    PlayerSkyPos.y += 1;
+    Vector3 PlayerSkyPos = GlobalPos();
+    PlayerSkyPos.y += 3;
     Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
     Contact con;
     if (ColliderManager::Get()->CloseRayCollisionColliderContact(groundRay, con))

@@ -229,6 +229,7 @@ void Orc::GUIRender()
     ImGui::Text("NPC_BehaviorState : %d", behaviorstate);
     ImGui::Text("curState : %d", curState);
 
+    ImGui::Text("FeedbackPosY : %f", feedBackPos.y);
     //ImGui::Text("curhp : %f", curHP);
     //ImGui::Text("desthp : %f", destHP);
 
@@ -295,10 +296,13 @@ void Orc::SetParameter()
 
 void Orc::SetGroundPos()
 {
-    Vector3 OrcSkyPos = transform->Pos();
-    OrcSkyPos.y += 100;
-    Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
-    TerainComputePicking(feedBackPos, groundRay);
+    if (!OnColliderFloor(feedBackPos)) // 문턱올라가기 때문
+    {
+        Vector3 OrcSkyPos = transform->Pos();
+        OrcSkyPos.y += 100;
+        Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
+        TerainComputePicking(feedBackPos, groundRay);
+    }
 }
 
 bool Orc::CalculateHit()
@@ -519,6 +523,7 @@ void Orc::Control()
                     //}
                     //else
                     {
+                        /*
                         if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
                         {
                             SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
@@ -528,6 +533,10 @@ void Orc::Control()
                             path.clear(); // 굳이 장애물없는데 길찾기 필요 x
                             path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
                         }
+                        */
+
+                        //직선레이에 장애물이 탐지되지 않아도 몸통 콜라이더가 걸려서 못갈수도 있기 때문에 항상 경로 내기
+                        SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
                     }
                     
 
@@ -580,6 +589,7 @@ void Orc::Control()
 
                 //path.clear();
                 
+                /*
                 if (aStar->IsCollisionObstacle(transform->GlobalPos(), PatrolPos[nextPatrol]))// 중간에 장애물이 있으면
                 {
                     SetPath(PatrolPos[nextPatrol]); // 구체적인 경로 내어서 가기
@@ -589,6 +599,10 @@ void Orc::Control()
                     path.clear(); // 굳이 장애물없는데 길찾기 필요 x
                     path.push_back(PatrolPos[nextPatrol]); // 가야할 곳만 경로에 집어넣기
                 }
+                */
+
+                //직선레이에 장애물이 탐지되지 않아도 몸통 콜라이더가 걸려서 못갈수도 있기 때문에 항상 경로 내기
+                SetPath(PatrolPos[nextPatrol]); // 구체적인 경로 내어서 가기
 
                 if (IsStartPos())
                 {
@@ -698,7 +712,10 @@ void Orc::Move()
         Vector3 OrcSkyPos = destPos;
         OrcSkyPos.y += 100;
         Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
-        TerainComputePicking(destFeedBackPos, groundRay);
+        if (!OnColliderFloor(destFeedBackPos)) // 문턱올라가기 때문
+        {
+            TerainComputePicking(destFeedBackPos, groundRay);
+        }
 
         //destFeedBackPos : 목적지 터레인Pos
         //feedBackPos : 현재 터레인Pos
@@ -1190,6 +1207,22 @@ bool Orc::IsStartPos()
         PatrolPos[nextPatrol].z + 1.0f > transform->Pos().z && PatrolPos[nextPatrol].z - 1.0f < transform->Pos().z)
         return true;
     else return false;
+}
+
+bool Orc::OnColliderFloor(Vector3& feedback)
+{
+    Vector3 PlayerSkyPos = transform->GlobalPos();
+    PlayerSkyPos.y += 3;
+    Ray groundRay = Ray(PlayerSkyPos, Vector3(transform->Down()));
+    Contact con;
+    if (ColliderManager::Get()->CloseRayCollisionColliderContact(groundRay, con))
+    {
+        feedback = con.hitPoint;
+        //feedback.y += 0.1f; //살짝 띄움으로서 충돌 방지
+        return true;
+    }
+
+    return false;
 }
 
 void Orc::RangeCheck()

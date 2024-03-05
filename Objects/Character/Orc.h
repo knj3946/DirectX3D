@@ -136,6 +136,7 @@ private:
     void SetEyePos();
     void Patrol();
     bool IsStartPos();
+    bool OnColliderFloor(Vector3& feedback);
     bool TerainComputePicking(Vector3& feedback, Ray ray);
     bool EyesRayToDetectTarget(Collider* targetCol, Vector3 orcEyesPos);
     void RangeCheck();
