@@ -21,5 +21,8 @@ private:
 
     Fox* fox;
     RobotA* robot;
+
+    Cube* cube[4];
+
 };
 

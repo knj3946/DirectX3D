@@ -81,7 +81,7 @@ void MonsterManager::Update()
     Collision();
     
 
-    int i = 0;
+
 
     
     for (const pair<int, OrcInfo>& item : orcs)

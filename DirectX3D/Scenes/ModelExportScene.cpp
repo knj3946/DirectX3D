@@ -21,6 +21,7 @@ ModelExportScene::ModelExportScene()
     //exporter->ExportClip(clipName);
     //delete exporter;
 
+
     //clipName = "Crouch To Standing";
     //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
     //exporter = new ModelExporter(name, file);
@@ -38,6 +39,7 @@ ModelExportScene::ModelExportScene()
     //exporter = new ModelExporter(name, file);
     //exporter->ExportClip(clipName);
     //delete exporter;
+
 
     //clipName = "Crouch Walk Back";
     //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";

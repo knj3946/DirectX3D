@@ -1,5 +1,5 @@
 #include "Framework.h"
-
+static int rangeTag=0;
 Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     :transform(transform), instancing(instancing), index(index)
 {
@@ -66,11 +66,25 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     hpBar->UpdateWorld();
     hpBar->Render();
 
+    rangeBar = new ProgressBar(L"Textures/UI/Range_bar.png", L"Textures/UI/Range_bar_BG.png");
+    rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
+    rangeBar->SetParent(transform);
+   
+    rangeBar->SetTag(to_string(rangeTag));
+    rangeBar->Rot() = {XMConvertToRadians(90.f),0,XMConvertToRadians(-90.f)};
+    rangeBar->Pos() = { -15.f,1.f,-650.f };
+    rangeTag++;
+   
     exclamationMark = new Quad(L"Textures/UI/Exclamationmark.png");
     questionMark = new Quad(L"Textures/UI/QuestionMark.png");
     exclamationMark->Scale() *= 0.1f;
     questionMark->Scale() *= 0.1f;
 
+    questionMark->SetActive(false);
+    exclamationMark->SetActive(false);
+    //aStar = new AStar(512, 512);
+    
+    //aStar->SetNode();
 
     computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
     rayBuffer = new RayBuffer();
@@ -93,6 +107,8 @@ Orc::~Orc()
     //delete root;
     delete exclamationMark;
     delete questionMark;
+    delete rangeBar;
+    delete hpBar;
     for (Collider* wcollider : weaponColliders)
         delete wcollider;
     delete particleHit;
@@ -156,10 +172,6 @@ void Orc::Update()
     SetParameter(); //필요한 변수들 세팅
     Control(); // 경로설정등 오크가 움직이기 위한 정보들 계산
     Move(); //실제 움직임
-
-
-    //현재 대놓고 오크 뒤로가면 오크가 플레이어를 찾지 못함
-    //추적중인 상태일때는 시야각을 360도로 늘려야할 필요가 있을것 같음(가려져서 숨은 경우만 찾지 못하게)  
 }
 
 void Orc::Render()
@@ -167,7 +179,8 @@ void Orc::Render()
     collider->Render();
     leftWeaponCollider->Render();
     rightWeaponCollider->Render();
-    hpBar->Render();
+  //  hpBar->Render();
+    rangeBar->Render();
     //aStar->Render();
 
     particleHit->Render();
@@ -216,8 +229,10 @@ void Orc::SetSRT(Vector3 scale, Vector3 rot, Vector3 pos)
     transform->Scale() = scale;
     transform->Rot() = rot;
     transform->Pos() = pos;
-
+    rangeBar->Scale() = { 1.f / scale.x,1.f / scale.y,1.f / scale.z };
+    rangeBar->Scale() *= (eyeSightRange/100);
     transform->UpdateWorld();
+
 }
 
 void Orc::GUIRender()
@@ -233,6 +248,8 @@ void Orc::GUIRender()
     ImGui::Text("FeedbackPosY : %f", feedBackPos.y);
     //ImGui::Text("curhp : %f", curHP);
     //ImGui::Text("desthp : %f", destHP);
+
+    rangeBar->GUIRender();
 
     /*
     if (!path.empty())
@@ -447,6 +464,7 @@ void Orc::Findrange()
     // 탐지시 범위에 닿은 애에게 설정
     bFind = true; bDetection = true;
     DetectionStartTime = DetectionEndTime;
+    rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
     isTracking = true;
     SetState(RUN);
     if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
@@ -828,6 +846,8 @@ void Orc::UpdateUI()
     hpBar->Scale() = { scale, scale, scale };
     
     hpBar->UpdateWorld();
+
+    rangeBar->UpdateWorld();
 }
 
 void Orc::TimeCalculator()
@@ -988,6 +1008,10 @@ void Orc::EndDying()
 
     transform->SetActive(false);
     hpBar->SetActive(false);
+
+    rangeBar->SetActive(false);
+    collider->SetActive(false);
+
     leftHand->SetActive(false);
     leftWeaponCollider->SetActive(false);
     questionMark->SetActive(false);
@@ -1005,15 +1029,11 @@ void Orc::EndDying()
     MonsterManager::Get()->DieOrc(index);
 }
 
+
+
 void Orc::CalculateEyeSight()
 {
-    float rad = XMConvertToRadians(eyeSightangle);
-    Vector3 front = Vector3(transform->Forward().x, 0, transform->Forward().z).GetNormalized();
-
-    Vector3 eyevector = Vector3(sinf(rad) + transform->GlobalPos().x, 0, cos(rad) + transform->GlobalPos().z);
-    Vector3 rightdir = eyevector * eyeSightRange;
-    Vector3 leftdir = -eyevector * eyeSightRange;
-
+  
     Vector3 direction = target->GlobalPos() - transform->GlobalPos();
     direction.Normalize();
 
@@ -1042,6 +1062,7 @@ void Orc::CalculateEyeSight()
     */
 
     //degree
+
 
     float Enemytothisangle = XMConvertToDegrees(atan2(direction.x, direction.z));
     if (Enemytothisangle < 0) {
@@ -1133,10 +1154,8 @@ void Orc::Detection()
     }
     else {
         if (DetectionStartTime > 0.f) {
-            if (missTargetTrigger)
-            {
-                DetectionStartTime -= DELTA * 2;
-            }
+            DetectionStartTime -= DELTA * 2;
+           
             if (DetectionStartTime <= 0.f) {
                 DetectionStartTime = 0.f;
                 bFind = false;
@@ -1149,6 +1168,7 @@ void Orc::Detection()
             }
         }
     }
+    rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
     if (DetectionEndTime <= DetectionStartTime) {
         if (bFind)return;
         bFind = true;
@@ -1164,6 +1184,7 @@ void Orc::Detection()
         if (curState == IDLE)
             SetState(RUN);
     }
+
 
 }
 

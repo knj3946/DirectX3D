@@ -5,19 +5,25 @@ TestNpcScene::TestNpcScene()
 {
     terrain = new TerrainEditor();
 
-    aStar2 = new AStar();
+    aStar2 = new AStar(128,128);
     aStar2->SetNode(terrain);
-
+    boss = new Boss;
+    boss->SetAStar(aStar2);
+    boss->SetTerrain(terrain);
     naruto = new Naruto();
+    boss->SetTarget(naruto);
+    
+    boss->SetPatrolPos(Vector3(0, 0, 0));
+    boss->SetPatrolPos(Vector3(100, 0, 100));
     ColliderManager::Get()->PushCollision(ColliderManager::PLAYER, naruto->GetCollider());
 
-    MonsterManager::Get()->SetTarget(naruto); //싱글턴 생성 후, 표적 설정까지
-
-    MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(80, 0, 80));
-    MonsterManager::Get()->SetType(0, Orc::NPC_TYPE::INFORM);
-    MonsterManager::Get()->SetPatrolPos(0, Vector3(160, 0, 160));
-
-
+  //  MonsterManager::Get()->SetTarget(naruto); //싱글턴 생성 후, 표적 설정까지
+  //
+  //  MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(80, 0, 80));
+  //  MonsterManager::Get()->SetType(0, Orc::NPC_TYPE::INFORM);
+  //  MonsterManager::Get()->SetPatrolPos(0, Vector3(160, 0, 160));
+  //
+  //
     MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(60, 0, 150));
     MonsterManager::Get()->SetPatrolPos(1, Vector3(130, 0, 100));
     MonsterManager::Get()->SetType(1, Orc::NPC_TYPE::ATTACK);
@@ -47,21 +53,29 @@ TestNpcScene::TestNpcScene()
     //#pragma endregion
 
 
-    FOR(4) {
+    FOR(3) {
         cube[i] = new Cube;
         cube[i]->SetTag(to_string(i));
         ColliderManager::Get()->PushCollision(ColliderManager::WALL, cube[i]->GetCollider());
-        aStar2->AddObstacle(cube[i]->GetCollider()); 
-    
+      
+       
     }
-    cube[0]->Pos() = { 90.f,10.f,72.f };
+    cube[0]->Pos() = { 90.f,0.f,72.f };
     cube[0]->Scale() = { 20.f,20.f,1.f };
-    cube[1]->Pos() = { 100.f,10.f,62.f };
+    cube[1]->Pos() = { 100.f,0.f,62.f };
     cube[1]->Scale() = { 1.f,20.f,20.f };
     cube[2]->Scale() = { 1.f,20.f,20.f };
-    cube[2]->Pos() = { 80.f,10.f,62.f };
-    cube[3]->Pos() = { 90.f,10.f,52.f };
-    cube[3]->Scale() = { 20.f,20.f,1.f };
+    cube[2]->Pos() = { 80.f,0.f,62.f };
+ 
+    FOR(3)
+    {
+        cube[i]->Update();
+
+        aStar2->AddObstacleObj(cube[i]->GetCollider());
+    }
+    FOR(2) blendState[i] = new BlendState();
+    blendState[1]->AlphaToCoverage(true); //투명색 적용 + 배경색 처리가 있으면 역시 적용
+
 }
 
 TestNpcScene::~TestNpcScene()
@@ -69,21 +83,24 @@ TestNpcScene::~TestNpcScene()
     delete terrain;
      delete aStar2;
   
-    MonsterManager::Delete();
+ //   MonsterManager::Delete();
     delete naruto;
-    FOR(4)
+    delete boss;
+    FOR(3)
         delete cube[i];
     //delete shadow;
+    FOR(2) delete blendState[i];
+
 }
 
 void TestNpcScene::Update()
 {
-    aStar2->Update();
+    terrain->UpdateWorld();
  
     naruto->Update();
-
-    MonsterManager::Get()->Update();
-    FOR(4)
+    boss->Update();
+//    MonsterManager::Get()->Update();
+    FOR(3)
         cube[i]->Update();
     //if (KEY_DOWN('1')) light->type = 0;
 }
@@ -102,15 +119,18 @@ void TestNpcScene::PreRender()
 
 void TestNpcScene::Render()
 {
+    blendState[1]->SetState();
     terrain->Render();
-    //aStar->Render();
-   // aStar2->Render();
+    boss->Render();
+ //   aStar2->Render();
+  
     naruto->Render();
     
-    MonsterManager::Get()->Render();
-    FOR(4)
+   // MonsterManager::Get()->Render();
+    FOR(3)
         cube[i]->Render();
 
+    blendState[0]->SetState();
     // 그림자 관련
     //shadow->SetRender();
 
@@ -125,12 +145,12 @@ void TestNpcScene::Render()
 
 void TestNpcScene::PostRender()
 {
-  
+    boss->PostRender();
 }
 
 void TestNpcScene::GUIRender()
 {
-    terrain->GUIRender();
-    FOR(4)
-        cube[i]->GUIRender();
+    //terrain->GUIRender();
+
+    boss->GUIRender();
 }

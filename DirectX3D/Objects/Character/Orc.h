@@ -50,10 +50,10 @@ private:
         int picked;
         float distance;
     };
+    typedef VertexUVNormalTangentAlpha VertexType;
     
     typedef TerrainEditor LevelData;
     //typedef Terrain LevelData;
-    typedef VertexUVNormalTangentAlpha VertexType;
 
 public:
     enum class NPC_TYPE {
@@ -128,6 +128,7 @@ private:
     void EndHit();
     void EndAssassinated();
     void EndDying();
+   
 
     void CalculateEyeSight();
     void CalculateEarSight();//±Í
@@ -204,10 +205,18 @@ private:
     vector<Collider*> weaponColliders;
 
     ProgressBar* hpBar;
+
+  
+
     float curHP = 100, maxHp = 100;
     float destHP;
     bool isHit = false;
+
     bool isDying = false;
+
+    ProgressBar* rangeBar;
+    float curRange = 0.f, maxRange = 40.f;
+    float destRange;
 
     Quad* questionMark;
     Quad* exclamationMark;

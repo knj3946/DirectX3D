@@ -56,6 +56,8 @@ void ParticleSystem::Update()
 
 	UpdatePhysical(); // 물리적 대상 = 정점 업데이트
 	UpdateColor(); //색상 업데이트
+
+
 	quad->UpdateWorld(); // 업데이트 결과를 이미지에 반영
 
 	if (lifeSpan >= data.duration) //진행된 생애 주기가 파티클에서 설정된 지속시간에 다다르면
@@ -106,6 +108,12 @@ void ParticleSystem::Play(Vector3 pos, Vector3 rot)
 	quad->Rot() = rot;
 
 	Init(); //시작 함수 호출 (파티크 생성)
+}
+
+void ParticleSystem::Play()
+{
+	quad->SetActive(true);
+	Init();
 }
 
 void ParticleSystem::Stop()

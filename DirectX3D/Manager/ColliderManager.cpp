@@ -194,6 +194,44 @@ bool ColliderManager::CloseRayCollisionColliderContact(Ray ray, Contact& con)
     return flag;
 }
 
+float ColliderManager::CloseRayCollisionColliderDistance(Ray ray, Collider* _pCollider)
+{
+	float minDistance = FLT_MAX;
+	
+	Contact con;
+	_pCollider->IsRayCollision(ray, &con);
+
+	float hitDistance = Distance(con.hitPoint, ray.pos);
+	if (minDistance > hitDistance)
+		minDistance = hitDistance;
+	
+
+	return minDistance;
+}
+
+bool ColliderManager::CompareDistanceObstacleandPlayer(Ray ray)
+{
+	Collider* tmpCol=nullptr;
+	for (Collider* ob : vecCol[WALL])
+	{
+		Contact con;
+		if (ob->IsRayCollision(ray, &con))
+		{
+			tmpCol = ob;
+			break;
+		}
+	}
+	if (!tmpCol)
+		return false;
+
+	if (CloseRayCollisionColliderDistance(ray, tmpCol) >= CloseRayCollisionColliderDistance(ray, vecCol[Collision_Type::PLAYER][0])) {
+		return true;// 플레이어가 벽보다 가깝다.
+	}
+	return false;
+
+
+}
+
 ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot, Vector3 mPos)
 {
     int colCount = 0;
@@ -203,263 +241,167 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
     vector<Collider::Collider_Role> colRole;
     vector<Collider::Collider_Special> colSpecials;
 
-    if (mName == "building_V2")
-    {
-        mRot.x += XM_PIDIV2;
-        colCount = 13;
-        colPoss.push_back(Vector3(4.f, -1.6f, -1.5f));
-        colPoss.push_back(Vector3(4.f, 1.6f, -1.5f));
-        colPoss.push_back(Vector3(0.f, 0.f, -2.7f)); // 바닥 콜라이더
-        colPoss.push_back(Vector3(0.3f, 2.5f, -1.5f));
-        colPoss.push_back(Vector3(-3.9f, 0.f, -1.5f));
-        colPoss.push_back(Vector3(-3.6f, -2.4f, -1.5f));
-        colPoss.push_back(Vector3(-0.9f, -2.4f, -1.5f));
-        colPoss.push_back(Vector3(1.5f, -2.4f, -1.5f));
-        colPoss.push_back(Vector3(3.7f, -2.4f, -1.5f));
-        colPoss.push_back(Vector3(1.5f, -2.4f, -2.6f));
-        colPoss.push_back(Vector3(1.5f, -2.4f, -1.6f));
-        colPoss.push_back(Vector3(1.5f, -2.4f, -0.6f));
-        colPoss.push_back(Vector3(0.f, 0.f, 0.23f)); //바닥 콜라이더
+	if (mName == "building_V2")
+	{
+		mRot.x += XM_PIDIV2;
+		colCount = 13;
+		colPoss.push_back(Vector3(4.f, -1.6f, -1.5f));
+		colPoss.push_back(Vector3(4.f, 1.6f, -1.5f));
+		colPoss.push_back(Vector3(0.f, 0.f, -2.7f));
+		colPoss.push_back(Vector3(0.3f, 2.5f, -1.5f));
+		colPoss.push_back(Vector3(-3.9f, 0.f, -1.5f));
+		colPoss.push_back(Vector3(-3.6f, -2.4f, -1.5f));
+		colPoss.push_back(Vector3(-0.9f, -2.4f, -1.5f));
+		colPoss.push_back(Vector3(1.5f, -2.4f, -1.5f));
+		colPoss.push_back(Vector3(3.7f, -2.4f, -1.5f));
+		colPoss.push_back(Vector3(1.5f, -2.4f, -2.6f));
+		colPoss.push_back(Vector3(1.5f, -2.4f, -1.6f));
+		colPoss.push_back(Vector3(1.5f, -2.4f, -0.6f));
+		colPoss.push_back(Vector3(0.f, 0.f, 0.23f));
+	
 
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		
+		colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
+		colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
+		colScales.push_back(Vector3(8.5f, 5.1f, 0.9f));
+		colScales.push_back(Vector3(7.7f, 0.2f, 3.f));
+		colScales.push_back(Vector3(0.6f, 5.1f, 3.2f));
+		colScales.push_back(Vector3(1.1f, 0.4f, 3.f));
+		colScales.push_back(Vector3(1.2f, 0.4f, 3.f));
+		colScales.push_back(Vector3(1.8f, 0.4f, 3.f));
+		colScales.push_back(Vector3(0.9f, 0.4f, 3.f));
+		colScales.push_back(Vector3(3.9f, 0.4f, 1.1f));
+		colScales.push_back(Vector3(1.8f, 0.4f, 1.3f));
+		colScales.push_back(Vector3(3.7f, 0.4f, 1.2f));
+		colScales.push_back(Vector3(8.5f, 5.1f, 0.9f));
+		
+	}
+	else if (mName == "building_V4")
+	{
+		mRot.x += XM_PIDIV2;
+		colCount = 19;
+		colPoss.push_back(Vector3(4.f, -1.6f, -1.5f));
+		colPoss.push_back(Vector3(4.f, 1.6f, -1.5f));
+		colPoss.push_back(Vector3(0.f, 0.f, -2.7f));
+		colPoss.push_back(Vector3(0.f, 0.f, 0.1f));
+		colPoss.push_back(Vector3(2.1f, 2.5f, -1.5f));
+		colPoss.push_back(Vector3(-3.9f, 2.4f, -1.5f));
+		colPoss.push_back(Vector3(0.f, -2.4f, -2.6f));
+		colPoss.push_back(Vector3(0.f, -2.4f, -0.6f));
+		colPoss.push_back(Vector3(-2.2f, -2.4f, -1.7f));
+		colPoss.push_back(Vector3(1.5f, -2.4f, -1.7f));
+		colPoss.push_back(Vector3(3.7f, -2.4f, -1.7f));
+		colPoss.push_back(Vector3(-0.8f, 7.1f, -1.5f));
+		colPoss.push_back(Vector3(-3.6f, 7.1f, -1.5f));
+		colPoss.push_back(Vector3(-0.2f, 4.9f, -2.6f));
+		colPoss.push_back(Vector3(-0.2f, 4.9f, -0.6f));
+		colPoss.push_back(Vector3(-0.2f, 3.4f, -1.6f));
+		colPoss.push_back(Vector3(-0.2f, 6.2f, -1.6f));
+		colPoss.push_back(Vector3(-2.1f, 4.9f, -2.9f));
+		colPoss.push_back(Vector3(-2.2f, 4.9f, -0.1f));
 
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f)); // 바닥 콜라이더
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f)); //바닥 콜라이더
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));//
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
+		colRots.push_back(Vector3(0.f, 0.f, 0.f));
 
-        colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
-        colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
-        colScales.push_back(Vector3(8.5f, 5.1f, 0.9f)); // 바닥 콜라이더
-        colScales.push_back(Vector3(7.7f, 0.2f, 3.f));
-        colScales.push_back(Vector3(0.6f, 5.1f, 3.2f));
-        colScales.push_back(Vector3(1.1f, 0.4f, 3.f));
-        colScales.push_back(Vector3(1.2f, 0.4f, 3.f));
-        colScales.push_back(Vector3(1.8f, 0.4f, 3.f));
-        colScales.push_back(Vector3(0.9f, 0.4f, 3.f));
-        colScales.push_back(Vector3(3.9f, 0.4f, 1.1f));
-        colScales.push_back(Vector3(1.8f, 0.4f, 1.3f));
-        colScales.push_back(Vector3(3.7f, 0.4f, 1.2f));
-        colScales.push_back(Vector3(8.5f, 5.1f, 0.9f)); //바닥 콜라이더
+	
 
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::OPEN); // 바닥 콜라이더
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::OPEN); //바닥 콜라이더
+		colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
+		colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
+		colScales.push_back(Vector3(8.5f, 5.1f, 0.9f));
+		colScales.push_back(Vector3(8.5f, 5.1f, 0.9f));//4
+		colScales.push_back(Vector3(4.2f, 0.2f, 3.f));
+		colScales.push_back(Vector3(0.6f, 9.8f, 3.2f));
+		colScales.push_back(Vector3(8.4f, 0.4f, 1.f));//7
+		colScales.push_back(Vector3(8.4f, 0.4f, 1.3f));
+		colScales.push_back(Vector3(3.9f, 0.4f, 1.3f));
+		colScales.push_back(Vector3(1.8f, 0.4f, 1.3f));//10
+		colScales.push_back(Vector3(0.9f, 0.4f, 1.3f));
+		colScales.push_back(Vector3(1.5f, 0.4f, 3.f));
+		colScales.push_back(Vector3(1.3f, 0.4f, 3.f));
+		colScales.push_back(Vector3(0.3f, 4.6f, 1.1f));
+		colScales.push_back(Vector3(0.3f, 4.6f, 1.2f));
+		colScales.push_back(Vector3(0.3f, 1.8f, 1.3f));
+		colScales.push_back(Vector3(0.3f, 2.0f, 1.3f));
+		colScales.push_back(Vector3(4.1f, 4.9f, 0.4));
+		colScales.push_back(Vector3(4.1f, 4.9f, 0.4));
+		
+	}
+	else if (mName == "building_V5")
+	{
+		mRot.x += XMConvertToRadians(165);
+		colCount = 13;
+		colPoss.push_back(Vector3(4.f, -1.1f, -2.0f));
+		colPoss.push_back(Vector3(4.f, -2.0f, 1.2f));
+		colPoss.push_back(Vector3(0.f, -2.8f, -0.7f));
+		colPoss.push_back(Vector3(0.f, 0.f, 0.1f));
+		colPoss.push_back(Vector3(0.f, -0.9f, -2.7f));
+		colPoss.push_back(Vector3(-3.9f, -1.5f, -0.4f));
+		colPoss.push_back(Vector3(-3.6f, -2.1f, 1.9f));
+		colPoss.push_back(Vector3(1.3f, -3.1f, 1.7f));
+		colPoss.push_back(Vector3(1.3f, -1.2f, 2.2f));
+		colPoss.push_back(Vector3(1.5f, -2.2f, 1.9f));
+		colPoss.push_back(Vector3(-0.9f, -2.2f, 1.9f));
+		colPoss.push_back(Vector3(3.7f, -2.2f, 1.9f));
+		colPoss.push_back(Vector3(0.f, -3.5f, 2.8f));
 
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::TYPE_Z_OVER); //Z축기준 콜라이더 포지션보다 큰 부분에서만 등반 가능
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
+		colRots.push_back(Vector3(XMConvertToRadians(180), 0.f, 0.f));
 
-    }
-    else if (mName == "building_V4")
-    {
-        mRot.x += XM_PIDIV2;
-        colCount = 19;
-        colPoss.push_back(Vector3(4.f, -1.6f, -1.5f));
-        colPoss.push_back(Vector3(4.f, 1.6f, -1.5f));
-        colPoss.push_back(Vector3(0.f, 0.f, -2.7f)); //바닥 콜라이더
-        colPoss.push_back(Vector3(0.f, 0.f, 0.1f)); //바닥 콜라이더
-        colPoss.push_back(Vector3(2.1f, 2.5f, -1.5f));
-        colPoss.push_back(Vector3(-3.9f, 2.4f, -1.5f));
-        colPoss.push_back(Vector3(0.f, -2.4f, -2.6f));
-        colPoss.push_back(Vector3(0.f, -2.4f, -0.6f));
-        colPoss.push_back(Vector3(-2.2f, -2.4f, -1.7f));
-        colPoss.push_back(Vector3(1.5f, -2.4f, -1.7f));
-        colPoss.push_back(Vector3(3.7f, -2.4f, -1.7f));
-        colPoss.push_back(Vector3(-0.8f, 7.1f, -1.5f));
-        colPoss.push_back(Vector3(-3.6f, 7.1f, -1.5f));
-        colPoss.push_back(Vector3(-0.2f, 4.9f, -2.6f));
-        colPoss.push_back(Vector3(-0.2f, 4.9f, -0.6f));
-        colPoss.push_back(Vector3(-0.2f, 3.4f, -1.6f));
-        colPoss.push_back(Vector3(-0.2f, 6.2f, -1.6f));
-        colPoss.push_back(Vector3(-2.1f, 4.9f, -2.9f)); //바닥 콜라이더
-        colPoss.push_back(Vector3(-2.2f, 4.9f, -0.1f)); //바닥 콜라이더
-
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));//바닥 콜라이더
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));//바닥 콜라이더
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f));
-        colRots.push_back(Vector3(0.f, 0.f, 0.f)); //바닥 콜라이더
-        colRots.push_back(Vector3(0.f, 0.f, 0.f)); //바닥 콜라이더
-
-
-
-        colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
-        colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
-        colScales.push_back(Vector3(8.5f, 5.1f, 0.9f)); //바닥 콜라이더
-        colScales.push_back(Vector3(8.5f, 5.1f, 0.9f));//4 //바닥 콜라이더
-        colScales.push_back(Vector3(4.2f, 0.2f, 3.f));
-        colScales.push_back(Vector3(0.6f, 9.8f, 3.2f));
-        colScales.push_back(Vector3(8.4f, 0.4f, 1.f));//7
-        colScales.push_back(Vector3(8.4f, 0.4f, 1.3f));
-        colScales.push_back(Vector3(3.9f, 0.4f, 1.3f));
-        colScales.push_back(Vector3(1.8f, 0.4f, 1.3f));//10
-        colScales.push_back(Vector3(0.9f, 0.4f, 1.3f));
-        colScales.push_back(Vector3(1.5f, 0.4f, 3.f));
-        colScales.push_back(Vector3(1.3f, 0.4f, 3.f));
-        colScales.push_back(Vector3(0.3f, 4.6f, 1.1f));
-        colScales.push_back(Vector3(0.3f, 4.6f, 1.2f));
-        colScales.push_back(Vector3(0.3f, 1.8f, 1.3f));
-        colScales.push_back(Vector3(0.3f, 2.0f, 1.3f));
-        colScales.push_back(Vector3(4.1f, 4.9f, 0.4)); //바닥 콜라이더
-        colScales.push_back(Vector3(4.1f, 4.9f, 0.4)); //바닥 콜라이더
-
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::OPEN); //바닥 콜라이더
-        colRole.push_back(Collider::OPEN); //바닥 콜라이더
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::OPEN); //바닥 콜라이더
-        colRole.push_back(Collider::OPEN); //바닥 콜라이더
-
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-
-    }
-    else if (mName == "building_V5")
-    {
-        mRot.x += XMConvertToRadians(165);
-        colCount = 13;
-        colPoss.push_back(Vector3(4.f, -1.1f, -2.0f));
-        colPoss.push_back(Vector3(4.f, -2.0f, 1.2f));
-        colPoss.push_back(Vector3(0.f, -2.8f, -0.7f)); //바닥 콜라이더
-        colPoss.push_back(Vector3(0.f, 0.f, 0.1f)); //바닥 콜라이더
-        colPoss.push_back(Vector3(0.f, -0.9f, -2.7f));
-        colPoss.push_back(Vector3(-3.9f, -1.5f, -0.4f));
-        colPoss.push_back(Vector3(-3.6f, -2.1f, 1.9f));
-        colPoss.push_back(Vector3(1.3f, -3.1f, 1.7f));
-        colPoss.push_back(Vector3(1.3f, -1.2f, 2.2f));
-        colPoss.push_back(Vector3(1.5f, -2.2f, 1.9f));
-        colPoss.push_back(Vector3(-0.9f, -2.2f, 1.9f));
-        colPoss.push_back(Vector3(3.7f, -2.2f, 1.9f));
-        colPoss.push_back(Vector3(0.f, -3.5f, 2.8f)); //바닥 콜라이더
-
-        colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
-        colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
-        colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));//바닥 콜라이더
-        colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));//바닥 콜라이더
-        colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
-        colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
-        colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
-        colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
-        colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
-        colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
-        colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
-        colRots.push_back(Vector3(XMConvertToRadians(105), 0.f, 0.f));
-        colRots.push_back(Vector3(XMConvertToRadians(180), 0.f, 0.f)); //바닥 콜라이더
-
-        colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
-        colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
-        colScales.push_back(Vector3(8.5f, 5.1f, 0.4f));//바닥 콜라이더
-        colScales.push_back(Vector3(8.5f, 5.1f, 0.4f));//바닥 콜라이더
-        colScales.push_back(Vector3(8.3f, 0.4f, 3.1f));
-        colScales.push_back(Vector3(0.6f, 5.1f, 3.2f));
-        colScales.push_back(Vector3(1.2f, 0.4f, 3.2f));
-        colScales.push_back(Vector3(5.8f, 0.4f, 0.9f));
-        colScales.push_back(Vector3(5.8f, 0.4f, 1.2f));
-        colScales.push_back(Vector3(1.8f, 0.4f, 1.2f));
-        colScales.push_back(Vector3(1.2f, 0.4f, 1.2f));
-        colScales.push_back(Vector3(0.9f, 0.4f, 1.2f));
-        colScales.push_back(Vector3(8.0f, 0.1f, 2.4f)); //바닥 콜라이더
-
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::OPEN);//바닥 콜라이더
-        colRole.push_back(Collider::OPEN);//바닥 콜라이더
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::BLOCK);
-        colRole.push_back(Collider::OPEN); //바닥 콜라이더
-
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
-    }
+		colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
+		colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
+		colScales.push_back(Vector3(8.5f, 5.1f, 0.4f));
+		colScales.push_back(Vector3(8.5f, 5.1f, 0.4f));
+		colScales.push_back(Vector3(8.3f, 0.4f, 3.1f));
+		colScales.push_back(Vector3(0.6f, 5.1f, 3.2f));
+		colScales.push_back(Vector3(1.2f, 0.4f, 3.2f));
+		colScales.push_back(Vector3(5.8f, 0.4f, 0.9f));
+		colScales.push_back(Vector3(5.8f, 0.4f, 1.2f));
+		colScales.push_back(Vector3(1.8f, 0.4f, 1.2f));
+		colScales.push_back(Vector3(1.2f, 0.4f, 1.2f));
+		colScales.push_back(Vector3(0.9f, 0.4f, 1.2f));
+		colScales.push_back(Vector3(8.0f, 0.1f, 2.4f));
+	}
 
     ColliderModel* model = new ColliderModel(mName);
 

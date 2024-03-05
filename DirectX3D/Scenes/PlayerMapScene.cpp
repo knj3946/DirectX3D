@@ -14,6 +14,9 @@ PlayerMapScene::PlayerMapScene()
 	terrain->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
 	terrain->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
 	terrain->SetHeightMap(L"Textures/HeightMaps/HeightMapCustom.png");
+	astar = new AStar;
+	astar->SetNode(terrain);
+
 
 	{
 		string mName = "building_V2";
@@ -117,7 +120,7 @@ PlayerMapScene::PlayerMapScene()
 	MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(80, 0, 80));
 	MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(60, 0, 150));
 	MonsterManager::Get()->SetTerrain(terrain);
-
+	MonsterManager::Get()->SetAStar(astar);
 	for (ColliderModel* colliderModel : colliderModels)
 	{
 		for (Collider* collider : colliderModel->GetColliders())
@@ -128,9 +131,9 @@ PlayerMapScene::PlayerMapScene()
 
 	//static_cast<Naruto*>(player)->SetMoveSpeed(50);
 
-	CAM->SetTarget(player);
-	CAM->TargetOptionLoad("Naruto2");
-	CAM->LookAtTarget();
+//	CAM->SetTarget(player);
+//	CAM->TargetOptionLoad("Naruto2");
+//	CAM->LookAtTarget();
 }
 
 PlayerMapScene::~PlayerMapScene()

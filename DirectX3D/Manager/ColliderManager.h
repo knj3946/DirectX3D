@@ -39,7 +39,12 @@ public:
     void GuiRender();
 
     float CloseRayCollisionColliderDistance(Ray ray);
+
     bool CloseRayCollisionColliderContact(Ray ray, Contact& con);
+
+
+    float CloseRayCollisionColliderDistance(Ray ray,Collider* _pCollider);
+    bool CompareDistanceObstacleandPlayer(Ray ray);
 
     ColliderModel* CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot, Vector3 mPos);
 

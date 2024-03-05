@@ -24,6 +24,7 @@ private:
 
 	BlendState* blendState[2];
 
+	AStar* astar;
 	ModelAnimator* player;
 };
 

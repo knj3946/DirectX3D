@@ -46,7 +46,7 @@ Naruto::Naruto()
     hpBar->Scale() *= 0.6f;
     hpBar->SetAmount(curHP / maxHp);
     Scale() *= 0.03f;
-    Pos().x += 200;
+    Pos().x += 125;
    // Pos().z += 100;
 }
 
@@ -258,7 +258,9 @@ void Naruto::Move()
             Audio::Get()->Play("PlayerWalk", Vector3(100.f,0,100.f));
         }
     }
-
+    if (KEY_PRESS('T')) {
+        btest = !btest;
+    }
 
     if (!isMoveZ) //전후 이동 중이 아닐 때는 속력 기준을 다시 내린다
         velocity.z = Lerp(velocity.z, 0, deceleration * DELTA); //보간으로 감속
@@ -287,7 +289,7 @@ void Naruto::Rotate()
     //아래 코드 때문에 중간으로 고정된 커서가 다시 움직이면서 델타 생성
     Vector3 delta = mousePos - Vector3(CENTER_X, CENTER_Y);
     // 마우스가 움직일 때마다 위치를 중간으로 고정
-  //  SetCursorPos(clientCenterPos.x, clientCenterPos.y);
+  //  SetCursorPos(clientCenterPos.x, clientCenterPos.y);   
     // -> 혹시 위 두 줄이 조작 시에 잘 안 된다면 CENTER_XY와 clinetCenterPos 표시를 바꿔보면 될지도
 
     //델타에 의한 캐릭터와 카메라 양쪽을 모두 회전

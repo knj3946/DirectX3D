@@ -117,10 +117,7 @@ GameMapScene::GameMapScene()
 
 	Audio::Get()->Add("bgm1", "Sounds/dramatic-choir.wav", true, true, false);
 
-	player = new Player();
-	player->Scale() = { 0.03f,0.03f,0.03f };
-	player->Pos() = { 60,0,90 };
-	player->SetTerrain(terrain);
+
 
 	InteractManager::Get()->SetPlayer(player);
 	MonsterManager::Get();
@@ -139,7 +136,10 @@ GameMapScene::GameMapScene()
 				MonsterManager::Get()->AddOrcObstacleObj(collider);
 		}
 	}
-
+	player = new Player();
+	player->Scale() = { 0.03f,0.03f,0.03f };
+	player->Pos() = { 60,0,90 };
+	player->SetTerrain(terrain);
 	player->SetMoveSpeed(50);
 
 	CAM->SetTarget(player);

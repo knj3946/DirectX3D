@@ -36,6 +36,7 @@ public:
     void FillAttackCoolTime();
    // CapsuleCollider* GetCollider() { return collider; }
 
+    bool GetTest() { return btest; }
 private:
     void Control();
     void Move();
@@ -53,6 +54,8 @@ private:
 
    
 private:
+    bool btest = false;
+
     vector<Cube*> cubes;
 
     Transform* mainHand; //주로 쓰는 손, 나루토의 경우 오른손
