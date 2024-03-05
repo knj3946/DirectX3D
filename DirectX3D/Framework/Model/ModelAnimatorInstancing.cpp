@@ -18,6 +18,7 @@ ModelAnimatorInstancing::ModelAnimatorInstancing(string name)
     blendState[1]->Alpha(true); //이미지 배경색 투명화 적용
 }
 
+
 ModelAnimatorInstancing::~ModelAnimatorInstancing()
 {
     delete instanceBuffer;

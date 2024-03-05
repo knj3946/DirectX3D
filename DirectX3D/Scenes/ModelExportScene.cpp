@@ -3,17 +3,52 @@
 
 ModelExportScene::ModelExportScene()
 {
-    string name = "Warrok W Kurniawan";
-    string file = "Models/FBX/" + name + ".fbx";
-    ModelExporter* exporter;
-    string clipName;
+    
+        string name = "Warrok W Kurniawan";
+        string file = "Models/FBX/" + name + ".fbx";
+        ModelExporter* exporter;
+        string clipName;
 
-    exporter = new ModelExporter(name, file);
-    exporter->ExportMaterial();
-    exporter->ExportMesh();
-    delete exporter;
+        exporter = new ModelExporter(name, file);
+        exporter->ExportMaterial();
+        exporter->ExportMesh();
+        delete exporter;
 
-    string floderN1 = "Bow/Crouch";
+        clipName = "Jump Attack";
+        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        exporter = new ModelExporter(name, file);
+        exporter->ExportClip(clipName);
+        delete exporter;
+        clipName = "Falling Forward Death";
+        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        exporter = new ModelExporter(name, file);
+        exporter->ExportClip(clipName);
+        delete exporter;
+        clipName = "Idle";
+        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        exporter = new ModelExporter(name, file);
+        exporter->ExportClip(clipName);
+        delete exporter;
+        clipName = "Mutant Roaring";
+        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        exporter = new ModelExporter(name, file);
+        exporter->ExportClip(clipName);
+        delete exporter;
+        clipName = "Run Forward";
+        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        exporter = new ModelExporter(name, file);
+        exporter->ExportClip(clipName);
+        delete exporter;
+        clipName = "Mutant Swiping";
+        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        exporter = new ModelExporter(name, file);
+        exporter->ExportClip(clipName);
+        delete exporter;
+        clipName = "Walking";
+        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        exporter = new ModelExporter(name, file);
+        exporter->ExportClip(clipName);
+        delete exporter;
 
     //clipName = "Standing To Crouch";
     //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
@@ -47,11 +82,6 @@ ModelExportScene::ModelExportScene()
     //exporter->ExportClip(clipName);
     //delete exporter;
 
-    clipName = "Crouch Walk Right";
-    file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
-    exporter = new ModelExporter(name, file);
-    exporter->ExportClip(clipName);
-    delete exporter;
 
     //clipName = "Crouch Walk Left";
     //file = "Models/Animations/" + name + "/" + floderN1 + "/" + clipName + ".fbx";
