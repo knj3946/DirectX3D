@@ -856,13 +856,15 @@ void Orc::SetState(State state, float scale, float takeTime)
         state = IDLE;
         //return;
     }
-
-    curState = state; //매개변수에 따라 상태 변화
-    if (state == ATTACK)
+    if (state == ATTACK || state == THROW)
     {
         // 방향도 바꾸기
         velocity = target->Pos() - transform->Pos();
         transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI;
+    }
+    curState = state; //매개변수에 따라 상태 변화
+    if (state == ATTACK)
+    {
         int randNum = GameMath::Random(0, 3);
         //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
         switch (randNum)
