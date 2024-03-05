@@ -86,7 +86,7 @@ public:
     Transform* GetTransform() { return transform; }
     CapsuleCollider* GetCollider() { return collider; }
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
-    
+    void RotationRestore();
     float GetDamage();
     void Hit(float damage,Vector3 collisionPos);
     void Spawn(Vector3 pos);
@@ -153,6 +153,7 @@ private:
     void StateRevision();
     void ParticleUpdate();
 private:
+    int a = 300;
     Ray ray;// 레이
     Vector3 StorePos;// 소리난 곳 가기 전 위치 저장
     Vector3 CheckPoint;// 소리난 곳 저장
@@ -204,6 +205,7 @@ private:
     vector<Collider*> weaponColliders;
 
     ProgressBar* hpBar;
+    ProgressBar* rangeBar;
     float curHP = 100, maxHp = 100;
     float destHP;
     bool isHit = false;
@@ -222,7 +224,7 @@ private:
     bool bDetection = false;
     bool bFind = false;
     float DetectionStartTime = 0.f;
-    float DetectionEndTime = 0.3f;
+    float DetectionEndTime = 2.f;
     bool missTarget = false;
     bool missTargetTrigger = false;
     float missStartTime = 0.f;
@@ -262,4 +264,5 @@ private:
     bool isDelete = false;
 
     ParticleSystem* particleHit;
+
 };

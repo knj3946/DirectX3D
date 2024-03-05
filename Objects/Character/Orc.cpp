@@ -76,7 +76,14 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     rayBuffer = new RayBuffer();
 
     particleHit = new ParticleSystem("TextData/Particles/SlowHit.fx");
-    
+
+    rangeBar = new ProgressBar(L"Textures/UI/Range_bar.png", L"Textures/UI/Range_bar_BG.png");
+    rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
+    rangeBar->SetParent(transform);
+
+    rangeBar->Rot() = { XMConvertToRadians(90.f),0,XMConvertToRadians(-90.f) };
+    rangeBar->Pos() = { -15.f,2.f,-650.f };
+
 }
 
 Orc::~Orc()
@@ -97,6 +104,7 @@ Orc::~Orc()
         delete wcollider;
     delete particleHit;
     delete transform;
+    delete rangeBar;
 }
 
 void Orc::SetType(NPC_TYPE _type) {
@@ -123,6 +131,7 @@ void Orc::Update()
     if (curState != DYING || curState != ASSASSINATED)
     {
         Direction();// 방향지정 함수
+
         CalculateEyeSight(); //시야에 발각됬는지 확인하는 함수 (bDetection 설정)
         CalculateEarSight(); //소리가 들렸는지 확인하는 함수
         Detection(); //플레이어를 인지했는지 확인하는 함수
@@ -156,7 +165,7 @@ void Orc::Update()
     SetParameter(); //필요한 변수들 세팅
     Control(); // 경로설정등 오크가 움직이기 위한 정보들 계산
     Move(); //실제 움직임
-
+    RotationRestore();
 
     //현재 대놓고 오크 뒤로가면 오크가 플레이어를 찾지 못함
     //추적중인 상태일때는 시야각을 360도로 늘려야할 필요가 있을것 같음(가려져서 숨은 경우만 찾지 못하게)  
@@ -171,6 +180,7 @@ void Orc::Render()
     //aStar->Render();
 
     particleHit->Render();
+    rangeBar->Render();
 }
 
 void Orc::PostRender()
@@ -218,6 +228,9 @@ void Orc::SetSRT(Vector3 scale, Vector3 rot, Vector3 pos)
     transform->Pos() = pos;
 
     transform->UpdateWorld();
+
+    rangeBar->Scale() = { 1.f / scale.x,1.f / scale.y,1.f / scale.z };
+    rangeBar->Scale() *= (eyeSightRange / 100);
 }
 
 void Orc::GUIRender()
@@ -230,6 +243,7 @@ void Orc::GUIRender()
     ImGui::Text("curState : %d", curState);
 
     ImGui::Text("FeedbackPosY : %f", feedBackPos.y);
+    ImGui::Text("eyeSightRange : %f", eyeSightRange);
     //ImGui::Text("curhp : %f", curHP);
     //ImGui::Text("desthp : %f", destHP);
 
@@ -318,6 +332,7 @@ bool Orc::CalculateHit()
             isTracking = true;
             bFind = true;
             DetectionStartTime = DetectionEndTime;
+            a = 8000;
             behaviorstate = NPC_BehaviorState::DETECT;
 
             Vector3 dir = (target->GlobalPos() - transform->GlobalPos()).GetNormalized();
@@ -368,6 +383,25 @@ void Orc::StateRevision()
 void Orc::ParticleUpdate()
 {
     particleHit->Update();
+}
+
+void Orc::RotationRestore()
+{
+    float value = XMConvertToDegrees(transform->Rot().y);
+
+
+    if (value > 180.f) {
+        value -= 180.f;
+        value = -180.f + value;
+        transform->Rot().y = XMConvertToRadians(value);
+
+    }
+    if (value < -180.f) {
+        value += 180.f;
+        value = 180.f + value;
+        transform->Rot().y = XMConvertToRadians(value);
+
+    }
 }
 
 float Orc::GetDamage()
@@ -447,13 +481,13 @@ void Orc::AttackTarget()
 }
 
 
-
 void Orc::Findrange()
 {
     if (curState == ATTACK)return;
     // 탐지시 범위에 닿은 애에게 설정
     bFind = true; bDetection = true;
     DetectionStartTime = DetectionEndTime;
+    a = 500;
     isTracking = true;
     SetState(RUN);
     if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
@@ -690,20 +724,7 @@ void Orc::Move()
 
         //transform->Pos() += velocity.GetNormalized() * speed * DELTA;
         transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI; // XY좌표 방향 + 전후반전(문워크 방지)
-        float value = XMConvertToDegrees(transform->Rot().y);
-
-        if (value > 180.f) {
-            value -= 180.f;
-            value = -180.f + value;
-            transform->Rot().y = XMConvertToRadians(value);
-
-        }
-        if (value < -180.f) {
-            value += 180.f;
-            value = 180.f + value;
-            transform->Rot().y = XMConvertToRadians(value);
-
-        }
+      
 
         //지형 오르기
         
@@ -832,6 +853,8 @@ void Orc::UpdateUI()
     hpBar->Scale() = { scale, scale, scale };
     
     hpBar->UpdateWorld();
+
+    rangeBar->UpdateWorld();
 }
 
 void Orc::TimeCalculator()
@@ -1008,6 +1031,9 @@ void Orc::EndDying()
 
 void Orc::CalculateEyeSight()
 {
+    //bDetection = true;
+    //return;
+
     float rad = XMConvertToRadians(eyeSightangle);
     Vector3 front = Vector3(transform->Forward().x, 0, transform->Forward().z).GetNormalized();
 
@@ -1049,11 +1075,17 @@ void Orc::CalculateEyeSight()
         Enemytothisangle += 360;
     }
 
-    if ((Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange)
-        &&((leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle)
-                    || behaviorstate == NPC_BehaviorState::DETECT //발견된 상태에서는 시야각 상관없이 추적
-        )) 
+    if ((Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange)) 
     {
+        if (leftdir1 > 270 && rightdir1 < 90) {
+            if (!((leftdir1 <= Enemytothisangle + 360 && rightdir1 >= Enemytothisangle) || behaviorstate == NPC_BehaviorState::DETECT))
+                return;
+        }
+        else {
+            if (!(leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) || behaviorstate == NPC_BehaviorState::DETECT)
+                return;
+        }
+        //  
         //SetRay(target->GlobalPos()); //레이 여러개 사용을 위해 주석처리
         SetEyePos(); //눈 위치만 설정
 
@@ -1076,6 +1108,7 @@ void Orc::CalculateEyeSight()
             if (bDetection) {
                 bDetection = false;
                 DetectionStartTime = 0.001f;
+                missTargetTrigger = true;
             }
             return;
         }
@@ -1134,10 +1167,9 @@ void Orc::Detection()
     }
     else {
         if (DetectionStartTime > 0.f) {
-            if (missTargetTrigger)
-            {
-                DetectionStartTime -= DELTA * 2;
-            }
+            DetectionStartTime -= DELTA * 2;
+            
+        
             if (DetectionStartTime <= 0.f) {
                 DetectionStartTime = 0.f;
                 bFind = false;
@@ -1150,6 +1182,8 @@ void Orc::Detection()
             }
         }
     }
+    rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
+
     if (DetectionEndTime <= DetectionStartTime) {
         if (bFind)return;
         bFind = true;
@@ -1166,6 +1200,7 @@ void Orc::Detection()
             SetState(RUN);
     }
 
+    
 }
 
 void Orc::SetRay(Vector3 _pos)
@@ -1233,13 +1268,29 @@ void Orc::RangeCheck()
     float curdegree= XMConvertToDegrees(transform->Rot().y);//
     if (0 == m_uiRangeCheck)
     {
-        if (rangeDegree + 45.f < curdegree) {// 플레이어를 놓친 후 각도에서 왼쪽으로 45 넘을시
+        float vlaue = rangeDegree + 45.f;
+        if (vlaue > 180.f) {
+            vlaue -= 180.f;
+            vlaue = -180.f + vlaue;
+            
+        }
+        if (vlaue < curdegree) {// 플레이어를 놓친 후 각도에서 왼쪽으로 45 넘을시
             m_uiRangeCheck++;
         }
     }
     else
     {
-        if (rangeDegree - 45.f > curdegree) {// 플레이어를 놓친 후 각도에서 왼쪽으로 45 넘을시
+
+        float vlaue = rangeDegree - 45.f;
+ 
+        if (vlaue < -180.f) {
+            vlaue += 180.f;
+            vlaue = 180.f + vlaue;
+          
+        }
+
+
+        if ( vlaue> curdegree) {// 플레이어를 놓친 후 각도에서 왼쪽으로 45 넘을시
             m_uiRangeCheck++;
         }
     }
