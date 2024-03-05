@@ -29,8 +29,37 @@ ModelExportScene::ModelExportScene()
         exporter = new ModelExporter(name, file);
         exporter->ExportClip(clipName);
         delete exporter;
-
- 
+        clipName = "Falling Forward Death";
+        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        exporter = new ModelExporter(name, file);
+        exporter->ExportClip(clipName);
+        delete exporter;
+        clipName = "Idle";
+        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        exporter = new ModelExporter(name, file);
+        exporter->ExportClip(clipName);
+        delete exporter;
+        clipName = "Mutant Roaring";
+        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        exporter = new ModelExporter(name, file);
+        exporter->ExportClip(clipName);
+        delete exporter;
+        clipName = "Run Forward";
+        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        exporter = new ModelExporter(name, file);
+        exporter->ExportClip(clipName);
+        delete exporter;
+        clipName = "Mutant Swiping";
+        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        exporter = new ModelExporter(name, file);
+        exporter->ExportClip(clipName);
+        delete exporter;
+        clipName = "Walking";
+        file = "Models/Animations/" + name + "/" + clipName + ".fbx";
+        exporter = new ModelExporter(name, file);
+        exporter->ExportClip(clipName);
+        delete exporter;
+        // 
         // 
         //clipName = "Upward Thrust";
         //file = "Models/Animations/" + name + "/" + clipName + ".fbx";
