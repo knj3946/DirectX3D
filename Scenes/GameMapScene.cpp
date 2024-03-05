@@ -135,7 +135,8 @@ GameMapScene::GameMapScene()
 	{
 		for (Collider* collider : colliderModel->GetColliders())
 		{
-			MonsterManager::Get()->AddOrcObstacleObj(collider);
+			if(collider->Role() == Collider::Collider_Role::BLOCK)
+				MonsterManager::Get()->AddOrcObstacleObj(collider);
 		}
 	}
 
