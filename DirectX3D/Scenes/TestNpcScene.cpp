@@ -4,11 +4,7 @@
 TestNpcScene::TestNpcScene()
 {
     terrain = new TerrainEditor();
-    terrain->GetMaterial()->SetDiffuseMap(L"Textures/Landscape/Sand.png");
-    terrain->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
-    terrain->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
-    terrain->SetHeightMap(L"Textures/HeightMaps/SampleHeightMap.png");
- 
+
     aStar2 = new AStar(128,128);
     aStar2->SetNode(terrain);
     boss = new Boss;
@@ -16,6 +12,7 @@ TestNpcScene::TestNpcScene()
     boss->SetTerrain(terrain);
     naruto = new Naruto();
     boss->SetTarget(naruto);
+    
     boss->SetPatrolPos(Vector3(0, 0, 0));
     boss->SetPatrolPos(Vector3(100, 0, 100));
     ColliderManager::Get()->PushCollision(ColliderManager::PLAYER, naruto->GetCollider());
@@ -27,11 +24,11 @@ TestNpcScene::TestNpcScene()
   //  MonsterManager::Get()->SetPatrolPos(0, Vector3(160, 0, 160));
   //
   //
-  //  MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(60, 0, 150));
-  //  MonsterManager::Get()->SetPatrolPos(1, Vector3(130, 0, 100));
-  //  MonsterManager::Get()->SetType(1, Orc::NPC_TYPE::ATTACK);
-  //  MonsterManager::Get()->SetTerrain(terrain);
-  //  MonsterManager::Get()->SetAStar(aStar2);
+    MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(60, 0, 150));
+    MonsterManager::Get()->SetPatrolPos(1, Vector3(130, 0, 100));
+    MonsterManager::Get()->SetType(1, Orc::NPC_TYPE::ATTACK);
+    MonsterManager::Get()->SetTerrain(terrain);
+    MonsterManager::Get()->SetAStar(aStar2);
 
     //#pragma region ±×¸²ÀÚ
     //    shadow = new Shadow();

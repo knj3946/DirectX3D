@@ -62,7 +62,8 @@ private:
     ModelAnimatorInstancing* instancing;
     ModelAnimatorInstancing::Motion* motion;
     Transform* transform;
-
+    Vector3 cross;
+    float searchCoolDown = 0.0f;
 
     UINT index;
 
@@ -158,11 +159,11 @@ private:
 
     void Die();
     void Find();
-
+    void Rotate();
     void Control();// 패턴 조정
     void UpdateUI();
     void SetState(STATE state, float scale = 1.0f, float takeTime = 0.2f);
-    void SetPath(Vector3 targetPos);
+   
     void ExecuteEvent();
     void SetEvent(int clip, Event event, float timeRatio);
     void Detection();
@@ -183,7 +184,7 @@ private:
     void SetRay();
 
 public:
-
+    void SetPath(Vector3 targetPos);
     Boss();
     ~Boss();
     void SetTerrain(LevelData* terrain) { this->terrain = terrain; }

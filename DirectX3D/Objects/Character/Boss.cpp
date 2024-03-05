@@ -80,6 +80,7 @@ Boss::Boss()
 	Audio::Get()->Add("Boss_Splash", "Sounds/BossSplash.mp3", false, false, true);
 	Audio::Get()->Add("Boss_Run", "Sounds/Bossfootstep.mp3", false, false, true);
 	Audio::Get()->Add("Boss_Walk", "Sounds/Bosswalk.mp3", false, false, true);
+
 }
 
 Boss::~Boss()
@@ -126,14 +127,15 @@ void Boss::Update()
 
 	Idle();
 	Direction();
+	Control();
 	Find();
 	
 	CoolTimeCheck();
 	MarkTimeCheck();
 	Move();
+	Rotate();
 	
 	Die();
-	Control();
 
 	instancing->Update();
 	leftHand->SetWorld(instancing->GetTransformByNode(index, 14));
@@ -325,23 +327,10 @@ void Boss::Move()
 
 	if (bWait)
 		return;
-	transform->Rot().y = atan2(dir.x, dir.z) + XM_PI;
-	float value = XMConvertToDegrees(transform->Rot().y);
 
-	if (value > 180.f) {
-		value -= 180.f;
-		value = -180.f + value;
-		transform->Rot().y = XMConvertToRadians(value);
 
-	}
-	if (value < -180.f) {
-		value += 180.f;
-		value = 180.f + value;
-		transform->Rot().y = XMConvertToRadians(value);
 
-	}
-	transform->Pos() += DELTA * moveSpeed * transform->Back();
-
+	transform->Pos() += dir * moveSpeed * DELTA;
 }
 void Boss::IdleMove() {
 	if (state != BOSS_STATE::IDLE)return;
@@ -416,8 +405,70 @@ void Boss::Find()
 	}
 }
 
+void Boss::Rotate()
+{
+	if (path.empty()) {
+		transform->Rot().y = atan2(dir.x, dir.z) + XM_PI; // XY좌표 방향 + 전후반전(문워크 방지)
+
+
+	}
+	else {
+		Vector3 dest = path.back();
+
+		Vector3 direction = dest - transform->GlobalPos();
+
+		direction.y = 0; // 필요하면 지형의 높이(굴곡) 반영을 해줄 수도 있고,
+		// 역시 필요하면 그냥 좌우회전만 하는 걸로 (y 방향 일부러 주지 않음)
+
+		if (direction.Length() < 0.5f)
+		{
+			path.pop_back();
+		}
+		dir = direction.GetNormalized();
+		transform->Rot().y = atan2(dir.x, dir.z) + XM_PI; // XY좌표 방향 + 전후반전(문워크 방지)
+	}
+	float value = XMConvertToDegrees(transform->Rot().y);
+
+	if (value > 180.f) {
+		value -= 180.f;
+		value = -180.f + value;
+		transform->Rot().y = XMConvertToRadians(value);
+
+	}
+	if (value < -180.f) {
+		value += 180.f;
+		value = 180.f + value;
+		transform->Rot().y = XMConvertToRadians(value);
+
+	}
+
+	
+}
+
 void Boss::Control()
 {
+	if (state != BOSS_STATE::DETECT)return;
+
+	if (searchCoolDown > 1)
+	{
+		target->GlobalPos();
+		// 터레인 에디터 쓰는 사람은 컴퓨트픽킹으로
+
+		if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos())) // 중간에 장애물이 있으면
+		{
+			SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
+		}
+		else //장애물이 없는 경우
+		{
+			path.clear(); //3D에서 장애물도 없는데 굳이 길찾기를 쓸 필요 없음
+			path.push_back(target->GlobalPos()); // 가야 할 곳만 경로 벡터에 집어넣기
+			// -> 그러면 여우는 Move()로 목적지를 찾아갈 것
+		}
+
+		searchCoolDown -= 1;
+	}
+	else
+		searchCoolDown += DELTA;
 }
 
 void Boss::UpdateUI()
@@ -538,7 +589,17 @@ void Boss::Detection()
 		state = BOSS_STATE::DETECT;
 		exclamationMark->SetActive(true);
 		bWait = false;
-		SetPath(target->GlobalPos());
+		if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos())) // 중간에 장애물이 있으면
+		{
+			SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
+		}
+		else //장애물이 없는 경우
+		{
+			path.clear(); //3D에서 장애물도 없는데 굳이 길찾기를 쓸 필요 없음
+			path.push_back(target->GlobalPos()); // 가야 할 곳만 경로 벡터에 집어넣기
+			// -> 그러면 여우는 Move()로 목적지를 찾아갈 것
+		}
+
 	
 		SetState(RUN);
 	}
@@ -557,7 +618,17 @@ void Boss::EndAttack()
 	if (totargetlength > AttackRange) {
 		SetState(RUN);
 		bWait = false;
-	
+		if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos())) // 중간에 장애물이 있으면
+		{
+			SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
+		}
+		else //장애물이 없는 경우
+		{
+			path.clear(); //3D에서 장애물도 없는데 굳이 길찾기를 쓸 필요 없음
+			path.push_back(target->GlobalPos()); // 가야 할 곳만 경로 벡터에 집어넣기
+			// -> 그러면 여우는 Move()로 목적지를 찾아갈 것
+		}
+
 	}
 	else
 	{
@@ -598,6 +669,16 @@ void Boss::EndRoar()
 	if (totargetlength > AttackRange) {
 		SetState(RUN);
 		bWait = false;
+		if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos())) // 중간에 장애물이 있으면
+		{
+			SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
+		}
+		else //장애물이 없는 경우
+		{
+			path.clear(); //3D에서 장애물도 없는데 굳이 길찾기를 쓸 필요 없음
+			path.push_back(target->GlobalPos()); // 가야 할 곳만 경로 벡터에 집어넣기
+			// -> 그러면 여우는 Move()로 목적지를 찾아갈 것
+		}
 
 	}
 	else
@@ -651,7 +732,6 @@ void Boss::Run()
 		velocity = target->GlobalPos() - transform->GlobalPos();
 		totargetlength = velocity.Length();
 		moveSpeed = runSpeed;
-		dir = velocity.GetNormalized();
 
 		if (totargetlength > AttackRange) {
 			if (totargetlength < RoarRange) {
@@ -664,23 +744,15 @@ void Boss::Run()
 				}
 			}
 
-			if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
-			{
-				SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
-
-
-			}
-			else
-			{
-				path.clear(); // 굳이 장애물없는데 길찾기 필요 x
-				path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
-			}
+		
 			Runparticle[currunparticle]->Play(transform->GlobalPos(), transform->Rot());
 			if(!Audio::Get()->IsPlaySound("Boss_Run"))
 				Audio::Get()->Play("Boss_Run", transform->GlobalPos(), 1.f);
 			currunparticle++;
 			if (currunparticle >= 3)
 				currunparticle = 0;
+		
+		
 		}
 
 		else
@@ -704,17 +776,8 @@ void Boss::Run()
 		totargetlength = velocity.Length();
 		moveSpeed = runSpeed;
 		dir = velocity.GetNormalized();
-		if (aStar->IsCollisionObstacle(transform->GlobalPos(),FindPos))// 중간에 장애물이 있으면
-		{
-			SetPath(FindPos); // 구체적인 경로 내어서 가기
+	
 
-
-		}
-		else
-		{
-			path.clear(); // 굳이 장애물없는데 길찾기 필요 x
-			path.push_back(FindPos); // 가야할 곳만 경로에 집어넣기
-		}
 	}
 }
 
