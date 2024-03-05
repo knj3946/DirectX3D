@@ -326,7 +326,7 @@ void Player::GUIRender()
     //ImGui::Text("isPushed : %d", isPushed);
     //ImGui::Text("feedBackPosY : %f", feedBackPos.y);
     //ImGui::Text("Pos.x : %f", Pos().x);
-    //ImGui::Text("Pos.y : %f", Pos().y);
+    ImGui::Text("Pos.y : %f", Pos().y);
     //ImGui::Text("Pos.z : %f", Pos().z);
     //ImGui::Text("heightLevel : %f", heightLevel);
 

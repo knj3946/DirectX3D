@@ -264,20 +264,12 @@ void Orc::Direction()
         velocity = target->GlobalPos() - transform->GlobalPos();
     }
 }
-/*
-float Orc::Hit()
-{
-    float r = 0.0f;
-    if (curState == ATTACK)
-    {
-        r = 10.0f;
-    }
-    return r;
-}
-*/
+
 void Orc::Throw()
 {
-    KunaiManager::Get()->Throw(transform->Pos()+Vector3(0,3,0), transform->Back());
+    Vector3 dir = target->Pos() - transform->Pos();
+    dir = dir.GetNormalized();
+    KunaiManager::Get()->Throw(transform->Pos()+Vector3(0,3,0), dir);
     SetState(IDLE);
 }
 
@@ -375,7 +367,7 @@ float Orc::GetDamage()
     float r = 0.0f;
     if (curState == ATTACK)
     {
-        r = 60.0f;// 임시로 바꿈 10 -> 60
+        r = 10.0f;// 임시로 바꿈 10 -> 60
     }
     return r;
 }
@@ -517,10 +509,13 @@ void Orc::Control()
                 // 공격 사정거리안에 들지 못하면
                 if (dist.Length() > 4.0f)
                 {
-                    //if (dist.Length() < 15.f) // THROW 범위 : 5~15 임시 설정
-                    //{
-                    //    SetState(ATTACK);
-                    //}
+                    // 범위 15안에 들고 플레이어가 일정 높이 이상이면 쿠나이 던지기
+                    /*건물올라갔을때높이가 9.4라 9로설정 */
+                    if (dist.Length() < 35.f && target->Pos().y > 9) // THROW 범위 : 5~15 임시 설정
+                    {
+                        SetState(THROW);
+                        return; // 던질 수 있는데 굳이 앞으로 달려가는거 방지
+                    }
                     //else
                     {
                         /*

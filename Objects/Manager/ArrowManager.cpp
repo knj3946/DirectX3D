@@ -91,14 +91,13 @@ void ArrowManager::Throw(Vector3 pos, Vector3 dir)
 
 bool ArrowManager::IsCollision()
 {
-	// 플레이어랑 부딪혔나 체크
-	// 
 	// 다른 장애물과 부딪혔나 체크
 	// 맵이 정해진다면 배경에 따라 장애물에 따라 콜라이더가 안된다면 
 	// pos로 배경에 부딪혔나 판단을 추가할 것
 	//vector<Collider*> monsterColliders = ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC);
 	for (Arrow* arrow : arrows)
 	{
+		if (arrow->IsDropItem())continue;
 		for(int i = 0; i < ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC).size(); i++)
 		{
 			if (ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC)[i]->IsSphereCollision(arrow->GetCollider()))

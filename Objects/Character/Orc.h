@@ -141,7 +141,7 @@ private:
     bool EyesRayToDetectTarget(Collider* targetCol, Vector3 orcEyesPos);
     void RangeCheck();
     void  SoundPositionCheck();;
-    //float Hit();
+    
     void Throw();
 
 

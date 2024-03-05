@@ -33,7 +33,7 @@ private:
 	Transform* transform; // 인스턴싱을 전제로 하기 때문에 transform을 변수로 받음
 	SphereCollider* collider;
 
-	float speed = 30;
+	float speed = 80;
 	float time = 0; // 생성된 시간
 	float damage = 30; // 임시 데미지값 설정
 
