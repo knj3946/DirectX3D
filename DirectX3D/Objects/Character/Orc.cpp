@@ -1088,31 +1088,7 @@ void Orc::CalculateEyeSight()
 
     if ((Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange)) 
     {
-        if (leftdir1 > 270 && rightdir1 < 90) {
-            if (!((leftdir1 <= Enemytothisangle + 360 && rightdir1 >= Enemytothisangle) || behaviorstate == NPC_BehaviorState::DETECT))
-                return;
-        }
-        else {
-            if (!(leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) || behaviorstate == NPC_BehaviorState::DETECT)
-                return;
-        }
-        //  
-        //SetRay(target->GlobalPos()); //레이 여러개 사용을 위해 주석처리
         SetEyePos(); //눈 위치만 설정
-
-        //발각
-        /*
-        for (UINT i = 0; i < ColliderManager::Get()->Getvector(ColliderManager::WALL).size(); ++i) {
-            if (ColliderManager::Get()->Getvector(ColliderManager::WALL)[i]->IsRayCollision(ray))
-            {
-                if (bDetection) {
-                    bDetection = false;
-                    DetectionStartTime = 0.001f;
-                }
-                return;
-            }
-        }
-        */
 
         if (!EyesRayToDetectTarget(targetCollider, eyesPos)) //리턴 값 false면 가려서 안보이는 것
         {
@@ -1123,6 +1099,28 @@ void Orc::CalculateEyeSight()
             }
             return;
         }
+
+        if (bFind && behaviorstate == NPC_BehaviorState::DETECT)
+        {
+            bDetection = true;
+            return;
+        }
+
+        if (leftdir1 > 270 && rightdir1 < 90) {
+            if (!(leftdir1 <= Enemytothisangle + 360 && rightdir1 >= Enemytothisangle))
+            {
+                bDetection = false;
+                return;
+            }
+        }
+        else {
+            if (!(leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle))
+            {
+                bDetection = false;
+                return;
+            }
+        }
+
         // 추후 오크매니저에서 씬에 깔린 모든 벽들 체크해서 ray충돌페크
         // behaviorstate = NPC_BehaviorState::DETECT;
         bDetection = true;
@@ -1275,46 +1273,59 @@ void Orc::RangeCheck()
 {
     if (behaviorstate != NPC_BehaviorState::CHECK)return;
 
-    
-    float curdegree= XMConvertToDegrees(transform->Rot().y);//
+
+    float curdegree = XMConvertToDegrees(transform->Rot().y);//
     if (0 == m_uiRangeCheck)
     {
         float vlaue = rangeDegree + 45.f;
         if (vlaue > 180.f) {
             vlaue -= 180.f;
             vlaue = -180.f + vlaue;
-            
+
         }
         if (vlaue < curdegree) {// 플레이어를 놓친 후 각도에서 왼쪽으로 45 넘을시
             m_uiRangeCheck++;
         }
     }
-    else
+    else if (1 == m_uiRangeCheck)
     {
 
         float vlaue = rangeDegree - 45.f;
- 
+
         if (vlaue < -180.f) {
             vlaue += 180.f;
             vlaue = 180.f + vlaue;
-          
+
         }
 
 
-        if ( vlaue> curdegree) {// 플레이어를 놓친 후 각도에서 왼쪽으로 45 넘을시
+        if (vlaue > curdegree) {// 플레이어를 놓친 후 각도에서 왼쪽으로 45 넘을시
             m_uiRangeCheck++;
         }
     }
+    else if (2 == m_uiRangeCheck) //원래보고있던 각도로 복귀
+    {
+        float vlaue = rangeDegree;
+        if (vlaue > 180.f) {
+            vlaue -= 180.f;
+            vlaue = -180.f + vlaue;
+
+        }
+        if (vlaue < curdegree) {
+            m_uiRangeCheck++;
+        }
+    }
+
     
 
-    if (!m_uiRangeCheck) {
+    if (m_uiRangeCheck % 2 == 0) {
         transform->Rot().y += DELTA*1.5f;
     }
     else
-        transform->Rot().y -= DELTA*2.F;
+        transform->Rot().y -= DELTA*1.5f;
     
 
-    if (m_uiRangeCheck == 2)
+    if (m_uiRangeCheck == 3)
     {
         behaviorstate = NPC_BehaviorState::IDLE;
         m_uiRangeCheck = 0;
