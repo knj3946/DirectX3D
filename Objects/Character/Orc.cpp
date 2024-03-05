@@ -42,7 +42,6 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     SetEvent(THROW, bind(&Orc::Throw, this), 0.59f);
     SetEvent(HIT, bind(&Orc::EndHit, this), 0.99f);
     SetEvent(ASSASSINATED, bind(&Orc::EndAssassinated, this), 0.9f);
-    SetEvent(DYING, bind(&Orc::EndAssassinated, this), 0.1f);
     SetEvent(DYING, bind(&Orc::EndDying, this), 0.9f);
 
     SetEvent(ATTACK,bind(&Collider::SetActive, leftWeaponCollider, true), 0.11f); //콜라이더 켜는 시점 설정
@@ -168,8 +167,7 @@ void Orc::Render()
     leftWeaponCollider->Render();
     rightWeaponCollider->Render();
     hpBar->Render();
-    //aStar->Render();
-
+    
     particleHit->Render();
 }
 
@@ -480,11 +478,8 @@ void Orc::Assassinated(Vector3 collisionPos,Transform* attackerTrf)
 
     //암살 애니메이션 재생
     SetState(ASSASSINATED, 0.3f);
+    isAssassinated = true; // SetState에서 암살로 죽는 애니메이션 실행
 
-    //암살했을시 피통 시각적 효과를 위해서
-    //isHit = true;
-    //isDying = true;
-    //destHP = 0; 
     Vector3 pos = transform->GlobalPos();
     pos.y += 5;
     Hit(120, pos);
@@ -883,8 +878,13 @@ void Orc::SetState(State state, float scale, float takeTime)
             break;
         }
     }
-    else if(curState==DYING)
-        instancing->PlayClip(index, (int)state+2,0.8);
+    else if (curState == DYING)
+    {
+        if(isAssassinated)
+            instancing->PlayClip(index, (int)state + 3, 0.8);
+        else
+            instancing->PlayClip(index, (int)state + 2, 0.8);
+    }
     else
         instancing->PlayClip(index, (int)state, scale); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
     eventIters[state] = totalEvent[state].begin(); //이벤트 반복자도 등록된 이벤트 시작시점으로
@@ -972,6 +972,7 @@ void Orc::EndHit()
 
 void Orc::EndAssassinated()
 {
+    hpBar->SetActive(false);
     /*Vector3 pos = transform->GlobalPos();
     pos.y += 5;
     Hit(120, pos);*/

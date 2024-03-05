@@ -12,14 +12,14 @@ MonsterManager::MonsterManager()
     orcInstancing->ReadClip("character1@dodge"); //암살당하기
 
     // 아래 3개중 1개 모션으로 공격
-    orcInstancing->ReadClip("character1@atack22");
+    orcInstancing->ReadClip("character1@atack22"); 
     orcInstancing->ReadClip("character1@atack23");
     orcInstancing->ReadClip("character1@atack24");
 
     orcInstancing->ReadClip("character1@atack16");// 쿠나이던지기
-    //orcInstancing->ReadClip("character1@atack4");
 
-    orcInstancing->ReadClip("Orc_Death");
+    orcInstancing->ReadClip("Orc_Death"); // 기본 죽음
+    orcInstancing->ReadClip("character1@death3");  // 암살 죽음
 
     // 몬스터 생성
     FOR(SIZE)
