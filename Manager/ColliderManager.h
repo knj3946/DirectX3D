@@ -59,6 +59,8 @@ public:
     void PickFlagByRay(Ray ray);
     void ActiveSpecialKey(Vector3 playPos, Vector3 offset);
 
+    void ClearSpecialKey();
+
 private:
     Player* player;
     CapsuleCollider* playerCollider;

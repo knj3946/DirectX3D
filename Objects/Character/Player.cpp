@@ -83,7 +83,9 @@ Player::Player()
 
     ReadClip("Head Hit");
 
-    ReadClip("Climbing");
+    ReadClip("Climbing1");
+    ReadClip("Climbing2");
+    ReadClip("Climbing3");
 
     temp = "Attack/";
 
@@ -132,7 +134,9 @@ Player::Player()
     GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //????
 
     GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f); // ????? ??????
-    GetClip(CLIMBING)->SetEvent(bind(&Player::EndClimbing, this), 0.98f);
+    GetClip(CLIMBING1)->SetEvent(bind(&Player::EndClimbing, this), 0.1f);
+    GetClip(CLIMBING2)->SetEvent(bind(&Player::EndClimbing, this), 0.32f);
+    GetClip(CLIMBING3)->SetEvent(bind(&Player::EndClimbing, this), 0.95f);
 
     GetClip(ASSASSINATION1)->SetEvent(bind(&Player::EndAssassination, this, 1), 0.9f);
     GetClip(ASSASSINATION2)->SetEvent(bind(&Player::EndAssassination, this, 2), 0.9f);
@@ -395,10 +399,10 @@ void Player::Climb(Collider* col, Vector3 climbPos)
     Pos() = { climbPos.x,heightLevel,climbPos.z };
     UpdateWorld();
 
-    remainClimbDis = col->GetHalfSize().y * 2;
+    remainClimbDis = col->GetHalfSize().z * 2; // 콜라이더의 로컬좌표계는 z가 높이인 좌표계임
     isClimb = true;
 
-    SetState(CLIMBING, (1.0f / remainClimbDis));
+    SetState(CLIMBING1);
 }
 
 void Player::CameraMove()
@@ -427,7 +431,8 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     if (KEY_PRESS(VK_RBUTTON))
         return;
 
-    Rotate();
+    if(curState != CLIMBING1 && curState != CLIMBING2 && curState != CLIMBING3)
+        Rotate();
 
     //switch (curState)
     //{
@@ -502,8 +507,17 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
         ArrowManager::Get()->ExecuteSpecialKey();
     }
 
-    Move();
-    Jumping();
+    if (curState != CLIMBING1 && curState != CLIMBING2 && curState != CLIMBING3)
+    {
+        Move();
+        Jumping();
+    }
+
+    if (curState == CLIMBING2)
+    {
+        Pos().y += DELTA*3.0f;
+        UpdateWorld();
+    }
 
     //if (targetObject != nullptr && KEY_DOWN('F'))     ////보류
     //{
@@ -769,25 +783,29 @@ void Player::Targeting()
 {
     InteractManager::Get()->ClearSkill();
 
+    Vector3 offset;
     Ray mouseRay = CAM->ScreenPointToRay(mousePos);
 
-    MonsterManager::Get()->OnOutLineByRay(mouseRay);
+    {
+        MonsterManager::Get()->OnOutLineByRay(mouseRay);
+        offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
+        MonsterManager::Get()->ActiveSpecialKey(Pos(), offset);
+    }
+    
+    {
+        ArrowManager::Get()->OnOutLineByRay(mouseRay);
+        offset = (CAM->Right() * 1.5f) + (CAM->Up() * 3.f);
+        ArrowManager::Get()->ActiveSpecialKey(Pos(), offset);
+    }
 
-    Vector3 offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
-
-    MonsterManager::Get()->ActiveSpecialKey(Pos(), offset);
-
-    ArrowManager::Get()->OnOutLineByRay(mouseRay);
-
-    offset = (CAM->Right() * 1.5f) + (CAM->Up() * 3.f);
-
-    ArrowManager::Get()->ActiveSpecialKey(Pos(), offset);
-
-    ColliderManager::Get()->PickFlagByRay(mouseRay);
-
-    offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
-
-    ColliderManager::Get()->ActiveSpecialKey(GlobalPos(), offset);
+    {
+        ColliderManager::Get()->PickFlagByRay(mouseRay);
+        offset = (CAM->Right() * 2.f) + (CAM->Up() * 2.f);
+        ColliderManager::Get()->ActiveSpecialKey(GlobalPos(), offset);
+        if (curState == CLIMBING1 || curState == CLIMBING2 || curState == CLIMBING3)
+            ColliderManager::Get()->ClearSpecialKey();
+    }
+    
 }
 
 void Player::UseSkill()
@@ -843,7 +861,31 @@ void Player::EndHit()
 
 void Player::EndClimbing()
 {
-    isClimb = false;
+    if (curState == CLIMBING1)
+    {
+        SetState(CLIMBING2, 1.5f); 
+        return;
+    }
+     
+    if (curState == CLIMBING2)
+    {
+        //벽높이 만큼 애니메이션 재생하기
+
+        remainClimbDis -= 10;
+        if (remainClimbDis <= 0.0f)
+        {
+            SetState(CLIMBING3);
+            remainClimbDis = 0.0f;
+            return;
+        }
+
+        SetState(CLIMBING2);
+        return;
+    }
+
+    Pos() += Back() * 1.5f; 
+    Pos() += Up() * 7.f;
+    
     SetState(IDLE);
 }
 
@@ -980,8 +1022,8 @@ void Player::SetState(State state, float scale, float takeTime)
 void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 매개변수로 값을 받아올 경우엔 바로 그 state로 변경하게 만들기
 {
     if (curState == ASSASSINATION1 || curState == ASSASSINATION2) return;
-    if (curState == CLIMBING) return;
-
+    if (curState == CLIMBING1 || curState == CLIMBING2 || curState == CLIMBING3) return;
+        
     if (weaponState == DAGGER)
     {
         if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;
