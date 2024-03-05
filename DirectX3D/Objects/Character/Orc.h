@@ -10,6 +10,7 @@ private:
     };// throw 는 attack16 클립
     
 
+
     enum class NPC_BehaviorState {
         IDLE,// 탐색하지않고 패트롤 상태 또는 가만히있는 상태
         CHECK,// 소리를 듣고 가거나 플레이어를 쫓다가 플레이어가 숨을때 탐색하는 상태
@@ -61,6 +62,13 @@ public:
         INFORM//탐지범위가 긴 npc
 
     };
+
+    // 일단 보류
+    //enum HitState // 뭐에 맞았나 -> 맞았을 때 HitState값에 따라 다른 동작 구현 ex)파티클 등
+    //              // 죽었을 때, HitState로 뭐에 맞고 죽었는지 판단 후 다른 애니메이션 처리
+    //{
+    //    DAGGER, ARROW, ASSASSINATED,NONE
+    //};
 
     Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index);
     ~Orc();
@@ -212,6 +220,9 @@ private:
     bool isHit = false;
 
     bool isDying = false;
+
+    bool isAssassinated = false;
+    //HitState hitState = HitState::NONE;
 
     float curRange = 0.f, maxRange = 40.f;
     float destRange;
