@@ -124,15 +124,12 @@ void Boss::Render()
 void Boss::Update()
 {
 
-
-
-	bool b=aStar->IsObstacle();
-
 	Idle();
 	Direction();
 	Find();
 	
 	CoolTimeCheck();
+	MarkTimeCheck();
 	Move();
 	
 	Die();
@@ -221,8 +218,62 @@ void Boss::CalculateEyeSight()
 		bDetection = false;
 }
 
+bool Boss::CalculateEyeSight(bool _bFind)
+{
+	Vector3 direction = target->GlobalPos() - transform->GlobalPos();
+	direction.Normalize();
+
+	float degree = XMConvertToDegrees(transform->Rot().y);
+
+	float dirz = transform->Forward().z;
+	float rightdir1 = -(180.f - eyeSightangle) + degree + 360;
+
+	bool breverse = false;
+	float leftdir1 = (180.f - eyeSightangle) + degree;
+	float Enemytothisangle = XMConvertToDegrees(atan2(direction.x, direction.z));
+	if (Enemytothisangle < 0) {
+		Enemytothisangle += 360;
+	}
+
+	if (Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange) {
+
+
+		if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
+
+			// 벽뒤에 숨을때 레이작업 하기..
+			bDetection = true;
+		}
+		else {
+			if (Enemytothisangle > 0) {
+				Enemytothisangle += 360;
+			}
+
+			if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
+
+				bDetection = true;
+			}
+		}
+	}
+	else
+		bDetection = false;
+	return bDetection;
+}
+
 void Boss::CalculateEarSight()
 {
+}
+
+void Boss::MarkTimeCheck()
+{
+	if (exclamationMark->Active())
+	{
+		MarkActiveTime += DELTA;
+		if (MarkActiveTime >= 2.f)
+		{
+			exclamationMark->SetActive(false);
+			MarkActiveTime = 0.f;
+		}
+	}
 }
 
 void Boss::CoolTimeCheck()
@@ -243,8 +294,8 @@ void Boss::AddObstacleObj(Collider* collider)
 void Boss::Idle()
 {
 	//if (curState != STATE::IDLE)return;
-	Detection();
 	if (state != BOSS_STATE::IDLE)return;
+	Detection();
 	CalculateEyeSight();
 
 
@@ -352,6 +403,17 @@ void Boss::Find()
 			
 		}
 	}
+	if (state == BOSS_STATE::FIND) {
+		if (!dynamic_cast<Naruto*>(target)->GetTest()) {
+			if (!CalculateEyeSight(true))
+				return;
+
+			state = BOSS_STATE::DETECT;
+			questionMark->SetActive(false);
+			exclamationMark->SetActive(true);
+		
+		}
+	}
 }
 
 void Boss::Control()
@@ -369,6 +431,8 @@ void Boss::UpdateUI()
 		 questionMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 1, 0));
 	*/
 	
+
+
 	exclamationMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 1, 0));
 	exclamationMark->UpdateWorld();
 

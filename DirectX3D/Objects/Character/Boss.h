@@ -140,9 +140,11 @@ private:
 
     Vector3 FindPos;
     bool bArriveFindPos = false;
+    bool MarkActiveTime = 0.f;
 
-  private:
 
+private:
+    void MarkTimeCheck();
     void CoolTimeCheck();
    // bool IsFindTarget() { return bFind; };
     void AddObstacleObj(Collider* collider);
@@ -197,6 +199,7 @@ public:
 
     void SetTarget(Transform* _target) { this->target = _target; }
     void CalculateEyeSight();
+    bool CalculateEyeSight(bool _bFind);
     void CalculateEarSight();//±Í
     
 

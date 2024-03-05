@@ -259,7 +259,7 @@ void Naruto::Move()
         }
     }
     if (KEY_PRESS('T')) {
-        btest = true;
+        btest = !btest;
     }
 
     if (!isMoveZ) //전후 이동 중이 아닐 때는 속력 기준을 다시 내린다

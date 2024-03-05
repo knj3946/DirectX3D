@@ -4,7 +4,11 @@
 TestNpcScene::TestNpcScene()
 {
     terrain = new TerrainEditor();
-
+    terrain->GetMaterial()->SetDiffuseMap(L"Textures/Landscape/Sand.png");
+    terrain->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
+    terrain->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
+    terrain->SetHeightMap(L"Textures/HeightMaps/SampleHeightMap.png");
+ 
     aStar2 = new AStar(128,128);
     aStar2->SetNode(terrain);
     boss = new Boss;
