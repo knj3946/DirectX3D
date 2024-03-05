@@ -1010,7 +1010,13 @@ void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 �
 
 
         if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM || curState == B_RECOIL)
+        {
+            if (KEY_DOWN(VK_RBUTTON))
+            {
+                SetState(B_IDLE);
+            }
             return;
+        }
 
         if (KEY_PRESS(VK_LSHIFT)) {
             if (velocity.z > 0.1f)
