@@ -15,6 +15,8 @@ ArrowManager::ArrowManager()
 	}
 
 	// 임시로 떨어진 화살들 세팅
+
+
 	Transform* transform = arrowInstancing->Add(true);
 	transform->SetActive(true);
 	Arrow* arrow = new Arrow(transform, count++,true);
@@ -104,6 +106,7 @@ bool ArrowManager::IsCollision()
 			{
 				arrow->GetCollider()->SetActive(false);
 				MonsterManager::Get()->GetOrc(i)->Hit(50, arrow->GetTransform()->GlobalPos());
+				arrow->HitEffectActive();
 			}
 		}
 	}
@@ -116,6 +119,7 @@ bool ArrowManager::IsCollision()
 				arrow->GetCollider()->SetActive(false);
 				arrow->GetTransform()->SetActive(false);
 				arrow->GetTrail()->SetActive(false);
+				arrow->WallEffectActive();
 				return true;
 			}
 		}

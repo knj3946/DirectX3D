@@ -33,6 +33,10 @@ public:
 	void GetItem();
 	void GUIRender();
 	bool IsDropItem() { return isDropItem; }
+
+	void HitEffectActive();// 때리는 이펙트활성화
+
+	void WallEffectActive();
 private:
 
 
@@ -54,5 +58,7 @@ private:
 	bool outLine = false;
 	int index;
 	bool isDropItem;
+	Particle* HitEffect;
+	ParticleSystem* Wallparticle;
 };
 

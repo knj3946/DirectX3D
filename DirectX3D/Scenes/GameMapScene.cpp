@@ -133,6 +133,8 @@ GameMapScene::GameMapScene()
 	MonsterManager::Get()->SetTargetCollider(player->GetCollider());
 	MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(80, 0, 80));
 	MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(60, 0, 150));
+	MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(60, 0, 110));
+	MonsterManager::Get()->SetOrcSRT(3, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(60, 0, 130));
 	MonsterManager::Get()->SetTerrain(terrain);
 	MonsterManager::Get()->SetAStar(aStar);
 
@@ -243,6 +245,8 @@ void GameMapScene::Render()
 	player->Render();
 	MonsterManager::Get()->Render();
 	KunaiManager::Get()->Render();
+
+	//aStar->Render();
 }
 
 void GameMapScene::PostRender()
@@ -255,7 +259,7 @@ void GameMapScene::PostRender()
 
 void GameMapScene::GUIRender()
 {
-	player->GUIRender();
+	//player->GUIRender();
 	/*
 	for (ColliderModel* cm : colliderModels)
 	{
@@ -263,6 +267,8 @@ void GameMapScene::GUIRender()
 	}
 	*/
 
-	MonsterManager::Get()->GUIRender();
+	//MonsterManager::Get()->GUIRender();
 	//KunaiManager::Get()->GUIRender();
+
+	Timer::Get()->GUIRender();
 }

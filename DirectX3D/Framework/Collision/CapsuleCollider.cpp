@@ -1,4 +1,4 @@
-#include "Framework.h"
+    #include "Framework.h"
 
 CapsuleCollider::CapsuleCollider(float radius, float height, UINT stackCount, UINT sliceCount)
     : radius(radius), height(height), stackCount(stackCount), sliceCount(sliceCount)
@@ -120,10 +120,11 @@ bool CapsuleCollider::IsBoxCollision(BoxCollider* collider)
     //->벡터로 정리된 접점 후보를 다시 상대쪽과 거리를 내기
     float distance = Distance(pointOnLine, closestPointToCapsuleArc);
 
+
     //이 접점 후보가 캡슐의 반지름 안에 들어와 있으면 충돌
     return distance <= Radius();
 
-
+    CollisionPoint = pointOnLine;
     return false;
 }
 
@@ -139,7 +140,7 @@ bool CapsuleCollider::IsSphereCollision(SphereCollider* collider)
     Vector3 pointOnLine = ClosestPointOnLine(pa, pb, P);
 
     float distance = Distance(P, pointOnLine);
-
+    CollisionPoint = pointOnLine;
     return distance <= (Radius() + collider->Radius());
 
     return false;
@@ -193,6 +194,7 @@ bool CapsuleCollider::IsCapsuleCollision(CapsuleCollider* collider)
     // -> 왜? 캡슐끼리면 옆과 충돌을 해도 결국은 두 캡슐의 반지름 거리에서 부딪쳤을 테니까
 
     // 그러므로 도출된 두 "접점"의 거리를 내어서 반지름의 합과 비교하면 충돌 여부 판별 끝
+    CollisionPoint = bestB;
     float distance = Distance(bestA, bestB);
     return distance <= (Radius() + collider->Radius());
 }

@@ -12,6 +12,7 @@ private:
 
 public:
 	void Update();	
+	void GUIRender();
 
 	void SetDeltaScale(float value) { deltaScale = value; }
 	void SetLockFPS(int value) { lockFPS = value; }
@@ -19,6 +20,9 @@ public:
 	float GetElapsedTime() 
 	{ return elapsedTime > EPSILON ? EPSILON : elapsedTime * deltaScale; }
 	int GetFPS() { return frameRate; }
+
+	void SaveStartTime();
+	void SaveFinishTime();
 
 private:
 	float timeScale = 0.0f;
@@ -33,4 +37,7 @@ private:
 	int frameRate = 0;
 	int frameCount = 0;
 	int lockFPS = 0;
+
+	double startTime = 0.f;
+	double finishTime = 0.f;
 };

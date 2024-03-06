@@ -1,5 +1,4 @@
 #include "Framework.h"
-static int rangeTag=0;
 Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     :transform(transform), instancing(instancing), index(index)
 {
@@ -77,7 +76,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
     rayBuffer = new RayBuffer();
 
-    particleHit = new ParticleSystem("TextData/Particles/SlowHit.fx");
+ //   particleHit = new ParticleSystem("TextData/Particles/SlowHit.fx");
 
     rangeBar = new ProgressBar(L"Textures/UI/Range_bar.png", L"Textures/UI/Range_bar_BG.png");
     rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
@@ -88,6 +87,8 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
 
     Audio::Get();
     Audio::Get()->Add("hit", "Sounds/hit.wav");
+
+    particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
 }
 
 Orc::~Orc()
@@ -108,6 +109,7 @@ Orc::~Orc()
     delete hpBar;
     for (Collider* wcollider : weaponColliders)
         delete wcollider;
+    
     delete particleHit;
     delete transform;
 }
@@ -133,16 +135,16 @@ void Orc::Update()
 {
     if (!transform->Active()) return; //활성화 객체가 아니면 리턴
 
+    
     if (curState != DYING || curState != ASSASSINATED)
     {
         Direction();// 방향지정 함수
-
         CalculateEyeSight(); //시야에 발각됬는지 확인하는 함수 (bDetection 설정)
         CalculateEarSight(); //소리가 들렸는지 확인하는 함수
         Detection(); //플레이어를 인지했는지 확인하는 함수
         RangeCheck(); //발견되었다가 사라진 플레이어 탐지
     }
-
+    
     TimeCalculator(); //공격 간격을 두기 위한 설정
     ParticleUpdate(); //파티클이펙트 업데이트
     UpdateUI(); //UI 업데이트
@@ -154,8 +156,6 @@ void Orc::Update()
     PartsUpdate(); //모델 각 파츠 업데이트
     StateRevision(); //애니메이션 중간에 끊겨서 변경안된 값들 보정
     
-
-   
 
     //====================== 이동관련==============================
     if (CalculateHit()) return; //맞는 중이면 리턴 (이 아래는 이동과 관련된 것인데 맞는중에는 필요없음)
@@ -171,6 +171,9 @@ void Orc::Update()
     Control(); // 경로설정등 오크가 움직이기 위한 정보들 계산
     Move(); //실제 움직임
     RotationRestore();
+
+    CoolDown();
+    
 }
 
 void Orc::Render()
@@ -178,8 +181,9 @@ void Orc::Render()
     collider->Render();
     leftWeaponCollider->Render();
     rightWeaponCollider->Render();
-  //  hpBar->Render();
-    rangeBar->Render();
+    hpBar->Render();
+    if(behaviorstate != NPC_BehaviorState::DETECT)
+        rangeBar->Render();
     //aStar->Render();
 
     particleHit->Render();
@@ -309,10 +313,13 @@ void Orc::SetGroundPos()
 {
     if (!OnColliderFloor(feedBackPos)) // 문턱올라가기 때문
     {
-        Vector3 OrcSkyPos = transform->Pos();
-        OrcSkyPos.y += 100;
-        Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
-        TerainComputePicking(feedBackPos, groundRay);
+        if (curRayCoolTime <= 0.f)
+        {
+            Vector3 OrcSkyPos = transform->Pos();
+            OrcSkyPos.y += 100;
+            Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
+            TerainComputePicking(feedBackPos, groundRay);
+        }
     }
 }
 
@@ -329,7 +336,6 @@ bool Orc::CalculateHit()
             isTracking = true;
             bFind = true;
             DetectionStartTime = DetectionEndTime;
-            a = 8000;
             behaviorstate = NPC_BehaviorState::DETECT;
 
             Vector3 dir = (target->GlobalPos() - transform->GlobalPos()).GetNormalized();
@@ -431,7 +437,9 @@ void Orc::Hit(float damage,Vector3 collisionPos)
 
         isHit = true;
 
-        particleHit->Play(collisionPos); // 해당위치에서 파티클 재생
+    
+
+        particleHit->Play(collider->GetCollisionPoint()); // 해당위치에서 파티클 재생
     }
 
     /*if (curState == ASSASSINATED)
@@ -481,7 +489,6 @@ void Orc::Findrange()
     // 탐지시 범위에 닿은 애에게 설정
     bFind = true; bDetection = true;
     DetectionStartTime = DetectionEndTime;
-    a = 500;
     isTracking = true;
     SetState(RUN);
     if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
@@ -522,6 +529,16 @@ void Orc::Assassinated(Vector3 collisionPos,Transform* attackerTrf)
     Hit(120, pos);
 
     PartsUpdate();
+}
+
+void Orc::CoolDown()
+{
+    if (curRayCoolTime <= 0.0f)
+    {
+        curRayCoolTime = rayCoolTime;
+    }
+    else
+        curRayCoolTime -= DELTA;
 }
 
 void Orc::Control()
@@ -715,7 +732,10 @@ void Orc::Move()
         Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
         if (!OnColliderFloor(destFeedBackPos)) // 문턱올라가기 때문
         {
-            TerainComputePicking(destFeedBackPos, groundRay);
+            if (curRayCoolTime <= 0.0f)
+            {
+                TerainComputePicking(destFeedBackPos, groundRay);
+            }
         }
 
         //destFeedBackPos : 목적지 터레인Pos
@@ -1012,7 +1032,7 @@ void Orc::EndDying()
     questionMark->SetActive(false);
     exclamationMark->SetActive(false);
 
-    particleHit->Stop();
+   // particleHit->Stop();
 
     /*instancing->SetOutLine(index, false);
     MonsterManager::Get()->specialKeyUI["assassination"].active = false;*/
@@ -1363,7 +1383,7 @@ bool Orc::TerainComputePicking(Vector3& feedback, Ray ray)
 
         computeShader->Set();
 
-        UINT x = ceil((float)terrainTriangleSize / 64.0f);
+        UINT x = ceil((float)terrainTriangleSize / 1.0f);
 
         DC->Dispatch(x, 1, 1);
 
@@ -1392,7 +1412,6 @@ bool Orc::TerainComputePicking(Vector3& feedback, Ray ray)
             return true;
         }
     }
-
     return false;
 }
 
@@ -1400,61 +1419,67 @@ bool Orc::EyesRayToDetectTarget(Collider* targetCol,Vector3 orcEyesPos)
 {
     // 목표 콜라이더 맨위 맨 아래 맨 왼쪽 맨 오른쪽 중앙 5군데만 레이를 쏴서 확인 (0.8을 곱해서 좀 안쪽으로 쏘기)
 
-    switch (targetCol->GetType())
+    if (curRayCoolTime <= 0.f)
     {
-        case Collider::Type::CAPSULE:
+        switch (targetCol->GetType())
         {
-            CapsuleCollider* targetCapsuleCol = static_cast<CapsuleCollider*>(targetCol);
-            
-            Vector3 top = targetCapsuleCol->GlobalPos() + (transform->Up() * targetCapsuleCol->Height() * 0.4 + transform->Up() * targetCapsuleCol->Radius() * 0.8);
-            Vector3 bottom = targetCapsuleCol->GlobalPos() + (transform->Down() * targetCapsuleCol->Height() * 0.4 + transform->Down() * targetCapsuleCol->Radius() * 0.8);
-            Vector3 left = targetCapsuleCol->GlobalPos() + (transform->Right() * targetCapsuleCol->Radius() * 0.8);
-            Vector3 right = targetCapsuleCol->GlobalPos() + (transform->Left() * targetCapsuleCol->Radius() * 0.8);
-            Vector3 center = targetCapsuleCol->GlobalPos();
-
-            Contact topCon;
-            Contact bottomCon;
-            Contact leftCon;
-            Contact rightCon;
-            Contact centerCon;
-
-            Ray topRay = Ray(orcEyesPos, (top - orcEyesPos).GetNormalized());
-            Ray bottomRay = Ray(orcEyesPos, (bottom - orcEyesPos).GetNormalized());
-            Ray leftRay = Ray(orcEyesPos, (left - orcEyesPos).GetNormalized());
-            Ray rightRay = Ray(orcEyesPos, (right - orcEyesPos).GetNormalized());
-            Ray centerRay = Ray(orcEyesPos, (center - orcEyesPos).GetNormalized());
-
-            targetCollider->IsRayCollision(topRay, &topCon);
-            targetCollider->IsRayCollision(bottomRay, &bottomCon);
-            targetCollider->IsRayCollision(leftRay, &leftCon);
-            targetCollider->IsRayCollision(rightRay, &rightCon);
-            targetCollider->IsRayCollision(centerRay, &centerCon);
-
-            float topBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(topRay);
-            float bottomBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(bottomRay);
-            float leftBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(leftRay);
-            float rightBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(rightRay);
-            float centerBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(centerRay);
-
-            if (topBlockdistance < Distance(topCon.hitPoint, topRay.pos)
-                && bottomBlockdistance < Distance(bottomCon.hitPoint, bottomRay.pos)
-                && leftBlockdistance < Distance(leftCon.hitPoint, leftRay.pos)
-                && rightBlockdistance < Distance(rightCon.hitPoint, rightRay.pos)
-                && centerBlockdistance < Distance(centerCon.hitPoint, centerRay.pos)
-                )
+            case Collider::Type::CAPSULE:
             {
-                //모든 부분에서 엄폐되었다
-                return false;
+                CapsuleCollider* targetCapsuleCol = static_cast<CapsuleCollider*>(targetCol);
+
+                Vector3 top = targetCapsuleCol->GlobalPos() + (transform->Up() * targetCapsuleCol->Height() * 0.4 + transform->Up() * targetCapsuleCol->Radius() * 0.8);
+                Vector3 bottom = targetCapsuleCol->GlobalPos() + (transform->Down() * targetCapsuleCol->Height() * 0.4 + transform->Down() * targetCapsuleCol->Radius() * 0.8);
+                Vector3 left = targetCapsuleCol->GlobalPos() + (transform->Right() * targetCapsuleCol->Radius() * 0.8);
+                Vector3 right = targetCapsuleCol->GlobalPos() + (transform->Left() * targetCapsuleCol->Radius() * 0.8);
+                Vector3 center = targetCapsuleCol->GlobalPos();
+
+                Contact topCon;
+                Contact bottomCon;
+                Contact leftCon;
+                Contact rightCon;
+                Contact centerCon;
+
+                Ray topRay = Ray(orcEyesPos, (top - orcEyesPos).GetNormalized());
+                Ray bottomRay = Ray(orcEyesPos, (bottom - orcEyesPos).GetNormalized());
+                Ray leftRay = Ray(orcEyesPos, (left - orcEyesPos).GetNormalized());
+                Ray rightRay = Ray(orcEyesPos, (right - orcEyesPos).GetNormalized());
+                Ray centerRay = Ray(orcEyesPos, (center - orcEyesPos).GetNormalized());
+
+                targetCollider->IsRayCollision(topRay, &topCon);
+                targetCollider->IsRayCollision(bottomRay, &bottomCon);
+                targetCollider->IsRayCollision(leftRay, &leftCon);
+                targetCollider->IsRayCollision(rightRay, &rightCon);
+                targetCollider->IsRayCollision(centerRay, &centerCon);
+
+                float topBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(topRay);
+                float bottomBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(bottomRay);
+                float leftBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(leftRay);
+                float rightBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(rightRay);
+                float centerBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(centerRay);
+
+                if (topBlockdistance < Distance(topCon.hitPoint, topRay.pos)
+                    && bottomBlockdistance < Distance(bottomCon.hitPoint, bottomRay.pos)
+                    && leftBlockdistance < Distance(leftCon.hitPoint, leftRay.pos)
+                    && rightBlockdistance < Distance(rightCon.hitPoint, rightRay.pos)
+                    && centerBlockdistance < Distance(centerCon.hitPoint, centerRay.pos)
+                    )
+                {
+                    //모든 부분에서 엄폐되었다
+                    isRayToDetectTarget = false;
+                }
+                else
+                {
+                    isRayToDetectTarget = true;
+                }
+
             }
-
-
-        }
-        default:
-        {
+            default:
+            {
+            }
         }
     }
 
-    return true;
+    return isRayToDetectTarget;
 }
 
 void Orc::SetOutLine(bool flag)

@@ -84,8 +84,10 @@ void MonsterManager::Update()
     
     for (const pair<int, OrcInfo>& item : orcs)
     {
-        if(item.second.isActive)
+        if (item.second.isActive)
+        {
             item.second.orc->Update();
+        }      
     }
     
     for (pair<int, OrcInfo>item : orcs)
@@ -304,8 +306,10 @@ void MonsterManager::Fight(Player* player)
             //몬스터가 맞을때
             if (collider)
             {
+                collider->ResetCollisionPoint();
                 if (collider->Active() && collider->IsCapsuleCollision(item.second.orc->GetCollider())) //손 충돌체가 타겟이랑 겹칠때
                 {
+
                     item.second.orc->Hit(player->GetDamage(), collider->GlobalPos());
                 }
             }
@@ -320,12 +324,15 @@ void MonsterManager::Fight(Player* player)
         {
             if (collider)
             {
+                collider->ResetCollisionPoint();
                 if (collider->Active() && collider->IsCapsuleCollision(player->GetCollider())) //오크의 웨폰 충돌체가 타겟이랑 겹칠때
                 {
+                    Vector3 pos=collider->GetCollisionPoint();
+                    player->SetHitEffectPos(pos);
                     player->Hit(item.second.orc->GetDamage());
                 }
             }
-        }
+        }   
 
     }
     // 쿠나이 콜라이더 판정

@@ -25,14 +25,17 @@ Arrow::Arrow(Transform* transform, int id,bool isDropItem)
 	trail = new Trail(L"Textures/Effect/wind.jpg", startEdge, endEdge, 3, 3);
 	trail->Init();
 	trail->SetActive(false);
+	HitEffect = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
+	Wallparticle = new ParticleSystem("TextData/Particles/WallEffect.fx");
 }
 
 Arrow::~Arrow()
 {
 	delete collider;
-
+	delete Wallparticle;
 	delete trail;
 	delete startEdge;
+	delete HitEffect;
 	delete endEdge;
 }
 
@@ -58,8 +61,9 @@ void Arrow::Update()
 	{
 		transform->Pos() += direction * speed * DELTA;
 	}
-
+	HitEffect->Update();
 	collider->UpdateWorld();
+
 
 
 	if (trail != nullptr)
@@ -77,6 +81,7 @@ void Arrow::Update()
 void Arrow::Render()
 {
 	collider->Render();
+	HitEffect->Render();
 
 	if (isDropItem)return;
 
@@ -123,4 +128,14 @@ void Arrow::GetItem()// 이 아이템을 플레이어가 주웠을 때
 	
 	isDropItem = false;
 	transform->SetActive(false);
+}
+
+void Arrow::HitEffectActive()
+{
+	HitEffect->Play(startEdge->Pos());
+}
+
+void Arrow::WallEffectActive()
+{
+	Wallparticle->Play(startEdge->Pos());
 }

@@ -82,11 +82,12 @@ Boss::Boss()
 	Audio::Get()->Add("Boss_Splash", "Sounds/BossSplash.mp3", false, false, true);
 	Audio::Get()->Add("Boss_Run", "Sounds/Bossfootstep.mp3", false, false, true);
 	Audio::Get()->Add("Boss_Walk", "Sounds/Bosswalk.mp3", false, false, true);
-
+	hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
 }
 
 Boss::~Boss()
 {
+	delete hiteffect;
 	delete leftHand;
 	delete leftCollider;
 	delete collider;
@@ -121,6 +122,7 @@ void Boss::Render()
 	for (int i = 0; i < 3; ++i)
 		Runparticle[i]->Render();
 
+	hiteffect->Render();
 
 }
 

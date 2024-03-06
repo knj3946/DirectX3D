@@ -81,6 +81,8 @@ public:
 
     void SetPickContact(Contact con) { this->pickContact = con; }
     Contact GetPickContact() { return pickContact; }
+    Vector3 GetCollisionPoint() { return CollisionPoint; }
+    void ResetCollisionPoint() { CollisionPoint = {}; }
 private:
     virtual void MakeMesh() = 0;
 
@@ -92,6 +94,7 @@ protected:
     Collider_Special special;
     bool pickFlag = false;
     Contact pickContact;
+    Vector3 CollisionPoint;
 
 private:
     static bool isRender;

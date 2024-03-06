@@ -17,10 +17,45 @@ Device::Device()
     swapChainDesc.BufferCount = 1;
     swapChainDesc.OutputWindow = hWnd;
     swapChainDesc.Windowed = true;//창모드 유무
+    
+    IDXGIFactory1 *pdxgiFactory = nullptr;
+    IDXGIDevice *pdxgiDevice = nullptr;
+    HRESULT hResult = S_OK;
+    if (FAILED(hResult = CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&pdxgiFactory))) assert(false);
+
+    size_t ui64VideoMemory;
+    IDXGIAdapter* pAdapter;
+    DXGI_ADAPTER_DESC adapterDesc;
+
+    if (FAILED(pdxgiFactory->EnumAdapters(0, (IDXGIAdapter**)&pAdapter))) assert(false);
+    
+    pAdapter->GetDesc(&adapterDesc);
+    ui64VideoMemory = (std::size_t)(adapterDesc.DedicatedVideoMemory + adapterDesc.SharedSystemMemory);
+
+    //비디오 메모리 비교해서 더 좋은 GPU 찾기
+    int gpu_idx = 0;
+    int select = 0;
+    std::size_t comparison_videoMemory;
+    while (pdxgiFactory->EnumAdapters(gpu_idx, &pAdapter) != DXGI_ERROR_NOT_FOUND)
+    {
+        pAdapter->GetDesc(&adapterDesc);
+        comparison_videoMemory = (std::size_t)(adapterDesc.DedicatedVideoMemory + adapterDesc.SharedSystemMemory);
+
+        auto memory = comparison_videoMemory / 1024 / 1024;
+        
+        if (comparison_videoMemory > ui64VideoMemory)
+        {
+            ui64VideoMemory = comparison_videoMemory;
+            select = gpu_idx;
+        }
+        ++gpu_idx;
+    }
+
+    pdxgiFactory->EnumAdapters(select, &pAdapter);
 
     D3D11CreateDeviceAndSwapChain(
-        nullptr,
-        D3D_DRIVER_TYPE_HARDWARE,
+        pAdapter,
+        D3D_DRIVER_TYPE_UNKNOWN,
         0,
         D3D11_CREATE_DEVICE_DEBUG | D3D11_CREATE_DEVICE_BGRA_SUPPORT,
         nullptr,

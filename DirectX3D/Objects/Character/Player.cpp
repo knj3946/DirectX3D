@@ -272,6 +272,9 @@ void Player::Update()
 
     
     crosshair->UpdateWorld();
+
+
+    CoolDown();
 }
 
 void Player::Render()
@@ -539,10 +542,13 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
 
     if (!OnColliderFloor(feedBackPos)) // 문턱올라가기 때문에 다시 살림
     {
-        Vector3 PlayerSkyPos = Pos();
-        PlayerSkyPos.y += 1000;
-        Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
-        TerainComputePicking(feedBackPos, groundRay);
+        if (curRayCoolTime <= 0.f)
+        {
+            Vector3 PlayerSkyPos = Pos();
+            PlayerSkyPos.y += 100;
+            Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+            TerainComputePicking(feedBackPos, groundRay);
+        }   
     }
 
     //if (curState == JUMP3 && landing > 0.0f)    //???? ??????? ???? ?ε? ??? ???? and ???? ?ð? ????
@@ -989,6 +995,8 @@ void Player::Hit(float damage)
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
         collider->SetActive(false);
+        hiteffect->Play(particlepos);
+        
         if (destHP <= 0)
         {
             //SetState(DYING);
@@ -996,7 +1004,6 @@ void Player::Hit(float damage)
             isDying = true;
             return;
         }
-
         SetState(HIT, 0.8f);
 
         isHit = true;
@@ -1170,4 +1177,14 @@ void Player::SetCameraPos()
     }
 
     CAM->SetDistance(distance);
+}
+
+void Player::CoolDown()
+{
+    if (curRayCoolTime <= 0.0f)
+    {
+        curRayCoolTime = rayCoolTime;
+    }
+    else
+        curRayCoolTime -= DELTA;
 }
