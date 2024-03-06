@@ -86,6 +86,8 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     rangeBar->Rot() = { XMConvertToRadians(90.f),0,XMConvertToRadians(-90.f) };
     rangeBar->Pos() = { -15.f,2.f,-650.f };
 
+    Audio::Get();
+    Audio::Get()->Add("hit", "Sounds/hit.wav");
 }
 
 Orc::~Orc()
@@ -354,7 +356,6 @@ bool Orc::CalculateHit()
 void Orc::PartsUpdate()
 {
     if (transform->Active()==false || isDying == true)return;
-    //root->SetWorld(instancing->GetTransformByNode(index, 3));
     transform->SetWorld(instancing->GetTransformByNode(index, 5));
     collider->UpdateWorld();
     transform->UpdateWorld();
@@ -413,6 +414,7 @@ void Orc::Hit(float damage,Vector3 collisionPos)
 {
     if (!isHit)
     {
+        Audio::Get()->Play("hit", transform->Pos()); // 크기조절
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
         collider->SetActive(false);
@@ -442,10 +444,7 @@ void Orc::Hit(float damage,Vector3 collisionPos)
         SetState(DYING);
         return;
     }*/
-    //// 아직 안 죽었으면 산 로봇답게 맞는 동작 수행
-    //curState = HIT;
-    //instancing->PlayClip(index, HIT);
-    //eventIters[HIT] = totalEvent[HIT].begin();
+
 }
 
 void Orc::Spawn(Vector3 pos)
