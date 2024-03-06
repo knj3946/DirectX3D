@@ -178,8 +178,9 @@ void Orc::Render()
     collider->Render();
     leftWeaponCollider->Render();
     rightWeaponCollider->Render();
-  //  hpBar->Render();
-    rangeBar->Render();
+    hpBar->Render();
+    if(behaviorstate != NPC_BehaviorState::DETECT)
+        rangeBar->Render();
     //aStar->Render();
 
     particleHit->Render();

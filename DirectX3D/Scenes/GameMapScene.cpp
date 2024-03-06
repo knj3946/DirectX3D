@@ -245,6 +245,8 @@ void GameMapScene::Render()
 	player->Render();
 	MonsterManager::Get()->Render();
 	KunaiManager::Get()->Render();
+
+	//aStar->Render();
 }
 
 void GameMapScene::PostRender()
