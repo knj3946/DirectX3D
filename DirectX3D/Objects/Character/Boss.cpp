@@ -385,8 +385,9 @@ void Boss::Die()
 
 void Boss::Find()
 {
+	/*
 	if (state == BOSS_STATE::DETECT) {
-		if (dynamic_cast<Naruto*>(target)->GetTest()) {
+		if (dynamic_cast<Player*>(target)->GetTest()) {
 			state = BOSS_STATE::FIND;
 			questionMark->SetActive(true);
 			exclamationMark->SetActive(false);
@@ -395,7 +396,7 @@ void Boss::Find()
 		}
 	}
 	if (state == BOSS_STATE::FIND) {
-		if (!dynamic_cast<Naruto*>(target)->GetTest()) {
+		if (!dynamic_cast<Player*>(target)->GetTest()) {
 			if (!CalculateEyeSight(true))
 				return;
 
@@ -405,6 +406,7 @@ void Boss::Find()
 		
 		}
 	}
+	*/
 }
 
 void Boss::Rotate()
