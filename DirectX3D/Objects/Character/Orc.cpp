@@ -605,31 +605,16 @@ void Orc::Control()
                     }
 
                 }
-                //else Move();
             }
             else
             {
-                if (!missTargetTrigger)
-                {
-                    missTargetTrigger = true;
-             //       DetectionStartTime = 2.0f;
-                    //path.clear();
-                }
+                //if (!missTargetTrigger)
+             //   {
+             //       missTargetTrigger = true;
+             ////       DetectionStartTime = 2.0f;
+             //       //path.clear();
+             //   }
 
-
-                //path.clear();
-                
-                /*
-                if (aStar->IsCollisionObstacle(transform->GlobalPos(), PatrolPos[nextPatrol]))// 중간에 장애물이 있으면
-                {
-                    SetPath(PatrolPos[nextPatrol]); // 구체적인 경로 내어서 가기
-                }
-                else
-                {
-                    path.clear(); // 굳이 장애물없는데 길찾기 필요 x
-                    path.push_back(PatrolPos[nextPatrol]); // 가야할 곳만 경로에 집어넣기
-                }
-                */
 
                 //직선레이에 장애물이 탐지되지 않아도 몸통 콜라이더가 걸려서 못갈수도 있기 때문에 항상 경로 내기
                 SetPath(PatrolPos[nextPatrol]); // 구체적인 경로 내어서 가기

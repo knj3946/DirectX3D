@@ -241,18 +241,11 @@ private:
     bool bFind = false;
     float DetectionStartTime = 0.f;
     float DetectionEndTime = 2.f;
-    //bool missTarget = false;
     bool missTargetTrigger = false; // 쫓아가다가 사라졌을 때만 true 
-    float missStartTime = 0.f;
-    float missEndTime = 1.0f;
 
     bool isTracking = false;
     float wateTime = 0;
 
-    bool IsAiCooldown = false;
-    float aiCoolTime = 2.0f;
-    bool isAIWaitCooldown = false;
-    float aiWaitCoolTime = 1.5f;
 
     RayBuffer* rayBuffer;
     StructuredBuffer* structuredBuffer;
