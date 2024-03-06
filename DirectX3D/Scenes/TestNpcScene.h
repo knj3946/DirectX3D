@@ -28,9 +28,6 @@ private:
 	AStar* aStar;
 	AStar* aStar2;
 
-	Fox* fox;
-	Naruto* naruto;
-	RobotA* robot;
 	Orc* orc;
 
 	UINT orcCount = 0;  

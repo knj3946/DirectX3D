@@ -22,7 +22,7 @@ private:
 
     typedef TerrainEditor LevelData;
     //typedef Terrain LevelData;
-    UINT SIZE = 2;
+    UINT SIZE = 4;
 public:
     MonsterManager();
     ~MonsterManager();

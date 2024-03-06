@@ -55,6 +55,7 @@
 #include <FMOD/fmod.hpp>
 #include <mmsystem.h>
 #include <dsound.h>
+#include <dxgi.h>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -66,6 +67,7 @@
 #pragma comment(lib, "assimp-vc143-mtd.lib")
 #pragma comment(lib, "fmod_vc.lib")
 #pragma comment(lib, "dsound.lib")
+#pragma comment(lib, "dxgi.lib")
 
 using namespace std;
 using namespace DirectX;
@@ -156,7 +158,6 @@ using namespace GameMath;
 #include "Objects/Basic/Quad.h"
 #include "Objects/Basic/Cube.h"
 #include "Objects/Basic/Sphere.h"
-#include "Objects/Basic/Cylinder.h"
 
 #include "Objects/Actor/ActorUI.h"
 #include "Objects/UI/ProgressBar.h"
@@ -185,12 +186,6 @@ using namespace GameMath;
 #include "Objects/Items/Weapons/Dagger.h"
 #include "Objects/Items/Weapons/Arrow.h"
 
-#include "Objects/Character/Human.h"
-#include "Objects/Character/Robot.h"
-#include "Objects/Character/Naruto.h"
-#include "Objects/Character/FoxD.h"
-#include "Objects/Character/Fox.h"
-#include "Objects/Character/RobotA.h"
 #include "Objects/Character/Orc.h"
 #include "Objects/Character/Player.h"
 #include "Objects/Character/Boss.h"
@@ -198,7 +193,6 @@ using namespace GameMath;
 
 #include "Objects/Manager/BlockManager.h"
 #include "Objects/Manager/KunaiManager.h"
-#include "Objects/Manager/RobotManager.h"
 #include "Objects/Manager/MonsterManager.h"
 #include "Objects/Manager/ArrowManager.h"
 

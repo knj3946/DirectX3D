@@ -84,8 +84,10 @@ void MonsterManager::Update()
     
     for (const pair<int, OrcInfo>& item : orcs)
     {
-        if(item.second.isActive)
+        if (item.second.isActive)
+        {
             item.second.orc->Update();
+        }      
     }
     
     for (pair<int, OrcInfo>item : orcs)

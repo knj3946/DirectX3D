@@ -134,7 +134,10 @@ private:
     bool TerainComputePicking(Vector3& feedback, Ray ray);
 
     CapsuleCollider* GetDaggerCollider() { return dagger->GetCollider(); }
-  
+
+    void CoolDown();
+
+
 private:
 
     POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- �����ڴ� ���� 
@@ -234,6 +237,12 @@ private:
 
     Vector3 particlepos;
     Particle* hiteffect;
+
+    float rayCoolTime = 0.1f;
+    float curRayCoolTime = 0.0f;
+    bool isRayToDetectTarget = false;
+
+
 public: //임시
     bool headCrash;
     Transform* aimT;
