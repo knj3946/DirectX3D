@@ -94,7 +94,7 @@ public:
     void Assassination();
 
     void Climb(Collider* col,Vector3 climbPos);
-
+    void SetHitEffectPos(Vector3& _pos) { particlepos = _pos; }
 private:
     void CameraMove(); // 벽에 가려지는 플레이어 현상 해결을 위한 함수
 
@@ -134,7 +134,7 @@ private:
     bool TerainComputePicking(Vector3& feedback, Ray ray);
 
     CapsuleCollider* GetDaggerCollider() { return dagger->GetCollider(); }
-
+  
 private:
 
     POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- �����ڴ� ���� 
@@ -231,6 +231,9 @@ private:
 
     float remainClimbDis = 0.0f;
     bool isClimb = false;
+
+    Vector3 particlepos;
+    Particle* hiteffect;
 public: //임시
     bool headCrash;
     Transform* aimT;

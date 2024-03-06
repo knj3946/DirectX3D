@@ -79,7 +79,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
     rayBuffer = new RayBuffer();
 
-    particleHit = new ParticleSystem("TextData/Particles/SlowHit.fx");
+ //   particleHit = new ParticleSystem("TextData/Particles/SlowHit.fx");
 
     rangeBar = new ProgressBar(L"Textures/UI/Range_bar.png", L"Textures/UI/Range_bar_BG.png");
     rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
@@ -88,6 +88,8 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     rangeBar->Rot() = { XMConvertToRadians(90.f),0,XMConvertToRadians(-90.f) };
     rangeBar->Pos() = { -15.f,2.f,-650.f };
 
+
+    particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
 }
 
 Orc::~Orc()
@@ -108,6 +110,7 @@ Orc::~Orc()
     delete hpBar;
     for (Collider* wcollider : weaponColliders)
         delete wcollider;
+    
     delete particleHit;
     delete transform;
 }
@@ -431,7 +434,9 @@ void Orc::Hit(float damage,Vector3 collisionPos)
 
         isHit = true;
 
-        particleHit->Play(collisionPos); // 해당위치에서 파티클 재생
+    
+
+        particleHit->Play(collider->GetCollisionPoint()); // 해당위치에서 파티클 재생
     }
 
     /*if (curState == ASSASSINATED)
@@ -1029,7 +1034,7 @@ void Orc::EndDying()
     questionMark->SetActive(false);
     exclamationMark->SetActive(false);
 
-    particleHit->Stop();
+   // particleHit->Stop();
 
     /*instancing->SetOutLine(index, false);
     MonsterManager::Get()->specialKeyUI["assassination"].active = false;*/

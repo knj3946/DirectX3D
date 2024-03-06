@@ -47,10 +47,10 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("Dijkstra", new DijkstraScene());
     //SceneManager::Get()->Create("AStar", new AStarScene());
     //SceneManager::Get()->Create("Particle", new ParticleScene());
-    //SceneManager::Get()->Create("ParticleConfig", new ParticleConfigScene());
+    SceneManager::Get()->Create("ParticleConfig", new ParticleConfigScene());
     //SceneManager::Get()->Create("Human", new HumanScene());
     //SceneManager::Get()->Create("QuadTree", new QuadTreeScene());
-    SceneManager::Get()->Create("GameMap", new GameMapScene());
+  //  SceneManager::Get()->Create("GameMap", new GameMapScene());
     //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
     //SceneManager::Get()->Create("Player", new PlayerScene());
     //SceneManager::Get()->Create("PlayerMap", new PlayerMapScene());
@@ -74,10 +74,10 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("Dijkstra");
     //SceneManager::Get()->Add("AStar");
     //SceneManager::Get()->Add("Particle");
-    //SceneManager::Get()->Add("ParticleConfig");
+        SceneManager::Get()->Add("ParticleConfig");
     //SceneManager::Get()->Add("Human");
     //SceneManager::Get()->Add("QuadTree");
-    SceneManager::Get()->Add("GameMap");
+  //  SceneManager::Get()->Add("GameMap");
     //SceneManager::Get()->Add("TestNpcScene");
     //SceneManager::Get()->Add("Player");
     //SceneManager::Get()->Add("PlayerMap");

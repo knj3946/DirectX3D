@@ -279,6 +279,6 @@ private:
 
     bool isDelete = false;
 
-    ParticleSystem* particleHit;
+    Particle* particleHit;
 
 };

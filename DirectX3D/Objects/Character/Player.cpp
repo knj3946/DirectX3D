@@ -989,6 +989,8 @@ void Player::Hit(float damage)
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
         collider->SetActive(false);
+        hiteffect->Play(particlepos);
+        
         if (destHP <= 0)
         {
             //SetState(DYING);
@@ -996,7 +998,6 @@ void Player::Hit(float damage)
             isDying = true;
             return;
         }
-
         SetState(HIT, 0.8f);
 
         isHit = true;

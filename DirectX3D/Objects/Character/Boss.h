@@ -143,6 +143,7 @@ private:
     bool bArriveFindPos = false;
     bool MarkActiveTime = 0.f;
 
+    Particle* hiteffect;
 
 private:
     void MarkTimeCheck();
@@ -202,6 +203,7 @@ public:
     void CalculateEyeSight();
     bool CalculateEyeSight(bool _bFind);
     void CalculateEarSight();//±Í
+    
     
 
 };
