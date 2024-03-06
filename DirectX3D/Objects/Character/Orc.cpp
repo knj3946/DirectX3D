@@ -6,8 +6,6 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     //클립 생성해두기 
     string modelName = "Orc";
 
-    //root = new Transform();
-
     //충돌체
     collider = new CapsuleCollider(50, 120);
     collider->SetParent(transform);
@@ -599,10 +597,11 @@ void Orc::Control()
                 if (path.empty())
                 {
                     // 경로가 비었다면 가장 최근 target 위치까지 이동한 것.
+                    
                     if (!missTargetTrigger)
                     {
                         missTargetTrigger = true;
-                  //      DetectionStartTime = 2.0f;
+                        DetectionStartTime = 2.0f;
                     }
 
                 }
@@ -614,7 +613,7 @@ void Orc::Control()
                 {
                     missTargetTrigger = true;
              //       DetectionStartTime = 2.0f;
-                    path.clear();
+                    //path.clear();
                 }
 
 
@@ -1098,12 +1097,12 @@ void Orc::CalculateEyeSight()
         {
             if (bDetection) {
                 bDetection = false;
-                DetectionStartTime = 0.001f;
-                missTargetTrigger = true;
+                //DetectionStartTime = 0.001f;
+                //missTargetTrigger = true;
             }
             return;
         }
-
+        // 가려서 안보이는건 아니니까 발견상태유지
         if (bFind && behaviorstate == NPC_BehaviorState::DETECT)
         {
             bDetection = true;
@@ -1173,13 +1172,12 @@ void Orc::CalculateEarSight()
 void Orc::Detection()
 {
 
-
     if (bDetection) {
         if (!bFind)
             DetectionStartTime += DELTA;
     }
     else {
-        if (DetectionStartTime > 0.f) {
+        if (DetectionStartTime > 0.f && path.empty()) {
             DetectionStartTime -= DELTA * 2;
             
         

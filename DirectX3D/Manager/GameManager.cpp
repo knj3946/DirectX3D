@@ -3,7 +3,6 @@
 #include "Scenes/GameMapScene.h"
 #include "Scenes/TestNpcScene.h"
 #include "Scenes/PlayerScene.h"
-#include "Scenes/PlayerMapScene.h"
 #include "Scenes/BuildingScene.h"
 
 GameManager::GameManager()

@@ -241,8 +241,8 @@ private:
     bool bFind = false;
     float DetectionStartTime = 0.f;
     float DetectionEndTime = 2.f;
-    bool missTarget = false;
-    bool missTargetTrigger = false;
+    //bool missTarget = false;
+    bool missTargetTrigger = false; // 쫓아가다가 사라졌을 때만 true 
     float missStartTime = 0.f;
     float missEndTime = 1.0f;
 
