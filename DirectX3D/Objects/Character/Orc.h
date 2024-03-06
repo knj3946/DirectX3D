@@ -118,6 +118,8 @@ public:
     bool GetIsDelete() { return isDelete; }
     bool GetIsDying() { return isDying; }
 
+    void CoolDown();
+
 private:
     void Control();
     void Move();
@@ -281,4 +283,7 @@ private:
 
     ParticleSystem* particleHit;
 
+    float rayCoolTime = 0.3f;
+    float curRayCoolTime = 0.0f;
+    bool isRayToDetectTarget = false;
 };

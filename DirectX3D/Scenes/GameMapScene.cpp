@@ -255,7 +255,7 @@ void GameMapScene::PostRender()
 
 void GameMapScene::GUIRender()
 {
-	player->GUIRender();
+	//player->GUIRender();
 	/*
 	for (ColliderModel* cm : colliderModels)
 	{
@@ -263,6 +263,8 @@ void GameMapScene::GUIRender()
 	}
 	*/
 
-	MonsterManager::Get()->GUIRender();
+	//MonsterManager::Get()->GUIRender();
 	//KunaiManager::Get()->GUIRender();
+
+	Timer::Get()->GUIRender();
 }

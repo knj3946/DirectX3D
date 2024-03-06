@@ -41,3 +41,26 @@ void Timer::Update()
         oneSecCount = 0.0f;
     }    
 }
+
+void Timer::GUIRender()
+{
+    
+    //if (ImGui::TreeNode("Clock"))
+    //{
+        ImGui::Text("Clock");
+
+        ImGui::Text("startTime : %lf", startTime);
+        ImGui::Text("finishTime : %lf", finishTime);
+        ImGui::Text("duration : %lf", finishTime - startTime); // 걸린시간
+    //}
+}
+
+void Timer::SaveStartTime()
+{
+    startTime = clock();
+}
+
+void Timer::SaveFinishTime()
+{
+    finishTime = clock();
+}
