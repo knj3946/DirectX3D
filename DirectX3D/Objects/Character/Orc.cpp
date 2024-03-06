@@ -1,5 +1,4 @@
 #include "Framework.h"
-static int rangeTag=0;
 Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     :transform(transform), instancing(instancing), index(index)
 {
@@ -333,7 +332,6 @@ bool Orc::CalculateHit()
             isTracking = true;
             bFind = true;
             DetectionStartTime = DetectionEndTime;
-            a = 8000;
             behaviorstate = NPC_BehaviorState::DETECT;
 
             Vector3 dir = (target->GlobalPos() - transform->GlobalPos()).GetNormalized();
@@ -488,7 +486,6 @@ void Orc::Findrange()
     // 탐지시 범위에 닿은 애에게 설정
     bFind = true; bDetection = true;
     DetectionStartTime = DetectionEndTime;
-    a = 500;
     isTracking = true;
     SetState(RUN);
     if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면

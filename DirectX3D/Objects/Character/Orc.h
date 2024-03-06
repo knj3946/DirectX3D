@@ -164,7 +164,6 @@ private:
     void StateRevision();
     void ParticleUpdate();
 private:
-    int a = 300;
     Ray ray;// 레이
     Vector3 StorePos;// 소리난 곳 가기 전 위치 저장
     Vector3 CheckPoint;// 소리난 곳 저장
