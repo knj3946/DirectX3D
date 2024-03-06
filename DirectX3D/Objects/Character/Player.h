@@ -135,6 +135,8 @@ private:
 
     CapsuleCollider* GetDaggerCollider() { return dagger->GetCollider(); }
 
+    void CoolDown();
+
 private:
 
     POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- �����ڴ� ���� 
@@ -231,6 +233,11 @@ private:
 
     float remainClimbDis = 0.0f;
     bool isClimb = false;
+
+    float rayCoolTime = 0.1f;
+    float curRayCoolTime = 0.0f;
+    bool isRayToDetectTarget = false;
+
 public: //임시
     bool headCrash;
     Transform* aimT;

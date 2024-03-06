@@ -315,9 +315,7 @@ void Orc::SetGroundPos()
             Vector3 OrcSkyPos = transform->Pos();
             OrcSkyPos.y += 100;
             Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
-            Timer::Get()->SaveStartTime();
             TerainComputePicking(feedBackPos, groundRay);
-            Timer::Get()->SaveFinishTime();
         }
     }
 }
