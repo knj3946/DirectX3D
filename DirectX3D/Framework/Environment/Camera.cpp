@@ -28,9 +28,10 @@ void Camera::Update()
         FollowMode();
     else
         FreeMode();
-
+    ShakeTime();
     UpdateWorld();
-
+    if (!DoingShake)
+        m_vRestorePos = Pos();
     view = XMMatrixInverse(nullptr, world);
     viewBuffer->Set(view, world);
 }
@@ -414,4 +415,26 @@ bool Camera::ContainPoint(Vector3 center, float radius)
     //각 평면에서 안쪽이었던점이 최소 1개 이상씩 있음(continue가 작동했으므로) >> 모든 평면에서 안쪽인 점이 있다?
 
     return true; //이것보다 참인 경우는 없다 = 해당 영역의 최소 일부는 반드시 프러스텀 안에 있다
+}
+
+Vector3 Camera::ShakeTime()
+{
+    if (!DoingShake)return;
+    float fShakeFactor = 5.f;
+    if (shakestrength < 6.f * 3.141592 * fShakeFactor)
+    {
+        Pos().y = m_vRestorePos.y + 3.f * sin(shakestrength);
+        Pos().z = m_vRestorePos.z + 3.f * -sin(shakestrength);
+
+        shakestrength += fShakeFactor;
+    }
+    else
+    {
+        Pos() = m_vRestorePos;
+        shakestrength = 0.0f;
+        DoingShake = FALSE;
+        //m_tEffectType = CAMERA_EFFECT_TYPE::NONE;
+    }
+
+    return Pos();
 }

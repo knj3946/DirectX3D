@@ -28,6 +28,8 @@ public:
     bool ContainPoint(Vector3 point);
     bool ContainPoint(Vector3 center,float radius);
 
+    Vector3 ShakeTime();
+
 private:
     void FreeMode();
     void FollowMode();    
@@ -35,10 +37,11 @@ private:
     void Frustum();
 
 private:
+    bool DoingShake = false;
     ViewBuffer* viewBuffer;
     Matrix view;
     Matrix projection;
-
+    Vector3 m_vRestorePos;
     Vector3 planes[6];
     float a, b, c, d;
 
@@ -70,4 +73,6 @@ private:
     char file[128] = {};
 
     bool global = false;
+
+    float shakestrength = 1.f;
 };
