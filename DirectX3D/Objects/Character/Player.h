@@ -98,20 +98,11 @@ public:
     void Assassination();
 
     void Climb(Collider* col,Vector3 climbPos);
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 
     void SetClimbAnim();
 
     void Climbing();
 
-=======
->>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
-=======
->>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
-=======
->>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
     void SetHitEffectPos(Vector3& _pos) { particlepos = _pos; }
 private:
     void CameraMove(); // 벽에 가려지는 플레이어 현상 해결을 위한 함수

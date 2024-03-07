@@ -645,17 +645,8 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
 {
     if (isClimb)
     {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         Climbing();
 
-=======
->>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
-=======
->>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
-=======
->>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
         if (curRayCoolTime <= 0.f)
         {
             Vector3 PlayerSkyPos = Pos();
@@ -1290,19 +1281,8 @@ void Player::SetCameraPos()
                 distance = temp.distance;
             }
         }
-
-<<<<<<< HEAD
         CAM->SetDistance(distance);
     }
-=======
-    CAM->SetDistance(distance);
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
-=======
->>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
-=======
->>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
 }
 
 void Player::CoolDown()

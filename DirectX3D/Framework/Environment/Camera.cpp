@@ -210,26 +210,9 @@ void Camera::FollowMode()
     destPos = target->GlobalPos() + forward * -distance;
     destPos.y += height;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     Pos() = Lerp(Pos(), destPos, moveDamping * DELTA);
+    //Pos() = destPos;
 
-    //Pos() = Lerp(Pos(), destPos, moveDamping * DELTA);    
-    Pos() = destPos;
-
-=======
-    //Pos() = Lerp(Pos(), destPos, moveDamping * DELTA);    
-    Pos() = destPos;
->>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
-=======
-    //Pos() = Lerp(Pos(), destPos, moveDamping * DELTA);    
-    Pos() = destPos;
->>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
-=======
-    //Pos() = Lerp(Pos(), destPos, moveDamping * DELTA);    
-    Pos() = destPos;
->>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
     Vector3 offset = XMVector3TransformCoord(focusOffset, rotMatrix);
     Vector3 targetPos = target->GlobalPos() + offset;
 
