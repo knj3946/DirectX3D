@@ -21,6 +21,12 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("ModelAnimation");
     SceneManager::Get()->Add("GameMap");
     //SceneManager::Get()->Add("TestNpcScene");
+<<<<<<< HEAD
+=======
+    //SceneManager::Get()->Add("Player");
+    //SceneManager::Get()->Add("PlayerMap");
+    //SceneManager::Get()->Add("EyesRaySearch");
+>>>>>>> 25f2b9c8ddaf8ed63012062db6f8a1b082c4f42d
     //SceneManager::Get()->Add("Building");
 }
 

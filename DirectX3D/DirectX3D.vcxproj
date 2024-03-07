@@ -112,6 +112,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>Framework.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>./</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -143,6 +144,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Manager\MenuManager.h" />
+    <ClInclude Include="Objects\UI\GameMenu.h" />
     <ClInclude Include="Manager\InteractManager.h" />
     <ClInclude Include="Objects\Character\Boss.h" />
     <ClInclude Include="Objects\Items\Weapons\Arrow.h" />
@@ -247,6 +250,8 @@
     <ClInclude Include="Scenes\TestNpcScene.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Manager\MenuManager.cpp" />
+    <ClCompile Include="Objects\UI\GameMenu.cpp" />
     <ClCompile Include="Manager\InteractManager.cpp" />
     <ClCompile Include="Objects\Character\Boss.cpp" />
     <ClCompile Include="Objects\Items\Weapons\Arrow.cpp" />

@@ -12,6 +12,8 @@ public:
 	void PostRender() override;
 	void GUIRender() override;
 
+	void FirstLoading();
+
 private:
 	vector<ColliderModel*> colliderModels;
 	ColliderModel* model;

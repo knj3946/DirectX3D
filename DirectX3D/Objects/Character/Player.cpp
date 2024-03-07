@@ -1108,7 +1108,7 @@ void Player::Hit(float damage)
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
         collider->SetActive(false);
-        hiteffect->Play(particlepos);
+        //hiteffect->Play(particlepos);
         
         if (destHP <= 0)
         {
