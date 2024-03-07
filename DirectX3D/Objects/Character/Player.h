@@ -99,11 +99,14 @@ public:
 
     void Climb(Collider* col,Vector3 climbPos);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     void SetClimbAnim();
 
     void Climbing();
 
+=======
+>>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
 =======
 >>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
     void SetHitEffectPos(Vector3& _pos) { particlepos = _pos; }

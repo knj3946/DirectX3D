@@ -646,8 +646,11 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
     if (isClimb)
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         Climbing();
 
+=======
+>>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
 =======
 >>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
         if (curRayCoolTime <= 0.f)
@@ -1290,6 +1293,9 @@ void Player::SetCameraPos()
     }
 =======
     CAM->SetDistance(distance);
+<<<<<<< HEAD
+>>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
+=======
 >>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
 }
 
