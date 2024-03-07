@@ -1011,6 +1011,29 @@ void Player::Hit(float damage)
 
 }
 
+void Player::Hit(float damage,bool camerashake)
+{
+    if (!isHit)
+    {
+        destHP = (curHP - damage > 0) ? curHP - damage : 0;
+
+        collider->SetActive(false);
+        CAM->DoShake();
+        if (destHP <= 0)
+        {
+            //SetState(DYING);
+            //???????
+            isDying = true;
+            return;
+        }
+        SetState(HIT, 0.8f);
+
+        isHit = true;
+    }
+
+}
+
+
 void Player::ComboAttack()
 {
     switch (weaponState)

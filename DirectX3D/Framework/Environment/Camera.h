@@ -29,7 +29,7 @@ public:
     bool ContainPoint(Vector3 center,float radius);
 
     void ShakeTime();
-
+    void DoShake() { DoingShake = true; }
 private:
     void FreeMode();
     void FollowMode();    

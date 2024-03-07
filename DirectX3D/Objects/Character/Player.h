@@ -87,6 +87,9 @@ public:
 
     float GetDamage();
     void Hit(float damage);
+    void Hit(float damage,bool camerashake);// 카메라쉐이크용
+
+
 
     void SetIsPushed(bool value) { isPushed = value; }
     void SetIsCeiling(bool value) { isCeiling = value; }
