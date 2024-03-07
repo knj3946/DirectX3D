@@ -20,5 +20,5 @@ private:
     vector<ColliderModel*> colliderModels;
     Player* player;
 
-    
+    BoxCollider* bc[2];
 };

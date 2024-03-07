@@ -3,8 +3,12 @@
 
 TerrainEditorScene::TerrainEditorScene()
 {
-    terrainEditor = new TerrainEditor();
-
+  
+	terrainEditor = new TerrainEditor(256, 256);
+	terrainEditor->GetMaterial()->SetDiffuseMap(L"Textures/Landscape/Sand.png");
+	terrainEditor->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
+	terrainEditor->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
+	terrainEditor->SetHeightMap(L"Textures/HeightMaps/SamepleHeightMap02.png");
     //ByteAddress();
 
 	{
@@ -78,7 +82,7 @@ TerrainEditorScene::TerrainEditorScene()
 		string mTag = "model7";
 		Vector3 mScale = { 3,3,3 };
 		Vector3 mRot = { 0,0,0 };
-		Vector3 mPos = { 180.4f,0,185.1f };
+		Vector3 mPos = { 203.4f,9.5f,185.1f };
 
 		ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 		colliderModels.push_back(cm);
@@ -105,7 +109,14 @@ TerrainEditorScene::TerrainEditorScene()
 		ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 		colliderModels.push_back(cm);
 	}
-
+	FOR(2)
+	{
+		bc[i] = new BoxCollider;
+	}
+	bc[0]->Pos() = { 164.4f,7.5f,168.4f };
+	bc[1]->Pos() = { 164.4f,7.5f,214.8f };
+	bc[0]->Scale() = { 5.f,15.f,27.f };
+	bc[1]->Scale() = { 5.f,15.f	,27.f };
 }
 
 TerrainEditorScene::~TerrainEditorScene()
@@ -126,6 +137,7 @@ void TerrainEditorScene::Update()
 	{
 		cm->UpdateWorld();
 	}
+	FOR(2)bc[i]->UpdateWorld();
 	
 }
 
@@ -140,7 +152,7 @@ void TerrainEditorScene::Render()
 	{
 		cm->Render();
 	}
-
+	FOR(2)bc[i]->Render();
 }
 
 void TerrainEditorScene::PostRender()
@@ -154,6 +166,7 @@ void TerrainEditorScene::GUIRender()
 	{
 		cm->GUIRender();
 	}
+	FOR(2)bc[i]->GUIRender();
 }
 
 void TerrainEditorScene::ByteAddress()
