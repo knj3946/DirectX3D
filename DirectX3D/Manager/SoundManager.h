@@ -8,7 +8,6 @@ public:
 	SoundManager();
 	~SoundManager();
 
-	void Play();
 
 };
 
