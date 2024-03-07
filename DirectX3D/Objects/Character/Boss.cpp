@@ -56,11 +56,11 @@ Boss::Boss()
 
 
 	SetEvent(ATTACK, bind(&Boss::StartAttack, this), 0.f);
-	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.99f);
+	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.9f);
 	SetEvent(ATTACK, bind(&Boss::DoingAttack, this), 0.6f);
 
 	SetEvent(ROAR, bind(&Boss::Roar, this), 0.3f);
-	SetEvent(ROAR, bind(&Boss::EndRoar, this), 0.99f);
+	SetEvent(ROAR, bind(&Boss::EndRoar, this), 0.9f);
 	SetEvent(DEATH, bind(&Boss::EndDying, this), 0.9f);
 
 
@@ -83,6 +83,7 @@ Boss::Boss()
 	Audio::Get()->Add("Boss_Run", "Sounds/Bossfootstep.mp3", false, false, true);
 	Audio::Get()->Add("Boss_Walk", "Sounds/Bosswalk.mp3", false, false, true);
 	hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
+	leftCollider->SetActive(false);
 }
 
 Boss::~Boss()
@@ -107,6 +108,7 @@ Boss::~Boss()
 void Boss::DoingAttack() {
 	//if(leftCollider->IsCollision(target->))
 	//Å¸°Ù °ø°Ý
+	leftCollider->SetActive(true);
 }
 void Boss::Render()
 {
@@ -129,6 +131,8 @@ void Boss::Render()
 void Boss::Update()
 {
 
+	instancing->Update();
+	if (curHP <= 0)return;
 	Idle();
 	Direction();
 	Control();
@@ -141,7 +145,6 @@ void Boss::Update()
 	
 	Die();
 
-	instancing->Update();
 	leftHand->SetWorld(instancing->GetTransformByNode(index, 14));
 
 	transform->UpdateWorld();
@@ -241,7 +244,7 @@ bool Boss::CalculateEyeSight(bool _bFind)
 		Enemytothisangle += 360;
 	}
 
-	if (Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange) {
+	if (Distance(target->GlobalPos(), transform->GlobalPos())	 < eyeSightRange) {
 
 
 		if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
@@ -621,6 +624,7 @@ void Boss::EndAttack()
 	totargetlength = velocity.Length();
 	moveSpeed = runSpeed;
 	dir = velocity.GetNormalized();
+	leftCollider->SetActive(false);
 	if (totargetlength > AttackRange) {
 		SetState(RUN);
 		bWait = false;
@@ -652,6 +656,8 @@ void Boss::EndHit()
 
 void Boss::EndDying()
 {
+	exclamationMark->SetActive(false);
+	questionMark->SetActive(false);
 }
 
 
@@ -751,7 +757,7 @@ void Boss::Run()
 			}
 
 		
-			Runparticle[currunparticle]->Play(transform->GlobalPos(), transform->Rot());
+			Runparticle[currunparticle]->Play(transform->GlobalPos(), transform->Rot());	
 			if(!Audio::Get()->IsPlaySound("Boss_Run"))
 				Audio::Get()->Play("Boss_Run", transform->GlobalPos(), 1.f);
 			currunparticle++;
@@ -793,5 +799,26 @@ void Boss::SetRay()
 	Vector3 dir = target->GlobalPos() - transform->GlobalPos();
 	dir.Normalize();
 	ray.dir = dir;
+}
+
+void Boss::CollisionCheck()
+{
+	if (!leftCollider->Active() || !RoarCollider->Active())return;
+	if (IsHit)return;
+	Player* player = dynamic_cast<Player*>(target);
+	if (!player)return;
+	if (leftCollider->Active())
+	{
+	
+		if (leftCollider->IsCollision(player->GetCollider()))
+			player->Hit(attackdamage);
+		
+
+	}
+	if (RoarCollider->Active()) {
+		if (RoarCollider->IsCollision(player->GetCollider()))
+			player->Hit(Roardamage,true);
+	}
+		IsHit = true;
 }
 

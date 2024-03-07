@@ -14,7 +14,7 @@ GameManager::GameManager()
    // SceneManager::Get()->Create("ModelExport", new ModelExportScene());
     //SceneManager::Get()->Create("Cube", new CubeScene());
     //SceneManager::Get()->Create("Sphere", new SphereScene());
-    //SceneManager::Get()->Create("Terrain", new TerrainEditorScene());
+  //  SceneManager::Get()->Create("Terrain", new TerrainEditorScene());
     //SceneManager::Get()->Create("Collision", new CollisionScene());
     //SceneManager::Get()->Create("ModelRender", new ModelRenderScene());
     //SceneManager::Get()->Create("ModelAnimation", new ModelAnimationScene());
@@ -35,12 +35,12 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("EyesRaySearch", new EyesRaySearchScene());
     //SceneManager::Get()->Create("Building", new BuildingScene());
 
-    SceneManager::Get()->Add("Grid");
+    //SceneManager::Get()->Add("Grid");
 
     //SceneManager::Get()->Add("ModelExport");
     //SceneManager::Get()->Add("Cube");
     //SceneManager::Get()->Add("Sphere");
-     //SceneManager::Get()->Add("Terrain");
+    //SceneManager::Get()->Add("Terrain");
     //SceneManager::Get()->Add("Collision");
     //SceneManager::Get()->Add("ModelRender");
     //SceneManager::Get()->Add("ModelAnimation");
