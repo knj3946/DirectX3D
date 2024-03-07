@@ -101,6 +101,12 @@ Boss::~Boss()
 	for (int i = 0; i < 3; ++i)
 		delete Runparticle[i];
 }
+void Boss::SetPatrolPos(Vector3 _pos)
+{
+	PatrolPos.push_back(_pos);
+	if (1 == PatrolPos.size())
+		transform->Pos() = _pos;
+}
 void Boss::DoingAttack() {
 	//if(leftCollider->IsCollision(target->))
 	//Å¸°Ù °ø°Ý

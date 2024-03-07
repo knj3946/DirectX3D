@@ -189,7 +189,7 @@ public:
     ~Boss();
     void SetTerrain(LevelData* terrain) { this->terrain = terrain; }
     void SetAStar(AStar* aStar) { this->aStar = aStar; }
-    void SetPatrolPos(Vector3 _pos) { PatrolPos.push_back(_pos); }
+    void SetPatrolPos(Vector3 _pos);
     void SetTargetCollider(CapsuleCollider* collider) { targetCollider = collider; }
     Collider* GetCollider() { return collider; }
     void Render();

@@ -117,6 +117,36 @@ TerrainEditorScene::TerrainEditorScene()
 	bc[1]->Pos() = { 164.4f,7.5f,214.8f };
 	bc[0]->Scale() = { 5.f,15.f,27.f };
 	bc[1]->Scale() = { 5.f,15.f	,27.f };
+	astar = new AStar(128, 128);
+	astar->SetNode(terrainEditor);
+
+	player = new Player;
+	
+	MonsterManager::Get()->SetTarget(player); //싱글턴 생성 후, 표적 설정까지
+	MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(150.f, 0.f, 175.f));
+	MonsterManager::Get()->SetPatrolPos(0,Vector3(150.f, 0.f, 210.f));
+	MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185));
+	MonsterManager::Get()->SetPatrolPos(1, Vector3(50.f, 0.f, 185.f));
+	MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(85, 0, 120));
+	MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 120.f));	MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 70.f));	MonsterManager::Get()->SetPatrolPos(2, Vector3(85.f, 0.f, 70.f));
+	MonsterManager::Get()->SetOrcSRT(3, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(62, 0, 40));
+	MonsterManager::Get()->SetPatrolPos(3, Vector3(62.f, 0.f, 65.f));
+	MonsterManager::Get()->SetOrcSRT(4, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(110, 0, 80));
+	MonsterManager::Get()->SetPatrolPos(4, Vector3(110.f, 0.f, 40.f));
+	MonsterManager::Get()->SetOrcSRT(5, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(170, 0, 40));
+	MonsterManager::Get()->SetPatrolPos(5, Vector3(170.f, 0.f, 80.f)); MonsterManager::Get()->SetPatrolPos(5, Vector3(120.f, 0.f, 80.f));	MonsterManager::Get()->SetPatrolPos(5, Vector3(170.f, 0.f, 80.f));
+	MonsterManager::Get()->SetOrcSRT(6, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(160, 0, 120));
+	MonsterManager::Get()->SetPatrolPos(6, Vector3(170.f, 0.f, 120.f));
+	MonsterManager::Get()->SetOrcSRT(7, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(46, 0, 145));
+	MonsterManager::Get()->SetPatrolPos(7, Vector3(46.f, 0.f, 170.f));
+	MonsterManager::Get()->SetTerrain(terrainEditor);
+	MonsterManager::Get()->SetAStar(astar);
+	boss = new Boss;
+	boss->SetTarget(player);
+	boss->SetTerrain(terrainEditor);
+	boss->SetAStar(astar);
+	boss->SetPatrolPos(Vector3(205.f, 0.f, 110.f));
+	boss->SetPatrolPos(Vector3(205.f, 0.f, 80.f));
 }
 
 TerrainEditorScene::~TerrainEditorScene()
@@ -138,6 +168,9 @@ void TerrainEditorScene::Update()
 		cm->UpdateWorld();
 	}
 	FOR(2)bc[i]->UpdateWorld();
+
+	MonsterManager::Get()->Update();
+	boss->Update();
 	
 }
 
@@ -153,6 +186,8 @@ void TerrainEditorScene::Render()
 		cm->Render();
 	}
 	FOR(2)bc[i]->Render();
+	MonsterManager::Get()->Render();
+	boss->Render();
 }
 
 void TerrainEditorScene::PostRender()

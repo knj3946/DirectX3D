@@ -4,7 +4,7 @@ class MonsterManager : public Singleton<MonsterManager>
 private:
     typedef TerrainEditor LevelData;
     //typedef Terrain LevelData;
-    UINT SIZE = 2;
+    UINT SIZE = 8;
 public:
     MonsterManager();
     ~MonsterManager();

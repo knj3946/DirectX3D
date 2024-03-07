@@ -51,9 +51,9 @@ void MonsterManager::Update()
 
 
 
-
-    orcs[0]->Update();
-    orcs[1]->Update();
+     FOR(SIZE)
+        orcs[i]->Update();
+   
   //  for (Orc* orc : orcs)
   //  {
   //

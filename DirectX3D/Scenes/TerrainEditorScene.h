@@ -19,6 +19,8 @@ private:
     TerrainEditor* terrainEditor;
     vector<ColliderModel*> colliderModels;
     Player* player;
+    AStar* astar;
+    Boss* boss;
 
     BoxCollider* bc[2];
 };
