@@ -97,6 +97,7 @@ Player::Player()
     ReadClip("Braced Hang Hop Left");
     ReadClip("Braced Hang Hop Right");
     ReadClip("Climbing Down Wall");
+    ReadClip("Braced Hang Drop");
     //ReadClip("temp");
 
     temp = "Attack/";
@@ -156,6 +157,7 @@ Player::Player()
     GetClip(CLIMBING_JUMP_R)->SetEvent(bind(&Player::SetClimbAnim, this), 0.8f);
     GetClip(CLIMBING_JUMP_L)->SetEvent(bind(&Player::SetClimbAnim, this), 0.8f);
     GetClip(CLIMBING_DOWN)->SetEvent(bind(&Player::SetClimbAnim, this), 0.9f);
+    GetClip(CLIMBING_JUMP_D)->SetEvent(bind(&Player::SetClimbAnim, this), 0.7f);
 
     GetClip(ASSASSINATION1)->SetEvent(bind(&Player::EndAssassination, this, 1), 0.9f);
     GetClip(ASSASSINATION2)->SetEvent(bind(&Player::EndAssassination, this, 2), 0.9f);
@@ -326,10 +328,11 @@ void Player::PostRender()
 
 void Player::GUIRender()
 {
-    return;
     Model::GUIRender();
 
     ImGui::Text("playerArrowCount : %d", ArrowManager::Get()->GetPlayerArrowCount());
+
+    CAM->GUIRender();
 
     //ImGui::DragFloat3("Velocity", (float*)&velocity, 0.5f);
     ////???
@@ -339,9 +342,6 @@ void Player::GUIRender()
     //ImGui::SliderFloat("deceleration", &deceleration, 1, 10);
     //ImGui::Text("isPushed : %d", isPushed);
     //ImGui::Text("feedBackPosY : %f", feedBackPos.y);
-    //ImGui::Text("Pos.x : %f", Pos().x);
-    //ImGui::Text("Pos.y : %f", Pos().y);
-    //ImGui::Text("Pos.z : %f", Pos().z);
     //ImGui::Text("heightLevel : %f", heightLevel);
 
     ImGui::Text("curState : %d", curState);
@@ -425,10 +425,12 @@ void Player::Climb(Collider* col, Vector3 climbPos)
 
 void Player::SetClimbAnim()
 {
-    //if (Pos().y < 0.0f)
-    //    Pos().y = 0.0f;
-
-    if (curState == CLIMBING_DOWN)
+    if (curState == CLIMBING_JUMP_D)
+    {
+        isClimb = false;
+        Pos().y = climbJ_y;
+    }
+    else if (curState == CLIMBING_DOWN)
     {
         Pos() = saveT->Pos();
         Rot() = saveT->Rot();
@@ -439,8 +441,11 @@ void Player::SetClimbAnim()
         CAM->SetTarget(this);
         collider->SetParent(this);
 
-        delete saveT;
-        TSaved = false;
+        if (TSaved)
+        {
+            delete saveT;
+            TSaved = false;
+        }
     }
     else if (curState == CLIMBING2 || curState == CLIMBING_JUMP_R || curState == CLIMBING_JUMP_L)
     {
@@ -457,12 +462,12 @@ void Player::SetClimbAnim()
 
 void Player::Climbing()
 {
-    if (curState == CLIMBING3)
+    if (curState == CLIMBING3 || curState == CLIMBING_JUMP_D)
         return;
-
+     
     //현재는 건물이 직각이기 때문에 가능한 코드, 굴곡이 있다면 Ray로 바꾸고 distance 체크하면서 이동하기로 구현
     Transform rayT = *this;
-    rayT.Pos().y += 7.f;
+    rayT.Pos().y += 7.2f;
 
     Ray headForwardRay = Ray(rayT.Pos(), rayT.Back());
 
@@ -481,7 +486,7 @@ void Player::Climbing()
         }
     }
 
-    //if (arriveTop)
+    //if (arriveTop)    ////꼭대기 올라가는 코드, 테스트 위해서 주석처리 함
     //{
     //    climbArrivePos.y += 0.1f;
 
@@ -491,6 +496,15 @@ void Player::Climbing()
 
     if (canClimbControl) 
     {
+        if (KEY_DOWN(VK_SPACE))
+        {
+            SetState(CLIMBING_JUMP_D);
+            climbJ_y = Pos().y; //왜인지 위의 state의 바인딩 함수가 실행되고 y축이 0이돼서 
+                                //Jumping을 통한 추락이 잘 안됨, 그래서 임시로 기억
+            //isClimb = false;
+            return;
+        }
+
         climbVel = 0.0f;
 
         if (KEY_PRESS('W'))
@@ -503,7 +517,8 @@ void Player::Climbing()
         {
             SetState(CLIMBING_DOWN);
 
-            saveT = new Transform(*this);
+            saveT = new Transform(*this);   //애니메이션이 실제 위치보다 높게 출력되기 때문에
+                                            //실제 시작 위치를 가져옴
             TSaved = true;
             CAM->SetTarget(saveT);
             collider->SetParent(saveT);
@@ -530,8 +545,32 @@ void Player::Climbing()
         }
     }
 
+    if (TSaved && saveT->Pos().y <= heightLevel)
+    {
+        climbVel = 0;
+
+        Pos() = saveT->Pos();
+        Pos().y = heightLevel + 0.01f;   //heightLevel이 갱신되는지 확인해야 함, 현재는 건물 밑에 바닥밖에 없어서 상관x
+
+        if (Pos().y < 0.0f)
+            Pos().y = 0.0f;
+
+        collider->SetParent(this);
+        CAM->SetTarget(this);
+
+        if (TSaved)
+        {
+            delete saveT;
+            TSaved = false;
+        }
+
+        isClimb = false;
+
+        return;
+    }
+
     Pos() += climbVel * DELTA * 5.5f;
-    if (TSaved)
+    if (TSaved) //내려가는 동안만 true
     {
         saveT->Pos() += climbVel * DELTA * 5.5f;
         saveT->UpdateWorld();
@@ -647,13 +686,13 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
     {
         Climbing();
 
-        if (curRayCoolTime <= 0.f)
-        {
-            Vector3 PlayerSkyPos = Pos();
-            PlayerSkyPos.y += 100;
-            Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
-            TerainComputePicking(feedBackPos, groundRay);
-        }   
+        //if (curRayCoolTime <= 0.f)
+        //{
+        //    Vector3 PlayerSkyPos = Pos();
+        //    PlayerSkyPos.y += 100;
+        //    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+        //    TerainComputePicking(feedBackPos, groundRay);
+        //}   
     }
     else
     {
@@ -814,7 +853,7 @@ void Player::Walking()
     float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
 
 
-    if (/*ColliderManager::Get()->ControlPlayer(&direction)*/ !isPushed
+    if (!isPushed
         && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y
             || destFeedBackPos.y - feedBackPos.y < 0.5f) // 바닥 올라가게 하기위해 추가함
         ) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????
@@ -827,8 +866,8 @@ void Player::Walking()
     }
 
     //???????°? ????? ???? ???? ????? ???? ????
-    if (curState != JUMP1 && curState != JUMP2 && curState != JUMP3)
-        Pos().y = feedBackPos.y;
+    if (curState != JUMP1 && curState != JUMP2 && curState != JUMP3 && curState != CLIMBING_JUMP_D)
+        Pos().y = feedBackPos.y;    //여기 체크
 }
 
 void Player::Jump()
@@ -866,6 +905,12 @@ void Player::Jumping()
         else
         {
             tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
+
+            if (climbJ_y >= 0)
+            {
+                Pos().y = climbJ_y;
+                climbJ_y = 0.0f;
+            }
             tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
         }
 
@@ -977,15 +1022,6 @@ void Player::EndHit()
     isHit = false;
     collider->SetActive(true);
     SetState(IDLE);
-}
-
-void Player::EndClimbing()
-{
-    if (curState == CLIMBING1)
-    {
-        /*SetState(CLIMBING2); 
-        return;*/
-    }
 }
 
 bool Player::OnColliderFloor(Vector3& feedback)
@@ -1147,7 +1183,7 @@ void Player::SetState(State state, float scale, float takeTime)
 void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 매개변수로 값을 받아올 경우엔 바로 그 state로 변경하게 만들기
 {
     if (curState == ASSASSINATION1 || curState == ASSASSINATION2) return;
-    if (curState == CLIMBING1 || curState == CLIMBING2 || curState == CLIMBING3 || curState == CLIMBING_JUMP_R || curState == CLIMBING_JUMP_L) return;
+    if (curState == CLIMBING1 || curState == CLIMBING2 || curState == CLIMBING3 || curState == CLIMBING_JUMP_R || curState == CLIMBING_JUMP_L || curState == CLIMBING_DOWN) return;
         
     if (weaponState == DAGGER)
     {
@@ -1270,6 +1306,7 @@ void Player::SetCameraPos()
         CAM->SetTarget(this);
 
         Ray playerBackRay = Ray(Pos(), Forward());
+        playerBackRay.pos.y += 3.5f;
         Contact temp;
 
         float distance = 13.f;

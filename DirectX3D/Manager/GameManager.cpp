@@ -3,6 +3,7 @@
 #include "Scenes/GameMapScene.h"
 #include "Scenes/TestNpcScene.h"
 #include "Scenes/PlayerScene.h"
+#include "Scenes/ModelAnimationScene.h"
 
 #include "Scenes/BuildingScene.h"
 
@@ -10,55 +11,16 @@ GameManager::GameManager()
 {
     Create();
 
-
-   // SceneManager::Get()->Create("ModelExport", new ModelExportScene());
-    //SceneManager::Get()->Create("Cube", new CubeScene());
-    //SceneManager::Get()->Create("Sphere", new SphereScene());
-  //  SceneManager::Get()->Create("Terrain", new TerrainEditorScene());
-    //SceneManager::Get()->Create("Collision", new CollisionScene());
-    //SceneManager::Get()->Create("ModelRender", new ModelRenderScene());
     //SceneManager::Get()->Create("ModelAnimation", new ModelAnimationScene());
-    //SceneManager::Get()->Create("Instancing", new IntancingScene());
-    //SceneManager::Get()->Create("Game", new GameScene());
-    ///SceneManager::Get()->Create("BillboardScene", new BillboardScene());
-    //SceneManager::Get()->Create("RenderTarget", new RenderTargetScene());
-    //SceneManager::Get()->Create("ShadowScene", new ShadowScene());
-    //SceneManager::Get()->Create("Dijkstra", new DijkstraScene());
-    //SceneManager::Get()->Create("AStar", new AStarScene());
-    //SceneManager::Get()->Create("Particle", new ParticleScene());
-    //SceneManager::Get()->Create("Human", new HumanScene());
-    //SceneManager::Get()->Create("QuadTree", new QuadTreeScene());
     SceneManager::Get()->Create("GameMap", new GameMapScene());
     //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
-    //SceneManager::Get()->Create("Player", new PlayerScene());
-    //SceneManager::Get()->Create("PlayerMap", new PlayerMapScene());
-    //SceneManager::Get()->Create("EyesRaySearch", new EyesRaySearchScene());
     //SceneManager::Get()->Create("Building", new BuildingScene());
 
     //SceneManager::Get()->Add("Grid");
 
-    //SceneManager::Get()->Add("ModelExport");
-    //SceneManager::Get()->Add("Cube");
-    //SceneManager::Get()->Add("Sphere");
-    //SceneManager::Get()->Add("Terrain");
-    //SceneManager::Get()->Add("Collision");
-    //SceneManager::Get()->Add("ModelRender");
     //SceneManager::Get()->Add("ModelAnimation");
-    //SceneManager::Get()->Add("Instancing");
-    //SceneManager::Get()->Add("Game");
-    //SceneManager::Get()->Add("BillboardScene");
-    //SceneManager::Get()->Add("RenderTarget");
-    //SceneManager::Get()->Add("ShadowScene");
-    //SceneManager::Get()->Add("Dijkstra");
-    //SceneManager::Get()->Add("AStar");
-    //SceneManager::Get()->Add("Particle");
-    //SceneManager::Get()->Add("Human");
-    //SceneManager::Get()->Add("QuadTree");
     SceneManager::Get()->Add("GameMap");
-  //  SceneManager::Get()->Add("TestNpcScene");
-    //SceneManager::Get()->Add("Player");
-    //SceneManager::Get()->Add("PlayerMap");
-    //SceneManager::Get()->Add("EyesRaySearch");
+    //SceneManager::Get()->Add("TestNpcScene");
     //SceneManager::Get()->Add("Building");
 }
 
