@@ -3,7 +3,6 @@
 
 GameMapScene::GameMapScene()
 {
-<<<<<<< HEAD
 	skyBox = new SkyBox(L"Textures/Landscape/BlueSky.dds");
 
 	FOR(2)
@@ -150,10 +149,7 @@ GameMapScene::GameMapScene()
 	
 
 	ColliderManager::Get()->SetPlayer(player);
-	KunaiManager::Get();
-=======
 	MenuManager::Get(); //기본 메뉴 생성
->>>>>>> 25f2b9c8ddaf8ed63012062db6f8a1b082c4f42d
 }
 
 GameMapScene::~GameMapScene()
@@ -245,44 +241,6 @@ void GameMapScene::Update()
 		else
 			waitSettingTime += DELTA;
 	}
-<<<<<<< HEAD
-
-	if (KEY_UP('P'))
-	{
-		if (Audio::Get()->IsPlaySound("bgm1"))
-		{
-			Audio::Get()->Pause("bgm1"); // 일시정지
-		}
-	}
-
-	if (KEY_UP('R'))
-	{
-		if (Audio::Get()->IsPlaySound("bgm1"))
-		{
-			Audio::Get()->Resume("bgm1"); // 일시정지된 지점부터 다시 재생
-		}
-	}
-
-	MonsterManager::Get()->Update();
-	KunaiManager::Get()->Update();
-	player->Update();
-
-	for (ColliderModel* colliderModel : colliderModels)
-	{
-		for (Collider* collider : colliderModel->GetColliders())
-		{
-			MonsterManager::Get()->Blocking(collider);
-		}
-	}
-
-	if (waitSettingTime >= 1)
-	{
-		MonsterManager::Get()->Fight(player);
-	}
-	else
-		waitSettingTime += DELTA;
-=======
->>>>>>> 25f2b9c8ddaf8ed63012062db6f8a1b082c4f42d
 }
 
 void GameMapScene::PreRender()
@@ -325,16 +283,13 @@ void GameMapScene::PostRender()
 
 void GameMapScene::GUIRender()
 {
-<<<<<<< HEAD
 	player->GUIRender();
 	/*
 	for (ColliderModel* cm : colliderModels)
-=======
 
 	MenuManager::Get()->GUIRender();
 
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
->>>>>>> 25f2b9c8ddaf8ed63012062db6f8a1b082c4f42d
 	{
 		//player->GUIRender();
 		/*
@@ -347,9 +302,8 @@ void GameMapScene::GUIRender()
 		//MonsterManager::Get()->GUIRender();
 		//KunaiManager::Get()->GUIRender();
 
-		Timer::Get()->GUIRender();
+	Timer::Get()->GUIRender();
 
-	}
 }
 
 void GameMapScene::FirstLoading()
