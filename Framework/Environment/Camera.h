@@ -42,7 +42,7 @@ private:
     Vector3 planes[6];
     float a, b, c, d;
 
-    float moveSpeed = 100.0f;
+    float moveSpeed = 10.0f;
     float rotSpeed = 10.0f;
 
     Vector3 prevMousePos;
@@ -53,8 +53,8 @@ private:
 
     float distance = 20.0f;
     float height = 20.0f;
-    float moveDamping = 5.0f;
-    float rotDamping = 1.0f;
+    float moveDamping = 0.01f;
+    float rotDamping = 0.01f;
 
     float rotY = 0;
 
