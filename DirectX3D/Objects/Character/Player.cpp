@@ -396,6 +396,7 @@ void Player::SetTerrain(LevelData* terrain)
 void Player::Assassination()
 {
     SetState(ASSASSINATION1, 2.0f);
+    Audio::Get()->Play("Player_Assassination");
 }
 
 void Player::Climb(Collider* col, Vector3 climbPos)
@@ -459,6 +460,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
             {
                 ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos));
+                Audio::Get()->Play("Player_ShootArrow");
                 SetState(B_RECOIL);
             }
             return;
@@ -471,7 +473,9 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
         {
             // 보유한 화살이 있는가
             if (ArrowManager::Get()->GetPlayerArrowCount() <= 0)return;
-                SetState(B_DRAW);
+            
+            Audio::Get()->Play("Player_BowLoading");
+            SetState(B_DRAW);
             return;
         }
     }
@@ -670,11 +674,11 @@ void Player::Walking()
 
     if (isMoveX || isMoveZ)
     {
-        if(!Audio::Get()->IsPlaySound("playerMove"))
-            Audio::Get()->Play("playerMove", 2);
+        if (!Audio::Get()->IsPlaySound("Player_Move"))
+            Audio::Get()->Play("Player_Move", 2);
     }
     else
-        Audio::Get()->Stop("playerMove");
+        Audio::Get()->Stop("Player_Move");
 
     if (!isMoveZ)
         velocity.z = Lerp(velocity.z, 0, deceleration * DELTA); //???????? ????
@@ -1021,6 +1025,8 @@ void Player::ComboAttack()
         //    break;
     case DAGGER:
         SetState(static_cast<State>(DAGGER1 + comboStack));
+        Audio::Get()->Play("Player_Attack");
+        //PLAYSOUND("Player_ATTACK", 1);
         break;
     }
 

@@ -412,7 +412,7 @@ void Orc::Hit(float damage,Vector3 collisionPos)
 {
     if (!isHit)
     {
-        Audio::Get()->Play("hit", transform->Pos()); // 크기조절
+        Audio::Get()->Play("Orc_Hit", transform->Pos()); // 크기조절
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
         collider->SetActive(false);
