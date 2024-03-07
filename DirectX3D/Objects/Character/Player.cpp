@@ -668,6 +668,14 @@ void Player::Walking()
 
     if (velocity.Length() > 1) velocity.Normalize();
 
+    if (isMoveX || isMoveZ)
+    {
+        if(!Audio::Get()->IsPlaySound("playerMove"))
+            Audio::Get()->Play("playerMove", 2);
+    }
+    else
+        Audio::Get()->Stop("playerMove");
+
     if (!isMoveZ)
         velocity.z = Lerp(velocity.z, 0, deceleration * DELTA); //???????? ????
 

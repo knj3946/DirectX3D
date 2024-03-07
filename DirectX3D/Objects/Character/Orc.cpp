@@ -86,8 +86,6 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     rangeBar->Rot() = { XMConvertToRadians(90.f),0,XMConvertToRadians(-90.f) };
     rangeBar->Pos() = { -15.f,2.f,-650.f };
 
-    Audio::Get();
-    Audio::Get()->Add("hit", "Sounds/hit.wav");
 }
 
 Orc::~Orc()
