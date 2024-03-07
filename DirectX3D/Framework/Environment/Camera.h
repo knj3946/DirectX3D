@@ -28,7 +28,7 @@ public:
     bool ContainPoint(Vector3 point);
     bool ContainPoint(Vector3 center,float radius);
 
-    Vector3 ShakeTime();
+    void ShakeTime();
 
 private:
     void FreeMode();

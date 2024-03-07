@@ -1,36 +1,15 @@
 #include "Framework.h"
 
-#include "Scenes/CubeScene.h"
-#include "Scenes/GridScene.h"
-#include "Scenes/SphereScene.h"
-#include "Scenes/TerrainEditorScene.h"
-#include "Scenes/CollisionScene.h"
-#include "Scenes/ModelExportScene.h"
-#include "Scenes/ModelRenderScene.h"
-#include "Scenes/ModelAnimationScene.h"
-#include "Scenes/IntancingScene.h"
-#include "Scenes/GameScene.h"
-#include "Scenes/BillboardScene.h"
-#include "Scenes/RenderTargetScene.h"
-#include "Scenes/ShadowScene.h"
-#include "Scenes/DijkstraScene.h"
-#include "Scenes/AStarScene.h"
-#include "Scenes/ParticleScene.h"
-#include "Scenes/ParticleConfigScene.h"
-#include "Scenes/HumanScene.h"
-#include "Scenes/QuadTreeScene.h"
 #include "Scenes/GameMapScene.h"
 #include "Scenes/TestNpcScene.h"
 #include "Scenes/PlayerScene.h"
-#include "Scenes/PlayerMapScene.h"
-#include "Scenes/EyesRaySearchScene.h"
+
 #include "Scenes/BuildingScene.h"
 
 GameManager::GameManager()
 {
     Create();
 
-    SceneManager::Get()->Create("Grid", new GridScene());
 
    // SceneManager::Get()->Create("ModelExport", new ModelExportScene());
     //SceneManager::Get()->Create("Cube", new CubeScene());
@@ -47,11 +26,10 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("Dijkstra", new DijkstraScene());
     //SceneManager::Get()->Create("AStar", new AStarScene());
     //SceneManager::Get()->Create("Particle", new ParticleScene());
-    SceneManager::Get()->Create("ParticleConfig", new ParticleConfigScene());
     //SceneManager::Get()->Create("Human", new HumanScene());
     //SceneManager::Get()->Create("QuadTree", new QuadTreeScene());
-  //  SceneManager::Get()->Create("GameMap", new GameMapScene());
-    //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
+   // SceneManager::Get()->Create("GameMap", new GameMapScene());
+    SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
     //SceneManager::Get()->Create("Player", new PlayerScene());
     //SceneManager::Get()->Create("PlayerMap", new PlayerMapScene());
     //SceneManager::Get()->Create("EyesRaySearch", new EyesRaySearchScene());
@@ -74,11 +52,10 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("Dijkstra");
     //SceneManager::Get()->Add("AStar");
     //SceneManager::Get()->Add("Particle");
-        SceneManager::Get()->Add("ParticleConfig");
     //SceneManager::Get()->Add("Human");
     //SceneManager::Get()->Add("QuadTree");
   //  SceneManager::Get()->Add("GameMap");
-    //SceneManager::Get()->Add("TestNpcScene");
+    SceneManager::Get()->Add("TestNpcScene");
     //SceneManager::Get()->Add("Player");
     //SceneManager::Get()->Add("PlayerMap");
     //SceneManager::Get()->Add("EyesRaySearch");

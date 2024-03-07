@@ -13,7 +13,9 @@ TestNpcScene::TestNpcScene()
     
     boss->SetPatrolPos(Vector3(0, 0, 0));
     boss->SetPatrolPos(Vector3(100, 0, 100));
-
+    CAM->SetTarget(boss->GetTransform());
+    CAM->TargetOptionLoad("GameMapScenePlayer");
+    CAM->LookAtTarget();
   //  MonsterManager::Get()->SetTarget(naruto); //싱글턴 생성 후, 표적 설정까지
   //
   //  MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(80, 0, 80));
@@ -26,6 +28,7 @@ TestNpcScene::TestNpcScene()
     MonsterManager::Get()->SetType(1, Orc::NPC_TYPE::ATTACK);
     MonsterManager::Get()->SetTerrain(terrain);
     MonsterManager::Get()->SetAStar(aStar2);
+    boss->SetTarget(MonsterManager::Get()->GetOrc(0)->GetTransform());
 
     //#pragma region 그림자
     //    shadow = new Shadow();

@@ -185,6 +185,7 @@ private:
     void SetRay();
 
 public:
+    Transform* GetTransform() { return transform; }
     void SetPath(Vector3 targetPos);
     Boss();
     ~Boss();
