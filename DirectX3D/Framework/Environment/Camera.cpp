@@ -212,11 +212,16 @@ void Camera::FollowMode()
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     Pos() = Lerp(Pos(), destPos, moveDamping * DELTA);
 
     //Pos() = Lerp(Pos(), destPos, moveDamping * DELTA);    
     Pos() = destPos;
 
+=======
+    //Pos() = Lerp(Pos(), destPos, moveDamping * DELTA);    
+    Pos() = destPos;
+>>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
 =======
     //Pos() = Lerp(Pos(), destPos, moveDamping * DELTA);    
     Pos() = destPos;

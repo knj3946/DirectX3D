@@ -647,8 +647,11 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         Climbing();
 
+=======
+>>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
 =======
 >>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
 =======
@@ -1294,6 +1297,9 @@ void Player::SetCameraPos()
 =======
     CAM->SetDistance(distance);
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
+=======
 >>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
 =======
 >>>>>>> e2f59a4a14497598d2eba2a19421ff2f36e367fc
