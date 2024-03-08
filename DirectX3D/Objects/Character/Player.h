@@ -12,6 +12,7 @@ private:
         HIT,                                    //15
         CLIMBING1, CLIMBING2, CLIMBING3,        //16 ~ 18
         CLIMBING_JUMP_L, CLIMBING_JUMP_R, CLIMBING_DOWN,        //16 ~ 18
+        CLIMBING_JUMP_D,
         KICK,                                   //19
         ASSASSINATION1, ASSASSINATION2,         //20 ~ 21
         DAGGER1, DAGGER2, DAGGER3,              //22 ~ 24
@@ -263,4 +264,6 @@ public: //임시
 
     Transform* saveT;
     bool TSaved;
+
+    float climbJ_y;
 };
