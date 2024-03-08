@@ -23,6 +23,17 @@ ColliderManager::ColliderManager()
         sk.active = false;
         specialKeyUI.insert(make_pair(sk.name, sk));
     }
+    //{
+    //    SpecialKeyUI sk;
+    //    Quad* quad = new Quad(Vector2(130, 50));
+    //    quad->GetMaterial()->SetShader(L"Basic/Texture.hlsl`");
+    //    quad->GetMaterial()->SetDiffuseMap(L"Textures/UI/SpecialKeyUI_climb.png");
+    //    sk.name = "newClimb";
+    //    sk.key = 'F';
+    //    sk.quad = nullptr;
+    //    sk.active = false;
+    //    specialKeyUI.insert(make_pair(sk.name, sk));
+    //}
 }
 
 ColliderManager::~ColliderManager()
@@ -112,44 +123,6 @@ void ColliderManager::GuiRender()
     ImGui::DragFloat3("fds", (float*)&headRay->pos, 0.5f);
     ImGui::Value("CamDistance", Distance(CAM->GlobalPos(), player->Pos()));
 }
-
-//bool ColliderManager::ControlPlayer(Vector3* dir)
-//{
-//	maxHeight = 0.0f;
-//
-//	for (int i = 0; i < obstacles.size(); i++)
-//	{
-//		if (SetPlayerHeight(obstacles[i]))	//���̸� ���ϴ� �Լ��� �����ؾ��ϳ�?
-//			continue;
-//
-//		if (obstacles[i]->PushCollision(playerCollider))	//���� ���� �ε����� �̻��� ��쿡�� return �����
-//		{
-//			player->SetHeightLevel(maxHeight);
-//			return false;
-//		}
-//	}
-//
-//	player->SetHeightLevel(maxHeight);
-//
-//	return true;
-//}
-//
-//bool ColliderManager::SetPlayerHeight(Collider* obstacle)
-//{
-//	Contact underObj;
-//
-//	if (playerFoot->pos.y < obstacle->Pos().y)
-//		return false;
-//
-//	if (obstacle->IsRayCollision(*playerFoot, &underObj)) {
-//		if (underObj.hitPoint.y > maxHeight) {
-//			maxHeight = underObj.hitPoint.y;
-//			return true;
-//		}
-//	}
-//
-//	return false;
-//}
 
 float ColliderManager::CloseRayCollisionColliderDistance(Ray ray)
 {
@@ -552,8 +525,6 @@ bool ColliderManager::CollisionCheck(Collider* _pCollider, Collision_Type _type)
     return false;
 }
 
-
-
 bool ColliderManager::CollisionCheck(Collision_Type _type1, Collision_Type _type2)
 {
     for (int i = 0; i < vecCol[_type1].size(); ++i) {
@@ -601,14 +572,14 @@ void ColliderManager::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
     for (Collider* col : GetObstacles())
     {
         float dis = Distance(col->GetPickContact().hitPoint, playPos);
-        if (col->IsPickFlag() && col->IsTrustedRelation(playPos) && dis < 8.f)
+        if (col->IsPickFlag() && col->IsTrustedRelation(playPos) && dis < 5.f)
         {
             SpecialKeyUI& sk = specialKeyUI["climb"];
             sk.active = true;
             sk.quad->Pos() = CAM->WorldToScreen(col->GetPickContact().hitPoint + offset);
             sk.quad->UpdateWorld();
 
-            InteractManager::Get()->ActiveSkill("climb", sk.key, bind(&InteractManager::Climb, InteractManager::Get(), col));
+            InteractManager::Get()->ActiveSkill("Climb", sk.key, bind(&InteractManager::Climb, InteractManager::Get(), col));
         }
     }
 

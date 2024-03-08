@@ -35,7 +35,6 @@ void InteractManager::Climb(Collider* col)
 {
 	player->Climb(col,col->GetPickContact().hitPoint);
 
-
 	Vector3 v1 = player->GlobalPos();
 	Vector3 v2 = col->GlobalPos();
 

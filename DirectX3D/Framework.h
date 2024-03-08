@@ -7,8 +7,8 @@
 #define WIN_HEIGHT 720
 
 #define MAX_LIGHT 10
-#define MAX_BONE 512
-#define MAX_FRAME 2048
+#define MAX_BONE 256
+#define MAX_FRAME 256
 #define MAX_INSTANCE 128
 
 #define CENTER_X (WIN_WIDTH * 0.5f)
@@ -164,6 +164,7 @@ using namespace GameMath;
 
 #include "Objects/Actor/ActorUI.h"
 #include "Objects/UI/ProgressBar.h"
+#include "Objects/UI/GameMenu.h"
 
 #include "Objects/Landscape/Terrain.h"
 #include "Objects/Landscape/TerrainEditor.h"
@@ -208,6 +209,7 @@ using namespace GameMath;
 #include "Manager/ColliderManager.h"
 #include "Manager/InteractManager.h"
 #include "Manager/SoundManager.h"
+#include "Manager/MenuManager.h"
 
 extern HWND hWnd;
 extern Vector3 mousePos;

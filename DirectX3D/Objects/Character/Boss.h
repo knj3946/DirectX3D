@@ -144,6 +144,11 @@ private:
     bool MarkActiveTime = 0.f;
 
     Particle* hiteffect;
+    bool IsHit = false;// 플레이어를 가격했는지 체크
+    float attackdamage = 20.f;
+    float Roardamage = 40.f;
+
+
 
 private:
     void MarkTimeCheck();
@@ -183,6 +188,8 @@ private:
 
     void Run();
     void SetRay();
+
+    void CollisionCheck();
 
 public:
     Transform* GetTransform() { return transform; }

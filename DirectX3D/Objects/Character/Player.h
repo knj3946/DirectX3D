@@ -11,6 +11,8 @@ private:
         TO_COVER, C_IDLE, C_R, C_L, TO_STAND,   //10 ~ 14
         HIT,                                    //15
         CLIMBING1, CLIMBING2, CLIMBING3,        //16 ~ 18
+        CLIMBING_JUMP_L, CLIMBING_JUMP_R, CLIMBING_DOWN,        //16 ~ 18
+        CLIMBING_JUMP_D,
         KICK,                                   //19
         ASSASSINATION1, ASSASSINATION2,         //20 ~ 21
         DAGGER1, DAGGER2, DAGGER3,              //22 ~ 24
@@ -87,6 +89,9 @@ public:
 
     float GetDamage();
     void Hit(float damage);
+    void Hit(float damage,bool camerashake);// 카메라쉐이크용
+
+
 
     void SetIsPushed(bool value) { isPushed = value; }
     void SetIsCeiling(bool value) { isCeiling = value; }
@@ -94,6 +99,11 @@ public:
     void Assassination();
 
     void Climb(Collider* col,Vector3 climbPos);
+
+    void SetClimbAnim();
+
+    void Climbing();
+
     void SetHitEffectPos(Vector3& _pos) { particlepos = _pos; }
 private:
     void CameraMove(); // 벽에 가려지는 플레이어 현상 해결을 위한 함수
@@ -150,7 +160,7 @@ private:
     Vector3 targetPos;
 
     float moveSpeed1 = 50;
-    float moveSpeed2 = 20;
+    float moveSpeed2 = 15;
     float rotSpeed = 0.3;
     float deceleration = 10; //����
 
@@ -160,11 +170,11 @@ private:
     int jumpN = 0;
     float nextJump = 0;
 
-    float force1 = 250.f;
+    float force1 = 200.f;
     float force2 = 250.0f;
     float force3 = 350.0f;
 
-    float jumpSpeed = 0.156f;
+    float jumpSpeed = 0.300f;
     float gravityMult = 55.0;
 
     float landingT = 3.0f;
@@ -179,7 +189,6 @@ private:
 
     float teleport = 110.000f;
 
-    float temp = 12.5f;
     bool camera = true;
 
     LevelData* terrain;
@@ -248,4 +257,14 @@ public: //임시
     bool headCrash;
     Transform* aimT;
     Quad* crosshair;
+
+    bool canClimbControl = false;
+    Vector3 climbVel;
+    Vector3 climbArrivePos;
+    bool playedClimb2 = false;
+
+    Transform* saveT;
+    bool TSaved;
+
+    float climbJ_y;
 };
