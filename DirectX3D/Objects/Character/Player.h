@@ -1,23 +1,31 @@
-#pragma once
+ï»¿#pragma once
 class Player : public ModelAnimator
 {
 private:
     enum State
     {
-        IDLE,
-        RUN_F, RUN_B, RUN_L, RUN_R,
-        RUN_DL, RUN_DR,
-        JUMP1, JUMP2, JUMP3,
-        TO_COVER, C_IDLE, C_R, C_L, TO_STAND,
-        TO_ASSASIN,
-        KICK,
-        DAGGER1, DAGGER2, DAGGER3,
-        HIT
+        IDLE,                                   //0
+        RUN_F, RUN_B, RUN_L, RUN_R,             //1 ~ 4
+        RUN_DL, RUN_DR,                         //5 ~ 6
+        JUMP1, JUMP2, JUMP3,                    //7 ~ 9
+        TO_COVER, C_IDLE, C_R, C_L, TO_STAND,   //10 ~ 14
+        HIT,                                    //15
+        CLIMBING1, CLIMBING2, CLIMBING3,        //16 ~ 18
+        CLIMBING_JUMP_L, CLIMBING_JUMP_R, CLIMBING_DOWN,        //16 ~ 18
+        CLIMBING_JUMP_D,
+        KICK,                                   //19
+        ASSASSINATION1, ASSASSINATION2,         //20 ~ 21
+        DAGGER1, DAGGER2, DAGGER3,              //22 ~ 24
+        B_IDLE,                                 //25
+        B_RUN_F, B_RUN_B, B_RUN_L, B_RUN_R,     //26 ~ 29
+        B_DRAW, B_ODRAW, B_AIM, B_RECOIL,       //30 ~ 33
+        B_S_TO_C, B_C_TO_S, B_C_IDLE,           //34 ~ 36
+        B_C_F, B_C_B, B_C_L, B_C_R              //37 ~ 40
     };
 
     enum WeaponState
     {
-        NONE, DAGGER
+        NONE, DAGGER, BOW
     };
 
     class RayBuffer : public ConstBuffer
@@ -56,6 +64,7 @@ private:
     //typedef Terrain LevelData;
     typedef TerrainEditor LevelData;
     typedef VertexUVNormalTangentAlpha VertexType;
+
 public:
     Player();
     ~Player();
@@ -65,15 +74,12 @@ public:
     void PostRender();
     void GUIRender();
 
-    void SetMoveSpeed(float speed) { this->moveSpeed = speed; }
+    void SetMoveSpeed(float speed) { this->moveSpeed1 = speed; }
     void SetHeightLevel(float heightLevel) { this->heightLevel = heightLevel; }
 
     Vector3 GetVelocity() { return velocity; }
     CapsuleCollider* GetCollider() { return collider; }
-    Ray* GetFootRay() { return footRay; }
-    
-    
-    Ray GetRay() { return straightRay; }    //¾ÆÁ÷ ¾È¾²´Â°Å
+
 
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
 
@@ -83,11 +89,25 @@ public:
 
     float GetDamage();
     void Hit(float damage);
+    void Hit(float damage,bool camerashake);// ì¹´ë©”ë¼ì‰ì´í¬ìš©
+
+
 
     void SetIsPushed(bool value) { isPushed = value; }
     void SetIsCeiling(bool value) { isCeiling = value; }
 
+    void Assassination();
+
+    void Climb(Collider* col,Vector3 climbPos);
+
+    void SetClimbAnim();
+
+    void Climbing();
+
+    void SetHitEffectPos(Vector3& _pos) { particlepos = _pos; }
 private:
+    void CameraMove(); // ë²½ì— ê°€ë ¤ì§€ëŠ” í”Œë ˆì´ì–´ í˜„ìƒ í•´ê²°ì„ ìœ„í•œ í•¨ìˆ˜
+
     void Control();
     void Move();
     void UpdateUI();
@@ -98,24 +118,39 @@ private:
     void AfterJumpAnimation();
     void Jumping();
     void Cover();
-    void Assasination();
 
-    void Attack();
-    void AttackCombo();
+    void ComboAttack();
+    void ShootArrow();
 
     void SetAnimation();
     void SetState(State state, float scale = 1.0f, float takeTime = 0.2f);
+
     void SetIdle();
+    void SetCameraPos();
+    void SetBowAnim();
+
     void Searching();
+    void Targeting();
+    void UseSkill();
     bool InTheAir();
 
+    void EndAssassination(UINT num);
     void EndHit();
+    void EndClimbing();
 
+    bool OnColliderFloor(Vector3& feedback);
+
+    //bool OnColliderFloor(Vector3& feedback);
     bool TerainComputePicking(Vector3& feedback, Ray ray);
+
+    CapsuleCollider* GetDaggerCollider() { return dagger->GetCollider(); }
+
+    void CoolDown();
+
 
 private:
 
-    POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- ¿¬»êÀÚ´Â »ùÇÃ 
+    POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½ ï¿½ï¿½ï¿½ï¿½ 
 
     State curState = IDLE;
     WeaponState weaponState = DAGGER;
@@ -123,9 +158,10 @@ private:
     Vector3 velocity;
     Vector3 targetPos;
 
-    float moveSpeed = 200;
+    float moveSpeed1 = 50;
+    float moveSpeed2 = 15;
     float rotSpeed = 0.3;
-    float deceleration = 10; //°¨¼Ó
+    float deceleration = 10; //ï¿½ï¿½ï¿½ï¿½
 
     float heightLevel = 0.0f;
 
@@ -133,22 +169,18 @@ private:
     int jumpN = 0;
     float nextJump = 0;
 
-    float force1 = 215.f;
+    float force1 = 200.f;
     float force2 = 250.0f;
     float force3 = 350.0f;
 
-    float jumpSpeed = 0.156f;
+    float jumpSpeed = 0.300f;
     float gravityMult = 55.0;
 
     float landingT = 3.0f;
     float landing = 0.0f;
-        
+
     CapsuleCollider* collider;
     vector<Collider*> weaponColliders;
-
-    Ray straightRay;
-    Ray diagnolLRay;
-    Ray diagnolRRay;
 
     Collider* targetObject;
     Contact contact;
@@ -156,10 +188,8 @@ private:
 
     float teleport = 110.000f;
 
-    float temp = 12.5f;
     bool camera = true;
 
-    Ray* footRay;
     LevelData* terrain;
 
     RayBuffer* rayBuffer;
@@ -179,26 +209,61 @@ private:
     float curHP = 100, maxHp = 100;
     float destHP;
     bool isHit = false;
+    bool isDying = false;
 
     int comboStack = 0;
-    float comboHolding = 0.0f;   //comboStackÀÌ À¯ÁöµÇ´Â ½Ã°£, ÀÌ º¯¼öÀÇ °ªÀº °ø°ÝÀÇ ÁøÇà½Ã°£¸¶´Ù ´Ù¸£°Ô ÃÊ±âÈ­
-    bool combo = false;    //´ë°Å 1¹ø 2¹ø °ø°ÝÀÌ ½º¹«½ºÇÏ°Ô ¿¬°áµÇµµ·Ï ´ë°Å 1¹ø ¾Ö´Ï¸ÞÀÌ¼Ç ÁøÇà Áß°£Âë¿¡ ÀÌ º¯¼ö true·Î ¸¸µé±â
+    float comboHolding = 0.0f;
 
     Transform* rightHand;
+    Transform* leftHand;
     Dagger* dagger;
+    Model* bow;
 
     Transform* leftFoot;
     CapsuleCollider* leftFootCollider;
-    
+
     Transform* rightFoot;
     CapsuleCollider* rightFootCollider;
-    
+
     //left foot : 57
     //right foot : 62
+
     int rightHandNode = 35;
+    int leftHandNode = 11;
     int leftFootNode = 57;
     int rightFootNode = 62;
 
     bool isPushed = false;
     bool isCeiling = false;
+
+    float preHeight = 0.0f;
+
+    Quad* portrait;
+    Quad* form;
+
+    float remainClimbDis = 0.0f;
+    bool isClimb = false;
+
+    Vector3 particlepos;
+    Particle* hiteffect;
+
+    float rayCoolTime = 0.1f;
+    float curRayCoolTime = 0.0f;
+    bool isRayToDetectTarget = false;
+
+
+public: //ìž„ì‹œ
+    bool headCrash;
+    Transform* aimT;
+    Quad* crosshair;
+
+    bool canClimbControl = false;
+    Vector3 climbVel;
+    Vector3 climbArrivePos;
+    bool playedClimb2 = false;
+
+    Transform* saveT;
+    bool TSaved;
+
+    float climbJ_y;
 };

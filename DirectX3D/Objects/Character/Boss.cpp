@@ -5,6 +5,8 @@ Boss::Boss()
 {
 	instancing = new ModelAnimatorInstancing("Warrok W Kurniawan");
 	transform = instancing->Add();
+	instancing->AddModelInfo(transform, 0);
+
 	instancing->ReadClip("Idle");
 	instancing->ReadClip("Walking");
 	instancing->ReadClip("Run Forward");
@@ -54,11 +56,11 @@ Boss::Boss()
 
 
 	SetEvent(ATTACK, bind(&Boss::StartAttack, this), 0.f);
-	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.99f);
+	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.9f);
 	SetEvent(ATTACK, bind(&Boss::DoingAttack, this), 0.6f);
 
 	SetEvent(ROAR, bind(&Boss::Roar, this), 0.3f);
-	SetEvent(ROAR, bind(&Boss::EndRoar, this), 0.99f);
+	SetEvent(ROAR, bind(&Boss::EndRoar, this), 0.9f);
 	SetEvent(DEATH, bind(&Boss::EndDying, this), 0.9f);
 
 
@@ -80,11 +82,13 @@ Boss::Boss()
 	Audio::Get()->Add("Boss_Splash", "Sounds/BossSplash.mp3", false, false, true);
 	Audio::Get()->Add("Boss_Run", "Sounds/Bossfootstep.mp3", false, false, true);
 	Audio::Get()->Add("Boss_Walk", "Sounds/Bosswalk.mp3", false, false, true);
-
+	hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
+	leftCollider->SetActive(false);
 }
 
 Boss::~Boss()
 {
+	delete hiteffect;
 	delete leftHand;
 	delete leftCollider;
 	delete collider;
@@ -101,15 +105,10 @@ Boss::~Boss()
 	for (int i = 0; i < 3; ++i)
 		delete Runparticle[i];
 }
-void Boss::SetPatrolPos(Vector3 _pos)
-{
-	PatrolPos.push_back(_pos);
-	if (1 == PatrolPos.size())
-		transform->Pos() = _pos;
-}
 void Boss::DoingAttack() {
 	//if(leftCollider->IsCollision(target->))
 	//타겟 공격
+	leftCollider->SetActive(true);
 }
 void Boss::Render()
 {
@@ -125,12 +124,15 @@ void Boss::Render()
 	for (int i = 0; i < 3; ++i)
 		Runparticle[i]->Render();
 
+	hiteffect->Render();
 
 }
 
 void Boss::Update()
 {
 
+	instancing->Update();
+	if (curHP <= 0)return;
 	Idle();
 	Direction();
 	Control();
@@ -143,7 +145,6 @@ void Boss::Update()
 	
 	Die();
 
-	instancing->Update();
 	leftHand->SetWorld(instancing->GetTransformByNode(index, 14));
 
 	transform->UpdateWorld();
@@ -180,8 +181,9 @@ void Boss::PostRender()
 }
 
 void Boss::GUIRender() {
-	instancing->GUIRender();
+	ImGui::DragInt("count",(int*)&count,1,0,15);
 
+	Roarparticle->GUIRender();
 }
 
 void Boss::CalculateEyeSight()
@@ -242,7 +244,7 @@ bool Boss::CalculateEyeSight(bool _bFind)
 		Enemytothisangle += 360;
 	}
 
-	if (Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange) {
+	if (Distance(target->GlobalPos(), transform->GlobalPos())	 < eyeSightRange) {
 
 
 		if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
@@ -336,27 +338,6 @@ void Boss::Move()
 
 
 	transform->Pos() += dir * moveSpeed * DELTA;
-
-	Vector3 destFeedBackPos;
-	Vector3 destPos = transform->Pos() + velocity * moveSpeed * DELTA;
-	Vector3 OrcSkyPos = destPos;
-	OrcSkyPos.y += 100;
-	Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
-	TerrainComputePicking(destFeedBackPos, groundRay);
-
-	//destFeedBackPos : 목적지 터레인Pos
-	//feedBackPos : 현재 터레인Pos
-
-	//방향으로 각도 구하기
-	Vector3 destDir = destFeedBackPos - feedBackPos;
-	Vector3 destDirXZ = destDir;
-	destDirXZ.y = 0;
-
-	//각도
-	float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
-
-	feedBackPos.y = destFeedBackPos.y;
-	transform->Pos().y = feedBackPos.y;
 }
 void Boss::IdleMove() {
 	if (state != BOSS_STATE::IDLE)return;
@@ -409,8 +390,9 @@ void Boss::Die()
 
 void Boss::Find()
 {
+	/*
 	if (state == BOSS_STATE::DETECT) {
-		if (dynamic_cast<Naruto*>(target)->GetTest()) {
+		if (dynamic_cast<Player*>(target)->GetTest()) {
 			state = BOSS_STATE::FIND;
 			questionMark->SetActive(true);
 			exclamationMark->SetActive(false);
@@ -419,7 +401,7 @@ void Boss::Find()
 		}
 	}
 	if (state == BOSS_STATE::FIND) {
-		if (!dynamic_cast<Naruto*>(target)->GetTest()) {
+		if (!dynamic_cast<Player*>(target)->GetTest()) {
 			if (!CalculateEyeSight(true))
 				return;
 
@@ -429,6 +411,7 @@ void Boss::Find()
 		
 		}
 	}
+	*/
 }
 
 void Boss::Rotate()
@@ -641,6 +624,7 @@ void Boss::EndAttack()
 	totargetlength = velocity.Length();
 	moveSpeed = runSpeed;
 	dir = velocity.GetNormalized();
+	leftCollider->SetActive(false);
 	if (totargetlength > AttackRange) {
 		SetState(RUN);
 		bWait = false;
@@ -672,6 +656,8 @@ void Boss::EndHit()
 
 void Boss::EndDying()
 {
+	exclamationMark->SetActive(false);
+	questionMark->SetActive(false);
 }
 
 
@@ -771,7 +757,7 @@ void Boss::Run()
 			}
 
 		
-			Runparticle[currunparticle]->Play(transform->GlobalPos(), transform->Rot());
+			Runparticle[currunparticle]->Play(transform->GlobalPos(), transform->Rot());	
 			if(!Audio::Get()->IsPlaySound("Boss_Run"))
 				Audio::Get()->Play("Boss_Run", transform->GlobalPos(), 1.f);
 			currunparticle++;
@@ -815,50 +801,24 @@ void Boss::SetRay()
 	ray.dir = dir;
 }
 
-bool Boss::TerrainComputePicking(Vector3& feedback, Ray ray)
+void Boss::CollisionCheck()
 {
-	if (terrain && structuredBuffer)
+	if (!leftCollider->Active() || !RoarCollider->Active())return;
+	if (IsHit)return;
+	Player* player = dynamic_cast<Player*>(target);
+	if (!player)return;
+	if (leftCollider->Active())
 	{
-		rayBuffer->Get().pos = ray.pos;
-		rayBuffer->Get().dir = ray.dir;
-		rayBuffer->Get().triangleSize = terrainTriangleSize;
+	
+		if (leftCollider->IsCollision(player->GetCollider()))
+			player->Hit(attackdamage);
+		
 
-		rayBuffer->SetCS(0);
-
-		DC->CSSetShaderResources(0, 1, &structuredBuffer->GetSRV());
-		DC->CSSetUnorderedAccessViews(0, 1, &structuredBuffer->GetUAV(), nullptr);
-
-		computeShader->Set();
-
-		UINT x = ceil((float)terrainTriangleSize / 64.0f);
-
-		DC->Dispatch(x, 1, 1);
-
-		structuredBuffer->Copy(outputs.data(), sizeof(OutputDesc) * terrainTriangleSize);
-
-		float minDistance = FLT_MAX;
-		int minIndex = -1;
-
-		UINT index = 0;
-		for (OutputDesc output : outputs)
-		{
-			if (output.picked)
-			{
-				if (minDistance > output.distance)
-				{
-					minDistance = output.distance;
-					minIndex = index;
-				}
-			}
-			index++;
-		}
-
-		if (minIndex >= 0)
-		{
-			feedback = ray.pos + ray.dir * minDistance;
-			return true;
-		}
 	}
-
+	if (RoarCollider->Active()) {
+		if (RoarCollider->IsCollision(player->GetCollider()))
+			player->Hit(Roardamage,true);
+	}
+		IsHit = true;
 }
 

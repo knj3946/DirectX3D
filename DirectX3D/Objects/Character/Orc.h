@@ -2,16 +2,14 @@
 
 class Orc
 {
-    // NPC 스크립트
-    // 작성자 : 박성진
-    // 2월15일 작성
-
 private:
     enum State
     {
         IDLE, WALK
-        , RUN, HIT, ATTACK, DYING
-    };
+        , RUN, HIT, ASSASSINATED, ATTACK, THROW, DYING
+    };// throw 는 attack16 클립
+    
+
 
     enum class NPC_BehaviorState {
         IDLE,// 탐색하지않고 패트롤 상태 또는 가만히있는 상태
@@ -65,6 +63,13 @@ public:
 
     };
 
+    // 일단 보류
+    //enum HitState // 뭐에 맞았나 -> 맞았을 때 HitState값에 따라 다른 동작 구현 ex)파티클 등
+    //              // 죽었을 때, HitState로 뭐에 맞고 죽었는지 판단 후 다른 애니메이션 처리
+    //{
+    //    DAGGER, ARROW, ASSASSINATED,NONE
+    //};
+
     Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index);
     ~Orc();
 
@@ -89,9 +94,9 @@ public:
     Transform* GetTransform() { return transform; }
     CapsuleCollider* GetCollider() { return collider; }
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
-    
+    void RotationRestore();
     float GetDamage();
-    void Hit(float damage);
+    void Hit(float damage,Vector3 collisionPos);
     void Spawn(Vector3 pos);
 
     void AddObstacleObj(Collider* collider);
@@ -104,8 +109,19 @@ public:
 
     void Findrange();
 
-private:    
-    void Control();    
+    void SetOutLine(bool flag);
+    bool IsOutLine() { return outLine; };
+    bool IsDetectTarget() { return bDetection; };
+
+    void Assassinated(Vector3 collisionPos, Transform* attackerTrf);
+
+    bool GetIsDelete() { return isDelete; }
+    bool GetIsDying() { return isDying; }
+
+    void CoolDown();
+
+private:
+    void Control();
     void Move();
     void IdleAIMove();      
     void UpdateUI();
@@ -120,6 +136,7 @@ private:
 
     void EndAttack();
     void EndHit();
+    void EndAssassinated();
     void EndDying();
    
 
@@ -127,17 +144,30 @@ private:
     void CalculateEarSight();//귀
     void Detection();
     void SetRay(Vector3 _pos);
+    void SetEyePos();
     void Patrol();
     bool IsStartPos();
+    bool OnColliderFloor(Vector3& feedback);
     bool TerainComputePicking(Vector3& feedback, Ray ray);
-    bool EyesRayToDetectTarget();
+    bool EyesRayToDetectTarget(Collider* targetCol, Vector3 orcEyesPos);
     void RangeCheck();
     void  SoundPositionCheck();;
-    float Hit();
+    
+    void Throw();
+
+
+    bool GetDutyFlag();
+    void SetParameter();
+    void SetGroundPos();
+    bool CalculateHit();
+    void PartsUpdate();
+    void StateRevision();
+    void ParticleUpdate();
 private:
     Ray ray;// 레이
     Vector3 StorePos;// 소리난 곳 가기 전 위치 저장
     Vector3 CheckPoint;// 소리난 곳 저장
+    Vector3 eyesPos;
     float earRange = 1000.f;// 듣는 범위
     bool bSound = false;// 소리 체크
     bool NearFind = false;
@@ -180,19 +210,21 @@ private:
 
     UINT index;
 
-    //Transform* root;
     Transform* transform;
     CapsuleCollider* collider;
     vector<Collider*> weaponColliders;
 
     ProgressBar* hpBar;
-
-  
-
+    ProgressBar* rangeBar;
     float curHP = 100, maxHp = 100;
     float destHP;
     bool isHit = false;
-    ProgressBar* rangeBar;
+
+    bool isDying = false;
+
+    bool isAssassinated = false;
+    //HitState hitState = HitState::NONE;
+
     float curRange = 0.f, maxRange = 40.f;
     float destRange;
 
@@ -210,18 +242,11 @@ private:
     bool bFind = false;
     float DetectionStartTime = 0.f;
     float DetectionEndTime = 2.f;
-    bool missTarget = false;
-    bool missTargetTrigger = false;
-    float missStartTime = 0.f;
-    float missEndTime = 1.0f;
+    bool missTargetTrigger = false; // 쫓아가다가 사라졌을 때만 true 
 
     bool isTracking = false;
     float wateTime = 0;
 
-    bool IsAiCooldown = false;
-    float aiCoolTime = 2.0f;
-    bool isAIWaitCooldown = false;
-    float aiWaitCoolTime = 1.5f;
 
     RayBuffer* rayBuffer;
     StructuredBuffer* structuredBuffer;
@@ -236,8 +261,6 @@ private:
 
     Vector3 feedBackPos;
 
-    bool eyesRayDetect;
-
     bool isAttackable=true;
     float attackSpeed = 1.5f;
     float curAttackSpeed=0;
@@ -245,4 +268,14 @@ private:
     float WaitTime = 0.f;
     float rangeDegree;
     UINT m_uiRangeCheck = 0;
+
+    bool outLine = false;
+
+    bool isDelete = false;
+
+    Particle* particleHit;
+
+    float rayCoolTime = 0.3f;
+    float curRayCoolTime = 0.0f;
+    bool isRayToDetectTarget = false;
 };

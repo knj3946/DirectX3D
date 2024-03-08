@@ -10,13 +10,12 @@ TestNpcScene::TestNpcScene()
     boss = new Boss;
     boss->SetAStar(aStar2);
     boss->SetTerrain(terrain);
-    naruto = new Naruto();
-    boss->SetTarget(naruto);
     
     boss->SetPatrolPos(Vector3(0, 0, 0));
     boss->SetPatrolPos(Vector3(100, 0, 100));
-    ColliderManager::Get()->PushCollision(ColliderManager::PLAYER, naruto->GetCollider());
-
+    CAM->SetTarget(boss->GetTransform());
+    CAM->TargetOptionLoad("GameMapScenePlayer");
+    CAM->LookAtTarget();
   //  MonsterManager::Get()->SetTarget(naruto); //싱글턴 생성 후, 표적 설정까지
   //
   //  MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(80, 0, 80));
@@ -29,6 +28,7 @@ TestNpcScene::TestNpcScene()
     MonsterManager::Get()->SetType(1, Orc::NPC_TYPE::ATTACK);
     MonsterManager::Get()->SetTerrain(terrain);
     MonsterManager::Get()->SetAStar(aStar2);
+    boss->SetTarget(MonsterManager::Get()->GetOrc(0)->GetTransform());
 
     //#pragma region 그림자
     //    shadow = new Shadow();
@@ -73,7 +73,9 @@ TestNpcScene::TestNpcScene()
 
         aStar2->AddObstacleObj(cube[i]->GetCollider());
     }
- 
+    FOR(2) blendState[i] = new BlendState();
+    blendState[1]->AlphaToCoverage(true); //투명색 적용 + 배경색 처리가 있으면 역시 적용
+
 }
 
 TestNpcScene::~TestNpcScene()
@@ -82,7 +84,6 @@ TestNpcScene::~TestNpcScene()
      delete aStar2;
   
  //   MonsterManager::Delete();
-    delete naruto;
     delete boss;
     FOR(3)
         delete cube[i];
@@ -94,8 +95,6 @@ TestNpcScene::~TestNpcScene()
 void TestNpcScene::Update()
 {
     terrain->UpdateWorld();
- 
-    naruto->Update();
     boss->Update();
 //    MonsterManager::Get()->Update();
     FOR(3)
@@ -121,8 +120,6 @@ void TestNpcScene::Render()
     terrain->Render();
     boss->Render();
  //   aStar2->Render();
-  
-    naruto->Render();
     
    // MonsterManager::Get()->Render();
     FOR(3)

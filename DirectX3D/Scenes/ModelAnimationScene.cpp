@@ -32,63 +32,64 @@ ModelAnimationScene::ModelAnimationScene()
 	*/
 	//클립 생성해두기 
 	string modelName = "akai";
-	/*string clipNames[] = {
-		"character1@idle1"
-		,"character1@idle2"
-		,"character1@idle3"
-		,"character1@idle4"
-		,"character1@idle5"
-		,"character1@jump"
-		,"character1@run"
-		,"character1@run2"
-		,"character1@run3"
-		,"character1@walk"
-		,"character1@walk3"
-		,"character1@walkshield"
-		,"character1@atack1"
-		,"character1@atack2"
-		,"character1@atack3"
-		,"character1@atack4"
-		,"character1@atack5"
-		,"character1@atack6"
-		,"character1@atack7"
-		,"character1@atack8"
-		,"character1@atack9"
-		,"character1@atack10"
-		,"character1@atack11"
-		,"character1@atack12"
-		,"character1@atack13"
-		,"character1@atack14"
-		,"character1@atack15"
-		,"character1@atack16"
-		,"character1@atack17"
-		,"character1@atack18"
-		,"character1@atack19"
-		,"character1@atack20"
-		,"character1@atack21"
-		,"character1@atack22"
-		,"character1@atack23"
-		,"character1@atack24"
-		,"character1@atack25"
-		,"character1@atack26"
-		,"character1@backwalkshield"
-		,"character1@sneakcrunchback"
-		,"character1@sneakwalk"
-		,"character1@sneakwalk2"
-		,"character1@strafeleft"
-		,"character1@straferight"
-		,"character1@death1"
-		,"character1@death2"
-		,"character1@death3"
-		,"character1@death4"
-		,"character1@dodge"
-		,"character1@gethit"
-	};*/
 	string clipNames[] = {
+		"Braced Hang Drop"
+		//"character1@idle1"
+		//"character1@idle2"
+		//,"character1@idle3"
+		//,"character1@idle4"
+		//,"character1@idle5"
+		//,"character1@jump"
+		//,"character1@run"
+		//,"character1@run2"
+		//,"character1@run3"
+		//,"character1@walk"
+		//,"character1@walk3"
+		//,"character1@walkshield"
+		//"character1@atack1"
+		// "character1@atack2"
+		//,"character1@atack3"
+		//,"character1@atack4"
+		//,"character1@atack5"
+		//,"character1@atack6"
+		//,"character1@atack7"
+		//,"character1@atack8"
+		//,"character1@atack9"
+		//,"character1@atack10"
+		//,"character1@atack11"
+		//,"character1@atack12"
+		//,"character1@atack13"
+		//,"character1@atack14"
+		//,"character1@atack15"
+		//,"character1@atack16"
+		//,"character1@atack17"
+		//,"character1@atack18"
+		//,"character1@atack19"
+		//,"character1@atack20"
+		//,"character1@atack21"
+		//,"character1@atack22"
+		//,"character1@atack23"
+		//,"character1@atack24"
+		//,"character1@atack25"
+		//,"character1@atack26"
+		//,"character1@backwalkshield"
+		//,"character1@sneakcrunchback"
+		//,"character1@sneakwalk"
+		//,"character1@sneakwalk2"
+		//,"character1@strafeleft"
+		//,"character1@straferight"
+		//,"character1@death1"
+		//,"character1@death2"
+		//,"character1@death3"
+		//,"character1@death4"
+		//,"character1@dodge"
+		//,"character1@gethit"
+	};
+	/*string clipNames[] = {
 		"Side Kick"
 		,"Punching"
 		,"Head Hit"
-	};
+	};*/
 	/*
 	string modelName = "character1";
 	string clipNames[] = {
@@ -97,8 +98,9 @@ ModelAnimationScene::ModelAnimationScene()
 		
 	};
 	*/
+	model = new ModelAnimator("akai");
 	clipSize = (sizeof(clipNames) / sizeof(*clipNames));
-	/*
+	
 	for(string clipName : clipNames)
 	{
 		string clipPath = "Models/Animations/" + modelName + "/" + clipName + ".fbx";
@@ -106,11 +108,11 @@ ModelAnimationScene::ModelAnimationScene()
 		exporter->ExportClip(clipName);
 		delete exporter;
 	}
-	*/
-	model = new ModelAnimator("akai");
+	
+	//model = new ModelAnimator("character1");
 	for (string clipName : clipNames)
 	{
-		model->ReadClip(clipName);
+		model->ReadClip(clipName,0);
 	}
 
 	
@@ -276,9 +278,9 @@ void ModelAnimationScene::GUIRender()
 		boxCollider[i]->GUIRender();
 	}
 	*/
-//	ImGui::SliderInt("Clip", &clip, 0, clipSize-1);
-//	if (ImGui::Button("Play"))
-//	{
-//		model->PlayClip(clip);
-//	}
+	ImGui::SliderInt("Clip", &clip, 0, clipSize-1);
+	if (ImGui::Button("Play"))
+	{
+		model->PlayClip(clip);
+	}
 }

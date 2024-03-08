@@ -143,7 +143,12 @@ private:
     bool bArriveFindPos = false;
     bool MarkActiveTime = 0.f;
 
-    Vector3 feedBackPos;
+    Particle* hiteffect;
+    bool IsHit = false;// 플레이어를 가격했는지 체크
+    float attackdamage = 20.f;
+    float Roardamage = 40.f;
+
+
 
 private:
     void MarkTimeCheck();
@@ -183,14 +188,17 @@ private:
 
     void Run();
     void SetRay();
-    bool TerrainComputePicking(Vector3& feedback, Ray ray);
+
+    void CollisionCheck();
+
 public:
+    Transform* GetTransform() { return transform; }
     void SetPath(Vector3 targetPos);
     Boss();
     ~Boss();
     void SetTerrain(LevelData* terrain) { this->terrain = terrain; }
     void SetAStar(AStar* aStar) { this->aStar = aStar; }
-    void SetPatrolPos(Vector3 _pos);
+    void SetPatrolPos(Vector3 _pos) { PatrolPos.push_back(_pos); }
     void SetTargetCollider(CapsuleCollider* collider) { targetCollider = collider; }
     Collider* GetCollider() { return collider; }
     void Render();
@@ -203,6 +211,7 @@ public:
     void CalculateEyeSight();
     bool CalculateEyeSight(bool _bFind);
     void CalculateEarSight();//귀
+    
     
 
 };

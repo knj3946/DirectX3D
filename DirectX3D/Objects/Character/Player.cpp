@@ -1,14 +1,16 @@
-#include "Framework.h"
+ï»¿#include "Framework.h"
 #include "Player.h"
 
 Player::Player()
     : ModelAnimator("akai")
 {
+    ArrowManager::Get();
+
     targetTransform = new Transform();
     //straightRay = Ray(Pos(), Back());
 
     //Scale() *= 0.1f;
-    // À©µµ¿ì ÇÚµé·¯ÀÇ Á¤º¸°ª(Áß À©µµ¿ì Å©±â)À» µÎ ¹øÂ° ¸Å°³º¯¼ö¿¡ ÀúÀå
+    // ?????? ????? ??????(?? ?????? ???)?? ?? ??Â° ????????? ????
     ClientToScreen(hWnd, &clientCenterPos);
     SetCursorPos(clientCenterPos.x, clientCenterPos.y);
 
@@ -16,35 +18,58 @@ Player::Player()
     collider->SetParent(this);
     collider->Pos().y += 20;
 
-    footRay = new Ray();
-    footRay->pos = Pos();
-    footRay->dir = Pos().Down();
-
-
     rightHand = new Transform();
+    leftHand = new Transform();
+
     dagger = new Dagger(rightHand);
 
-    
+    weaponColliders.push_back(dagger->GetCollider());
+
+    bow = new Model("Elven Long Bow");
+    bow->SetParent(leftHand);
+    bow->Scale() *= 6.f;
+    bow->Pos() = { 0, 6.300, -2.400 };
+    bow->Rot() = { 3.000, 0, 0 };
+
+    aimT = new Transform();
+    aimT->SetParent(this);
+    aimT->Pos().x += -40.0f;
+    aimT->Pos().y += -15.0f;
+
+    crosshair = new Quad(L"Textures/UI/cursor.png");
+    crosshair->Pos() = { CENTER_X, CENTER_Y, 0 };
+
+
     //left foot : 57
     leftFoot = new Transform();
     leftFootCollider = new CapsuleCollider(10, 50);
     leftFootCollider->SetParent(leftFoot);
+    //weaponColliders.push_back(leftFootCollider);
 
     //right foot : 62
     rightFoot = new Transform();
     rightFootCollider = new CapsuleCollider(10, 50);
     rightFootCollider->SetParent(rightFoot);
+    //weaponColliders.push_back(rightFootCollider);
+
+    // ë¬´ê¸° ì½œë¼ì´ë” ê³µê²©í• ë•Œë§Œ í™œì„±í™”
+    leftFootCollider->SetActive(false);
+    rightFootCollider->SetActive(false);
+    dagger->GetCollider()->SetActive(false);
 
     computeShader = Shader::AddCS(L"Compute/ComputePicking.hlsl");
     rayBuffer = new RayBuffer();
 
-    hpBar = new ProgressBar(L"Textures/UI/hp_bar.png", L"Textures/UI/hp_bar_BG.png");
-    hpBar->Scale() *= 0.6f;
+    hpBar = new ProgressBar(L"Textures/UI/hp_bar2.png", L"Textures/UI/hp_bar2_BG.png");
+    hpBar->Scale().y *= 0.3f;
+    hpBar->Scale().x *= 0.2f;
+    hpBar->Pos() = { 403, WIN_HEIGHT - 30, 0 };
     hpBar->SetAmount(curHP / maxHp);
+    hpBar->UpdateWorld();
 
-    string temp;    //ÇÏÀ§ ÆÄÀÏ
+    string temp;    //???? ????
 
-    ReadClip("Idle"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
+    ReadClip("Idle"); // ?????? 0??? 1???? ????
 
     ReadClip("Medium Run");
     ReadClip("Running Backward");
@@ -54,54 +79,133 @@ Player::Player()
     ReadClip("Jog Forward Diagonal Left");
     ReadClip("Jog Forward Diagonal Right");
 
-    ReadClip("Jumping"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
-    ReadClip("IntheSky"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
-    ReadClip("Falling To Landing"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
+    ReadClip("Jumping"); // ?????? 0??? 1???? ????
+    ReadClip("IntheSky"); // ?????? 0??? 1???? ????
+    ReadClip("Falling To Landing"); // ?????? 0??? 1???? ????
 
-    ReadClip("Stand To Cover"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
-    ReadClip("Cover Idle"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
-    ReadClip("Crouched Sneaking Right"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
-    ReadClip("Crouched Sneaking Left"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
-    ReadClip("Crouch Turn To Stand"); // µ¿ÀÛÀÌ 0µÚ¿¡ 1±îÁö ÀÖÀ½
+    ReadClip("Stand To Cover"); // ?????? 0??? 1???? ????
+    ReadClip("Cover Idle"); // ?????? 0??? 1???? ????
+    ReadClip("Crouched Sneaking Right"); // ?????? 0??? 1???? ????
+    ReadClip("Crouched Sneaking Left"); // ?????? 0??? 1???? ????
+    ReadClip("Crouch Turn To Stand"); // ?????? 0??? 1???? ????
 
-    ReadClip("Turning Right"); // TO_ASSASIN //¹ºÁö ¸ô¶ó¼­ ¾Æ¹«°Å³ª ³Ö¾îµÒ
+    ReadClip("Head Hit");
+
+    ReadClip("Climbing1");
+    ReadClip("Climbing2");
+    ReadClip("Climbing3");
+    ReadClip("Braced Hang Hop Left");
+    ReadClip("Braced Hang Hop Right");
+    ReadClip("Climbing Down Wall");
+    ReadClip("Braced Hang Drop");
+    //ReadClip("temp");
 
     temp = "Attack/";
+
     //NONE
     ReadClip(temp + "Side Kick");
+    ReadClip(temp + "Assassination1");
+    ReadClip(temp + "Assassination2");
 
     //DAGGER
     ReadClip(temp + "Stable Sword Outward Slash");
     ReadClip(temp + "Stable Sword Inward Slash");
     ReadClip(temp + "Upward Thrust");
 
-    // HIT
-    ReadClip("Head Hit"); 
+    temp = "Bow/Walk/";
 
-    GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.1f);  //Á¡ÇÁ½ÃÀÛ
-    GetClip(JUMP1)->SetEvent(bind(&Player::AfterJumpAnimation, this), 0.20001f);   //ÇÏ°­
+    ReadClip(temp + "Standing Idle");
+    ReadClip(temp + "Standing Sprint Forward");
+    ReadClip(temp + "Standing Walk Back");
+    ReadClip(temp + "Standing Run Left");
+    ReadClip(temp + "Standing Run Right");
 
-    GetClip(JUMP3)->SetEvent(bind(&Player::SetIdle, this), 0.0001f);   //ÂøÁö
+    temp = "Bow/Attack/";
 
-    GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //¾öÆó
+    ReadClip(temp + "Standing Draw Arrow");
+    ReadClip(temp + "Standing Aim Overdraw");
+    ReadClip(temp + "Standing Aim Idle");
+    ReadClip(temp + "Standing Aim Recoil");
 
-    //GetClip(TO_ASSASIN)->SetEvent(bind(&Player::Assasination, this), 0.01f);   //¾Ï»ì
+    temp = "Bow/Crouch/";
 
-    GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f); // È÷Æ®°¡ ³¡³ª°í
+    ReadClip(temp + "Standing To Crouch");
+    ReadClip(temp + "Crouch To Standing");
+    ReadClip(temp + "Crouch Idle");
+    ReadClip(temp + "Crouch Walk Forward");
+    ReadClip(temp + "Crouch Walk Back");
+    ReadClip(temp + "Crouch Walk Left");
+    ReadClip(temp + "Crouch Walk Right");
+
+
+
+    GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.1f);  //????????
+    GetClip(JUMP1)->SetEvent(bind(&Player::AfterJumpAnimation, this), 0.20001f);   //???
+
+    GetClip(JUMP3)->SetEvent(bind(&Player::SetIdle, this), 0.1f);   //????
+
+    GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //????
+
+    GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f); // ????? ??????
+    //GetClip(CLIMBING1)->SetEvent(bind(&Player::EndClimbing, this), 0.1f);
+    //GetClip(CLIMBING2)->SetEvent(bind(&Player::EndClimbing, this), 0.32f);
+    //GetClip(CLIMBING3)->SetEvent(bind(&Player::EndClimbing, this), 0.95f);
+    
+    GetClip(CLIMBING1)->SetEvent(bind(&Player::SetClimbAnim, this), 0.1f);
+    GetClip(CLIMBING2)->SetEvent(bind(&Player::SetClimbAnim, this), 0.85f);
+    GetClip(CLIMBING3)->SetEvent(bind(&Player::SetClimbAnim, this), 0.9f);
+    GetClip(CLIMBING_JUMP_R)->SetEvent(bind(&Player::SetClimbAnim, this), 0.8f);
+    GetClip(CLIMBING_JUMP_L)->SetEvent(bind(&Player::SetClimbAnim, this), 0.8f);
+    GetClip(CLIMBING_DOWN)->SetEvent(bind(&Player::SetClimbAnim, this), 0.9f);
+    GetClip(CLIMBING_JUMP_D)->SetEvent(bind(&Player::SetClimbAnim, this), 0.7f);
+
+    GetClip(ASSASSINATION1)->SetEvent(bind(&Player::EndAssassination, this, 1), 0.9f);
+    GetClip(ASSASSINATION2)->SetEvent(bind(&Player::EndAssassination, this, 2), 0.9f);
 
     GetClip(DAGGER1)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
     GetClip(DAGGER2)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
     GetClip(DAGGER3)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
 
+    GetClip(DAGGER1)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), true), 0.2f); //ì½œë¼ì´ë” ì¼œëŠ” ì‹œì  ì„¤ì •
+    GetClip(DAGGER2)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), true), 0.3f); //ì½œë¼ì´ë” ì¼œëŠ” ì‹œì  ì„¤ì •
+    GetClip(DAGGER3)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), true), 0.15f); //ì½œë¼ì´ë” ì¼œëŠ” ì‹œì  ì„¤ì •
+
+    GetClip(DAGGER1)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), false), 0.3f); //ì½œë¼ì´ë” êº¼ì§€ëŠ” ì‹œì  ì„¤ì •
+    GetClip(DAGGER2)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), false), 0.45f); //ì½œë¼ì´ë” êº¼ì§€ëŠ” ì‹œì  ì„¤ì •
+    GetClip(DAGGER3)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), false), 0.35f); //ì½œë¼ì´ë” êº¼ì§€ëŠ” ì‹œì  ì„¤ì •
+
+
+
+    //GetClip(B_DRAW)->SetEvent(bind(&Player::SetBowAnim, this), 0.2f);
+    //GetClip(B_ODRAW)->SetEvent(bind(&Player::SetBowAnim, this), 0.6f);
+    GetClip(B_DRAW)->SetEvent(bind(&Player::SetBowAnim, this), 0.4f);
+    GetClip(B_ODRAW)->SetEvent(bind(&Player::SetBowAnim, this), 0.4f);
+    GetClip(B_RECOIL)->SetEvent(bind(&Player::ShootArrow, this), 0.1f);
+
     //GetClip(DAGGER1)->SetEvent(bind(&Player::CanCombo, this), 0.4f);
 
     //GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f);
+
+    {
+        portrait = new Quad(Vector2(200, 150));
+        portrait->GetMaterial()->SetShader(L"Basic/Texture.hlsl");
+        portrait->GetMaterial()->SetDiffuseMap(L"Textures/UI/portrait.png");
+        portrait->Pos() = { 100, WIN_HEIGHT - 75, 0 };
+        portrait->UpdateWorld();
+    }
+
+    {
+        form = new Quad(Vector2(70, 70));
+        form->GetMaterial()->SetShader(L"Basic/Texture.hlsl");
+        form->GetMaterial()->SetDiffuseMap(L"Textures/UI/rpg/Bow_icon.png");
+        form->Pos() = { 245, WIN_HEIGHT - 100, 0 };
+        form->UpdateWorld();
+    }
 }
 
 Player::~Player()
 {
     delete collider;
-    delete footRay;
 
     delete hpBar;
 
@@ -112,32 +216,49 @@ Player::~Player()
     delete targetObject;
 
     delete rightHand;
+    delete leftHand;
+    delete leftFoot;
+    delete rightFoot;
+
+    delete leftFootCollider;
+    delete rightFootCollider;
     delete dagger;
+    delete bow;
+
+    delete ArrowManager::Get();
+
+    delete aimT;
+    delete crosshair;
 }
 
 void Player::Update()
 {
+    
     ColliderManager::Get()->SetHeight();
-    if(!isCeiling)
-        ColliderManager::Get()->PushPlayer();
+    ColliderManager::Get()->PushPlayer();
+
+    SetCameraPos();
 
     collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
     collider->UpdateWorld();
 
-    footRay->pos = collider->GlobalPos();
-    footRay->dir = Down();
-
     UpdateUI();
+
+    if (isDying)return;
 
     Control();
     Searching();
+    Targeting();
+    UseSkill();
 
-    SetAnimation();
+    //ì´ í•¨ìˆ˜ ë‚´ì—ì„œ ì¡°ê±´ìœ¼ë¡œ ì• ë‹ˆë©”ì´ì…˜ ì„¸íŒ…ì„ ì¤‘ë‹¨í•˜ì§€ ë§ê³ ,
+    //íŠ¹ì • ì• ë‹ˆë©”ì´ì…˜ì´ ë™ì‘í•˜ë©´ canSettingAnimê°™ì€ bool ë³€ìˆ˜ë¥¼ falseë¡œ ë§Œë“¤ì–´ì„œ
+    //ì´ í•¨ìˆ˜ë¥¼ ìº”ìŠ¬í•˜ëŠ” ë°©ì‹ ê³ ë ¤
 
     ModelAnimator::Update();
 
     if (comboHolding > 0.0f)
-        comboHolding -= DELTA;  //°ø°İ ÄŞº¸, ½ºÅÏ½Ã°£ µî ½Ã°£ °¨¼Ò ÇÔ¼ö ¸¸µé±â
+        comboHolding -= DELTA;  //???? ???, ????Ã°? ?? ?Ã°? ???? ??? ?????
     else
     {
         comboHolding = 0.0f;
@@ -145,14 +266,28 @@ void Player::Update()
     }
 
     rightHand->SetWorld(this->GetTransformByNode(rightHandNode));
-    dagger->Update();
+    leftHand->SetWorld(this->GetTransformByNode(leftHandNode));
+    if (weaponState == DAGGER)
+        dagger->Update();
+    else
+        bow->UpdateWorld();
 
-    leftFoot->SetWorld(this->GetTransformByNode(leftFootNode));
-    leftFootCollider->UpdateWorld();
+    //leftFoot->SetWorld(this->GetTransformByNode(leftFootNode));
+    //leftFootCollider->UpdateWorld();
 
-    rightFoot->SetWorld(this->GetTransformByNode(rightFootNode));
-    rightFootCollider->UpdateWorld();
+    //rightFoot->SetWorld(this->GetTransformByNode(rightFootNode));
+    //rightFootCollider->UpdateWorld();
 
+    SetAnimation();
+
+    ArrowManager::Get()->Update();
+    ArrowManager::Get()->IsCollision();
+
+    
+    crosshair->UpdateWorld();
+
+
+    CoolDown();
 }
 
 void Player::Render()
@@ -160,50 +295,85 @@ void Player::Render()
     ModelAnimator::Render();
     collider->Render();
 
-    leftFootCollider->Render();
-    rightFootCollider->Render();
+    switch (weaponState)
+    {
+    case DAGGER:
+        dagger->Render();
+        break;
+    case BOW:
+        bow->Render();
+        break;
+    }
 
-    dagger->Render();
+    //leftFootCollider->Render();
+    //rightFootCollider->Render();
+
+    ArrowManager::Get()->Render();
 }
 
 void Player::PostRender()
 {
     hpBar->Render();
+    portrait->Render();
+    form->Render();
+    string str = to_string(ArrowManager::Get()->GetPlayerArrowCount());
+    
+    Vector3 tmp = form->Pos() + Vector3(60, 10, 0);
+    Font::Get()->RenderText("X ", { tmp.x, tmp.y }, Float2(12, 12));
+    Font::Get()->RenderText(str, { tmp.x + 30, tmp.y }, Float2(12, 12));
+
+    if(crosshair->Active())
+        crosshair->Render();
 }
 
 void Player::GUIRender()
 {
     Model::GUIRender();
 
-    ImGui::DragFloat3("Velocity", (float*)&velocity, 0.5f);
-    //¼Ó·Â
-    ImGui::SliderFloat("moveSpeed", &moveSpeed, 10, 1000);
-    ImGui::SliderFloat("rotSpeed", &rotSpeed, 1, 10);
-    ImGui::SliderFloat("deceleration", &deceleration, 1, 10);
+    ImGui::Text("playerArrowCount : %d", ArrowManager::Get()->GetPlayerArrowCount());
 
-    //Á¡ÇÁ Èû
-    ImGui::SliderFloat("force1", &force1, 1, 500);
-    ImGui::SliderFloat("force2", &force2, 1, 500);
-    ImGui::SliderFloat("force3", &force3, 1, 500);
+    CAM->GUIRender();
 
-    ImGui::SliderFloat("jumpSpeed", &jumpSpeed, 0.01f, 5.0f);
-    //Áß·Â
-    ImGui::SliderFloat("gravityMult", &gravityMult, 1, 100);
+    //ImGui::DragFloat3("Velocity", (float*)&velocity, 0.5f);
+    ////???
+    //ImGui::SliderFloat("moveSpeed", &moveSpeed1, 10, 1000);
+    //ImGui::SliderFloat("moveSpeed", &moveSpeed2, 10, 1000);
+    //ImGui::SliderFloat("rotSpeed", &rotSpeed, 1, 10);
+    //ImGui::SliderFloat("deceleration", &deceleration, 1, 10);
+    //ImGui::Text("isPushed : %d", isPushed);
+    //ImGui::Text("feedBackPosY : %f", feedBackPos.y);
+    //ImGui::Text("heightLevel : %f", heightLevel);
 
-    //3´Ü Á¡ÇÁ ±¸Çö½Ã Á¶°Ç º¯¼ö
-    ImGui::InputFloat("JumpVel", (float*)&jumpVel);
-    ImGui::InputFloat("jumpN", (float*)&jumpVel);
-    ImGui::InputFloat("nextJump", (float*)&nextJump);
+    ImGui::Text("curState : %d", curState);
 
-    //ÂøÁöÈÄ ºÎµ¿½Ã°£
-    ImGui::InputFloat("landingT", (float*)&landingT);
+    //???? ??
+    //ImGui::SliderFloat("force1", &force1, 1, 500);
+    //ImGui::SliderFloat("force2", &force2, 1, 500);
+    //ImGui::SliderFloat("force3", &force3, 1, 500);
+
+    //ImGui::SliderFloat("jumpSpeed", &jumpSpeed, 0.01f, 5.0f);
+    ////???
+    //ImGui::SliderFloat("gravityMult", &gravityMult, 1, 100);
+
+    ////3?? ???? ?????? ???? ????
+    //ImGui::InputFloat("JumpVel", (float*)&jumpVel);
+    //ImGui::InputFloat("jumpN", (float*)&jumpVel);
+    //ImGui::InputFloat("nextJump", (float*)&nextJump);
+
+    //?????? ?Îµ??Ã°?
+    /*ImGui::InputFloat("landingT", (float*)&landingT);
     ImGui::InputFloat("landing", (float*)&landing);
 
     ImGui::InputInt("rightHandNode", &rightHandNode);
+    ImGui::InputInt("leftHandNode", &leftHandNode);
     ImGui::InputInt("leftFootNode", &leftFootNode);
     ImGui::InputInt("rightFootNode", &rightFootNode);
 
-    dagger->GUIRender();
+    ImGui::DragFloat3("bowPos", (float*)&bow->Pos(), 0.1f);
+    ImGui::DragFloat3("bowRot", (float*)&bow->Rot(), 0.1f);
+    ImGui::DragFloat3("bowScale", (float*)&bow->Scale(), 0.1f);*/
+
+    //dagger->GUIRender();
 
     ColliderManager::Get()->GuiRender();
 }
@@ -236,119 +406,330 @@ void Player::SetTerrain(LevelData* terrain)
         sizeof(OutputDesc), terrainTriangleSize);
 }
 
-void Player::Control()  //»ç¿ëÀÚÀÇ Å°º¸µå, ¸¶¿ì½º ÀÔ·Â Ã³¸®
+void Player::Assassination()
 {
-    if (KEY_DOWN(VK_TAB))
+    SetState(ASSASSINATION1, 2.0f);
+}
+
+void Player::Climb(Collider* col, Vector3 climbPos)
+{
+    Pos() = { climbPos.x, Pos().y, climbPos.z};
+    UpdateWorld();
+
+    //remainClimbDis = col->GetHalfSize().z * 2; // ì½œë¼ì´ë”ì˜ ë¡œì»¬ì¢Œí‘œê³„ëŠ” zê°€ ë†’ì´ì¸ ì¢Œí‘œê³„ì„
+    isClimb = true;
+
+    canClimbControl = true;
+    SetState(CLIMBING1);
+}
+
+void Player::SetClimbAnim()
+{
+    if (curState == CLIMBING_JUMP_D)
     {
-        camera = !camera;
+        isClimb = false;
+        Pos().y = climbJ_y;
     }
-    if (camera)
+    else if (curState == CLIMBING_DOWN)
+    {
+        Pos() = saveT->Pos();
+        Rot() = saveT->Rot();
+
+        SetState(CLIMBING1);
+        canClimbControl = true;
+
         CAM->SetTarget(this);
-    else
-        CAM->SetTarget(nullptr);
+        collider->SetParent(this);
+
+        if (TSaved)
+        {
+            delete saveT;
+            TSaved = false;
+        }
+    }
+    else if (curState == CLIMBING2 || curState == CLIMBING_JUMP_R || curState == CLIMBING_JUMP_L)
+    {
+        SetState(CLIMBING1);
+        canClimbControl = true;
+    }
+    else if (curState == CLIMBING3)
+    {
+        SetState(IDLE);
+        Pos() = climbArrivePos;
+        isClimb = false;
+    }
+}
+
+void Player::Climbing()
+{
+    if (curState == CLIMBING3 || curState == CLIMBING_JUMP_D)
+        return;
+     
+    //í˜„ì¬ëŠ” ê±´ë¬¼ì´ ì§ê°ì´ê¸° ë•Œë¬¸ì— ê°€ëŠ¥í•œ ì½”ë“œ, êµ´ê³¡ì´ ìˆë‹¤ë©´ Rayë¡œ ë°”ê¾¸ê³  distance ì²´í¬í•˜ë©´ì„œ ì´ë™í•˜ê¸°ë¡œ êµ¬í˜„
+    Transform rayT = *this;
+    rayT.Pos().y += 7.2f;
+
+    Ray headForwardRay = Ray(rayT.Pos(), rayT.Back());
+
+    bool arriveTop = true;
+    Contact con;
+    for (Collider* obstacle : ColliderManager::Get()->GetObstacles())
+    {
+        if (obstacle->IsRayCollision(headForwardRay, &con)/* && con.distance < 10.0f*/)
+        {
+            if (con.distance < 1.f)
+            {
+                arriveTop = false;
+                climbArrivePos = con.hitPoint;
+                break;
+            }
+        }
+    }
+
+    //if (arriveTop)    ////ê¼­ëŒ€ê¸° ì˜¬ë¼ê°€ëŠ” ì½”ë“œ, í…ŒìŠ¤íŠ¸ ìœ„í•´ì„œ ì£¼ì„ì²˜ë¦¬ í•¨
+    //{
+    //    climbArrivePos.y += 0.1f;
+
+    //    SetState(CLIMBING3);
+    //    return;
+    //}
+
+    if (canClimbControl) 
+    {
+        if (KEY_DOWN(VK_SPACE))
+        {
+            SetState(CLIMBING_JUMP_D);
+            climbJ_y = Pos().y; //ì™œì¸ì§€ ìœ„ì˜ stateì˜ ë°”ì¸ë”© í•¨ìˆ˜ê°€ ì‹¤í–‰ë˜ê³  yì¶•ì´ 0ì´ë¼ì„œ 
+                                //Jumpingì„ í†µí•œ ì¶”ë½ì´ ì˜ ì•ˆë¨, ê·¸ë˜ì„œ ì„ì‹œë¡œ ê¸°ì–µ
+            //isClimb = false;
+            return;
+        }
+
+        climbVel = 0.0f;
+
+        if (KEY_PRESS('W'))
+        {
+            climbVel.y = 1.0f;
+            canClimbControl = false;
+            SetState(CLIMBING2);
+        }
+        else if (KEY_PRESS('S'))
+        {
+            SetState(CLIMBING_DOWN);
+
+            saveT = new Transform(*this);   //ì• ë‹ˆë©”ì´ì…˜ì´ ì‹¤ì œ ìœ„ì¹˜ë³´ë‹¤ ë†’ê²Œ ì¶œë ¥ë˜ê¸° ë•Œë¬¸ì—
+                                            //ì‹¤ì œ ì‹œì‘ ìœ„ì¹˜ë¥¼ ê°€ì ¸ì˜´
+            TSaved = true;
+            CAM->SetTarget(saveT);
+            collider->SetParent(saveT);
+
+            Pos().y -= 3.0f;
+
+            climbVel = Down();
+            canClimbControl = false;
+        }
+
+        if (KEY_PRESS('A'))
+        {
+            climbVel = Right();
+            climbVel.y = 0.0f;
+            canClimbControl = false;
+            SetState(CLIMBING_JUMP_L);
+        }
+        else if (KEY_PRESS('D'))
+        {
+            climbVel = Left();
+            climbVel.y = 0.0f;
+            canClimbControl = false;
+            SetState(CLIMBING_JUMP_R);
+        }
+    }
+
+    if (TSaved && saveT->Pos().y <= heightLevel)
+    {
+        climbVel = 0;
+
+        Pos() = saveT->Pos();
+        Pos().y = heightLevel + 0.01f;   //heightLevelì´ ê°±ì‹ ë˜ëŠ”ì§€ í™•ì¸í•´ì•¼ í•¨, í˜„ì¬ëŠ” ê±´ë¬¼ ë°‘ì— ë°”ë‹¥ë°–ì— ì—†ì–´ì„œ ìƒê´€x
+
+        if (Pos().y < 0.0f)
+            Pos().y = 0.0f;
+
+        collider->SetParent(this);
+        CAM->SetTarget(this);
+
+        if (TSaved)
+        {
+            delete saveT;
+            TSaved = false;
+        }
+
+        isClimb = false;
+
+        return;
+    }
+
+    Pos() += climbVel * DELTA * 5.5f;
+    if (TSaved) //ë‚´ë ¤ê°€ëŠ” ë™ì•ˆë§Œ true
+    {
+        saveT->Pos() += climbVel * DELTA * 5.5f;
+        saveT->UpdateWorld();
+    }
+}
+
+void Player::CameraMove()
+{
+    Ray cameraRay = CAM->ScreenPointToRay(mousePos);
+}
+
+void Player::Control()  //??????? ?????, ???ì½º ??? ???
+{
+    if (KEY_DOWN(VK_TAB)) {
+        if (static_cast<WeaponState>(weaponState + 1) >= 3)
+            weaponState = DAGGER;
+        else
+            weaponState = static_cast<WeaponState>(weaponState + 1);
+    }
+
+    if (KEY_DOWN(VK_ESCAPE))
+        camera = !camera;
+
+    //if (camera)
+    //    CAM->SetTarget(this);
+    //else
+    //    CAM->SetTarget(nullptr);
 
 
     if (KEY_PRESS(VK_RBUTTON))
         return;
 
-    Rotate();
+    if(curState != CLIMBING1 && curState != CLIMBING2 && curState != CLIMBING3)
+        Rotate();
 
-    switch (curState)
+    if (KEY_UP(VK_LBUTTON))
     {
-    case KICK:
-    {
-        //leftWeaponCollider->SetActive(true);
-        //rightWeaponCollider->SetActive(true);
-        break;
-    }
-    default:
-    {
-        //leftWeaponCollider->SetActive(false);
-        //rightWeaponCollider->SetActive(false);
-    }
-    }
-
-    if (curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3) 
-    {
-        if (combo && KEY_PRESS(VK_LBUTTON))
+        if (weaponState == BOW)
         {
-            AttackCombo();
+            if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
+            {
+                ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos));
+                SetState(B_RECOIL);
+            }
             return;
         }
+    }
 
+    if (KEY_DOWN(VK_LBUTTON))
+    {
+        if (weaponState == BOW)
+        {
+            // ë³´ìœ í•œ í™”ì‚´ì´ ìˆëŠ”ê°€
+            if (ArrowManager::Get()->GetPlayerArrowCount() <= 0)return;
+                SetState(B_DRAW);
+            return;
+        }
+    }
+
+    if (KEY_PRESS(VK_LBUTTON))
+    {
+        if (weaponState == DAGGER)
+        {
+            if (curState != DAGGER1 && curState != DAGGER2 && curState != DAGGER3)
+            {
+                ComboAttack();
+                //dagger->GetCollider()->SetActive(true); //ì½œë¼ì´ë” ì¼œì§€ëŠ” ì‹œì ì€ ì´ë²¤íŠ¸ë¡œ ì„¤ì •
+            }
+        }
+        //else if (weaponState == BOW)
+        //{
+        //    if (curState == B_IDLE)
+        //        SetState(B_DRAW);
+        //}
+    }
+    if (KEY_UP(VK_LBUTTON))
+    {
+        //dagger->GetCollider()->SetActive(false); //ì½œë¼ì´ë” êº¼ì§€ëŠ” ì‹œì ì€ ì´ë²¤íŠ¸ë¡œ ì„¤ì •
+    }
+
+    if (isHit)   //?Â´Â°? ?????????? Jumping????? ?????? ????? ????? ????? ?Ã°??? ?Ã¾?
+    {
         return;
     }
-
-    if (KEY_PRESS('G'))
-    {
-        AttackCombo();
-        return;
-    }
-
-    if (isHit)   //¸Â´Â°Ô È°¼ºÈ­µÆÀ»¶§ JumpingÇÔ¼ö°¡ µ¿ÀÛÀ» ¾ÈÇÏ¸é °øÁß¿¡ ¶°ÀÖ´Â ½Ã°£ÀÌ ´Ã¾î³²
-    {
-        return;
-    }
-
-    Move();
-    Jumping();
-
-
-    if(targetObject != nullptr && KEY_DOWN('F'))
-    {
-        velocity = 0;
-        SetState(TO_ASSASIN);
-    }
-}
-
-void Player::Move() //ÀÌµ¿ °ü·Ã(±âº» ÀÌµ¿, ¾Ï»ì ÀÌµ¿, ÂøÁö ÈÄ ÀÌµ¿Á¦ÇÑ, Æ¯Á¤ Çàµ¿À» À§ÇÑ ¸ñÀûÁö·Î ÀÇ ÀÌµ¿ µî)
-{
-    //ÇÃ·¹ÀÌ¾îÀÇ À§¿¡¼­ ·¹ÀÌ¸¦ ½÷¼­ ÇöÀç terrain À§Ä¡¿Í ³ôÀÌ¸¦ ±¸ÇÔ
-    Vector3 PlayerSkyPos = Pos();
-    PlayerSkyPos.y += 100;
-    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
-    TerainComputePicking(feedBackPos, groundRay);
-
-    //if (curState == JUMP3 && landing > 0.0f)    //ÂøÁö ¾Ö´Ï¸ŞÀÌ¼Ç µ¿¾È ºÎµ¿ ÀÌµ¿ Á¦ÇÑ and Á¦ÇÑ ½Ã°£ °¨¼Ò
-    //{
-    //    landing -= DELTA;
-    //    return;
-    //}
-
-    //if (curState == TO_COVER)    //¾öÆóÇÏ·¯ ÀÌµ¿ÇÒ °æ¿ì
-    //{  
-    //    if (Distance(Pos(), targetTransform->Pos()) < teleport)
-    //    {
-    //        SetState(TO_COVER);
-    //        return;
-    //    }
-    //    Pos() += (targetTransform->Pos() - Pos()).GetNormalized() * DELTA * 400;
-    //    SetState(RUN_F);
-    //    return;
-    //}
 
     if (KEY_DOWN(VK_SPACE) && !InTheAir())
     {
         SetState(JUMP1);
     }
 
-    Walking();
+    // ìŠ¤í˜ì…œ í‚¤
+    if (KEY_DOWN('C'))
+    {
+        // í™”ì‚´ ì¤ê¸°
+        ArrowManager::Get()->ExecuteSpecialKey();
+    }
+
+    Move();
+
+    if(!isClimb)
+        Jumping();
+
+    //if (targetObject != nullptr && KEY_DOWN('F'))     ////ë³´ë¥˜
+    //{
+    //    velocity = 0;
+    //    SetState(TO_ASSASIN);
+    //}
+}
+
+void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ???????? ?? ??? ??)
+{
+    if (isClimb)
+    {
+        Climbing();
+
+        //if (curRayCoolTime <= 0.f)
+        //{
+        //    Vector3 PlayerSkyPos = Pos();
+        //    PlayerSkyPos.y += 100;
+        //    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+        //    TerainComputePicking(feedBackPos, groundRay);
+        //}   
+    }
+    else
+    {
+        //í”Œë ˆì´ì–´ì˜ ìœ„ì—ì„œ ë ˆì´ë¥¼ ì´ì„œ í˜„ì¬ terrain ìœ„ì¹˜ì™€ ë†’ì´ë¥¼ êµ¬í•¨
+
+        if (!OnColliderFloor(feedBackPos)) // ë¬¸í„±ì˜¬ë¼ê°€ê¸° ë•Œë¬¸ì— ë‹¤ì‹œ ì‚´ë¦¼
+        {
+            Vector3 PlayerSkyPos = Pos();
+            PlayerSkyPos.y += 1000;
+            Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+            TerainComputePicking(feedBackPos, groundRay);
+        }
+
+        Walking();
+    }
 }
 
 void Player::UpdateUI()
 {
-    if (isHit)
+    if (isHit || isDying)
     {
-        curHP -= DELTA * 10 * 2;
+        if (isHit)
+            curHP -= DELTA * 10 * 4; // 2 -> 4
+        else
+            curHP -= DELTA * 10 * 6;
         State aa = curState;
 
         if (curHP <= destHP)
         {
             curHP = destHP;
+            isHit = false;
         }
+
         hpBar->SetAmount(curHP / maxHp);
     }
-    
+
+    /*
     Vector3 barPos = Pos() + Vector3(0, 6, 0);
 
     hpBar->UpdateWorld();
@@ -361,20 +742,22 @@ void Player::UpdateUI()
 
     if (!hpBar->Active()) hpBar->SetActive(true);
     hpBar->Pos() = CAM->WorldToScreen(barPos);
+
+    */
 }
 
 void Player::Rotate()
 {
     Vector3 delta = mousePos - Vector3(CENTER_X, CENTER_Y);
-    
+
     if (!camera)
         return;
-    
+
     SetCursorPos(clientCenterPos.x, clientCenterPos.y);
 
     Rot().y += delta.x * rotSpeed * DELTA;
     CAM->Rot().x -= delta.y * rotSpeed * DELTA;
-    
+
     if (KEY_PRESS('Q'))
         Rot().y -= DELTA * 2;
     if (KEY_PRESS('E'))
@@ -383,22 +766,22 @@ void Player::Rotate()
 
 void Player::Walking()
 {
-    bool isMoveZ = false; // ÀüÈÄ ÀÌµ¿ Áß : ±âº»°ª "¾Æ´Ô"
-    bool isMoveX = false; // ÁÂ¿ì ÀÌµ¿ Áß : ±âº»°ª "¾Æ´Ô"
+    bool isMoveZ = false; // ???? ??? ?? : ???? "???"
+    bool isMoveX = false; // ?Â¿? ??? ?? : ???? "???"
 
     if (KEY_PRESS('W'))
     {
         if (velocity.z + DELTA * 4.0f < 0.0f)
             velocity.z += DELTA * 4.0f;
         else
-            velocity.z += DELTA; //¼Ó·Â ±âÁØ¿¡ ½Ã°£ °æ°ú¸¸Å­ ´©Àû°ª ÁÖ±â
+            velocity.z += DELTA; //??? ????? ?Ã°? ?????? ?????? ???
 
-        isMoveZ = true; //ÀüÈÄ ÀÌµ¿ ÁßÀÓ
+        isMoveZ = true; //???? ??? ????
     }
 
     if (KEY_PRESS('S'))
     {
-        if(velocity.z - DELTA * 4.0f > 0.0f)
+        if (velocity.z - DELTA * 4.0f > 0.0f)
             velocity.z -= DELTA * 4.0f;
         else
             velocity.z -= DELTA;
@@ -421,7 +804,7 @@ void Player::Walking()
         if (velocity.x + DELTA * 4.0f < 0.0f)
             velocity.x += DELTA * 4.0f;
         else
-            velocity.x += DELTA; //¼Ó·Â ±âÁØ¿¡ ½Ã°£ °æ°ú¸¸Å­ ´©Àû°ª ÁÖ±â
+            velocity.x += DELTA; //??? ????? ?Ã°? ?????? ?????? ???
 
         isMoveX = true;
     }
@@ -429,7 +812,7 @@ void Player::Walking()
     if (velocity.Length() > 1) velocity.Normalize();
 
     if (!isMoveZ)
-        velocity.z = Lerp(velocity.z, 0, deceleration * DELTA); //º¸°£À¸·Î °¨¼Ó
+        velocity.z = Lerp(velocity.z, 0, deceleration * DELTA); //???????? ????
 
     if (!isMoveX)
         velocity.x = Lerp(velocity.x, 0, deceleration * DELTA);
@@ -437,36 +820,54 @@ void Player::Walking()
     Matrix rotY = XMMatrixRotationY(Rot().y);
     Vector3 direction = XMVector3TransformCoord(velocity, rotY);
 
-        
-    Vector3 destFeedBackPos;
-    Vector3 destPos = Pos() + direction * moveSpeed * DELTA * -1;
-    Vector3 PlayerSkyPos = destPos;
-    PlayerSkyPos.y += 100;
-    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
-    TerainComputePicking(destFeedBackPos, groundRay);
-    
-    //destFeedBackPos : ¸ñÀûÁö ÅÍ·¹ÀÎPos
-    //feedBackPos : ÇöÀç ÅÍ·¹ÀÎPos
 
-    //¹æÇâÀ¸·Î °¢µµ ±¸ÇÏ±â
+    Vector3 destFeedBackPos;
+    Vector3 destPos;
+    if (!KEY_PRESS(VK_LSHIFT))
+    {
+        /*if (curState == B_AIM || curState == B_DRAW || curState == B_ODRAW)
+            destPos = Pos() + direction * aimMoveSpeed * DELTA * -1;
+        else*/
+        destPos = Pos() + direction * moveSpeed1 * DELTA * -1;
+    }
+        
+    else
+        destPos = Pos() + direction * moveSpeed2 * DELTA * -1;
+    Vector3 PlayerSkyPos = destPos;
+    PlayerSkyPos.y += 1000;
+    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+    if (!OnColliderFloor(destFeedBackPos)) // ë¬¸í„±ì˜¬ë¼ê°€ê¸° ë•Œë¬¸ì— ë‹¤ì‹œ ì‚´ë¦¼
+    {
+        TerainComputePicking(destFeedBackPos, groundRay);
+    }
+
+    //destFeedBackPos : ëª©ì ì§€ í„°ë ˆì¸Pos
+    //feedBackPos : í˜„ì¬ í„°ë ˆì¸Pos
+
+    //???????? ???? ?????
     Vector3 destDir = destFeedBackPos - feedBackPos;
     Vector3 destDirXZ = destDir;
     destDirXZ.y = 0;
-    
-    //°¢µµ
+ 
+    //????
     float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
 
 
-    if (/*ColliderManager::Get()->ControlPlayer(&direction)*/ !isPushed 
-        && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y)) //°¢ÀÌ 60µµº¸´Ù ÀÛ¾Æ¾ß ÀÌµ¿, È¤Àº ¸ñÀûÁö ³ôÀÌ°¡ ´õ ³·¾Æ¾ßÇÔ
+    if (!isPushed
+        && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y
+            || destFeedBackPos.y - feedBackPos.y < 0.5f) // ë°”ë‹¥ ì˜¬ë¼ê°€ê²Œ í•˜ê¸°ìœ„í•´ ì¶”ê°€í•¨
+        ) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????
     {
-        Pos() += direction * moveSpeed * DELTA * -1; // ÀÌµ¿ ¼öÇà
+        if (!KEY_PRESS(VK_LSHIFT))
+            Pos() += direction * moveSpeed1 * DELTA * -1; // ??? ????
+        else
+            Pos() += direction * moveSpeed2 * DELTA * -1; // ??? ????
         feedBackPos.y = destFeedBackPos.y;
     }
-        
-    //Á¡ÇÁ»óÅÂ°¡ ¾Æ´Ï¶ó¸é ÇöÀç Áö¸é ³ôÀÌ·Î ³ôÀÌ ¼öÁ¤
-    if(curState != JUMP1 && curState != JUMP2 && curState != JUMP3)
-        Pos().y = feedBackPos.y;
+
+    //???????Â°? ????? ???? ???? ????? ???? ????
+    if (curState != JUMP1 && curState != JUMP2 && curState != JUMP3 && curState != CLIMBING_JUMP_D)
+        Pos().y = feedBackPos.y;    //ì—¬ê¸° ì²´í¬
 }
 
 void Player::Jump()
@@ -481,33 +882,56 @@ void Player::AfterJumpAnimation()
 
 void Player::Jumping()
 {
-    if (isCeiling) {
-        jumpVel = -1;
-        isCeiling = false;
-    }
 
-    float tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
-    float tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
+        if (heightLevel < feedBackPos.y)
+            heightLevel = feedBackPos.y;
 
-    if(heightLevel < feedBackPos.y)
-        heightLevel = feedBackPos.y;
-
-    if (tempY <= heightLevel)
-    {
-        tempY = heightLevel;
-        tempJumpVel = 0.0f;
-
-        if (curState == JUMP2) {
-            //landing = landingT;   //Á¡ÇÁ°¡ ³ô¾Æ¼­ ÂøÁö ÀÚ¼¼°¡ ´Ù¸¦¶§ È£ÃâÇÏ±â
-            SetState(JUMP3);
+        if (isCeiling)
+        {
+            jumpVel = -20;
+            isCeiling = false;
         }
-    }
-    
-    Pos().y = tempY;
-    jumpVel = tempJumpVel;
 
-    if (jumpVel < 0.0f)
-        SetState(JUMP2);
+        float tempJumpVel;
+        float tempY;
+
+        if (curState != JUMP1 && curState != JUMP2 && preHeight - heightLevel > 5.0f)
+        {
+            jumpVel = -1;
+
+            tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
+            tempY = preHeight + jumpVel * DELTA * jumpSpeed;
+        }
+        else
+        {
+            tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
+
+            if (climbJ_y >= 0)
+            {
+                Pos().y = climbJ_y;
+                climbJ_y = 0.0f;
+            }
+            tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
+        }
+
+        if (tempY <= heightLevel)
+        {
+            tempY = heightLevel;
+            tempJumpVel = 0.0f;
+
+            if (curState == JUMP2) {
+                //landing = landingT;   //?????? ????? ???? ????? ????? ??????
+                SetState(JUMP3);
+            }
+        }
+
+        Pos().y = tempY;
+        jumpVel = tempJumpVel;
+
+        if (jumpVel < 0.0f)
+            SetState(JUMP2);
+
+        preHeight = heightLevel;
 }
 
 void Player::Searching()
@@ -517,11 +941,51 @@ void Player::Searching()
 
     //diagnolLRay.dir = Back;
 
-    //block manager·Î °¡Á®¿À´Â ÄÚµå ÀÛ¼º °¡´É
+    //block manager?? ???????? ??? ??? ????
+}
+
+void Player::Targeting()
+{
+    InteractManager::Get()->ClearSkill();
+
+    Vector3 offset;
+    Ray mouseRay = CAM->ScreenPointToRay(mousePos);
+
+    {
+        MonsterManager::Get()->OnOutLineByRay(mouseRay);
+        offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
+        MonsterManager::Get()->ActiveSpecialKey(Pos(), offset);
+    }
+    
+    {
+        ArrowManager::Get()->OnOutLineByRay(mouseRay);
+        offset = (CAM->Right() * 1.5f) + (CAM->Up() * 3.f);
+        ArrowManager::Get()->ActiveSpecialKey(Pos(), offset);
+    }
+
+    {
+        ColliderManager::Get()->PickFlagByRay(mouseRay);
+        offset = (CAM->Right() * 2.f) + (CAM->Up() * 2.f);
+        ColliderManager::Get()->ActiveSpecialKey(GlobalPos(), offset);
+        if (curState == CLIMBING1 || curState == CLIMBING2 || curState == CLIMBING3)
+            ColliderManager::Get()->ClearSpecialKey();
+    }
+    
+}
+
+void Player::UseSkill()
+{
+    for (InteractManager::Skill s : InteractManager::Get()->GetActiveSkills())
+    {
+        if (KEY_DOWN(s.key)) // ë“±ë¡ë˜ì–´ìˆëŠ” í‚¤ë¥¼ ëˆ„ë¥´ë©´
+        {
+            s.event(); //ë“±ë¡ë˜ì–´ìˆëŠ” í•¨ìˆ˜ ì‹¤í–‰
+        }
+    }
 }
 
 void Player::Cover()
-{    
+{
     targetTransform->Pos() = { contact.hitPoint.x, Pos().y, contact.hitPoint.z };
 
     Vector3 objectPos = { targetObject->Pos().x, 0, targetObject->Pos().z };
@@ -533,14 +997,24 @@ void Player::Cover()
     targetTransform->Pos() -= BACK * 30;
 }
 
-void Player::Assasination()
-{
-    //targetTransform->Pos() = { contact.x, Pos().y, contact.hitPoint.z };
-
-}
-
 bool Player::InTheAir() {
     return ((curState == JUMP1 || curState == JUMP2 || curState == JUMP3) && Pos().y > feedBackPos.y);
+}
+
+void Player::EndAssassination(UINT num)
+{
+    if (num == 1)
+        SetState(ASSASSINATION2);
+    else
+    {
+        if (weaponState == DAGGER)
+            SetState(IDLE);
+        else if (weaponState == BOW)
+            SetState(B_IDLE);
+        else
+            SetState(IDLE);
+    }
+
 }
 
 void Player::EndHit()
@@ -550,8 +1024,24 @@ void Player::EndHit()
     SetState(IDLE);
 }
 
+bool Player::OnColliderFloor(Vector3& feedback)
+{
+    Vector3 PlayerSkyPos = GlobalPos();
+    PlayerSkyPos.y += 3;
+    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+    Contact con;
+    if (ColliderManager::Get()->CloseRayCollisionColliderContact(groundRay, con))
+    {
+        feedback = con.hitPoint;
+        //feedback.y += 0.1f; //ì‚´ì§ ë„ì›€ìœ¼ë¡œì„œ ì¶©ëŒ ë°©ì§€
+        return true;
+    }
+
+    return false;
+}
+
 bool Player::TerainComputePicking(Vector3& feedback, Ray ray)
-{    
+{
     if (terrain && structuredBuffer)
     {
         rayBuffer->Get().pos = ray.pos;
@@ -594,7 +1084,7 @@ bool Player::TerainComputePicking(Vector3& feedback, Ray ray)
             return true;
         }
     }
-    
+
     return false;
 }
 
@@ -605,6 +1095,9 @@ float Player::GetDamage()
     {
         r = 10.0f;
     }
+    else if (curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3)
+        r = dagger->GetDamaged();
+    // ëª¨ì…˜ë§ˆë‹¤ ë™ì‘ë§ˆë‹¤ ì—¬ê¸°ì„œ ë°ë¯¸ì§€ ì¶”ê°€í•  ê²ƒ. 
     return r;
 }
 
@@ -615,33 +1108,56 @@ void Player::Hit(float damage)
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
         collider->SetActive(false);
+        //hiteffect->Play(particlepos);
+        
         if (destHP <= 0)
         {
             //SetState(DYING);
-            //°ÔÀÓ¿À¹ö
+            //???????
+            isDying = true;
             return;
         }
-
-        SetState(HIT,0.8f);
+        SetState(HIT, 0.8f);
 
         isHit = true;
     }
 
 }
 
-void Player::AttackCombo()
+void Player::Hit(float damage,bool camerashake)
+{
+    if (!isHit)
+    {
+        destHP = (curHP - damage > 0) ? curHP - damage : 0;
+
+        collider->SetActive(false);
+        CAM->DoShake();
+        if (destHP <= 0)
+        {
+            //SetState(DYING);
+            //???????
+            isDying = true;
+            return;
+        }
+        SetState(HIT, 0.8f);
+
+        isHit = true;
+    }
+
+}
+
+
+void Player::ComboAttack()
 {
     switch (weaponState)
     {
-    //case NONE:
+        //case NONE:
 
-    //    break;
+        //    break;
     case DAGGER:
         SetState(static_cast<State>(DAGGER1 + comboStack));
         break;
     }
-
-    combo = false;
 
     comboHolding = 1.5f;
     comboStack++;
@@ -649,37 +1165,100 @@ void Player::AttackCombo()
         comboStack = 0;
 }
 
+void Player::ShootArrow()
+{
+    //ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos));
+    SetState(B_IDLE);
+    
+}
+
 void Player::SetState(State state, float scale, float takeTime)
 {
     if (state == curState) return;
-    
+
     curState = state;
-    PlayClip((int)state,scale,takeTime);
+    PlayClip((int)state, scale, takeTime);
 }
 
-void Player::SetAnimation()
+void Player::SetAnimation()     //bindë¡œ ë§¤ê°œë³€ìˆ˜ ë„£ì–´ì¤„ìˆ˜ ìˆìœ¼ë©´ ë§¤ê°œë³€ìˆ˜ë¡œ ê°’ì„ ë°›ì•„ì˜¬ ê²½ìš°ì—” ë°”ë¡œ ê·¸ stateë¡œ ë³€ê²½í•˜ê²Œ ë§Œë“¤ê¸°
 {
-    if (curState == JUMP1 || curState == JUMP3 || Pos().y > 0.0f) return;   //³ôÀÌ°¡ ¹Ù²î´Â °æ¿ì°¡ »ı±â±â ¶§¹®¿¡ Pos().yÀÇ Á¶°Ç °ªÀ» º¯¼ö·Î ¹Ù²Ù±â
- /*   if (toCover)
-        return;*/
+    if (curState == ASSASSINATION1 || curState == ASSASSINATION2) return;
+    if (curState == CLIMBING1 || curState == CLIMBING2 || curState == CLIMBING3 || curState == CLIMBING_JUMP_R || curState == CLIMBING_JUMP_L || curState == CLIMBING_DOWN) return;
+        
+    if (weaponState == DAGGER)
+    {
+        if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;
 
-    if (curState == HIT || curState == KICK || curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3)
-        return;
+        if (curState == HIT || curState == KICK || curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3)
+            return;
 
-    if (velocity.z > 0.01f && velocity.x < -0.1f)
-        SetState(RUN_DL);
-    else if (velocity.z > 0.01f && velocity.x > 0.1f)
-        SetState(RUN_DR);
-    else if (velocity.z > 0.1f) // ¼Ó·Â ±âÁØÀÌ ÇöÀç ¾ÕÀ¸·Î +¸é
-        SetState(RUN_F);
-    else if (velocity.z < -0.1f) // ¾Õ ±âÁØ -¸é
-        SetState(RUN_B);
-    else if (velocity.x > 0.1f) // ÁÂ¿ì ±âÁØ +¸é
-        SetState(RUN_R);
-    else if (velocity.x < -0.1f) //ÁÂ¿ì ±âÁØ -¸é
-        SetState(RUN_L);
-    else
-        SetState(IDLE); // °¡¸¸È÷ ÀÖÀ¸¸é
+        if (velocity.z > 0.01f && velocity.x < -0.1f)
+            SetState(RUN_DL);
+        else if (velocity.z > 0.01f && velocity.x > 0.1f)
+            SetState(RUN_DR);
+        else if (velocity.z > 0.1f)
+            SetState(RUN_F);
+        else if (velocity.z < -0.1f)
+            SetState(RUN_B);
+        else if (velocity.x > 0.1f)
+            SetState(RUN_R);
+        else if (velocity.x < -0.1f)
+            SetState(RUN_L);
+        else
+            SetState(IDLE);
+    }
+    else if (weaponState == BOW)
+    {
+        if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;
+
+
+        if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM || curState == B_RECOIL)
+        {
+            if (KEY_DOWN(VK_RBUTTON))
+            {
+                SetState(B_IDLE);
+            }
+            return;
+        }
+
+        if (KEY_PRESS(VK_LSHIFT)) {
+            if (velocity.z > 0.1f)
+                SetState(B_C_F);
+            else if (velocity.z < -0.1f)
+                SetState(B_C_B);
+            else if (velocity.x > 0.1f)
+                SetState(B_C_R);
+            else if (velocity.x < -0.1f)
+                SetState(B_C_L);
+            else
+                SetState(B_C_IDLE);
+        }
+        else
+        {
+            if (velocity.z > 0.1f)
+                SetState(B_RUN_F);
+            else if (velocity.z < -0.1f)
+                SetState(B_RUN_B);
+            else if (velocity.x > 0.1f)
+                SetState(B_RUN_R);
+            else if (velocity.x < -0.1f)
+                SetState(B_RUN_L);
+            else
+                SetState(B_IDLE);
+        }
+    }
+}
+
+void Player::SetBowAnim()
+{
+    if (curState == B_DRAW)
+    {
+        SetState(B_ODRAW);
+    }
+    else if (curState == B_ODRAW)
+    {
+        SetState(B_AIM);
+    }
 }
 
 void Player::SetIdle()
@@ -697,5 +1276,58 @@ void Player::SetIdle()
     //    SetState(IDLE);
     else
         SetState(IDLE);
+}
 
+void Player::SetCameraPos()
+{
+    if (curState == CLIMBING_DOWN)
+    {
+        CAM->SetTarget(saveT);
+    }
+    else if (curState == CLIMBING3)
+    {
+        CAM->SetTarget(nullptr);
+        CAM->Pos().y += 2.0f * DELTA;
+    }
+    else if (curState == B_AIM || curState == B_DRAW || curState == B_ODRAW)
+    {
+        CAM->SetTarget(aimT);
+        CAM->SetDistance(1.0f);
+
+        aimT->Rot() = Rot();
+        aimT->UpdateWorld();
+
+        crosshair->SetActive(true);
+    }
+    else
+    {
+        crosshair->SetActive(false);
+
+        CAM->SetTarget(this);
+
+        Ray playerBackRay = Ray(Pos(), Forward());
+        playerBackRay.pos.y += 3.5f;
+        Contact temp;
+
+        float distance = 13.f;
+
+        for (Collider* obstacle : ColliderManager::Get()->GetObstacles())
+        {
+            if (obstacle->IsRayCollision(playerBackRay, &temp) && temp.distance < distance)
+            {
+                distance = temp.distance;
+            }
+        }
+        CAM->SetDistance(distance);
+    }
+}
+
+void Player::CoolDown()
+{
+    if (curRayCoolTime <= 0.0f)
+    {
+        curRayCoolTime = rayCoolTime;
+    }
+    else
+        curRayCoolTime -= DELTA;
 }

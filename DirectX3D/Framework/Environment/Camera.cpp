@@ -28,9 +28,10 @@ void Camera::Update()
         FollowMode();
     else
         FreeMode();
-
+    ShakeTime();
     UpdateWorld();
-
+    if (!DoingShake)
+        m_vRestorePos = Pos();
     view = XMMatrixInverse(nullptr, world);
     viewBuffer->Set(view, world);
 }
@@ -90,8 +91,8 @@ Vector3 Camera::WorldToScreen(Vector3 worldPos)
 {
     Vector3 screenPos;
 
-    screenPos = XMVector3TransformCoord(worldPos, view);
-    screenPos = XMVector3TransformCoord(screenPos, projection);
+    screenPos = XMVector3TransformCoord(worldPos, view); // 월드좌표에 뷰 행렬을 곱한다 -> 뷰상에서의 좌표가 나옴
+    screenPos = XMVector3TransformCoord(screenPos, projection); // 뷰상에서의 좌표에 프로젝션 행렬을 곱한다 -> 프로젝션 상에서의 좌표가 나옴
     //NDC : -1 ~ 1
 
     screenPos = (screenPos + Vector3::One()) * 0.5f;//0~1
@@ -201,11 +202,16 @@ void Camera::FollowMode()
     rotMatrix = XMMatrixRotationY(destRot + rotY);
 
     Vector3 forward = XMVector3TransformNormal(Vector3::Forward(), rotMatrix);
+    if (KEY_DOWN(VK_RBUTTON))
+    {
+        DoingShake = true;
+    }
 
     destPos = target->GlobalPos() + forward * -distance;
     destPos.y += height;
 
-    Pos() = Lerp(Pos(), destPos, moveDamping * DELTA);    
+    Pos() = Lerp(Pos(), destPos, moveDamping * DELTA);
+    //Pos() = destPos;
 
     Vector3 offset = XMVector3TransformCoord(focusOffset, rotMatrix);
     Vector3 targetPos = target->GlobalPos() + offset;
@@ -414,4 +420,26 @@ bool Camera::ContainPoint(Vector3 center, float radius)
     //각 평면에서 안쪽이었던점이 최소 1개 이상씩 있음(continue가 작동했으므로) >> 모든 평면에서 안쪽인 점이 있다?
 
     return true; //이것보다 참인 경우는 없다 = 해당 영역의 최소 일부는 반드시 프러스텀 안에 있다
+}
+
+ void Camera::ShakeTime()
+{
+    if (!DoingShake)return;
+    float fShakeFactor = 5.f;
+    if (shakestrength < 12.f * 3.141592 * fShakeFactor)
+    {
+        Pos().y = m_vRestorePos.y + 3.f * sin(shakestrength);
+        Pos().z = m_vRestorePos.z + 3.f * -sin(shakestrength);
+
+        shakestrength += fShakeFactor;
+    }
+    else
+    {
+        Pos() = m_vRestorePos;
+        shakestrength = 0.0f;
+        DoingShake = FALSE;
+        //m_tEffectType = CAMERA_EFFECT_TYPE::NONE;
+    }
+
+   
 }
