@@ -145,9 +145,13 @@ Player::Player()
     GetClip(DAGGER2)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
     GetClip(DAGGER3)->SetEvent(bind(&Player::SetIdle, this), 0.6f);
 
-    GetClip(DAGGER1)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), true), 0.2f); //콜라이더 켜는 시점 설정
-    GetClip(DAGGER2)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), true), 0.3f); //콜라이더 켜는 시점 설정
-    GetClip(DAGGER3)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), true), 0.15f); //콜라이더 켜는 시점 설정
+    //GetClip(DAGGER1)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), true), 0.2f); //콜라이더 켜는 시점 설정
+    //GetClip(DAGGER2)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), true), 0.3f); //콜라이더 켜는 시점 설정
+    //GetClip(DAGGER3)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), true), 0.15f); //콜라이더 켜는 시점 설정
+    GetClip(DAGGER1)->SetEvent(bind(&Player::SetDaggerAnim, this), 0.2f);
+    GetClip(DAGGER2)->SetEvent(bind(&Player::SetDaggerAnim, this), 0.3f);
+    GetClip(DAGGER3)->SetEvent(bind(&Player::SetDaggerAnim, this), 0.15f);
+
 
     GetClip(DAGGER1)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), false), 0.3f); //콜라이더 꺼지는 시점 설정
     GetClip(DAGGER2)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), false), 0.45f); //콜라이더 꺼지는 시점 설정
@@ -399,6 +403,7 @@ void Player::SetTerrain(LevelData* terrain)
 void Player::Assassination()
 {
     SetState(ASSASSINATION1, 2.0f);
+    Audio::Get()->Play("Player_Assassination");
 }
 
 void Player::Climb(Collider* col, Vector3 climbPos)
@@ -462,6 +467,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
             {
                 ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos));
+                Audio::Get()->Play("Player_ShootArrow");
                 SetState(B_RECOIL);
             }
             return;
@@ -474,7 +480,9 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
         {
             // 보유한 화살이 있는가
             if (ArrowManager::Get()->GetPlayerArrowCount() <= 0)return;
-                SetState(B_DRAW);
+            
+            Audio::Get()->Play("Player_BowLoading",3);
+            SetState(B_DRAW);
             return;
         }
     }
@@ -674,6 +682,14 @@ void Player::Walking()
 
     if (velocity.Length() > 1) velocity.Normalize();
 
+    if (isMoveX || isMoveZ)
+    {
+        if (!Audio::Get()->IsPlaySound("Player_Move"))
+            Audio::Get()->Play("Player_Move", 1);
+    }
+    else
+        Audio::Get()->Stop("Player_Move");
+
     if (!isMoveZ)
         velocity.z = Lerp(velocity.z, 0, deceleration * DELTA); //???????? ????
 
@@ -686,16 +702,40 @@ void Player::Walking()
 
     Vector3 destFeedBackPos;
     Vector3 destPos;
+
+    if (KEY_DOWN(VK_LSHIFT))
+    {
+        Audio::Get()->Stop("Player_Move");
+        if (isMoveX || isMoveZ)
+        {
+            Audio::Get()->Play("Player_Move", 0.4);
+        }
+    }
+    if (KEY_UP(VK_LSHIFT))
+    {
+        Audio::Get()->Stop("Player_Move");
+        if (isMoveX || isMoveZ)
+        {
+            Audio::Get()->Play("Player_Move", 1);
+        }
+    }
+
     if (!KEY_PRESS(VK_LSHIFT))
     {
         /*if (curState == B_AIM || curState == B_DRAW || curState == B_ODRAW)
             destPos = Pos() + direction * aimMoveSpeed * DELTA * -1;
         else*/
         destPos = Pos() + direction * moveSpeed1 * DELTA * -1;
+
+        
     }
         
     else
         destPos = Pos() + direction * moveSpeed2 * DELTA * -1;
+
+
+
+
     Vector3 PlayerSkyPos = destPos;
     PlayerSkyPos.y += 1000;
     Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
@@ -856,6 +896,12 @@ void Player::Cover()
 
 bool Player::InTheAir() {
     return ((curState == JUMP1 || curState == JUMP2 || curState == JUMP3) && Pos().y > feedBackPos.y);
+}
+
+void Player::SetDaggerAnim()
+{
+    dagger->GetCollider()->SetActive(true);
+    Audio::Get()->Play("Player_Attack");
 }
 
 void Player::EndAssassination(UINT num)
@@ -1020,6 +1066,8 @@ void Player::ComboAttack()
         //    break;
     case DAGGER:
         SetState(static_cast<State>(DAGGER1 + comboStack));
+        //Audio::Get()->Play("Player_Attack");
+        //PLAYSOUND("Player_ATTACK", 1);
         break;
     }
 

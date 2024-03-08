@@ -416,6 +416,8 @@ void MonsterManager::DieOrc(int index)
     //delete orcs[index].orc;
     //orcs.erase(index);
     orcs[index].isActive = false;
+    //Audio::Get()->Stop("Orc_Test");
+
 }
 
 void MonsterManager::Collision()

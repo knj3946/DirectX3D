@@ -164,11 +164,16 @@ private:
     void StateRevision();
     void ParticleUpdate();
 private:
+
+    // 디버그를 위한 변수
+    bool isEarCal = false;
+
+    int a = 300;
     Ray ray;// 레이
     Vector3 StorePos;// 소리난 곳 가기 전 위치 저장
     Vector3 CheckPoint;// 소리난 곳 저장
     Vector3 eyesPos;
-    float earRange = 1000.f;// 듣는 범위
+    float earRange = 12.f;// 듣는 범위 -> 오크가 쿠나이 던지는 거리가 9
     bool bSound = false;// 소리 체크
     bool NearFind = false;
     bool bSensor = false;

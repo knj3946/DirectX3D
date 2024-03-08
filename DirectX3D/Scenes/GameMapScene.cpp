@@ -114,8 +114,9 @@ GameMapScene::GameMapScene()
 		ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 		colliderModels.push_back(cm);
 	}
-
-	Audio::Get()->Add("bgm1", "Sounds/dramatic-choir.wav", true, true, false);
+	SoundManager::Get();
+	//Audio::Get();
+	//Audio::Get()->Add("bgm1", "Sounds/dramatic-choir.wav", true, true, false);
 
 	player = new Player();
 	player->Scale() = { 0.03f,0.03f,0.03f };

@@ -25,6 +25,9 @@
 
 #define CAM Environment::Get()->GetMainCamera()
 
+#define PLAYSOUND(key,volumn) Audio::Get()->Play(key,volumn);
+#define STOPSOUND(key) Audio::Get()->Stop(key);
+
 #define DIALOG ImGuiFileDialog::Instance()
 
 #define FOR(n) for(int i = 0; i < n ; i++)
@@ -204,6 +207,7 @@ using namespace GameMath;
 #include "Manager/GameManager.h"
 #include "Manager/ColliderManager.h"
 #include "Manager/InteractManager.h"
+#include "Manager/SoundManager.h"
 
 extern HWND hWnd;
 extern Vector3 mousePos;
