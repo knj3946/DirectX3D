@@ -441,3 +441,8 @@ void MonsterManager::Collision()
 void MonsterManager::SetType(int index, Orc::NPC_TYPE _type) {
     orcs[index].orc->SetType(_type);
 }
+
+void MonsterManager::SetType(int index, UINT _type)
+{
+    orcs[index].orc->SetType((Orc::NPC_TYPE)_type);
+}

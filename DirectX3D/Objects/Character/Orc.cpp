@@ -119,11 +119,11 @@ void Orc::SetType(NPC_TYPE _type) {
     switch (_type)
     {
     case Orc::NPC_TYPE::ATTACK:// 오크 타입에 따라 탐지 범위 지정 (현재 임시)
-        informrange = 100;
+        informrange = 50;
         type = NPC_TYPE::ATTACK;
         break;
     case Orc::NPC_TYPE::INFORM:
-        informrange = 750;
+        informrange = 100;
         type = NPC_TYPE::INFORM;
         break;
     default:
@@ -162,8 +162,8 @@ void Orc::Update()
     if (!GetDutyFlag()) //해야할일(움직임)이 생겼는지 확인
     {
         //해야할일이 없을때
-        SetState(IDLE);
-        //IdleAIMove();
+        //SetState(IDLE);
+        IdleAIMove();
         return;
     }
 

@@ -174,7 +174,7 @@ private:
     bool bSensor = false;
 
     float informrange;// 탐지범위
-    NPC_TYPE type;//
+    NPC_TYPE type= NPC_TYPE::ATTACK;//
     vector<Vector3> PatrolPos;// 순찰지
     UINT nextPatrol = 0;// 순찰지 위치
  

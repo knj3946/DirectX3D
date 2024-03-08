@@ -339,6 +339,7 @@ void GameMapScene::FirstLoading()
 		MonsterManager::Get()->SetPatrolPos(6, Vector3(170.f, 0.f, 120.f));
 		MonsterManager::Get()->SetOrcSRT(7, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(50, 0, 135));
 		MonsterManager::Get()->SetPatrolPos(7, Vector3(100.f, 0.f, 135.f));
+		MonsterManager::Get()->SetType(7,1);// 1이 알리는애
 		MonsterManager::Get()->SetTerrain(terrain);
 		MonsterManager::Get()->SetAStar(aStar);
 		MonsterManager::Get()->SetTarget(player); //싱글턴 생성 후, 표적 설정까지
