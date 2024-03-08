@@ -180,9 +180,8 @@ void Boss::PostRender()
 }
 
 void Boss::GUIRender() {
-	ImGui::DragInt("count",(int*)&count,1,0,15);
+	instancing->GUIRender();
 
-	Roarparticle->GUIRender();
 }
 
 void Boss::CalculateEyeSight()

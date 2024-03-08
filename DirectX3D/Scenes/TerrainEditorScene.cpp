@@ -196,12 +196,8 @@ void TerrainEditorScene::PostRender()
 
 void TerrainEditorScene::GUIRender()
 {
-    terrainEditor->GUIRender();
-	for (ColliderModel* cm : colliderModels)
-	{
-		cm->GUIRender();
-	}
-	FOR(2)bc[i]->GUIRender();
+
+	boss->GUIRender();
 }
 
 void TerrainEditorScene::ByteAddress()
