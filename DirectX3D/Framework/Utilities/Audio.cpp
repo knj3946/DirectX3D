@@ -6,6 +6,12 @@ Audio::Audio()
     soundSystem->init(MAX_CHANNEL, FMOD_INIT_NORMAL, nullptr);
 
     soundSystem->set3DSettings(1.0f, 100.0f, 0.01f);    
+
+    // soundSystem2
+    /*System_Create(&soundSystem[1]);
+    soundSystem[1]->init(MAX_CHANNEL, FMOD_INIT_NORMAL, nullptr);
+
+    soundSystem[1]->set3DSettings(1.0f, 100.0f, 0.01f);*/
 }
 
 Audio::~Audio()
@@ -14,14 +20,21 @@ Audio::~Audio()
         delete sound.second;
 
     soundSystem->release();
+    //soundSystem[1]->release();
 }
 
 void Audio::Update()
 {
     listenerPos = { CAM->Pos().x, CAM->Pos().y, CAM->Pos().z };
     soundSystem->set3DListenerAttributes(0, &listenerPos, nullptr, nullptr, nullptr);
+    //soundSystem->set3DListenerAttributes(1, &orcListenerPos, nullptr, nullptr, nullptr);
+
+    //Orc* orc = MonsterManager::Get()->GetOrc(1);
+    //orcListenerPos = { orc->GetTransform()->Pos().x,orc->GetTransform()->Pos().y,orc->GetTransform()->Pos().z };
+    //soundSystem[1]->set3DListenerAttributes(1, &listenerPos, nullptr, nullptr, nullptr);
 
     soundSystem->update();
+    //soundSystem[1]->update();
 }
 
 void Audio::Add(string key, string file, bool bgm, bool loop, bool is3D)
@@ -88,7 +101,7 @@ void Audio::Play(string key, Float3 position, float valume)
     FMOD_VECTOR pos = { position.x, position.y, position.z };        
     FMOD_VECTOR vel = {};
     sounds[key]->channel->set3DAttributes(&pos, &vel);    
-    sounds[key]->channel->set3DMinMaxDistance(1.0f, 10000.0f);
+    sounds[key]->channel->set3DMinMaxDistance(1.0f, 50.0f);
 }
 
 void Audio::Stop(string key)

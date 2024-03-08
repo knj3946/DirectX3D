@@ -124,6 +124,7 @@ private:
     void UseSkill();
     bool InTheAir();
 
+    void SetDaggerAnim();
     void EndAssassination(UINT num);
     void EndHit();
     void EndClimbing();

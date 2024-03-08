@@ -50,4 +50,5 @@ private:
     unordered_map<string, SoundInfo*> sounds;
 
     FMOD_VECTOR listenerPos;
+    FMOD_VECTOR orcListenerPos;
 };

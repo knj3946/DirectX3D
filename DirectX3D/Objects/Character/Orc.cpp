@@ -86,6 +86,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     rangeBar->Rot() = { XMConvertToRadians(90.f),0,XMConvertToRadians(-90.f) };
     rangeBar->Pos() = { -15.f,2.f,-650.f };
 
+    //Audio::Get()->Play("Orc_Test",transform->Pos(),5);
 }
 
 Orc::~Orc()
@@ -235,6 +236,9 @@ void Orc::SetSRT(Vector3 scale, Vector3 rot, Vector3 pos)
 
 void Orc::GUIRender()
 {
+    ImGui::Text("IsPlaySound : %d", Audio::Get()->IsPlaySound("Orc_Hit"));
+    ImGui::Text("Orc_test : %d", Audio::Get()->IsPlaySound("Orc_Test"));
+
     ImGui::Text("bFind : %d", bFind);
     ImGui::Text("bDetection : %d", bDetection);
     ImGui::Text("isTracking : %d", isTracking);
@@ -412,7 +416,13 @@ void Orc::Hit(float damage,Vector3 collisionPos)
 {
     if (!isHit)
     {
-        Audio::Get()->Play("Orc_Hit", transform->Pos()); // 크기조절
+        if (!Audio::Get()->IsPlaySound("Orc_Hit"))
+        {
+            float distance = Distance(target->Pos(), transform->Pos());
+            distance = (distance < 30) ? distance : 0;
+            Audio::Get()->Play("Orc_Hit", 30 - distance); // 크기조절 가까울수록 사운드 커지게
+            
+        }
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
         collider->SetActive(false);
@@ -432,17 +442,6 @@ void Orc::Hit(float damage,Vector3 collisionPos)
         particleHit->Play(collisionPos); // 해당위치에서 파티클 재생
     }
 
-    /*if (curState == ASSASSINATED)
-    {
-        collider->SetActive(false);
-        leftWeaponCollider->SetActive(false);
-        rightWeaponCollider->SetActive(false);
-        destHP = 0;
-        curHP = 0;
-        SetState(DYING);
-        return;
-    }*/
-
 }
 
 void Orc::Spawn(Vector3 pos)
@@ -456,8 +455,6 @@ void Orc::Spawn(Vector3 pos)
 
     transform->SetActive(true); //비활성화였다면 활성화 시작
     collider->SetActive(true);
-    //leftWeaponCollider->SetActive(true);
-    //rightWeaponCollider->SetActive(true);
 }
 
 void Orc::AttackTarget()
@@ -1120,24 +1117,24 @@ void Orc::CalculateEarSight()
     Vector3 pos;
     float volume = -1.f;
     float distance = -1.f;
-    if (Audio::Get()->IsPlaySound("PlayerWalk")) {
-
-        pos.x = Audio::Get()->GetSoundPos("PlayerWalk").x;
-        pos.y = Audio::Get()->GetSoundPos("PlayerWalk").y;
-        pos.z = Audio::Get()->GetSoundPos("PlayerWalk").z;
-        volume = Audio::Get()->GetVolume("PlayerWalk");
+    if (Audio::Get()->IsPlaySound("Player_Move")) {
+        
+        pos.x = Audio::Get()->GetSoundPos("Player_Move").x;
+        pos.y = Audio::Get()->GetSoundPos("Player_Move").y;
+        pos.z = Audio::Get()->GetSoundPos("Player_Move").z;
+        volume = Audio::Get()->GetVolume("Player_Move");
         distance = Distance(transform->GlobalPos(), pos);
-        volume = Audio::Get()->GetVolume("PlayerWalk");
+        volume = Audio::Get()->GetVolume("Player_Move");
     }
     // 웅크리고 걷는 소리 ,암살소리  제외
     // 플레이어 소리와 주위 시선 끄는 소리 추가
 
 
 
-
     if (distance == -1.f)return;
 
     if (distance < earRange * volume) {
+        isEarCal = true;
         SetState(WALK);
         behaviorstate = NPC_BehaviorState::SOUNDCHECK;
         CheckPoint = pos;
@@ -1147,6 +1144,7 @@ void Orc::CalculateEarSight()
         SetPath(CheckPoint);
        
     }
+    
 
     SoundPositionCheck(); //소리가 들렸다면 소리의 위치 확인하는 함수
 }

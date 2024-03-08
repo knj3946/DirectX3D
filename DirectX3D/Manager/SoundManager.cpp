@@ -26,6 +26,7 @@ SoundManager::SoundManager()
 
 	// 오크 사운드
 	Audio::Get()->Add("Orc_Hit","Sounds/Orc/hit.wav", false, false, true);
+	Audio::Get()->Add("Orc_Test","Sounds/move.wav", false, true, true);
 
 }
 
