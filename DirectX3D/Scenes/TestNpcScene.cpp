@@ -73,9 +73,7 @@ TestNpcScene::TestNpcScene()
 
         aStar2->AddObstacleObj(cube[i]->GetCollider());
     }
-    FOR(2) blendState[i] = new BlendState();
-    blendState[1]->AlphaToCoverage(true); //투명색 적용 + 배경색 처리가 있으면 역시 적용
-
+ 
 }
 
 TestNpcScene::~TestNpcScene()

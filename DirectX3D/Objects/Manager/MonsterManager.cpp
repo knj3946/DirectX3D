@@ -34,6 +34,7 @@ MonsterManager::MonsterManager()
         orcs.push_back(orc);
         orc->Spawn(positions[i]);
     }
+  
 }
 
 MonsterManager::~MonsterManager()

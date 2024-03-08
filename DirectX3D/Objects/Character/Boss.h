@@ -143,6 +143,7 @@ private:
     bool bArriveFindPos = false;
     bool MarkActiveTime = 0.f;
 
+    Vector3 feedBackPos;
 
 private:
     void MarkTimeCheck();
@@ -182,7 +183,7 @@ private:
 
     void Run();
     void SetRay();
-
+    bool TerrainComputePicking(Vector3& feedback, Ray ray);
 public:
     void SetPath(Vector3 targetPos);
     Boss();

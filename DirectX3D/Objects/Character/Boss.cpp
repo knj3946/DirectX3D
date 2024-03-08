@@ -336,6 +336,27 @@ void Boss::Move()
 
 
 	transform->Pos() += dir * moveSpeed * DELTA;
+
+	Vector3 destFeedBackPos;
+	Vector3 destPos = transform->Pos() + velocity * moveSpeed * DELTA;
+	Vector3 OrcSkyPos = destPos;
+	OrcSkyPos.y += 100;
+	Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
+	TerrainComputePicking(destFeedBackPos, groundRay);
+
+	//destFeedBackPos : 목적지 터레인Pos
+	//feedBackPos : 현재 터레인Pos
+
+	//방향으로 각도 구하기
+	Vector3 destDir = destFeedBackPos - feedBackPos;
+	Vector3 destDirXZ = destDir;
+	destDirXZ.y = 0;
+
+	//각도
+	float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
+
+	feedBackPos.y = destFeedBackPos.y;
+	transform->Pos().y = feedBackPos.y;
 }
 void Boss::IdleMove() {
 	if (state != BOSS_STATE::IDLE)return;
@@ -792,5 +813,52 @@ void Boss::SetRay()
 	Vector3 dir = target->GlobalPos() - transform->GlobalPos();
 	dir.Normalize();
 	ray.dir = dir;
+}
+
+bool Boss::TerrainComputePicking(Vector3& feedback, Ray ray)
+{
+	if (terrain && structuredBuffer)
+	{
+		rayBuffer->Get().pos = ray.pos;
+		rayBuffer->Get().dir = ray.dir;
+		rayBuffer->Get().triangleSize = terrainTriangleSize;
+
+		rayBuffer->SetCS(0);
+
+		DC->CSSetShaderResources(0, 1, &structuredBuffer->GetSRV());
+		DC->CSSetUnorderedAccessViews(0, 1, &structuredBuffer->GetUAV(), nullptr);
+
+		computeShader->Set();
+
+		UINT x = ceil((float)terrainTriangleSize / 64.0f);
+
+		DC->Dispatch(x, 1, 1);
+
+		structuredBuffer->Copy(outputs.data(), sizeof(OutputDesc) * terrainTriangleSize);
+
+		float minDistance = FLT_MAX;
+		int minIndex = -1;
+
+		UINT index = 0;
+		for (OutputDesc output : outputs)
+		{
+			if (output.picked)
+			{
+				if (minDistance > output.distance)
+				{
+					minDistance = output.distance;
+					minIndex = index;
+				}
+			}
+			index++;
+		}
+
+		if (minIndex >= 0)
+		{
+			feedback = ray.pos + ray.dir * minDistance;
+			return true;
+		}
+	}
+
 }
 

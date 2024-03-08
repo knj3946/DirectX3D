@@ -57,7 +57,7 @@ private:
 
 
     vector<Float4> vecDetectionPos;// 타겟을 탐지한애들 위치 모으기
-
+ 
     friend class Orc;
 
 };

@@ -147,6 +147,9 @@ TerrainEditorScene::TerrainEditorScene()
 	boss->SetAStar(astar);
 	boss->SetPatrolPos(Vector3(205.f, 0.f, 110.f));
 	boss->SetPatrolPos(Vector3(205.f, 0.f, 80.f));
+	FOR(2) blendState[i] = new BlendState();
+	blendState[1]->AlphaToCoverage(true); //투명색 적용 + 배경색 처리가 있으면 역시 적용
+
 }
 
 TerrainEditorScene::~TerrainEditorScene()
@@ -180,6 +183,7 @@ void TerrainEditorScene::PreRender()
 
 void TerrainEditorScene::Render()
 {
+	blendState[1]->SetState();
     terrainEditor->Render();
 	for (ColliderModel* cm : colliderModels)
 	{
@@ -188,6 +192,7 @@ void TerrainEditorScene::Render()
 	FOR(2)bc[i]->Render();
 	MonsterManager::Get()->Render();
 	boss->Render();
+	blendState[0]->SetState();
 }
 
 void TerrainEditorScene::PostRender()

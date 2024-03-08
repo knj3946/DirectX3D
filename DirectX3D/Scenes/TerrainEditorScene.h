@@ -21,6 +21,7 @@ private:
     Player* player;
     AStar* astar;
     Boss* boss;
+    BlendState* blendState[2];
 
     BoxCollider* bc[2];
 };
