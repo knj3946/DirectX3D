@@ -31,7 +31,7 @@ Boss::Boss()
 	RoarCollider->SetParent(Mouth);
 	RoarCollider->SetActive(false);
 	Roarparticle = new ParticleSystem("TextData/Particles/Roar.fx");
-
+	
 	Roarparticle->GetQuad()->SetParent(Mouth);
 	Roarparticle->GetQuad()->Pos() = { 4.f,-9.f,-6.f };
 	Roarparticle->GetQuad()->Scale() = { 25.f,36.f,42.f };
@@ -137,7 +137,7 @@ void Boss::Update()
 	Direction();
 	Control();
 	Find();
-	
+	CollisionCheck();
 	CoolTimeCheck();
 	MarkTimeCheck();
 	Move();
