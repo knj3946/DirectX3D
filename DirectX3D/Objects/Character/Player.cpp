@@ -94,10 +94,11 @@ Player::Player()
     ReadClip("Climbing1");
     ReadClip("Climbing2");
     ReadClip("Climbing3");
+
     ReadClip("Braced Hang Hop Left");
     ReadClip("Braced Hang Hop Right");
     ReadClip("Climbing Down Wall");
-    ReadClip("Braced Hang Drop");
+    //ReadClip("Braced Hang Drop");
     //ReadClip("temp");
 
     temp = "Attack/";
