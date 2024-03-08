@@ -64,6 +64,8 @@ public:
 
     void DieOrc(int index);
 
+    void SetOrcGround();
+
 private:
     void Collision();   
 

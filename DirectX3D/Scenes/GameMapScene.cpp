@@ -371,6 +371,8 @@ void GameMapScene::FirstLoading()
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(99.f);
 
+		MonsterManager::Get()->SetOrcGround();
+
 		//리소스 불러오기 용으로 한번 호출
 		skyBox->Render();
 		terrain->Render();

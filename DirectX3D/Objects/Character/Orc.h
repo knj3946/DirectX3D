@@ -119,6 +119,7 @@ public:
     bool GetIsDying() { return isDying; }
 
     void CoolDown();
+    void SetGroundPos();
 
 private:
     void Control();
@@ -158,7 +159,6 @@ private:
 
     bool GetDutyFlag();
     void SetParameter();
-    void SetGroundPos();
     bool CalculateHit();
     void PartsUpdate();
     void StateRevision();

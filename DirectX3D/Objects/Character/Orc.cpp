@@ -321,6 +321,8 @@ void Orc::SetGroundPos()
             TerainComputePicking(feedBackPos, groundRay);
         }
     }
+
+    transform->Pos().y = feedBackPos.y;
 }
 
 bool Orc::CalculateHit()
