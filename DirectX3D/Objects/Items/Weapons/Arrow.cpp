@@ -62,6 +62,7 @@ void Arrow::Update()
 		transform->Pos() += direction * speed * DELTA;
 	}
 	HitEffect->Update();
+	Wallparticle->Update();
 	collider->UpdateWorld();
 
 
@@ -82,7 +83,7 @@ void Arrow::Render()
 {
 	collider->Render();
 	HitEffect->Render();
-
+	Wallparticle->Render();
 	if (isDropItem)return;
 
 	if (trail != nullptr)
