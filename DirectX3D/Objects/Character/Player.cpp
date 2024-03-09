@@ -586,6 +586,8 @@ void Player::CameraMove()
 
 void Player::Control()  //??????? ?????, ???콺 ??? ???
 {
+    if (curState == ASSASSINATION1 || curState == ASSASSINATION2) return;
+
     if (curState != CLIMBING2 && curState != CLIMBING3
         && curState != CLIMBING_JUMP_L && curState != CLIMBING_JUMP_R && curState != CLIMBING_DOWN)
     {
