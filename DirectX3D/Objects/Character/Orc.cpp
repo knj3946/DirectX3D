@@ -88,7 +88,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     Audio::Get();
     Audio::Get()->Add("hit", "Sounds/hit.wav");
 
-    particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
+    particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 10, 10, 5, 2, false);
 }
 
 Orc::~Orc()
@@ -156,7 +156,7 @@ void Orc::Update()
     PartsUpdate(); //모델 각 파츠 업데이트
     StateRevision(); //애니메이션 중간에 끊겨서 변경안된 값들 보정
     
-
+    particleHit->Update();
     //====================== 이동관련==============================
     if (CalculateHit()) return; //맞는 중이면 리턴 (이 아래는 이동과 관련된 것인데 맞는중에는 필요없음)
     if (!GetDutyFlag()) //해야할일(움직임)이 생겼는지 확인

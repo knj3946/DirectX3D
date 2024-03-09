@@ -201,6 +201,8 @@ Player::Player()
         form->Pos() = { 245, WIN_HEIGHT - 100, 0 };
         form->UpdateWorld();
     }
+    hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 10, 10, 5, 2, false);
+    jumpparticle=new ParticleSystem("TextData/Particles/JumpSmoke.fx");
 }
 
 Player::~Player()
@@ -208,7 +210,8 @@ Player::~Player()
     delete collider;
 
     delete hpBar;
-
+    delete hiteffect;
+    delete jumpparticle;
     delete rayBuffer;
     delete structuredBuffer;
 
@@ -282,7 +285,8 @@ void Player::Update()
     ArrowManager::Get()->Update();
     ArrowManager::Get()->IsCollision();
 
-
+    hiteffect->Update();
+    jumpparticle->Update();
     crosshair->UpdateWorld();
 
 
@@ -293,7 +297,8 @@ void Player::Render()
 {
     ModelAnimator::Render();
     collider->Render();
-
+    hiteffect->Render();
+    jumpparticle->Render();
     switch (weaponState)
     {
     case DAGGER:
@@ -313,7 +318,9 @@ void Player::Render()
 void Player::PostRender()
 {
     hpBar->Render();
+    
     portrait->Render();
+    
     form->Render();
     string str = to_string(ArrowManager::Get()->GetPlayerArrowCount());
 
@@ -1113,7 +1120,7 @@ void Player::Hit(float damage)
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
         collider->SetActive(false);
-        //hiteffect->Play(particlepos);
+        hiteffect->Play(particlepos);
 
         if (destHP <= 0)
         {

@@ -82,7 +82,7 @@ Boss::Boss()
 	Audio::Get()->Add("Boss_Splash", "Sounds/BossSplash.mp3", false, false, true);
 	Audio::Get()->Add("Boss_Run", "Sounds/Bossfootstep.mp3", false, false, true);
 	Audio::Get()->Add("Boss_Walk", "Sounds/Bosswalk.mp3", false, false, true);
-	hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
+	hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 10, 10, 5, 2, false);
 	leftCollider->SetActive(false);
 }
 
@@ -164,7 +164,7 @@ void Boss::Update()
 	Roarparticle->Update();
 	hpBar->UpdateWorld();
 	rangeBar->UpdateWorld();
-
+	hiteffect->Update();
 	for (int i = 0; i < 3; ++i)
 		Runparticle[i]->Update();
 
