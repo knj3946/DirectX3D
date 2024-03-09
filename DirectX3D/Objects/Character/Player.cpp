@@ -685,7 +685,7 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
         //{
         //    Vector3 PlayerSkyPos = Pos();
         //    PlayerSkyPos.y += 100;
-        //    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+        //    Ray groundRay = Ray(PlayerSkyPos, Vector3(0.f,-1.f,0.f));
         //    TerainComputePicking(feedBackPos, groundRay);
         //}   
     }
@@ -697,7 +697,7 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
         {
             Vector3 PlayerSkyPos = Pos();
             PlayerSkyPos.y += 1000;
-            Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+            Ray groundRay = Ray(PlayerSkyPos, Vector3(0.f, -1.f, 0.f));
             TerainComputePicking(feedBackPos, groundRay);
         }
 
@@ -831,7 +831,7 @@ void Player::Walking()
         destPos = Pos() + direction * moveSpeed2 * DELTA * -1;
     Vector3 PlayerSkyPos = destPos;
     PlayerSkyPos.y += 1000;
-    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+    Ray groundRay = Ray(PlayerSkyPos, Vector3(0.f,-1.f,0.f));
     if (!OnColliderFloor(destFeedBackPos)) // 문턱올라가기 때문에 다시 살림
     {
         TerainComputePicking(destFeedBackPos, groundRay);
@@ -1040,44 +1040,53 @@ bool Player::TerainComputePicking(Vector3& feedback, Ray ray)
 {
     if (terrain && structuredBuffer)
     {
-        rayBuffer->Get().pos = ray.pos;
-        rayBuffer->Get().dir = ray.dir;
-        rayBuffer->Get().triangleSize = terrainTriangleSize;
+        UINT w = terrain->GetSizeWidth();
 
-        rayBuffer->SetCS(0);
+        float minx = floor(ray.pos.x);
+        float maxx = ceil(ray.pos.x);
 
-        DC->CSSetShaderResources(0, 1, &structuredBuffer->GetSRV());
-        DC->CSSetUnorderedAccessViews(0, 1, &structuredBuffer->GetUAV(), nullptr);
+        if (maxx == w - 1 && minx == maxx)
+            minx--;
+        else if (minx == maxx)
+            maxx++;
 
-        computeShader->Set();
+        float minz = floor(ray.pos.z);
+        float maxz = ceil(ray.pos.z);
 
-        UINT x = ceil((float)terrainTriangleSize / 64.0f);
+        if (maxz == w - 1 && minz == maxz)
+            minz--;
+        else if (minz == maxz)
+            maxz++;
 
-        DC->Dispatch(x, 1, 1);
-
-        structuredBuffer->Copy(outputs.data(), sizeof(OutputDesc) * terrainTriangleSize);
-
-        float minDistance = FLT_MAX;
-        int minIndex = -1;
-
-        UINT index = 0;
-        for (OutputDesc output : outputs)
+        for (UINT z = w - maxz - 1; z < w - minz - 1; z++)
         {
-            if (output.picked)
+            for (UINT x = minx; x < maxx; x++)
             {
-                if (minDistance > output.distance)
+                UINT index[4];
+                index[0] = w * z + x;
+                index[1] = w * z + x + 1;
+                index[2] = w * (z + 1) + x;
+                index[3] = w * (z + 1) + x + 1;
+
+                vector<VertexType>& vertices = terrain->GetMesh()->GetVertices();
+
+                Vector3 p[4];
+                for (UINT i = 0; i < 4; i++)
+                    p[i] = vertices[index[i]].pos;
+
+                float distance = 0.0f;
+                if (Intersects(ray.pos, ray.dir, p[0], p[1], p[2], distance))
                 {
-                    minDistance = output.distance;
-                    minIndex = index;
+                    feedback = ray.pos + ray.dir * distance;
+                    return true;
+                }
+
+                if (Intersects(ray.pos, ray.dir, p[3], p[1], p[2], distance))
+                {
+                    feedback = ray.pos + ray.dir * distance;
+                    return true;
                 }
             }
-            index++;
-        }
-
-        if (minIndex >= 0)
-        {
-            feedback = ray.pos + ray.dir * minDistance;
-            return true;
         }
     }
 
