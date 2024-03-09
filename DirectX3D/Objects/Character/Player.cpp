@@ -201,7 +201,7 @@ Player::Player()
         form->Pos() = { 245, WIN_HEIGHT - 100, 0 };
         form->UpdateWorld();
     }
-    hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 10, 10, 5, 2, false);
+    hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 25, 25, 5, 2, false);
     jumpparticle=new ParticleSystem("TextData/Particles/JumpSmoke.fx");
 }
 

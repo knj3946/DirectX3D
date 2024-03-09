@@ -88,7 +88,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     Audio::Get();
     Audio::Get()->Add("hit", "Sounds/hit.wav");
 
-    particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 10, 10, 5, 2, false);
+    particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 25, 25, 5, 2, false);
 }
 
 Orc::~Orc()
