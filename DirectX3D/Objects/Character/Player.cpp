@@ -205,6 +205,10 @@ Player::Player()
         form->Pos() = { 245, WIN_HEIGHT - 100, 0 };
         form->UpdateWorld();
     }
+
+    // 사운드 생성 및 초기화
+    SoundManager::Get()->PlayerCreate(this);
+
 }
 
 Player::~Player()
@@ -412,7 +416,7 @@ void Player::SetTerrain(LevelData* terrain)
 void Player::Assassination()
 {
     SetState(ASSASSINATION1, 2.0f);
-    Audio::Get()->Play("Player_Assassination");
+    PLAYERSOUND()->Play("Player_Assassination",3);
 }
 
 void Player::Climb(Collider* col, Vector3 climbPos)
@@ -609,6 +613,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
                 if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
                 {
                     ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos));
+                    PLAYERSOUND()->Play("Player_ShootArrow");
                     SetState(B_RECOIL);
                 }
                 return;
@@ -622,7 +627,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             // 보유한 화살이 있는가
             if (ArrowManager::Get()->GetPlayerArrowCount() <= 0)return;
             
-            Audio::Get()->Play("Player_BowLoading",3);
+            PLAYERSOUND()->Play("Player_BowLoading",3);
             SetState(B_DRAW);
             return;
         }
@@ -814,11 +819,11 @@ void Player::Walking()
 
     if (isMoveX || isMoveZ)
     {
-        if (!Audio::Get()->IsPlaySound("Player_Move"))
-            Audio::Get()->Play("Player_Move", 1);
+        if (!PLAYERSOUND()->IsPlaySound("Player_Move"))
+            PLAYERSOUND()->Play("Player_Move", 2.5f);
     }
     else
-        Audio::Get()->Stop("Player_Move");
+        PLAYERSOUND()->Stop("Player_Move");
 
     if (!isMoveZ)
         velocity.z = Lerp(velocity.z, 0, deceleration * DELTA); //???????? ????
@@ -835,18 +840,18 @@ void Player::Walking()
 
     if (KEY_DOWN(VK_LSHIFT))
     {
-        Audio::Get()->Stop("Player_Move");
+        PLAYERSOUND()->Stop("Player_Move");
         if (isMoveX || isMoveZ)
         {
-            Audio::Get()->Play("Player_Move", 0.4);
+            PLAYERSOUND()->Play("Player_Move", 1);
         }
     }
     if (KEY_UP(VK_LSHIFT))
     {
-        Audio::Get()->Stop("Player_Move");
+        PLAYERSOUND()->Stop("Player_Move");
         if (isMoveX || isMoveZ)
         {
-            Audio::Get()->Play("Player_Move", 1);
+            PLAYERSOUND()->Play("Player_Move", 1);
         }
     }
 
@@ -1037,7 +1042,7 @@ bool Player::InTheAir() {
 void Player::SetDaggerAnim()
 {
     dagger->GetCollider()->SetActive(true);
-    Audio::Get()->Play("Player_Attack");
+    PLAYERSOUND()->Play("Player_Attack");
 }
 
 void Player::EndAssassination(UINT num)
@@ -1195,7 +1200,7 @@ void Player::ComboAttack()
         //    break;
     case DAGGER:
         SetState(static_cast<State>(DAGGER1 + comboStack));
-        //Audio::Get()->Play("Player_Attack");
+        //PLAYERSOUND()->Play("Player_Attack");
         //PLAYSOUND("Player_ATTACK", 1);
         break;
     }

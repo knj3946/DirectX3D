@@ -25,8 +25,12 @@
 
 #define CAM Environment::Get()->GetMainCamera()
 
-#define PLAYSOUND(key,volumn) Audio::Get()->Play(key,volumn);
-#define STOPSOUND(key) Audio::Get()->Stop(key);
+//#define PLAYSOUND(key,volumn) Audio::Get()->Play(key,volumn);
+//#define STOPSOUND(key) Audio::Get()->Stop(key);
+#define PLAYERSOUND() SoundManager::Get()->GetPlayerAudio()
+#define BOSSSOUND() SoundManager::Get()->GetBossAudio()
+#define ORCSOUND(index) SoundManager::Get()->GetOrcAudio(index)
+
 
 #define DIALOG ImGuiFileDialog::Instance()
 

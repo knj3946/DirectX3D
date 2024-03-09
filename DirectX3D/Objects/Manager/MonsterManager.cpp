@@ -75,6 +75,8 @@ void MonsterManager::CreateOrc()
     orcs.insert(make_pair(orcIndex,orcInfo));
     orc->Spawn(orcInfo.position);
 
+    SoundManager::Get()->OrcCreate(orcIndex,orc->GetTransform());
+
     orcIndex++;
 }
 

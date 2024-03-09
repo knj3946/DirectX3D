@@ -2,10 +2,10 @@
 
 using namespace FMOD;
 
-class Audio : public Singleton<Audio>
+class Audio// : public Singleton<Audio>
 {
 private:
-    friend class Singleton;
+    //friend class Singleton;
 
     const int MAX_CHANNEL = 20;
 
@@ -20,10 +20,14 @@ private:
         }
     };
 
+    
+
+public:
     Audio();
     ~Audio();
 
-public:
+    void SetTarget(class Transform* t) { target = t; }
+
     void Update();
 
     void Add(string key, string file,
@@ -38,6 +42,7 @@ public:
     bool IsPlaySound(string key);
     SoundInfo* GetSounds(string key) { return sounds[key]; }
     float GetVolume(string key) { float volume; sounds[key]->channel->getVolume(&volume); return volume; }
+    void SetVolume(string key, float volume) { sounds[key]->channel->setVolume(volume); }
     FMOD_VECTOR GetSoundPos(string key) {
         FMOD_VECTOR pos; FMOD_VECTOR vel; sounds[key]->channel->get3DAttributes(&pos, &vel); return pos;
     }
@@ -50,5 +55,6 @@ private:
     unordered_map<string, SoundInfo*> sounds;
 
     FMOD_VECTOR listenerPos;
-    FMOD_VECTOR orcListenerPos;
+
+    class Transform* target;
 };

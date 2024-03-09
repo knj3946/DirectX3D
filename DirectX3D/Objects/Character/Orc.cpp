@@ -85,9 +85,6 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     rangeBar->Rot() = { XMConvertToRadians(90.f),0,XMConvertToRadians(-90.f) };
     rangeBar->Pos() = { -15.f,2.f,-650.f };
 
-    Audio::Get();
-    Audio::Get()->Add("hit", "Sounds/hit.wav");
-
     particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
 }
 
@@ -241,8 +238,8 @@ void Orc::SetSRT(Vector3 scale, Vector3 rot, Vector3 pos)
 
 void Orc::GUIRender()
 {
-    ImGui::Text("IsPlaySound : %d", Audio::Get()->IsPlaySound("Orc_Hit"));
-    ImGui::Text("Orc_test : %d", Audio::Get()->IsPlaySound("Orc_Test"));
+    ImGui::Text("OrcWalkVolume : %f", ORCSOUND(index)->GetVolume("Orc_Walk"));
+    ImGui::Text("earCal : %d", bSound);
 
     ImGui::Text("bFind : %d", bFind);
     ImGui::Text("bDetection : %d", bDetection);
@@ -423,11 +420,11 @@ void Orc::Hit(float damage,Vector3 collisionPos)
 {
     if (!isHit)
     {
-        if (!Audio::Get()->IsPlaySound("Orc_Hit"))
+        if (!ORCSOUND(index)->IsPlaySound("Orc_Hit"))
         {
             float distance = Distance(target->Pos(), transform->Pos());
             distance = (distance < 30) ? distance : 0;
-            Audio::Get()->Play("Orc_Hit", 30 - distance); // 크기조절 가까울수록 사운드 커지게
+            ORCSOUND(index)->Play("Orc_Hit", 30 - distance); // 크기조절 가까울수록 사운드 커지게
             
         }
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
@@ -873,6 +870,23 @@ void Orc::SetState(State state, float scale, float takeTime)
 {
     if (state == curState) return; // 이미 그 상태라면 굳이 변환 필요 없음
 
+    // 테스트
+    if (state == WALK || state == RUN)
+    {
+        float distance = Distance(target->Pos(), transform->Pos());
+        distance = (distance < 30) ? distance : 0;
+        if (!ORCSOUND(index)->IsPlaySound("Orc_Walk"))
+        {
+            ORCSOUND(index)->Play("Orc_Walk", 30 - distance);
+        }
+        else
+        {
+            ORCSOUND(index)->SetVolume("Orc_Walk", 30 - distance);
+        }
+    }
+    else
+        ORCSOUND(index)->Stop("Orc_Walk");
+
     // 공격 속도 조절 -> Attack이지만 attackSpeed만큼 시간이 지나지 않았다면 공격 x
     if (state == ATTACK && !isAttackable)
     {
@@ -1138,14 +1152,14 @@ void Orc::CalculateEarSight()
     Vector3 pos;
     float volume = -1.f;
     float distance = -1.f;
-    if (Audio::Get()->IsPlaySound("Player_Move")) {
+    if (ORCSOUND(index)->IsPlaySound("Player_Move")) {
         
-        pos.x = Audio::Get()->GetSoundPos("Player_Move").x;
-        pos.y = Audio::Get()->GetSoundPos("Player_Move").y;
-        pos.z = Audio::Get()->GetSoundPos("Player_Move").z;
-        volume = Audio::Get()->GetVolume("Player_Move");
-        distance = Distance(transform->GlobalPos(), pos);
-        volume = Audio::Get()->GetVolume("Player_Move");
+        pos.x = ORCSOUND(index)->GetSoundPos("Player_Move").x;
+        pos.y = ORCSOUND(index)->GetSoundPos("Player_Move").y;
+        pos.z = ORCSOUND(index)->GetSoundPos("Player_Move").z;
+        volume = ORCSOUND(index)->GetVolume("Player_Move");
+        distance = Distance(transform->Pos(), pos);
+        volume = ORCSOUND(index)->GetVolume("Player_Move");
     }
     // 웅크리고 걷는 소리 ,암살소리  제외
     // 플레이어 소리와 주위 시선 끄는 소리 추가
@@ -1155,7 +1169,6 @@ void Orc::CalculateEarSight()
     if (distance == -1.f)return;
 
     if (distance < earRange * volume) {
-        isEarCal = true;
         SetState(WALK);
         behaviorstate = NPC_BehaviorState::SOUNDCHECK;
         CheckPoint = pos;
@@ -1163,7 +1176,7 @@ void Orc::CalculateEarSight()
         path.clear();
         bSound = true;
         SetPath(CheckPoint);
-       
+        
     }
     
 
@@ -1355,6 +1368,7 @@ void Orc::SoundPositionCheck()
             SetPath(StorePos);
             SetState(IDLE);
             bSound = false;
+            
         }
     }
   

@@ -165,9 +165,6 @@ private:
     void ParticleUpdate();
 private:
 
-    // 디버그를 위한 변수
-    bool isEarCal = false;
-
     int a = 300;
     Ray ray;// 레이
     Vector3 StorePos;// 소리난 곳 가기 전 위치 저장

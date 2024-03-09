@@ -78,10 +78,13 @@ Boss::Boss()
 	rangeBar->Pos() = { -15.f,1.f,-650.f };
 	rangeBar->Scale() = { 1.f / transform->Scale().x,1.f / transform->Scale().y,1.f / transform->Scale().z};
 	rangeBar->Scale() *= (eyeSightRange / 100);
-	Audio::Get()->Add("Boss_Roar", "Sounds/Roar.mp3",false,false,true);
-	Audio::Get()->Add("Boss_Splash", "Sounds/BossSplash.mp3", false, false, true);
-	Audio::Get()->Add("Boss_Run", "Sounds/Bossfootstep.mp3", false, false, true);
-	Audio::Get()->Add("Boss_Walk", "Sounds/Bosswalk.mp3", false, false, true);
+
+	/*BOSSSOUND()->Add("Boss_Roar", "Sounds/Roar.mp3",false,false,true);
+	BOSSSOUND()->Add("Boss_Splash", "Sounds/BossSplash.mp3", false, false, true);
+	BOSSSOUND()->Add("Boss_Run", "Sounds/Bossfootstep.mp3", false, false, true);
+	BOSSSOUND()->Add("Boss_Walk", "Sounds/Bosswalk.mp3", false, false, true);*/
+	SoundManager::Get()->BossCreate(transform);
+
 	hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
 	leftCollider->SetActive(false);
 }
@@ -372,7 +375,7 @@ void Boss::IdleMove() {
 void Boss::Roar()
 {
 	//맵에있는 오크들 다부르며 원거리 공격
-	Audio::Get()->Play("Boss_Roar",transform->GlobalPos());
+	BOSSSOUND()->Play("Boss_Roar", transform->GlobalPos());
 	RoarCollider->SetActive(true);
 	Roarparticle->Play();
 }
@@ -643,7 +646,7 @@ void Boss::EndAttack()
 	else
 	{
 		eventIters[ATTACK] = totalEvent[ATTACK].begin(); //이벤트 반복자도 등록된 이벤트 시작시점으로
-		Audio::Get()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
+		BOSSSOUND()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
 	
 	}
 
@@ -698,7 +701,7 @@ void Boss::EndRoar()
 		path.clear();
 		SetState(ATTACK, 3.0f);
 		bWait = true;
-		Audio::Get()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
+		BOSSSOUND()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
 
 	}
 	
@@ -735,7 +738,7 @@ void Boss::IdleWalk()
 	totargetlength = velocity.Length();
 	moveSpeed = walkSpeed;
 	dir = velocity.GetNormalized();
-	Audio::Get()->Play("Boss_Walk",transform->GlobalPos(),0.3f);
+	BOSSSOUND()->Play("Boss_Walk",transform->GlobalPos(),0.3f);
 }
 void Boss::Run()
 {
@@ -758,8 +761,8 @@ void Boss::Run()
 
 		
 			Runparticle[currunparticle]->Play(transform->GlobalPos(), transform->Rot());	
-			if(!Audio::Get()->IsPlaySound("Boss_Run"))
-				Audio::Get()->Play("Boss_Run", transform->GlobalPos(), 1.f);
+			if(!BOSSSOUND()->IsPlaySound("Boss_Run"))
+				BOSSSOUND()->Play("Boss_Run", transform->GlobalPos(), 1.f);
 			currunparticle++;
 			if (currunparticle >= 3)
 				currunparticle = 0;
@@ -774,7 +777,7 @@ void Boss::Run()
 			path.clear();
 
 			SetState(ATTACK, 3.0f);
-			Audio::Get()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
+			BOSSSOUND()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
 			bWait = true;
 		}
 	}
