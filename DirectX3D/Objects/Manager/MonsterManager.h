@@ -22,7 +22,7 @@ private:
 
     typedef TerrainEditor LevelData;
     //typedef Terrain LevelData;
-    UINT SIZE = 4;
+    UINT SIZE = 8;
 public:
     MonsterManager();
     ~MonsterManager();
@@ -41,6 +41,7 @@ public:
 
     void SetOrcSRT(int index, Vector3 scale, Vector3 rot, Vector3 pos);
     void SetType(int index,Orc::NPC_TYPE _type);
+    void SetType(int index, UINT _type);
     void SetPatrolPos(UINT idx,Vector3 Pos);
 
 
@@ -63,6 +64,8 @@ public:
     void ActiveSpecialKey(Vector3 playPos, Vector3 offset);
 
     void DieOrc(int index);
+
+    void SetOrcGround();
 
 private:
     void Collision();   

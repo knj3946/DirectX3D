@@ -25,6 +25,7 @@ private:
 	BlendState* blendState[2];
 
 	Player* player;
+	Boss* boss;
 
 	float waitSettingTime = 0.0f;
 };

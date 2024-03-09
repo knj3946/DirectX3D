@@ -3,153 +3,6 @@
 
 GameMapScene::GameMapScene()
 {
-	skyBox = new SkyBox(L"Textures/Landscape/BlueSky.dds");
-
-	FOR(2)
-		blendState[i] = new BlendState();
-	blendState[1]->AlphaToCoverage(true); // 알파 혹은 지정된 배경색을 외부 픽셀과 결합할 것인가
-
-	terrain = new TerrainEditor(256, 256);
-	terrain->GetMaterial()->SetDiffuseMap(L"Textures/Landscape/Sand.png");
-	terrain->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
-	terrain->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
-	terrain->SetHeightMap(L"Textures/HeightMaps/HeightMapCustom.png");
-	aStar = new AStar(128, 128);
-	aStar->SetNode(terrain);
-	{
-		string mName = "building_V2";
-		string mTag = "model1";
-		Vector3 mScale = { 3,3,3 };
-		Vector3 mRot = { 0,0,0 };
-		Vector3 mPos = { 80,0,80 };
-
-		ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
-		colliderModels.push_back(cm);
-	}
-
-	{
-		string mName = "building_V4";
-		string mTag = "model2";
-		Vector3 mScale = { 3,3,3 };
-		Vector3 mRot = { 0,0,0 };
-		Vector3 mPos = { 160,0,80 };
-
-		ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
-		colliderModels.push_back(cm);
-	}
-
-	{
-		string mName = "building_V5";
-		string mTag = "model3";
-		Vector3 mScale = { 3,3,3 };
-		Vector3 mRot = { 0,0,0 };
-		Vector3 mPos = { 160,0,160 };
-
-		ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
-		colliderModels.push_back(cm);
-	}
-
-	{
-		string mName = "building_V4";
-		string mTag = "model4";
-		Vector3 mScale = { 3,3,3 };
-		Vector3 mRot = { 0,0,0 };
-		Vector3 mPos = { 80,0,150 };
-
-		ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
-		colliderModels.push_back(cm);
-	}
-
-	{
-		string mName = "building_V5";
-		string mTag = "model5";
-		Vector3 mScale = { 3,3,3 };
-		Vector3 mRot = { 0,0,0 };
-		Vector3 mPos = { 128,0,128 };
-
-		ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
-		colliderModels.push_back(cm);
-	}
-
-	{
-		string mName = "building_V2";
-		string mTag = "model6";
-		Vector3 mScale = { 3,3,3 };
-		Vector3 mRot = { 0,0,0 };
-		Vector3 mPos = { 80,0,215 };
-
-		ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
-		colliderModels.push_back(cm);
-	}
-
-	{
-		string mName = "building_V4";
-		string mTag = "model7";
-		Vector3 mScale = { 3,3,3 };
-		Vector3 mRot = { 0,0,0 };
-		Vector3 mPos = { 210,0,140 };
-
-		ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
-		colliderModels.push_back(cm);
-	}
-
-	{
-		string mName = "building_V5";
-		string mTag = "model8";
-		Vector3 mScale = { 3,3,3 };
-		Vector3 mRot = { 0,0,0 };
-		Vector3 mPos = { 200,0,80 };
-
-		ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
-		colliderModels.push_back(cm);
-	}
-
-	{
-		string mName = "building_V2";
-		string mTag = "model9";
-		Vector3 mScale = { 6,6,6 };
-		Vector3 mRot = { 0,0,0 };
-		Vector3 mPos = { 190,0,190 };
-
-		ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
-		colliderModels.push_back(cm);
-	}
-	SoundManager::Get();
-	//Audio::Get();
-	//Audio::Get()->Add("bgm1", "Sounds/dramatic-choir.wav", true, true, false);
-
-	player = new Player();
-	player->Scale() = { 0.03f,0.03f,0.03f };
-	player->Pos() = { 60,0,90 };
-	player->SetTerrain(terrain);
-	player->SetMoveSpeed(50);
-
-	CAM->SetTarget(player);
-	CAM->TargetOptionLoad("GameMapScenePlayer");
-	CAM->LookAtTarget();
-
-	InteractManager::Get()->SetPlayer(player);
-	MonsterManager::Get();
-	MonsterManager::Get()->SetTarget(player); //싱글턴 생성 후, 표적 설정까지
-	MonsterManager::Get()->SetTargetCollider(player->GetCollider());
-	MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 80));
-	MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 150));
-	MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 110));
-	MonsterManager::Get()->SetOrcSRT(3, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 130));
-	MonsterManager::Get()->SetTerrain(terrain);
-	MonsterManager::Get()->SetAStar(aStar);
-
-	for (ColliderModel* colliderModel : colliderModels)
-	{
-		for (Collider* collider : colliderModel->GetColliders())
-		{
-			if(collider->Role() == Collider::Collider_Role::BLOCK)
-				MonsterManager::Get()->AddOrcObstacleObj(collider);
-		}
-	}
-	
-
-	ColliderManager::Get()->SetPlayer(player);
 	MenuManager::Get(); //기본 메뉴 생성
 }
 
@@ -183,7 +36,7 @@ void GameMapScene::Update()
 	{
 		exit(0);
 	}
-	
+
 
 	if (MenuManager::Get()->GetSelectGameMenu() == 1) //인게임
 	{
@@ -226,6 +79,7 @@ void GameMapScene::Update()
 		MonsterManager::Get()->Update();
 		KunaiManager::Get()->Update();
 		player->Update();
+		boss->Update();
 
 		for (ColliderModel* colliderModel : colliderModels)
 		{
@@ -264,6 +118,8 @@ void GameMapScene::Render()
 		MonsterManager::Get()->Render();
 		KunaiManager::Get()->Render();
 
+		boss->Render();
+
 		//aStar->Render();
 	}
 }
@@ -279,14 +135,11 @@ void GameMapScene::PostRender()
 		ColliderManager::Get()->PostRender();
 		player->PostRender();
 	}
-	
+
 }
 
 void GameMapScene::GUIRender()
 {
-	player->GUIRender();
-	/*
-	for (ColliderModel* cm : colliderModels)
 
 	MenuManager::Get()->GUIRender();
 
@@ -303,8 +156,9 @@ void GameMapScene::GUIRender()
 		//MonsterManager::Get()->GUIRender();
 		//KunaiManager::Get()->GUIRender();
 
-	Timer::Get()->GUIRender();
+		Timer::Get()->GUIRender();
 
+	}
 }
 
 void GameMapScene::FirstLoading()
@@ -325,9 +179,7 @@ void GameMapScene::FirstLoading()
 		terrain->GetMaterial()->SetDiffuseMap(L"Textures/Landscape/Sand.png");
 		terrain->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
 		terrain->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
-		terrain->SetHeightMap(L"Textures/HeightMaps/HeightMapCustom.png");
-		aStar = new AStar(128, 128);
-		aStar->SetNode(terrain);
+		terrain->SetHeightMap(L"Textures/HeightMaps/SamepleHeightMap02.png");
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(25.f);
 	}
@@ -338,7 +190,7 @@ void GameMapScene::FirstLoading()
 			string mTag = "model1";
 			Vector3 mScale = { 3,3,3 };
 			Vector3 mRot = { 0,0,0 };
-			Vector3 mPos = { 80,0,80 };
+			Vector3 mPos = { 80.2,0,54.1 };
 
 			ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 			colliderModels.push_back(cm);
@@ -349,7 +201,7 @@ void GameMapScene::FirstLoading()
 			string mTag = "model2";
 			Vector3 mScale = { 3,3,3 };
 			Vector3 mRot = { 0,0,0 };
-			Vector3 mPos = { 160,0,80 };
+			Vector3 mPos = { 138.f,0.f,48.1f };
 
 			ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 			colliderModels.push_back(cm);
@@ -360,7 +212,7 @@ void GameMapScene::FirstLoading()
 			string mTag = "model3";
 			Vector3 mScale = { 3,3,3 };
 			Vector3 mRot = { 0,0,0 };
-			Vector3 mPos = { 160,0,160 };
+			Vector3 mPos = { 61.1f,0,98.3f };
 
 			ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 			colliderModels.push_back(cm);
@@ -371,7 +223,7 @@ void GameMapScene::FirstLoading()
 			string mTag = "model4";
 			Vector3 mScale = { 3,3,3 };
 			Vector3 mRot = { 0,0,0 };
-			Vector3 mPos = { 80,0,150 };
+			Vector3 mPos = { 65.7f,0,153.4f };
 
 			ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 			colliderModels.push_back(cm);
@@ -381,8 +233,8 @@ void GameMapScene::FirstLoading()
 			string mName = "building_V5";
 			string mTag = "model5";
 			Vector3 mScale = { 3,3,3 };
-			Vector3 mRot = { 0,0,0 };
-			Vector3 mPos = { 128,0,128 };
+			Vector3 mRot = { 0.f,0,0 };
+			Vector3 mPos = { 132.f,0,190.6f };
 
 			ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 			colliderModels.push_back(cm);
@@ -393,7 +245,7 @@ void GameMapScene::FirstLoading()
 			string mTag = "model6";
 			Vector3 mScale = { 3,3,3 };
 			Vector3 mRot = { 0,0,0 };
-			Vector3 mPos = { 80,0,215 };
+			Vector3 mPos = { 80,0,208.2f };
 
 			ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 			colliderModels.push_back(cm);
@@ -404,7 +256,7 @@ void GameMapScene::FirstLoading()
 			string mTag = "model7";
 			Vector3 mScale = { 3,3,3 };
 			Vector3 mRot = { 0,0,0 };
-			Vector3 mPos = { 210,0,140 };
+			Vector3 mPos = { 203.4f,9.5f,185.1f };
 
 			ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 			colliderModels.push_back(cm);
@@ -414,8 +266,8 @@ void GameMapScene::FirstLoading()
 			string mName = "building_V5";
 			string mTag = "model8";
 			Vector3 mScale = { 3,3,3 };
-			Vector3 mRot = { 0,0,0 };
-			Vector3 mPos = { 200,0,80 };
+			Vector3 mRot = { 0.f,0,0 };
+			Vector3 mPos = { 164.9f,0,122.3f };
 
 			ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 			colliderModels.push_back(cm);
@@ -425,12 +277,28 @@ void GameMapScene::FirstLoading()
 			string mName = "building_V2";
 			string mTag = "model9";
 			Vector3 mScale = { 6,6,6 };
-			Vector3 mRot = { 0,0,0 };
-			Vector3 mPos = { 190,0,190 };
+			Vector3 mRot = { 0.f,0, XMConvertToRadians(-90) };
+			Vector3 mPos = { 202.4f,0,96.3f };
 
 			ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 			colliderModels.push_back(cm);
 		}
+
+		BoxCollider* bc1 = new BoxCollider;
+		BoxCollider* bc2 = new BoxCollider;
+		bc1->Pos() = { 164.4f,7.5f,168.4f };
+		bc2->Pos() = { 164.4f,7.5f,214.8f };
+		bc1->Scale() = { 5.f,15.f,27.f };
+		bc2->Scale() = { 5.f,15.f,27.f };
+		bc1->Role() = Collider::Collider_Role::BLOCK;
+		bc2->Role() = Collider::Collider_Role::BLOCK;
+		bc1->Special() = Collider::Collider_Special::NONE;
+		bc2->Special() = Collider::Collider_Special::NONE;
+
+		ColliderManager::Get()->SetObstacles(bc1);
+		ColliderManager::Get()->SetObstacles(bc2);
+		aStar = new AStar(128, 128);
+		aStar->SetNode(terrain);
 
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(55.f);
@@ -443,7 +311,7 @@ void GameMapScene::FirstLoading()
 		player->Scale() = { 0.03f,0.03f,0.03f };
 		player->Pos() = { 60,0,90 };
 		player->SetTerrain(terrain);
-		player->SetMoveSpeed(50);
+		//player->SetMoveSpeed(50);
 
 		CAM->SetTarget(player);
 		CAM->TargetOptionLoad("GameMapScenePlayer");
@@ -455,15 +323,34 @@ void GameMapScene::FirstLoading()
 	else if (MenuManager::Get()->GetLoadingSequence() == 4)
 	{
 		InteractManager::Get()->SetPlayer(player);
-		MonsterManager::Get();
-		MonsterManager::Get()->SetTarget(player); //싱글턴 생성 후, 표적 설정까지
-		MonsterManager::Get()->SetTargetCollider(player->GetCollider());
-		MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(80, 0, 80));
-		MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(60, 0, 150));
-		MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(60, 0, 110));
-		MonsterManager::Get()->SetOrcSRT(3, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(60, 0, 130));
+		MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(150.f, 0.f, 175.f));
+		MonsterManager::Get()->SetPatrolPos(0, Vector3(150.f, 0.f, 210.f));
+		MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185));
+		MonsterManager::Get()->SetPatrolPos(1, Vector3(50.f, 0.f, 185.f));
+		MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(85, 0, 120));
+		MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 120.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 70.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(85.f, 0.f, 70.f));
+		MonsterManager::Get()->SetOrcSRT(3, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(62, 0, 40));
+		MonsterManager::Get()->SetPatrolPos(3, Vector3(62.f, 0.f, 65.f));
+		MonsterManager::Get()->SetOrcSRT(4, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(110, 0, 80));
+		MonsterManager::Get()->SetPatrolPos(4, Vector3(110.f, 0.f, 40.f));
+		MonsterManager::Get()->SetOrcSRT(5, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(170, 0, 40));
+		MonsterManager::Get()->SetPatrolPos(5, Vector3(170.f, 0.f, 80.f)); MonsterManager::Get()->SetPatrolPos(5, Vector3(120.f, 0.f, 80.f));   MonsterManager::Get()->SetPatrolPos(5, Vector3(170.f, 0.f, 80.f));
+		MonsterManager::Get()->SetOrcSRT(6, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(160, 0, 120));
+		MonsterManager::Get()->SetPatrolPos(6, Vector3(170.f, 0.f, 120.f));
+		MonsterManager::Get()->SetOrcSRT(7, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(50, 0, 135));
+		MonsterManager::Get()->SetPatrolPos(7, Vector3(100.f, 0.f, 135.f));
+		MonsterManager::Get()->SetType(7,1);// 1이 알리는애
 		MonsterManager::Get()->SetTerrain(terrain);
 		MonsterManager::Get()->SetAStar(aStar);
+		MonsterManager::Get()->SetTarget(player); //싱글턴 생성 후, 표적 설정까지
+		MonsterManager::Get()->SetTargetCollider(player->GetCollider()); //싱글턴 생성 후, 표적 설정까지
+
+		boss = new Boss;
+		boss->SetTarget(player);
+		boss->SetTerrain(terrain);
+		boss->SetAStar(aStar);
+		boss->SetPatrolPos(Vector3(205.f, 0.f, 110.f));
+		boss->SetPatrolPos(Vector3(205.f, 0.f, 80.f));
 
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(95.f);
@@ -485,6 +372,8 @@ void GameMapScene::FirstLoading()
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(99.f);
 
+		MonsterManager::Get()->SetOrcGround();
+
 		//리소스 불러오기 용으로 한번 호출
 		skyBox->Render();
 		terrain->Render();
@@ -499,7 +388,7 @@ void GameMapScene::FirstLoading()
 		KunaiManager::Get()->Render();
 
 	}
-	
+
 	if (MenuManager::Get()->GetLoadingSequence() == 6)
 	{
 		MenuManager::Get()->SetLoadingRate(100.f);

@@ -252,7 +252,7 @@ private:
     float curRayCoolTime = 0.0f;
     bool isRayToDetectTarget = false;
 
-
+    ParticleSystem* jumpparticle;
 public: //임시
     bool headCrash;
     Transform* aimT;

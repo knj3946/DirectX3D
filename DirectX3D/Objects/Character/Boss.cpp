@@ -31,7 +31,7 @@ Boss::Boss()
 	RoarCollider->SetParent(Mouth);
 	RoarCollider->SetActive(false);
 	Roarparticle = new ParticleSystem("TextData/Particles/Roar.fx");
-
+	
 	Roarparticle->GetQuad()->SetParent(Mouth);
 	Roarparticle->GetQuad()->Pos() = { 4.f,-9.f,-6.f };
 	Roarparticle->GetQuad()->Scale() = { 25.f,36.f,42.f };
@@ -57,10 +57,13 @@ Boss::Boss()
 
 	SetEvent(ATTACK, bind(&Boss::StartAttack, this), 0.f);
 	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.9f);
-	SetEvent(ATTACK, bind(&Boss::DoingAttack, this), 0.6f);
+	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, true), 0.5f); //콜라이더 켜는 시점 설정
+	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, false), 0.98f); //콜라이더 꺼지는 시점 설정
+	SetEvent(ROAR, bind(&Collider::SetActive, RoarCollider, true), 0.31f); //콜라이더 켜는 시점 설정
+	SetEvent(ROAR, bind(&Collider::SetActive, RoarCollider, false), 0.9f); //콜라이더 꺼지는 시점 설정
 
 	SetEvent(ROAR, bind(&Boss::Roar, this), 0.3f);
-	SetEvent(ROAR, bind(&Boss::EndRoar, this), 0.9f);
+	SetEvent(ROAR, bind(&Boss::EndRoar, this), 0.91f);
 	SetEvent(DEATH, bind(&Boss::EndDying, this), 0.9f);
 
 
@@ -82,7 +85,7 @@ Boss::Boss()
 	Audio::Get()->Add("Boss_Splash", "Sounds/BossSplash.mp3", false, false, true);
 	Audio::Get()->Add("Boss_Run", "Sounds/Bossfootstep.mp3", false, false, true);
 	Audio::Get()->Add("Boss_Walk", "Sounds/Bosswalk.mp3", false, false, true);
-	hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
+	hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 25, 25, 5, 2, false);
 	leftCollider->SetActive(false);
 }
 
@@ -105,11 +108,7 @@ Boss::~Boss()
 	for (int i = 0; i < 3; ++i)
 		delete Runparticle[i];
 }
-void Boss::DoingAttack() {
-	//if(leftCollider->IsCollision(target->))
-	//타겟 공격
-	leftCollider->SetActive(true);
-}
+
 void Boss::Render()
 {
 	instancing->Render();
@@ -137,7 +136,7 @@ void Boss::Update()
 	Direction();
 	Control();
 	Find();
-	
+	CollisionCheck();
 	CoolTimeCheck();
 	MarkTimeCheck();
 	Move();
@@ -164,7 +163,7 @@ void Boss::Update()
 	Roarparticle->Update();
 	hpBar->UpdateWorld();
 	rangeBar->UpdateWorld();
-
+	hiteffect->Update();
 	for (int i = 0; i < 3; ++i)
 		Runparticle[i]->Update();
 
@@ -373,8 +372,9 @@ void Boss::Roar()
 {
 	//맵에있는 오크들 다부르며 원거리 공격
 	Audio::Get()->Play("Boss_Roar",transform->GlobalPos());
-	RoarCollider->SetActive(true);
+//	RoarCollider->SetActive(true);
 	Roarparticle->Play();
+	IsHit = false;
 }
 
 
@@ -624,7 +624,7 @@ void Boss::EndAttack()
 	totargetlength = velocity.Length();
 	moveSpeed = runSpeed;
 	dir = velocity.GetNormalized();
-	leftCollider->SetActive(false);
+
 	if (totargetlength > AttackRange) {
 		SetState(RUN);
 		bWait = false;
@@ -642,7 +642,7 @@ void Boss::EndAttack()
 	}
 	else
 	{
-		eventIters[ATTACK] = totalEvent[ATTACK].begin(); //이벤트 반복자도 등록된 이벤트 시작시점으로
+		SetState(RUN);
 		Audio::Get()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
 	
 	}
@@ -665,13 +665,12 @@ void Boss::EndDying()
 void Boss::StartAttack()
 {
 	bWait = true;
-
+	IsHit = false;
 }
 
 
 void Boss::EndRoar()
 {
-	RoarCollider->SetActive(false);
 	Roarparticle->Stop();
 	bRoar = true;
 	velocity = target->GlobalPos() - transform->GlobalPos();
@@ -803,7 +802,7 @@ void Boss::SetRay()
 
 void Boss::CollisionCheck()
 {
-	if (!leftCollider->Active() || !RoarCollider->Active())return;
+	if (!leftCollider->Active() && !RoarCollider->Active())return;
 	if (IsHit)return;
 	Player* player = dynamic_cast<Player*>(target);
 	if (!player)return;
@@ -811,14 +810,19 @@ void Boss::CollisionCheck()
 	{
 	
 		if (leftCollider->IsCollision(player->GetCollider()))
+		{
 			player->Hit(attackdamage);
-		
+			IsHit = true;
+		}
 
 	}
 	if (RoarCollider->Active()) {
 		if (RoarCollider->IsCollision(player->GetCollider()))
-			player->Hit(Roardamage,true);
+		{
+			player->Hit(Roardamage, true);
+			IsHit = true;
+		}
 	}
-		IsHit = true;
+		
 }
 
