@@ -340,46 +340,11 @@ void Player::GUIRender()
 
     CAM->GUIRender();
 
-    //ImGui::DragFloat3("Velocity", (float*)&velocity, 0.5f);
-    ////???
-    //ImGui::SliderFloat("moveSpeed", &moveSpeed1, 10, 1000);
-    //ImGui::SliderFloat("moveSpeed", &moveSpeed2, 10, 1000);
-    //ImGui::SliderFloat("rotSpeed", &rotSpeed, 1, 10);
-    //ImGui::SliderFloat("deceleration", &deceleration, 1, 10);
-    //ImGui::Text("isPushed : %d", isPushed);
-    //ImGui::Text("feedBackPosY : %f", feedBackPos.y);
-    //ImGui::Text("heightLevel : %f", heightLevel);
+
 
     ImGui::Text("curState : %d", curState);
 
-    //???? ??
-    //ImGui::SliderFloat("force1", &force1, 1, 500);
-    //ImGui::SliderFloat("force2", &force2, 1, 500);
-    //ImGui::SliderFloat("force3", &force3, 1, 500);
 
-    //ImGui::SliderFloat("jumpSpeed", &jumpSpeed, 0.01f, 5.0f);
-    ////???
-    //ImGui::SliderFloat("gravityMult", &gravityMult, 1, 100);
-
-    ////3?? ???? ?????? ???? ????
-    //ImGui::InputFloat("JumpVel", (float*)&jumpVel);
-    //ImGui::InputFloat("jumpN", (float*)&jumpVel);
-    //ImGui::InputFloat("nextJump", (float*)&nextJump);
-
-    //?????? ?ε??ð?
-    /*ImGui::InputFloat("landingT", (float*)&landingT);
-    ImGui::InputFloat("landing", (float*)&landing);
-
-    ImGui::InputInt("rightHandNode", &rightHandNode);
-    ImGui::InputInt("leftHandNode", &leftHandNode);
-    ImGui::InputInt("leftFootNode", &leftFootNode);
-    ImGui::InputInt("rightFootNode", &rightFootNode);
-
-    ImGui::DragFloat3("bowPos", (float*)&bow->Pos(), 0.1f);
-    ImGui::DragFloat3("bowRot", (float*)&bow->Rot(), 0.1f);
-    ImGui::DragFloat3("bowScale", (float*)&bow->Scale(), 0.1f);*/
-
-    //dagger->GUIRender();
 
     ColliderManager::Get()->GuiRender();
 }
@@ -1288,6 +1253,8 @@ void Player::SetIdle()
     //    SetState(IDLE);
     else
         SetState(IDLE);
+
+    jumpparticle->Play(Pos());
 }
 
 void Player::SetCameraPos()

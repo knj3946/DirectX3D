@@ -148,9 +148,21 @@ private:
     float attackdamage = 20.f;
     float Roardamage = 40.f;
 
-
-
+    Vector3 feedBackPos;
+    float curRayCoolTime=0.f;
+    DepthStencilState* depthState[2];
+    BlendState* blendState[2];
 private:
+    void CoolDown()
+    {
+        if (curRayCoolTime <= 0.0f)
+        {
+            curRayCoolTime = 0.3f;
+        }
+        else
+            curRayCoolTime -= DELTA;
+    }
+
     void MarkTimeCheck();
     void CoolTimeCheck();
    // bool IsFindTarget() { return bFind; };
@@ -185,12 +197,14 @@ private:
     bool IsPatrolPos();
     bool IsFindPos();
     void IdleWalk();
-
+    bool OnColliderFloor(Vector3& feedback);
+  
     void Run();
     void SetRay();
+    void SetPosY();
 
     void CollisionCheck();
-
+    bool TerrainComputePicking(Vector3& feedback, Ray ray);
 public:
     Transform* GetTransform() { return transform; }
     void SetPath(Vector3 targetPos);

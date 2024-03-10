@@ -87,6 +87,10 @@ Boss::Boss()
 	Audio::Get()->Add("Boss_Walk", "Sounds/Bosswalk.mp3", false, false, true);
 	hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 25, 25, 5, 2, false);
 	leftCollider->SetActive(false);
+	FOR(2) blendState[i] = new BlendState();
+	FOR(2) depthState[i] = new DepthStencilState();
+	blendState[1]->AlphaToCoverage(true); //투명색 적용 + 배경색 처리가 있으면 역시 적용
+	depthState[1]->DepthWriteMask(D3D11_DEPTH_WRITE_MASK_ALL);  // 다 가리기
 }
 
 Boss::~Boss()
@@ -107,10 +111,17 @@ Boss::~Boss()
 	delete Roarparticle;
 	for (int i = 0; i < 3; ++i)
 		delete Runparticle[i];
+
+	FOR(2) {
+		delete blendState[i] ;
+		delete depthState[i] ;
+	}
 }
 
 void Boss::Render()
 {
+
+//	blendState[1]->SetState();
 	instancing->Render();
 	hpBar->Render();
 	if(!bFind)
@@ -124,7 +135,7 @@ void Boss::Render()
 		Runparticle[i]->Render();
 
 	hiteffect->Render();
-
+	blendState[0]->SetState();
 }
 
 void Boss::Update()
@@ -148,7 +159,7 @@ void Boss::Update()
 
 	transform->UpdateWorld();
 
-
+	SetPosY();
 	leftCollider->UpdateWorld();
 	collider->UpdateWorld();
 	hpBar->Pos() = transform->Pos() + Vector3(0, 6, 0);
@@ -158,7 +169,7 @@ void Boss::Update()
 
 	ExecuteEvent();
 
-	Mouth->SetWorld(instancing->GetTransformByNode(index, 9));
+	Mouth->SetWorld(instancing->GetTransformByNode(index, 9));	
 	RoarCollider->UpdateWorld();
 	Roarparticle->Update();
 	hpBar->UpdateWorld();
@@ -169,6 +180,8 @@ void Boss::Update()
 
 
 	UpdateUI();
+
+	CoolDown();
 }
 
 void Boss::PostRender()
@@ -736,6 +749,21 @@ void Boss::IdleWalk()
 	dir = velocity.GetNormalized();
 	Audio::Get()->Play("Boss_Walk",transform->GlobalPos(),0.3f);
 }
+bool Boss::OnColliderFloor(Vector3& feedback)
+{
+	Vector3 SkyPos = transform->Pos();
+	SkyPos.y += 3;
+	Ray groundRay = Ray(SkyPos, Vector3(transform->Down()));
+	Contact con;
+	if (ColliderManager::Get()->CloseRayCollisionColliderContact(groundRay, con))
+	{
+		feedback = con.hitPoint;
+		//feedback.y += 0.1f; //살짝 띄움으로서 충돌 방지
+		return true;
+	}
+
+	return false;
+}
 void Boss::Run()
 {
 	if (state == BOSS_STATE::DETECT) {
@@ -800,6 +828,22 @@ void Boss::SetRay()
 	ray.dir = dir;
 }
 
+void Boss::SetPosY()
+{
+	if (!OnColliderFloor(feedBackPos)) // 문턱올라가기 때문
+	{
+		if (curRayCoolTime <= 0.f)
+		{
+			Vector3 OrcSkyPos = transform->Pos();
+			OrcSkyPos.y += 100;
+			Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
+			TerrainComputePicking(feedBackPos, groundRay);
+		}
+	}	
+
+	transform->Pos().y = feedBackPos.y;
+}
+
 void Boss::CollisionCheck()
 {
 	if (!leftCollider->Active() && !RoarCollider->Active())return;
@@ -808,9 +852,11 @@ void Boss::CollisionCheck()
 	if (!player)return;
 	if (leftCollider->Active())
 	{
-	
+		leftCollider->ResetCollisionPoint();
 		if (leftCollider->IsCollision(player->GetCollider()))
 		{
+			Vector3 pos = leftCollider->GetCollisionPoint();
+			player->SetHitEffectPos(pos);
 			player->Hit(attackdamage);
 			IsHit = true;
 		}
@@ -824,5 +870,61 @@ void Boss::CollisionCheck()
 		}
 	}
 		
+}
+
+bool Boss::TerrainComputePicking(Vector3& feedback, Ray ray)
+{
+	if (terrain && structuredBuffer)
+	{
+		UINT w = terrain->GetSizeWidth();
+
+		float minx = floor(ray.pos.x);
+		float maxx = ceil(ray.pos.x);
+
+		if (maxx == w - 1 && minx == maxx)
+			minx--;
+		else if (minx == maxx)
+			maxx++;
+
+		float minz = floor(ray.pos.z);
+		float maxz = ceil(ray.pos.z);
+
+		if (maxz == w - 1 && minz == maxz)
+			minz--;
+		else if (minz == maxz)
+			maxz++;
+
+		for (UINT z = w - maxz - 1; z < w - minz - 1; z++)
+		{
+			for (UINT x = minx; x < maxx; x++)
+			{
+				UINT index[4];
+				index[0] = w * z + x;
+				index[1] = w * z + x + 1;
+				index[2] = w * (z + 1) + x;
+				index[3] = w * (z + 1) + x + 1;
+
+				vector<VertexType>& vertices = terrain->GetMesh()->GetVertices();
+
+				Vector3 p[4];
+				for (UINT i = 0; i < 4; i++)
+					p[i] = vertices[index[i]].pos;
+
+				float distance = 0.0f;
+				if (Intersects(ray.pos, ray.dir, p[0], p[1], p[2], distance))
+				{
+					feedback = ray.pos + ray.dir * distance;
+					return true;
+				}
+
+				if (Intersects(ray.pos, ray.dir, p[3], p[1], p[2], distance))
+				{
+					feedback = ray.pos + ray.dir * distance;
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 

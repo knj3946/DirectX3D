@@ -40,9 +40,9 @@ MonsterManager::MonsterManager()
         specialKeyUI.insert(make_pair(sk.name, sk));
     }
     
+    FOR(2) rasterizerState[i] = new RasterizerState();
     FOR(2) blendState[i] = new BlendState();
     FOR(2) depthState[i] = new DepthStencilState();
-    FOR(2) rasterizerState[i] = new RasterizerState();
     blendState[1]->AlphaToCoverage(true); //투명색 적용 + 배경색 처리가 있으면 역시 적용
     depthState[1]->DepthWriteMask(D3D11_DEPTH_WRITE_MASK_ALL);  // 다 가리기
     rasterizerState[1]->CullMode(D3D11_CULL_NONE);
@@ -134,7 +134,7 @@ void MonsterManager::Render()
 {
     orcInstancing->Render();
 
-    blendState[1]->SetState();
+    //blendState[1]->SetState();
     rasterizerState[1]->SetState();
     for (const pair<int, OrcInfo>& item : orcs) item.second.orc->Render();
     blendState[0]->SetState();

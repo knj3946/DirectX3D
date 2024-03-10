@@ -27,6 +27,7 @@ MenuManager::MenuManager()
 
 	Quad* menuBackGround = new Quad(Vector2(340, 80));
 	menuBackGround->GetMaterial()->SetDiffuseMap(L"Textures/UI/menu_back.png");
+	menuBackGround->GetMaterial()->GetData().diffuse.w = 1.9f;
 	gameMenu->SetMenuBackGround(menuBackGround);
 	
 }

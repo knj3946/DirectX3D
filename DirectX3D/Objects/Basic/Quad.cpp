@@ -6,6 +6,7 @@ Quad::Quad(Vector2 size)
     mesh = new Mesh<VertexType>();
     MakeMesh();
     mesh->CreateMesh();
+  
 }
 
 Quad::Quad(wstring file)
