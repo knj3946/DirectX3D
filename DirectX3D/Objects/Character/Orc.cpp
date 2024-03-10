@@ -81,7 +81,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     rangeBar = new ProgressBar(L"Textures/UI/Range_bar.png", L"Textures/UI/Range_bar_BG.png");
     rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
     rangeBar->SetParent(transform);
-    rangeBar->SetAlpha(0.2f);
+    rangeBar->SetAlpha(0.5f);
 
     rangeBar->Rot() = { XMConvertToRadians(90.f),0,XMConvertToRadians(-90.f) };
     rangeBar->Pos() = { -15.f,2.f,-650.f };
