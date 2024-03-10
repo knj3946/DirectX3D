@@ -141,7 +141,14 @@ void Orc::Update()
         Detection(); //플레이어를 인지했는지 확인하는 함수
         RangeCheck(); //발견되었다가 사라진 플레이어 탐지
     }
-    
+    //if (bFind || ORCSOUND(index)->IsPlaySound("Orc_Walk"))//|| ORCSOUND(index)->IsPlaySound("Orc_Walk")
+    //{
+    //    float distance = Distance(target->Pos(), transform->Pos());
+    //    distance = (distance > 30) ? 30 : distance;
+    //    //ORCSOUND(index)->Stop("Orc_Walk");
+    //    //ORCSOUND(index)->Play("Orc_Walk", 30 - distance);
+    //    ORCSOUND(index)->SetVolume("Orc_Walk", 30 - distance);
+    //}
     TimeCalculator(); //공격 간격을 두기 위한 설정
     ParticleUpdate(); //파티클이펙트 업데이트
     UpdateUI(); //UI 업데이트
@@ -241,7 +248,7 @@ void Orc::GUIRender()
     ImGui::Text("OrcWalkVolume : %f", ORCSOUND(index)->GetVolume("Orc_Walk"));
     ImGui::Text("earCal : %d", bSound);
 
-    ImGui::Text("bFind : %d", bFind);
+    /*ImGui::Text("bFind : %d", bFind);
     ImGui::Text("bDetection : %d", bDetection);
     ImGui::Text("isTracking : %d", isTracking);
     ImGui::Text("path.empty() : %d", path.empty());
@@ -250,11 +257,11 @@ void Orc::GUIRender()
     ImGui::Text("curState : %d", curState);
 
     ImGui::Text("FeedbackPosY : %f", feedBackPos.y);
-    ImGui::Text("eyeSightRange : %f", eyeSightRange);
+    ImGui::Text("eyeSightRange : %f", eyeSightRange);*/
     //ImGui::Text("curhp : %f", curHP);
     //ImGui::Text("desthp : %f", destHP);
 
-    rangeBar->GUIRender();
+    //rangeBar->GUIRender();
 
     /*
     if (!path.empty())
@@ -876,15 +883,24 @@ void Orc::SetState(State state, float scale, float takeTime)
     if (state == WALK || state == RUN)
     {
         float distance = Distance(target->Pos(), transform->Pos());
-        distance = (distance < 30) ? distance : 0;
-        if (!ORCSOUND(index)->IsPlaySound("Orc_Walk"))
+        distance = (distance < 30) ? distance : 30;
+        if (bFind || bDetection)
         {
-            ORCSOUND(index)->Play("Orc_Walk", 30 - distance);
+            if (!ORCSOUND(index)->IsPlaySound("Orc_Walk"))
+            {
+                //ORCSOUND(index)->Play("Orc_Walk", 30 - distance);
+                ORCSOUND(index)->Play("Orc_Walk", transform->Pos());
+            }
+            else
+            {
+                ORCSOUND(index)->SetVolume("Orc_Walk", 30 - distance);
+            }
         }
         else
         {
-            ORCSOUND(index)->SetVolume("Orc_Walk", 30 - distance);
+            ORCSOUND(index)->Stop("Orc_Walk");
         }
+        
     }
     else
         ORCSOUND(index)->Stop("Orc_Walk");

@@ -141,7 +141,7 @@ void GameMapScene::PostRender()
 void GameMapScene::GUIRender()
 {
 
-	MenuManager::Get()->GUIRender();
+	//MenuManager::Get()->GUIRender();
 
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
@@ -156,7 +156,7 @@ void GameMapScene::GUIRender()
 		MonsterManager::Get()->GUIRender();
 		//KunaiManager::Get()->GUIRender();
 
-		Timer::Get()->GUIRender();
+		//Timer::Get()->GUIRender();
 
 	}
 }
@@ -326,7 +326,7 @@ void GameMapScene::FirstLoading()
 		InteractManager::Get()->SetPlayer(player);
 		MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(150.f, 0.f, 175.f));
 		MonsterManager::Get()->SetPatrolPos(0, Vector3(150.f, 0.f, 210.f));
-		MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185));
+		/*MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185));
 		MonsterManager::Get()->SetPatrolPos(1, Vector3(50.f, 0.f, 185.f));
 		MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(85, 0, 120));
 		MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 120.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 70.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(85.f, 0.f, 70.f));
@@ -339,8 +339,8 @@ void GameMapScene::FirstLoading()
 		MonsterManager::Get()->SetOrcSRT(6, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(160, 0, 120));
 		MonsterManager::Get()->SetPatrolPos(6, Vector3(170.f, 0.f, 120.f));
 		MonsterManager::Get()->SetOrcSRT(7, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(50, 0, 135));
-		MonsterManager::Get()->SetPatrolPos(7, Vector3(100.f, 0.f, 135.f));
-		MonsterManager::Get()->SetType(7,1);// 1이 알리는애
+		MonsterManager::Get()->SetPatrolPos(7, Vector3(100.f, 0.f, 135.f));*/
+		//MonsterManager::Get()->SetType(7,1);// 1이 알리는애
 		MonsterManager::Get()->SetTerrain(terrain);
 		MonsterManager::Get()->SetAStar(aStar);
 		MonsterManager::Get()->SetTarget(player); //싱글턴 생성 후, 표적 설정까지

@@ -19,7 +19,8 @@ Audio::~Audio()
 void Audio::Update()
 {
     if (target == nullptr)return;
-    listenerPos = { target->Pos().x, target->Pos().y, target->Pos().z };
+    //listenerPos = { target->Pos().x, target->Pos().y, target->Pos().z };
+    listenerPos = { CAM->Pos().x, CAM->Pos().y, CAM->Pos().z };
     soundSystem->set3DListenerAttributes(0, &listenerPos, nullptr, nullptr, nullptr);
 
     soundSystem->update();
