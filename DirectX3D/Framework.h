@@ -186,6 +186,7 @@ using namespace GameMath;
 #include "Objects/Items/Weapons/Crowbar.h"
 #include "Objects/Items/Weapons/Dagger.h"
 #include "Objects/Items/Weapons/Arrow.h"
+#include "Objects/Items/Weapons/Bow.h"
 
 #include "Objects/Character/Orc.h"
 #include "Objects/Character/Player.h"

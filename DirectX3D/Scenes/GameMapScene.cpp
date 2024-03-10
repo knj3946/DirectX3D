@@ -12,7 +12,7 @@ GameMapScene::~GameMapScene()
 	{
 		delete colliderModel;
 	}
-
+	delete bow;
 	delete model;
 	delete terrain;
 	delete aStar;
@@ -79,6 +79,8 @@ void GameMapScene::Update()
 		MonsterManager::Get()->Update();
 		KunaiManager::Get()->Update();
 		player->Update();
+		if(!bow->Active())
+		bow->Update();
 		boss->Update();
 
 		for (ColliderModel* colliderModel : colliderModels)
@@ -119,6 +121,8 @@ void GameMapScene::Render()
 		KunaiManager::Get()->Render();
 
 		boss->Render();
+		if(bow->Active())
+		bow->Render();
 
 		//aStar->Render();
 	}
@@ -157,8 +161,10 @@ void GameMapScene::GUIRender()
 		//KunaiManager::Get()->GUIRender();
 
 		Timer::Get()->GUIRender();
-
+		if (bow->Active())
+			bow->GUIRender();
 	}
+
 }
 
 void GameMapScene::FirstLoading()
@@ -312,7 +318,10 @@ void GameMapScene::FirstLoading()
 		player->Pos() = { 60,0,90 };
 		player->SetTerrain(terrain);
 		//player->SetMoveSpeed(50);
-
+		bow = new Bow;
+		bow->SetTarget(player);
+		player->SetBow(bow->GetModel());
+		ArrowManager::Get()->SetBowTransform(bow->GetModel());
 		CAM->SetTarget(player);
 		CAM->TargetOptionLoad("GameMapScenePlayer");
 		CAM->LookAtTarget();
@@ -386,7 +395,9 @@ void GameMapScene::FirstLoading()
 		player->Render();
 		MonsterManager::Get()->Render();
 		KunaiManager::Get()->Render();
-
+	
+		if (!bow->Active())
+			bow->Render();
 	}
 
 	if (MenuManager::Get()->GetLoadingSequence() == 6)

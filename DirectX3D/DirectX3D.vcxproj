@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Objects\Items\Weapons\Bow.h" />
     <ClInclude Include="Manager\MenuManager.h" />
     <ClInclude Include="Objects\UI\GameMenu.h" />
     <ClInclude Include="Manager\InteractManager.h" />
@@ -250,6 +251,7 @@
     <ClInclude Include="Scenes\TestNpcScene.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Objects\Items\Weapons\Bow.cpp" />
     <ClCompile Include="Manager\MenuManager.cpp" />
     <ClCompile Include="Objects\UI\GameMenu.cpp" />
     <ClCompile Include="Manager\InteractManager.cpp" />

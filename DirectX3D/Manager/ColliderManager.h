@@ -26,7 +26,7 @@ public:
         END,
     };
 
-    void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); }
+    void SetPlayer(Player* player) { this->player = player; playerCollider = player->GetCollider(); vecCol[PLAYER].push_back(player->GetCollider()); }
     void SetObstacles(Collider* obstacle);
     vector<Collider*>& GetObstacles();
 

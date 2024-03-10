@@ -65,6 +65,8 @@ private:
     typedef TerrainEditor LevelData;
     typedef VertexUVNormalTangentAlpha VertexType;
 
+    
+
 public:
     Player();
     ~Player();
@@ -91,7 +93,7 @@ public:
     void Hit(float damage);
     void Hit(float damage,bool camerashake);// 카메라쉐이크용
 
-
+    void SetBow(Transform* _transform) { BowInstallation = _transform; }
 
     void SetIsPushed(bool value) { isPushed = value; }
     void SetIsCeiling(bool value) { isCeiling = value; }
@@ -149,7 +151,9 @@ private:
 
 
 private:
-
+    Transform* BowInstallation;
+    bool bgetBow = false;
+    bool DrawSpecialkeyBowUI = false;
     POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- �����ڴ� ���� 
 
     State curState = IDLE;

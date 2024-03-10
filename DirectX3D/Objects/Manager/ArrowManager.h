@@ -27,7 +27,7 @@ public:
 	bool IsCollision(); //각 쿠나이가 다른 물체와 충돌했는지 판별하기 위함
 
 	void OnOutLineByRay(Ray ray);
-	void ActiveSpecialKey(Vector3 playPos, Vector3 offset);
+	void ActiveSpecialKey(Vector3 playPos, Vector3 offset,bool _btrue);
 	void ExecuteSpecialKey();
 	void SetActiveSpecialKey(bool active){ specialKeyUI["getItem"].active = active; }
 
@@ -36,14 +36,14 @@ public:
 
 	int GetCount() { return count; }
 	int GetPlayerArrowCount() { return playerArrowCount; }
-
+	void SetBowTransform(Transform* _transform) { bow = _transform; }
 private:
 	// 쿠나이 출력용 모델
 	ModelInstancing* arrowInstancing; // 쿠나이 모델
 	vector<Arrow*> arrows;
 	vector<Collider*> wallColiders;
 	int count = 0; // 인덱스를 위함
-
+	Transform* bow;
 	int playerArrowCount = 10; // 처음에 3개 가지고 시작
 
 	map<string, SpecialKeyUI> specialKeyUI;

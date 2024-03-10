@@ -89,7 +89,8 @@ Boss::Boss()
 	leftCollider->SetActive(false);
 	FOR(2) blendState[i] = new BlendState();
 	FOR(2) depthState[i] = new DepthStencilState();
-	blendState[1]->AlphaToCoverage(true); //투명색 적용 + 배경색 처리가 있으면 역시 적용
+	rangeBar->SetAlpha(0.5f);
+	blendState[1]->Additive(); //투명색 적용 + 배경색 처리가 있으면 역시 적용
 	depthState[1]->DepthWriteMask(D3D11_DEPTH_WRITE_MASK_ALL);  // 다 가리기
 }
 
@@ -121,20 +122,21 @@ Boss::~Boss()
 void Boss::Render()
 {
 
-//	blendState[1]->SetState();
+
 	instancing->Render();
 	hpBar->Render();
-	if(!bFind)
-		rangeBar->Render();
+	
 	leftCollider->Render();
 	
 	RoarCollider->Render();
+	hiteffect->Render();
 	collider->Render();
 	Roarparticle->Render();
 	for (int i = 0; i < 3; ++i)
 		Runparticle[i]->Render();
-
-	hiteffect->Render();
+	blendState[1]->SetState();
+	if (!bFind)
+		rangeBar->Render();
 	blendState[0]->SetState();
 }
 
@@ -215,25 +217,32 @@ void Boss::CalculateEyeSight()
 	if (Enemytothisangle < 0) {
 		Enemytothisangle += 360;
 	}
+	while (rightdir1 > 360.0f)
+		rightdir1 -= 360.0f;
+	while (leftdir1 > 360.0f)
+		leftdir1 -= 360.0f;
 
 	if (Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange) {
-
-
-		if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
-	
-			// 벽뒤에 숨을때 레이작업 하기..
-			bDetection = true;
+		SetRay();
+		if (leftdir1 > 270 && rightdir1 < 90) {
+			if (!((leftdir1 <= Enemytothisangle && rightdir1 + 360 >= Enemytothisangle) || (leftdir1 <= Enemytothisangle + 360 && rightdir1 >= Enemytothisangle)))
+			{
+				bDetection = false;
+				return;
+			}
 		}
 		else {
-			if (Enemytothisangle > 0) {
-				Enemytothisangle += 360;
-			}
+			if (!(leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle))
+			{
+				bDetection = false;
+				
 
-			if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
-			
-				bDetection = true;
+				return;
 			}
+		
 		}
+
+		bDetection = ColliderManager::Get()->CompareDistanceObstacleandPlayer(ray);
 	}
 	else
 		bDetection = false;
@@ -823,7 +832,12 @@ void Boss::Run()
 void Boss::SetRay()
 {
 	ray.pos = transform->GlobalPos();
-	Vector3 dir = target->GlobalPos() - transform->GlobalPos();
+	ray.pos.y += 10;
+	Vector3 vtarget = target->GlobalPos();
+	vtarget.y += 10;
+	Vector3 vtrasnform = transform->GlobalPos();
+	vtrasnform.y += 10;
+	Vector3 dir = vtarget - vtrasnform;
 	dir.Normalize();
 	ray.dir = dir;
 }

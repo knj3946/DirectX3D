@@ -5,7 +5,7 @@ Player::Player()
     : ModelAnimator("akai")
 {
     ArrowManager::Get();
-
+    
     targetTransform = new Transform();
     //straightRay = Ray(Pos(), Back());
 
@@ -26,11 +26,15 @@ Player::Player()
     weaponColliders.push_back(dagger->GetCollider());
 
     bow = new Model("Elven Long Bow");
-    bow->SetParent(leftHand);
-    bow->Scale() *= 6.f;
-    bow->Pos() = { 0, 6.300, -2.400 };
-    bow->Rot() = { 3.000, 0, 0 };
+    bow->SetActive(false);
+    
+    {
+        bow->SetParent(leftHand);
+        bow->Scale() *= 6.f;
+        bow->Pos() = { 0, 6.300, -2.400 };
+        bow->Rot() = { 3.000, 0, 0 };
 
+    }
     aimT = new Transform();
     aimT->SetParent(this);
     aimT->Pos().x += -40.0f;
@@ -568,11 +572,18 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             if (static_cast<WeaponState>(weaponState + 1) >= 3)
                 weaponState = DAGGER;
             else
+            {
+                if (!bow->Active())
+                    return;
                 weaponState = static_cast<WeaponState>(weaponState + 1);
+
+            }
         }
 
         if (KEY_UP(VK_LBUTTON))
         {
+            if (!bow->Active())return;
+
             if (weaponState == BOW)
             {
                 if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
@@ -631,6 +642,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
         {
             // 화살 줍기
             ArrowManager::Get()->ExecuteSpecialKey();
+            bow->SetActive(true);
         }
     }
 
@@ -928,7 +940,14 @@ void Player::Targeting()
     {
         ArrowManager::Get()->OnOutLineByRay(mouseRay);
         offset = (CAM->Right() * 1.5f) + (CAM->Up() * 3.f);
-        ArrowManager::Get()->ActiveSpecialKey(Pos(), offset);
+        bool bTRUE = false;
+        if (!BowInstallation->Active())return;
+        if (Distance(BowInstallation->GlobalPos(), GlobalPos())<6.f) {
+            bTRUE = true;
+        }
+
+
+        ArrowManager::Get()->ActiveSpecialKey(Pos(), offset, bTRUE);
     }
 
     {
