@@ -91,6 +91,21 @@ void ArrowManager::Throw(Vector3 pos, Vector3 dir)
 	}
 }
 
+void ArrowManager::Throw(Vector3 pos, Vector3 dir, float chargingT)
+{
+	for (Arrow* arrow : arrows)
+	{
+		// 아직 안 던진 순번을 처음부터 판별해서 하나만 던지고 바로 종료
+		// 떨어져 있지 않은 화살이면
+		if (!arrow->GetTransform()->Active()&& !arrow->IsDropItem())
+		{
+			arrow->Throw(pos, dir, chargingT);
+			playerArrowCount--;
+			return;
+		}
+	}
+}
+
 bool ArrowManager::IsCollision()
 {
 	// 다른 장애물과 부딪혔나 체크

@@ -4,13 +4,13 @@ class Player : public ModelAnimator
 private:
     enum State
     {
-        IDLE,                                   //0
-        RUN_F, RUN_B, RUN_L, RUN_R,             //1 ~ 4
-        RUN_DL, RUN_DR,                         //5 ~ 6
-        JUMP1, JUMP2, JUMP3,                    //7 ~ 9
-        TO_COVER, C_IDLE, C_R, C_L, TO_STAND,   //10 ~ 14
-        HIT,                                    //15
-        CLIMBING1, CLIMBING2, CLIMBING3,        //16 ~ 18
+        IDLE,                                                   //0
+        RUN_F, RUN_B, RUN_L, RUN_R,                             //1 ~ 4
+        RUN_DL, RUN_DR,                                         //5 ~ 6
+        JUMP1, JUMP2, JUMP3,                                    //7 ~ 9
+        TO_COVER, C_IDLE, C_R, C_L, TO_STAND,                   //10 ~ 14
+        HIT,                                                    //15
+        CLIMBING1, CLIMBING2, CLIMBING3,                        //16 ~ 18
         CLIMBING_JUMP_L, CLIMBING_JUMP_R, CLIMBING_DOWN,        //16 ~ 18
         CLIMBING_JUMP_D,
         KICK,                                   //19
@@ -91,7 +91,7 @@ public:
     void Hit(float damage);
     void Hit(float damage,bool camerashake);// 카메라쉐이크용
 
-
+    void SetHeadCrash(bool headCrash) { this->headCrash = headCrash; }
 
     void SetIsPushed(bool value) { isPushed = value; }
     void SetIsCeiling(bool value) { isCeiling = value; }
@@ -105,6 +105,7 @@ public:
     void Climbing();
 
     void SetHitEffectPos(Vector3& _pos) { particlepos = _pos; }
+
 private:
     void CameraMove(); // 벽에 가려지는 플레이어 현상 해결을 위한 함수
 
@@ -251,19 +252,25 @@ private:
     float curRayCoolTime = 0.0f;
     bool isRayToDetectTarget = false;
 
-
-public: //임시
     bool headCrash;
+
     Transform* aimT;
     Quad* crosshair;
+    const float initSpeed = 20.0f;
+    const float maxSpeed = 200.0f;
+    float chargingT = initSpeed;
 
     bool canClimbControl = false;
     Vector3 climbVel;
     Vector3 climbArrivePos;
-    bool playedClimb2 = false;
-
-    Transform* saveT;
-    bool TSaved;
-
     float climbJ_y;
+
+    Transform* tempCam;
+
+    State preState = IDLE;
+
+public: //임시
+
+
+
 };

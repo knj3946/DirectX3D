@@ -6,7 +6,7 @@ class Arrow
 
 private:
 	// 열람시 필요한 주요 데이터
-	float LIFE_SPAN = 2.f; // life span : 생성 후 비활성화까지 걸리는 시간
+	float LIFE_SPAN = 100.f; // life span : 생성 후 비활성화까지 걸리는 시간
 
 
 
@@ -18,6 +18,8 @@ public:
 	void Render();
 
 	void Throw(Vector3 pos, Vector3 dir);
+
+	void Throw(Vector3 pos, Vector3 dir, float chargingT);
 
 	SphereCollider* GetCollider() { return collider; }
 	Transform* GetTransform() { return transform; }

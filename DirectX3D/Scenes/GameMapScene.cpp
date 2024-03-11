@@ -131,9 +131,9 @@ GameMapScene::GameMapScene()
 	MonsterManager::Get();
 	MonsterManager::Get()->SetTarget(player); //싱글턴 생성 후, 표적 설정까지
 	MonsterManager::Get()->SetTargetCollider(player->GetCollider());
-	MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 80));
+	MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 140));
 	MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 150));
-	MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 110));
+	MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 160));
 	MonsterManager::Get()->SetOrcSRT(3, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 130));
 	MonsterManager::Get()->SetTerrain(terrain);
 	MonsterManager::Get()->SetAStar(aStar);
