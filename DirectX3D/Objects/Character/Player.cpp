@@ -326,6 +326,8 @@ void Player::Render()
     //rightFootCollider->Render();
 
     ArrowManager::Get()->Render();
+
+    Font::Get()->RenderText(L"남은 투명화 시간 : " + residualCloakingTime, { 700,600 }, { 600,100 });
 }
 
 void Player::PostRender()
@@ -741,6 +743,9 @@ void Player::UpdateUI()
     hpBar->Pos() = CAM->WorldToScreen(barPos);
 
     */
+
+    wstring s = L"%.2f";
+    residualCloakingTime = format(s, stateInfo->possibleCloakingTime - stateInfo->curCloakingTime);
 }
 
 void Player::Cloaking()
@@ -749,7 +754,7 @@ void Player::Cloaking()
     {
         if (stateInfo->possibleCloakingTime <= stateInfo->curCloakingTime)
         {
-            stateInfo->isCloaking == false;
+            stateInfo->isCloaking = false;
             return;
         }
         stateInfo->curCloakingTime += DELTA;

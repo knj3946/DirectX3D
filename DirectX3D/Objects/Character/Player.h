@@ -263,6 +263,7 @@ private:
 
     //투명화
     StateInfo* stateInfo;
+    wstring residualCloakingTime = L"";
     BlendState* blendState[2];
 
 public: //임시

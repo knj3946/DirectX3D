@@ -95,6 +95,7 @@ typedef function<void(int)> IntParamEvent;
 #include "Framework/Utilities/Utility.h"
 #include "Framework/Utilities/Font.h"
 #include "Framework/Utilities/Audio.h"
+#include "Framework/Utilities/Format.h"
 
 using namespace Utility;
 
