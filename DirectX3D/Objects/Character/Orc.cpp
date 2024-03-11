@@ -116,7 +116,7 @@ void Orc::SetType(NPC_TYPE _type) {
     switch (_type)
     {
     case Orc::NPC_TYPE::ATTACK:// 오크 타입에 따라 탐지 범위 지정 (현재 임시)
-        informrange = 50;
+        informrange = 250;
         type = NPC_TYPE::ATTACK;
         break;
     case Orc::NPC_TYPE::INFORM:
@@ -141,14 +141,22 @@ void Orc::Update()
         Detection(); //플레이어를 인지했는지 확인하는 함수
         RangeCheck(); //발견되었다가 사라진 플레이어 탐지
     }
-    //if (bFind || ORCSOUND(index)->IsPlaySound("Orc_Walk"))//|| ORCSOUND(index)->IsPlaySound("Orc_Walk")
-    //{
-    //    float distance = Distance(target->Pos(), transform->Pos());
-    //    distance = (distance > 30) ? 30 : distance;
-    //    //ORCSOUND(index)->Stop("Orc_Walk");
-    //    //ORCSOUND(index)->Play("Orc_Walk", 30 - distance);
-    //    ORCSOUND(index)->SetVolume("Orc_Walk", 30 - distance);
-    //}
+
+    // 사운드 테스트
+    if (bFind && !ORCSOUND(index)->IsPlaySound("Orc_Walk"))
+    {
+        ORCSOUND(index)->Play("Orc_Walk",0);
+    }
+    if (bFind || ORCSOUND(index)->IsPlaySound("Orc_Walk"))//|| ORCSOUND(index)->IsPlaySound("Orc_Walk")
+    {
+        float distance = Distance(target->Pos(), transform->Pos());
+        distance = (distance > 50) ? 50 : distance;
+        ORCSOUND(index)->SetVolume("Orc_Walk", (100 - distance) / 100.0f);
+        
+        lastWalkVolume = (100 - distance) / 100.0f;
+    }
+    //-------------------------
+
     TimeCalculator(); //공격 간격을 두기 위한 설정
     ParticleUpdate(); //파티클이펙트 업데이트
     UpdateUI(); //UI 업데이트
@@ -245,8 +253,11 @@ void Orc::SetSRT(Vector3 scale, Vector3 rot, Vector3 pos)
 
 void Orc::GUIRender()
 {
-    ImGui::Text("OrcWalkVolume : %f", ORCSOUND(index)->GetVolume("Orc_Walk"));
+    ImGui::Text("OrcWalkVolume : %f", lastWalkVolume);
+    ImGui::Text("OrcHitVolume : %f",lastVolume);
     ImGui::Text("earCal : %d", bSound);
+
+    //ImGui::SliderFloat("OrcWalkSetVolume", &walkVolumeS, 0, 100);
 
     /*ImGui::Text("bFind : %d", bFind);
     ImGui::Text("bDetection : %d", bDetection);
@@ -432,9 +443,10 @@ void Orc::Hit(float damage,Vector3 collisionPos)
         if (!ORCSOUND(index)->IsPlaySound("Orc_Hit"))
         {
             float distance = Distance(target->Pos(), transform->Pos());
-            distance = (distance < 30) ? distance : 0;
-            ORCSOUND(index)->Play("Orc_Hit", 30 - distance); // 크기조절 가까울수록 사운드 커지게
-            
+            distance = (distance < 60) ? distance : 60;
+            // 거리 60까지는 맞았을 때 소리가 들리게, 볼륨 60은 너무 크니 소리자체는 최대 40으로
+            ORCSOUND(index)->Play("Orc_Hit", (100-distance)/100.0f); // 크기조절 가까울수록 사운드 커지게
+            lastVolume = ORCSOUND(index)->GetVolume("Orc_Hit");
         }
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
@@ -883,17 +895,19 @@ void Orc::SetState(State state, float scale, float takeTime)
     if (state == WALK || state == RUN)
     {
         float distance = Distance(target->Pos(), transform->Pos());
-        distance = (distance < 30) ? distance : 30;
+        distance = (distance < 50) ? distance : 50;
         if (bFind || bDetection)
         {
             if (!ORCSOUND(index)->IsPlaySound("Orc_Walk"))
             {
                 //ORCSOUND(index)->Play("Orc_Walk", 30 - distance);
-                ORCSOUND(index)->Play("Orc_Walk", transform->Pos());
+                ORCSOUND(index)->Play("Orc_Walk", (100 - distance)/100.0f);
+                lastWalkVolume = ORCSOUND(index)->GetVolume("Orc_Walk");
             }
             else
             {
-                ORCSOUND(index)->SetVolume("Orc_Walk", 30 - distance);
+                //ORCSOUND(index)->SetVolume("Orc_Walk", 50 - distance);
+                //lastWalkVolume = ORCSOUND(index)->GetVolume("Orc_Walk");
             }
         }
         else
@@ -1170,7 +1184,10 @@ void Orc::CalculateEarSight()
     Vector3 pos;
     float volume = -1.f;
     float distance = -1.f;
-    if (ORCSOUND(index)->IsPlaySound("Player_Move")) {
+
+    // 현재 시프트 누르면 이동속도를 낮춘다. 
+    // 나중에 느리게 걷기 사운드를 추가한다면 변경하기
+    if (ORCSOUND(index)->IsPlaySound("Player_Move")&&ColliderManager::Get()->GetPlayer()->GetMoveSpeed()>40) {
         
         pos.x = ORCSOUND(index)->GetSoundPos("Player_Move").x;
         pos.y = ORCSOUND(index)->GetSoundPos("Player_Move").y;

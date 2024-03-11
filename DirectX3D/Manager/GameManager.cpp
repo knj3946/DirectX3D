@@ -3,7 +3,7 @@
 #include "Scenes/GameMapScene.h"
 #include "Scenes/TestNpcScene.h"
 #include "Scenes/ModelAnimationScene.h"
-
+#include "Scenes/OrcSoundScene.h"
 #include "Scenes/BuildingScene.h"
 
 GameManager::GameManager()
@@ -13,6 +13,7 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("ModelAnimation", new ModelAnimationScene());
     SceneManager::Get()->Create("GameMap", new GameMapScene());
     //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
+    //SceneManager::Get()->Create("OrcSoundScene", new OrcSoundScene());
     //SceneManager::Get()->Create("Building", new BuildingScene());
 
     //SceneManager::Get()->Add("Grid");
@@ -22,6 +23,7 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("ModelAnimation");
     SceneManager::Get()->Add("GameMap");
     //SceneManager::Get()->Add("TestNpcScene");
+    //SceneManager::Get()->Add("OrcSoundScene");
     //SceneManager::Get()->Add("Building");
 }
 

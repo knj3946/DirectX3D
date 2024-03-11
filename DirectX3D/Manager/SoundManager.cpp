@@ -6,6 +6,11 @@ SoundManager::SoundManager()
 	// 각 단어의 첫 문자만 대문자로
 
 	// 여기서 모든 오디오소스 추가
+
+	System_Create(&soundSystem);
+	soundSystem->init(MAX_CHANNEL, FMOD_INIT_NORMAL, nullptr);
+
+	soundSystem->set3DSettings(1.0f, 300.0f, 0.01f);
 }
 
 SoundManager::~SoundManager()
@@ -16,15 +21,23 @@ SoundManager::~SoundManager()
 
 	delete playerAudio;
 	delete bossAudio;
+	soundSystem->release();
 }
 
 void SoundManager::Update()
 {
-	playerAudio->Update();
+	//if (target == nullptr)return;
+	//listenerPos = { target->Pos().x, target->Pos().y, target->Pos().z };
+	listenerPos = { CAM->Pos().x, CAM->Pos().y, CAM->Pos().z };
+	soundSystem->set3DListenerAttributes(0, &listenerPos, nullptr, nullptr, nullptr);
+
+	soundSystem->update();
+
+	//playerAudio->Update();
 	//bossAudio->Update(); // 보스 생성하면 주석 해제하기
 
-	for (pair<int, Audio*> item : orcAudios)
-		item.second->Update();
+	//for (pair<int, Audio*> item : orcAudios)
+		//item.second->Update();
 }
 
 void SoundManager::GUIRender()

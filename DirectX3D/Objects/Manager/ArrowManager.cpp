@@ -105,7 +105,7 @@ bool ArrowManager::IsCollision()
 			if (ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC)[i]->IsSphereCollision(arrow->GetCollider()))
 			{
 				arrow->GetCollider()->SetActive(false);
-				MonsterManager::Get()->GetOrc(i)->Hit(50, arrow->GetTransform()->GlobalPos());
+				MonsterManager::Get()->GetOrc(i)->Hit(20, arrow->GetTransform()->GlobalPos());// 화살데미지 임시설정
 				arrow->HitEffectActive();
 			}
 		}
@@ -177,7 +177,7 @@ void ArrowManager::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
 	}
 }
 
-void ArrowManager::ExecuteSpecialKey()// 아이템을 주웠을떄 하게될 동작
+void ArrowManager::ExecuteSpecialKey()// 아이템을 주웠을 때 하게될 동작
 {
 	for (Arrow* arrow : arrows)
 	{

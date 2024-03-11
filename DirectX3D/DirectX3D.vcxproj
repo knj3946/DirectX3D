@@ -150,6 +150,7 @@
     <ClInclude Include="Objects\Character\Boss.h" />
     <ClInclude Include="Objects\Items\Weapons\Arrow.h" />
     <ClInclude Include="Objects\Manager\ArrowManager.h" />
+    <ClInclude Include="Scenes\OrcSoundScene.h" />
     <ClInclude Include="Scenes\BuildingScene.h" />
     <ClInclude Include="Objects\Items\Weapons\Dagger.h" />
     <ClInclude Include="Manager\ColliderManager.h" />
@@ -256,6 +257,7 @@
     <ClCompile Include="Objects\Character\Boss.cpp" />
     <ClCompile Include="Objects\Items\Weapons\Arrow.cpp" />
     <ClCompile Include="Objects\Manager\ArrowManager.cpp" />
+    <ClCompile Include="Scenes\OrcSoundScene.cpp" />
     <ClCompile Include="Scenes\BuildingScene.cpp" />
     <ClCompile Include="Objects\Items\Weapons\Dagger.cpp" />
     <ClCompile Include="Manager\ColliderManager.cpp" />

@@ -121,6 +121,9 @@ public:
     void CoolDown();
     void SetGroundPos();
 
+    // 테스트함수
+    void SetSpeed(float s) { moveSpeed = s; runSpeed = s; }
+
 private:
     void Control();
     void Move();
@@ -163,14 +166,21 @@ private:
     void PartsUpdate();
     void StateRevision();
     void ParticleUpdate();
+
+    
 private:
+
+    // 디버그 변수
+    float lastVolume=0;
+    float lastWalkVolume = 0;
+    float walkVolumeS = 0;
 
     int a = 300;
     Ray ray;// 레이
     Vector3 StorePos;// 소리난 곳 가기 전 위치 저장
     Vector3 CheckPoint;// 소리난 곳 저장
     Vector3 eyesPos;
-    float earRange = 12.f;// 듣는 범위 -> 오크가 쿠나이 던지는 거리가 9
+    float earRange = 100.f;// 듣는 범위 -> 오크가 쿠나이 던지는 거리가 9 -> 테스트를 위해 12->100 으로변경
     bool bSound = false;// 소리 체크
     bool NearFind = false;
     bool bSensor = false;
@@ -184,8 +194,8 @@ private:
 
     State curState = IDLE;
 
-    float moveSpeed = 25;
-    float runSpeed = 25;
+    float moveSpeed = 25; 
+    float runSpeed = 25;  
     float walkSpeed = 10;
     float rotSpeed = 10;
 
@@ -227,7 +237,7 @@ private:
     bool isAssassinated = false;
     //HitState hitState = HitState::NONE;
 
-    float curRange = 0.f, maxRange = 40.f;
+    float curRange = 0.f, maxRange = 580.f;// 원래 40, 테스트를 위해 수치변경
     float destRange;
 
     Quad* questionMark;
@@ -238,7 +248,7 @@ private:
     CapsuleCollider* leftWeaponCollider;
     CapsuleCollider* rightWeaponCollider;
 
-    float eyeSightRange = 40.f;
+    float eyeSightRange = 400.f;
     float eyeSightangle = 45.f;
     bool bDetection = false;
     bool bFind = false;

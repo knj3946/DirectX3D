@@ -105,6 +105,9 @@ public:
     void Climbing();
 
     void SetHitEffectPos(Vector3& _pos) { particlepos = _pos; }
+
+    float GetMoveSpeed() { return moveSpeed; }
+
 private:
     void CameraMove(); // 벽에 가려지는 플레이어 현상 해결을 위한 함수
 
@@ -159,6 +162,7 @@ private:
     Vector3 velocity;
     Vector3 targetPos;
 
+    float moveSpeed;
     float moveSpeed1 = 50;
     float moveSpeed2 = 15;
     float rotSpeed = 0.3;

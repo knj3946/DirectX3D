@@ -604,6 +604,11 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
 {
     if (curState == ASSASSINATION1 || curState == ASSASSINATION2) return;
 
+    if (KEY_DOWN(VK_ESCAPE))
+    {
+        camera = !camera;
+    }
+
     if (curState != CLIMBING2 && curState != CLIMBING3
         && curState != CLIMBING_JUMP_L && curState != CLIMBING_JUMP_R && curState != CLIMBING_DOWN)
     {
@@ -869,13 +874,17 @@ void Player::Walking()
         /*if (curState == B_AIM || curState == B_DRAW || curState == B_ODRAW)
             destPos = Pos() + direction * aimMoveSpeed * DELTA * -1;
         else*/
+        moveSpeed = moveSpeed1;
         destPos = Pos() + direction * moveSpeed1 * DELTA * -1;
 
         
     }
 
     else
+    {
+        moveSpeed = moveSpeed2;
         destPos = Pos() + direction * moveSpeed2 * DELTA * -1;
+    }
 
 
 
@@ -1165,6 +1174,8 @@ float Player::GetDamage()
 
 void Player::Hit(float damage)
 {
+    // 임시로 데미지 1로
+    damage = 1;
     if (!isHit)
     {
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
@@ -1366,8 +1377,10 @@ void Player::SetCameraPos()
     else
     {
         crosshair->SetActive(false);
-
-        CAM->SetTarget(this);
+        if (!camera)
+            CAM->SetTarget(nullptr);
+        else 
+            CAM->SetTarget(this);
 
         Ray playerBackRay = Ray(Pos(), Forward());
         playerBackRay.pos.y += 3.5f;
