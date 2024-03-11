@@ -69,11 +69,13 @@ public:
     void SetOrcGround();
 
     void SetShader(wstring file);
+    void SetBoss(Boss* _boss) { boss = _boss; }
+
 private:
     void Collision();   
 
 private:
-
+    Boss* boss;
     ModelAnimatorInstancing* orcInstancing;
     
     //vector<Orc*> orcs;

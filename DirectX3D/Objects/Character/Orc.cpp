@@ -89,7 +89,8 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     Audio::Get();
     Audio::Get()->Add("hit", "Sounds/hit.wav");
 
-    particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 25, 25, 5, 2, false);
+    particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
+   
 }
 
 Orc::~Orc()
@@ -419,7 +420,7 @@ float Orc::GetDamage()
     return r;
 }
 
-void Orc::Hit(float damage,Vector3 collisionPos)
+void Orc::Hit(float damage,Vector3 collisionPos, bool _btrue)
 {
     if (!isHit)
     {
@@ -441,7 +442,7 @@ void Orc::Hit(float damage,Vector3 collisionPos)
         isHit = true;
 
     
-
+        if(_btrue)
         particleHit->Play(collider->GetCollisionPoint()); // 해당위치에서 파티클 재생
     }
 
@@ -876,6 +877,7 @@ void Orc::TimeCalculator()
 
 
 
+
 void Orc::SetState(State state, float scale, float takeTime)
 {
     if (state == curState) return; // 이미 그 상태라면 굳이 변환 필요 없음
@@ -997,6 +999,7 @@ void Orc::EndAttack()
 {
     isAttackable = false;
     SetState(IDLE);
+    battacktarget = false;
     //SetState(ATTACK);
 }
 
@@ -1098,8 +1101,8 @@ void Orc::CalculateEyeSight()
     if (Enemytothisangle < 0) {
         Enemytothisangle += 360;
     }
-
-    if ((Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange)) 
+     DetectionRange =(Distance(target->GlobalPos(), transform->GlobalPos()));
+    if (DetectionRange < eyeSightRange)
     {
         SetEyePos(); //눈 위치만 설정
 
@@ -1183,8 +1186,11 @@ void Orc::Detection()
 {
 
     if (bDetection) {
-        if (!bFind)
-            DetectionStartTime += DELTA;
+        if (!bFind) {
+            float value = eyeSightRange / DetectionRange;
+
+            DetectionStartTime += DELTA*value;
+        }
     }
     else {
         if (DetectionStartTime > 0.f && path.empty()) {

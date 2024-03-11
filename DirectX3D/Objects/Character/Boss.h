@@ -15,8 +15,8 @@ private:
         WALK,
         RUN,
         ATTACK,
-    
         ROAR,
+        HIT,
         DEATH
 
     };
@@ -85,6 +85,7 @@ private:
     float walkSpeed = 10;
     float curHP = 200;
     float maxHP = 200;
+    float destHP;
     Transform* leftHand;
     CapsuleCollider* leftCollider;
     
@@ -161,16 +162,19 @@ private:
     float curRayCoolTime=0.f;
     DepthStencilState* depthState[2];
     BlendState* blendState[2];
+    bool outLine = false;
 
     map<string, SpecialKeyUI> specialKeyUI;
-
-
+    bool isHit = false;
+    bool isDying = false;
+    bool isAssassinated = false;
+    float DetectionRange;
 private:
     void CoolDown()
     {
         if (curRayCoolTime <= 0.0f)
         {
-            curRayCoolTime = 0.3f;
+            curRayCoolTime = 0.2f;
         }
         else
             curRayCoolTime -= DELTA;
@@ -185,9 +189,9 @@ private:
     void Move();
     void IdleMove();
     void Roar();
-    void DoingAttack();
+    void EndHit();
     void JumpAttack();
-
+    bool CalculateHit();
     void Die();
     void Find();
     void Rotate();
@@ -202,10 +206,9 @@ private:
     void EndAttack();
 
     void StartAttack();
-    void ActiveSpecialKey(Vector3 playPos, Vector3 offset);
-    void OnOutLineByRay(Ray ray);
+   
     void EndRoar();
-    void EndHit();
+   
     void EndDying();
  //   void EndJumpAttack();
     bool IsPatrolPos();
@@ -217,9 +220,17 @@ private:
     void SetRay();
     void SetPosY();
 
+
     void CollisionCheck();
     bool TerrainComputePicking(Vector3& feedback, Ray ray);
+
+    void ProcessHpBar();
 public:
+    bool GetIsHit() { return IsHit; }
+    void Hit(float damage, Vector3 collisionPos,bool _btrue=true);
+    bool GetIsDying() { return isDying; }
+    void ActiveSpecialKey(Vector3 playPos, Vector3 offset);
+    void OnOutLineByRay(Ray ray);
     Transform* GetTransform() { return transform; }
     void SetPath(Vector3 targetPos);
     Boss();
@@ -239,8 +250,8 @@ public:
     void CalculateEyeSight();
     bool CalculateEyeSight(bool _bFind);
     void CalculateEarSight();//±Í
-    
-    
+    bool IsOutLine() { return outLine; };
+    void Assassinated(Vector3 collisionPos, Transform* attackerTrf);
 
 };
 

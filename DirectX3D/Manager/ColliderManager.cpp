@@ -18,7 +18,7 @@ ColliderManager::ColliderManager()
         quad->GetMaterial()->SetShader(L"Basic/Texture.hlsl");
         quad->GetMaterial()->SetDiffuseMap(L"Textures/UI/SpecialKeyUI_climb.png");
         sk.name = "climb";
-        sk.key = 'H';
+        sk.key = 'F';
         sk.quad = quad;
         sk.active = false;
         specialKeyUI.insert(make_pair(sk.name, sk));
@@ -77,7 +77,7 @@ void ColliderManager::SetHeight()
 
     Contact maxHeadPoint;
     float maxHeadHeight = 99999.f;
-    player->headCrash = false;
+    player->SetHeadCrash(false);
 
     Contact underObj;
     maxHeight = 0.0f;
@@ -88,7 +88,7 @@ void ColliderManager::SetHeight()
         //위 물체의 높이가 너무 낮으면 스페이스 입력을 무시할지말지 결정하는 법도 고려
         if (obstacle->IsRayCollision(*headRay, &maxHeadPoint) && maxHeadPoint.distance < FLT_EPSILON)
         {
-            player->headCrash = true;
+            player->SetHeadCrash(true);
         }
         else if (obstacle->IsRayCollision(*footRay, &underObj) && underObj.hitPoint.y > maxHeight)
         {

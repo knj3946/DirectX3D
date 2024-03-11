@@ -97,18 +97,7 @@ void MonsterManager::Update()
             MonsterManager::Get()->DieOrc(item.first);
     }
 
-    //orcs[0]->Update();
-    //orcs[1].orc->Update();
-  //  for (Orc* orc : orcs)
-  //  {
-  //
-  //
-  //
-  //      
-  //      orc->Update();
-  //      i++;
-  //  }
-
+ 
     for (const pair<int, OrcInfo>& item : orcs)
     {
         if (item.second.orc->IsFindTarget()) // 오크가 발견상태라면
@@ -320,6 +309,14 @@ void MonsterManager::Fight(Player* player)
                     item.second.orc->Hit(player->GetDamage(), collider->GlobalPos());
                 }
             }
+        }
+        if (collider) {
+            collider->ResetCollisionPoint();
+            if (collider->Active() && collider->IsCapsuleCollision((CapsuleCollider*)boss->GetCollider())) //손 충돌체가 타겟이랑 겹칠때
+            {
+                boss->Hit(player->GetDamage(), collider->GlobalPos());
+            }
+
         }
     }
     // bow 콜리전담기

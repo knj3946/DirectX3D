@@ -23,6 +23,7 @@ public:
         WALL,
         ARROW,
         ORC_KUNAI,
+        BOSS,
         END,
     };
 
@@ -66,6 +67,8 @@ public:
 
     void ClearSpecialKey();
 
+    void SetBoss(Boss* _boss) { boss = _boss; }
+    Boss* GetBoss() { return boss; }
 private:
     Player* player;
     CapsuleCollider* playerCollider;
@@ -82,6 +85,7 @@ private:
 
     Ray* footRay;
     Ray* headRay;
+    Boss* boss;
 
     map<string, SpecialKeyUI> specialKeyUI;
 
