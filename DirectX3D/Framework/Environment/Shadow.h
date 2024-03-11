@@ -18,7 +18,7 @@ private:
     void SetViewProjection(); //뷰포트와 화면 투사를 위한 3D행렬 내기
 
 private:
-    float scale = 100;
+    float scale = 100.f;
 
     RenderTarget* renderTarget;
     DepthStencil* depthStencil;
@@ -28,8 +28,5 @@ private:
 
     UINT width;
     UINT height;
-
-    //테스트용 객체. 렌더 과정 보다 늦게 클래스가 읽혀야 맞다
-    class Quad* quad;
 };
 

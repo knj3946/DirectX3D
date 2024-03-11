@@ -102,13 +102,26 @@ void GameMapScene::Update()
 
 void GameMapScene::PreRender()
 {
+	if (MenuManager::Get()->GetSelectGameMenu() == 1)
+	{
+		shadow->SetRenderTarget();
+		player->SetShader(L"Light/DepthMap.hlsl");
+		player->Render();
+		MonsterManager::Get()->Render(true);
+	}
 }
 
 void GameMapScene::Render()
 {
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
+		//순서 중요!
 		skyBox->Render();
+
+		//그림자 렌더설정
+		shadow->SetRender();
+		player->SetShader(L"Light/Shadow.hlsl");
+
 		terrain->Render();
 
 		for (ColliderModel* cm : colliderModels)
@@ -178,6 +191,12 @@ void GameMapScene::FirstLoading()
 		blendState[1]->AlphaToCoverage(true); // 알파 혹은 지정된 배경색을 외부 픽셀과 결합할 것인가
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(10.f);
+
+		LightBuffer::Light* light = Environment::Get()->GetLight(0); // 기본으로 설정된 빛 가져오기
+
+		light->type = 1;               //광원 종류 (상세 설명은 이후에)
+		light->pos = { 0, 50, -50 }; //광원 위치
+		light->range = 3000;           //조명 범위 (빛이 실제로 닿는 범위)
 	}
 	else if (MenuManager::Get()->GetLoadingSequence() == 1)
 	{
@@ -186,6 +205,7 @@ void GameMapScene::FirstLoading()
 		terrain->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
 		terrain->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
 		terrain->SetHeightMap(L"Textures/HeightMaps/SamepleHeightMap02.png");
+		terrain->GetMaterial()->SetShader(L"Light/Shadow.hlsl");
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(25.f);
 	}
@@ -328,6 +348,8 @@ void GameMapScene::FirstLoading()
 
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(75.f);
+
+		shadow = new Shadow();
 	}
 	else if (MenuManager::Get()->GetLoadingSequence() == 4)
 	{
@@ -393,6 +415,7 @@ void GameMapScene::FirstLoading()
 			cm->Render();
 		}
 
+		player->PreRender();
 		player->Render();
 		MonsterManager::Get()->Render();
 		KunaiManager::Get()->Render();

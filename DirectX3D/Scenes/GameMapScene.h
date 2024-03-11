@@ -28,6 +28,8 @@ private:
 	Boss* boss;
 	Bow* bow;
 
+	Shadow* shadow;
+
 	float waitSettingTime = 0.0f;
 };
 

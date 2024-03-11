@@ -302,6 +302,11 @@ void Player::Update()
     CoolDown();
 }
 
+void Player::PreRender()
+{
+
+}
+
 void Player::Render()
 {
     if(stateInfo->isCloaking)
@@ -355,11 +360,7 @@ void Player::GUIRender()
 
     CAM->GUIRender();
 
-
-
     ImGui::Text("curState : %d", curState);
-
-
 
     ColliderManager::Get()->GuiRender();
 }
@@ -988,11 +989,13 @@ void Player::Targeting()
         ArrowManager::Get()->OnOutLineByRay(mouseRay);
         offset = (CAM->Right() * 1.5f) + (CAM->Up() * 3.f);
         bool bTRUE = false;
-        if (!BowInstallation->Active())return;
-        if (Distance(BowInstallation->GlobalPos(), GlobalPos())<6.f) {
-            bTRUE = true;
+        if (BowInstallation)
+        {
+            if (!BowInstallation->Active())return;
+            if (Distance(BowInstallation->GlobalPos(), GlobalPos()) < 6.f) {
+                bTRUE = true;
+            }
         }
-
 
         ArrowManager::Get()->ActiveSpecialKey(Pos(), offset, bTRUE);
     }

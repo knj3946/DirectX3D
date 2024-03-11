@@ -30,7 +30,7 @@ public:
     void CreateOrc();
 
     void Update();
-    void Render();
+    void Render(bool exceptOutLine = false);
     void PostRender();
     void GUIRender();
 
@@ -68,6 +68,7 @@ public:
 
     void SetOrcGround();
 
+    void SetShader(wstring file);
 private:
     void Collision();   
 
@@ -99,5 +100,7 @@ private:
     DepthStencilState* depthState[2];
     RasterizerState* rasterizerState[2];
 
+
+    Shadow* shadow; // ±×¸²ÀÚ
 };
 

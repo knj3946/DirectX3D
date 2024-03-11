@@ -96,9 +96,9 @@ void TerrainEditor::Update()
 
 void TerrainEditor::Render()
 {
-    brushBuffer->SetPS(10);
-    secondMap->PSSet(11);
-    thirdMap->PSSet(12);
+    brushBuffer->SetPS(7);
+    secondMap->PSSet(8);
+    thirdMap->PSSet(9);
 
     SetRender();
     mesh->Draw();

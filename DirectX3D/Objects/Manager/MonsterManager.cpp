@@ -47,6 +47,7 @@ MonsterManager::MonsterManager()
     depthState[1]->DepthWriteMask(D3D11_DEPTH_WRITE_MASK_ALL);  // 다 가리기
     rasterizerState[1]->CullMode(D3D11_CULL_NONE);
 
+    shadow = new Shadow();
 }
 
 MonsterManager::~MonsterManager()
@@ -130,9 +131,9 @@ void MonsterManager::Update()
     vecDetectionPos.clear();
 }
 
-void MonsterManager::Render()
+void MonsterManager::Render(bool exceptOutLine)
 {
-    orcInstancing->Render();
+    orcInstancing->Render(exceptOutLine);
 
     blendState[1]->SetState();
     rasterizerState[1]->SetState();
@@ -433,6 +434,11 @@ void MonsterManager::SetOrcGround()
             item.second.orc->SetGroundPos();
         }
     }
+}
+
+void MonsterManager::SetShader(wstring file)
+{
+    orcInstancing->SetShader(file);
 }
 
 void MonsterManager::Collision()

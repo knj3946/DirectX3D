@@ -50,7 +50,7 @@ public:
     ~ModelAnimatorInstancing();
 
     void Update();
-    void Render();
+    void Render(bool exceptOutLine = false);
     void GUIRender();
 
     Transform* Add();
