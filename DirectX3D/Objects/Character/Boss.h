@@ -53,6 +53,15 @@ private:
         int picked;
         float distance;
     };
+
+    struct SpecialKeyUI
+    {
+        string name;
+        char key;
+        Quad* quad;
+        bool active;
+    };
+
     typedef VertexUVNormalTangentAlpha VertexType;
 
     typedef TerrainEditor LevelData;
@@ -152,6 +161,10 @@ private:
     float curRayCoolTime=0.f;
     DepthStencilState* depthState[2];
     BlendState* blendState[2];
+
+    map<string, SpecialKeyUI> specialKeyUI;
+
+
 private:
     void CoolDown()
     {
@@ -189,7 +202,8 @@ private:
     void EndAttack();
 
     void StartAttack();
-  
+    void ActiveSpecialKey(Vector3 playPos, Vector3 offset);
+    void OnOutLineByRay(Ray ray);
     void EndRoar();
     void EndHit();
     void EndDying();

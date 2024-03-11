@@ -92,6 +92,18 @@ Boss::Boss()
 	rangeBar->SetAlpha(0.5f);
 	blendState[1]->Additive(); //투명색 적용 + 배경색 처리가 있으면 역시 적용
 	depthState[1]->DepthWriteMask(D3D11_DEPTH_WRITE_MASK_ALL);  // 다 가리기
+	{
+		SpecialKeyUI sk;
+		Quad* quad = new Quad(Vector2(100, 50));
+		quad->GetMaterial()->SetShader(L"Basic/Texture.hlsl");
+		quad->GetMaterial()->SetDiffuseMap(L"Textures/UI/SpecialKeyUI_ass.png");
+		sk.name = "assassination";
+		sk.key = 'Z';
+		sk.quad = quad;
+		sk.active = false;
+		specialKeyUI.insert(make_pair(sk.name, sk));
+	}
+
 }
 
 Boss::~Boss()
@@ -688,6 +700,36 @@ void Boss::StartAttack()
 {
 	bWait = true;
 	IsHit = false;
+}
+
+void Boss::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
+{
+	for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
+
+		iter.second.active = false;
+		//iter.second.quad->Pos() = { 0,0,0 };
+		//iter.second.quad->UpdateWorld();
+	}
+
+	
+	float dis = Distance(transform->GlobalPos(), playPos);
+	if (!item.second.orc->GetIsDying() && item.second.orc->IsOutLine() && !item.second.orc->IsDetectTarget() && dis < 6.f)
+	{
+			//아웃라인이 활성화되고, 플레이어를 발견하지 못했을 때, 거리가 6 이하일때
+			SpecialKeyUI& sk = specialKeyUI["assassination"];
+			sk.active = true;
+			sk.quad->Pos() = CAM->WorldToScreen(item.second.orc->GetTransform()->GlobalPos() + offset);
+			sk.quad->UpdateWorld();
+
+			InteractManager::Get()->ActiveSkill("assassination", sk.key, bind(&InteractManager::Assassination, InteractManager::Get(), item.second.orc));
+			/*sk.active = false;
+			sk.quad->UpdateWorld();*/
+	}
+	
+}
+
+void Boss::OnOutLineByRay(Ray ray)
+{
 }
 
 
