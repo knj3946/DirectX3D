@@ -25,7 +25,7 @@ Arrow::Arrow(Transform* transform, int id,bool isDropItem)
 	trail = new Trail(L"Textures/Effect/wind.jpg", startEdge, endEdge, 3, 3);
 	trail->Init();
 	trail->SetActive(false);
-	HitEffect = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
+	HitEffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
 	Wallparticle = new ParticleSystem("TextData/Particles/WallEffect.fx");
 }
 

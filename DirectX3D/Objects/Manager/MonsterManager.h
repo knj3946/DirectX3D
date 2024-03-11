@@ -68,11 +68,13 @@ public:
 
     void SetOrcGround();
 
+    void SetBoss(Boss* _boss) { boss = _boss; }
+
 private:
     void Collision();   
 
 private:
-
+    Boss* boss;
     ModelAnimatorInstancing* orcInstancing;
     
     //vector<Orc*> orcs;

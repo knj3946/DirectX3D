@@ -89,7 +89,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     Audio::Get();
     Audio::Get()->Add("hit", "Sounds/hit.wav");
 
-    particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 25, 25, 5, 2, false);
+    particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
    
 }
 
@@ -420,7 +420,7 @@ float Orc::GetDamage()
     return r;
 }
 
-void Orc::Hit(float damage,Vector3 collisionPos)
+void Orc::Hit(float damage,Vector3 collisionPos, bool _btrue)
 {
     if (!isHit)
     {
@@ -442,7 +442,7 @@ void Orc::Hit(float damage,Vector3 collisionPos)
         isHit = true;
 
     
-
+        if(_btrue)
         particleHit->Play(collider->GetCollisionPoint()); // 해당위치에서 파티클 재생
     }
 
@@ -874,6 +874,7 @@ void Orc::TimeCalculator()
         }
     }
 }
+
 
 
 

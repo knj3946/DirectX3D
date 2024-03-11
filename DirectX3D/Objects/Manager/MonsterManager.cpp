@@ -320,6 +320,14 @@ void MonsterManager::Fight(Player* player)
                 }
             }
         }
+        if (collider) {
+            collider->ResetCollisionPoint();
+            if (collider->Active() && collider->IsCapsuleCollision((CapsuleCollider*)boss->GetCollider())) //손 충돌체가 타겟이랑 겹칠때
+            {
+                boss->Hit(player->GetDamage(), collider->GlobalPos());
+            }
+
+        }
     }
     // bow 콜리전담기
 

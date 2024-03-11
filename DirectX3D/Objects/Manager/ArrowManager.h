@@ -37,7 +37,9 @@ public:
 	int GetCount() { return count; }
 	int GetPlayerArrowCount() { return playerArrowCount; }
 	void SetBowTransform(Transform* _transform) { bow = _transform; }
+	void SetStart() { bStart = !bStart; }
 private:
+	bool bStart = false;
 	// Äí³ªÀÌ Ãâ·Â¿ë ¸ğµ¨
 	ModelInstancing* arrowInstancing; // Äí³ªÀÌ ¸ğµ¨
 	vector<Arrow*> arrows;

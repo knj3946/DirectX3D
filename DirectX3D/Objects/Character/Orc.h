@@ -97,7 +97,7 @@ public:
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
     void RotationRestore();
     float GetDamage();
-    void Hit(float damage,Vector3 collisionPos);
+    void Hit(float damage,Vector3 collisionPos,bool _btrue=false);
     void Spawn(Vector3 pos);
 
     void AddObstacleObj(Collider* collider);

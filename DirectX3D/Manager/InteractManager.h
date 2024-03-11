@@ -23,6 +23,7 @@ public:
 
 
     void Assassination(Orc* orc);
+    void AssassinationBoss(Boss* boss);
     void Climb(Collider* col);
 private:
     Player* player;

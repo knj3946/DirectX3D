@@ -138,6 +138,7 @@ void GameMapScene::PostRender()
 		ArrowManager::Get()->PostRender();
 		ColliderManager::Get()->PostRender();
 		player->PostRender();
+		boss->PostRender();
 	}
 
 }
@@ -359,11 +360,15 @@ void GameMapScene::FirstLoading()
 		boss->SetTarget(player);
 		boss->SetTerrain(terrain);
 		boss->SetAStar(aStar);
+		boss->GetCollider()->UpdateWorld();
+		player->SetBoss(boss);
 		boss->SetPatrolPos(Vector3(205.f, 0.f, 110.f));
 		boss->SetPatrolPos(Vector3(205.f, 0.f, 80.f));
-
+		ColliderManager::Get()->PushCollision(ColliderManager::BOSS, boss->GetCollider());
+		ColliderManager::Get()->SetBoss(boss);
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(95.f);
+		MonsterManager::Get()->SetBoss(boss);
 	}
 	else if (MenuManager::Get()->GetLoadingSequence() == 5)
 	{

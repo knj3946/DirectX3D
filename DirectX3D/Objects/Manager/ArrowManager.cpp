@@ -96,7 +96,9 @@ bool ArrowManager::IsCollision()
 	// 다른 장애물과 부딪혔나 체크
 	// 맵이 정해진다면 배경에 따라 장애물에 따라 콜라이더가 안된다면 
 	// pos로 배경에 부딪혔나 판단을 추가할 것
+	
 	//vector<Collider*> monsterColliders = ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC);
+	if (!bStart) { bStart = true; return false; }
 	for (Arrow* arrow : arrows)
 	{
 		if (arrow->IsDropItem())continue;
@@ -105,7 +107,7 @@ bool ArrowManager::IsCollision()
 			if (ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC)[i]->IsSphereCollision(arrow->GetCollider()))
 			{
 				arrow->GetCollider()->SetActive(false);
-				MonsterManager::Get()->GetOrc(i)->Hit(50, arrow->GetTransform()->GlobalPos());
+				MonsterManager::Get()->GetOrc(i)->Hit(50, arrow->GetTransform()->GlobalPos(),false);
 				arrow->HitEffectActive();
 			}
 		}
@@ -124,6 +126,18 @@ bool ArrowManager::IsCollision()
 			}
 		}
 	}
+	for (Arrow* arrow : arrows)
+	{
+		if (arrow->IsDropItem())continue;
+		if (ColliderManager::Get()->Getvector(ColliderManager::BOSS)[0]->IsSphereCollision(arrow->GetCollider())) {
+			arrow->GetCollider()->SetActive(false);
+			ColliderManager::Get()->GetBoss()->Hit(50,  arrow->GetTransform()->GlobalPos(),false);
+			arrow->HitEffectActive();
+		
+		}
+	}
+
+
 
 	return false;
 }

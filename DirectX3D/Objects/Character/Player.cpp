@@ -205,7 +205,7 @@ Player::Player()
         form->Pos() = { 245, WIN_HEIGHT - 100, 0 };
         form->UpdateWorld();
     }
-    hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 25, 25, 5, 2, false);
+    hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
     jumpparticle=new ParticleSystem("TextData/Particles/JumpSmoke.fx");
 
     FOR(2) blendState[i] = new BlendState();
@@ -980,8 +980,14 @@ void Player::Targeting()
         MonsterManager::Get()->OnOutLineByRay(mouseRay);
         offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
         MonsterManager::Get()->ActiveSpecialKey(Pos(), offset);
-
     }
+    {
+        boss->OnOutLineByRay(mouseRay);
+        offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
+        boss->ActiveSpecialKey(Pos(), offset);
+    }
+
+
 
 
     {
