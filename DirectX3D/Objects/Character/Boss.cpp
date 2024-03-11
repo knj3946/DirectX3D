@@ -13,8 +13,8 @@ Boss::Boss()
 	instancing->ReadClip("Mutant Swiping");
 	
 	instancing->ReadClip("Mutant Roaring");
+	instancing->ReadClip("Hit To Body");
 	instancing->ReadClip("Falling Forward Death");
-	
 	totalEvent.resize(instancing->GetClipSize()); //모델이 가진 동작 숫자만큼 이벤트 리사이징
 	eventIters.resize(instancing->GetClipSize());
 	index = 0;
@@ -31,7 +31,7 @@ Boss::Boss()
 	RoarCollider->SetParent(Mouth);
 	RoarCollider->SetActive(false);
 	Roarparticle = new ParticleSystem("TextData/Particles/Roar.fx");
-
+	
 	Roarparticle->GetQuad()->SetParent(Mouth);
 	Roarparticle->GetQuad()->Pos() = { 4.f,-9.f,-6.f };
 	Roarparticle->GetQuad()->Scale() = { 25.f,36.f,42.f };
@@ -57,10 +57,16 @@ Boss::Boss()
 
 	SetEvent(ATTACK, bind(&Boss::StartAttack, this), 0.f);
 	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.9f);
-	SetEvent(ATTACK, bind(&Boss::DoingAttack, this), 0.6f);
+	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, true), 0.5f); //콜라이더 켜는 시점 설정
+	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, false), 0.98f); //콜라이더 꺼지는 시점 설정
+	
+	SetEvent(HIT, bind(&Boss::EndHit, this), 0.98f); //콜라이더 꺼지는 시점 설정
+
+	SetEvent(ROAR, bind(&Collider::SetActive, RoarCollider, true), 0.31f); //콜라이더 켜는 시점 설정
+	SetEvent(ROAR, bind(&Collider::SetActive, RoarCollider, false), 0.9f); //콜라이더 꺼지는 시점 설정
 
 	SetEvent(ROAR, bind(&Boss::Roar, this), 0.3f);
-	SetEvent(ROAR, bind(&Boss::EndRoar, this), 0.9f);
+	SetEvent(ROAR, bind(&Boss::EndRoar, this), 0.91f);
 	SetEvent(DEATH, bind(&Boss::EndDying, this), 0.9f);
 
 
@@ -82,8 +88,25 @@ Boss::Boss()
 	Audio::Get()->Add("Boss_Splash", "Sounds/BossSplash.mp3", false, false, true);
 	Audio::Get()->Add("Boss_Run", "Sounds/Bossfootstep.mp3", false, false, true);
 	Audio::Get()->Add("Boss_Walk", "Sounds/Bosswalk.mp3", false, false, true);
-	hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
+	hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
 	leftCollider->SetActive(false);
+	FOR(2) blendState[i] = new BlendState();
+	FOR(2) depthState[i] = new DepthStencilState();
+	rangeBar->SetAlpha(0.5f);
+	blendState[1]->Additive(); //투명색 적용 + 배경색 처리가 있으면 역시 적용
+	depthState[1]->DepthWriteMask(D3D11_DEPTH_WRITE_MASK_ALL);  // 다 가리기
+	{
+		SpecialKeyUI sk;
+		Quad* quad = new Quad(Vector2(100, 50));
+		quad->GetMaterial()->SetShader(L"Basic/Texture.hlsl");
+		quad->GetMaterial()->SetDiffuseMap(L"Textures/UI/SpecialKeyUI_ass.png");
+		sk.name = "assassination";
+		sk.key = 'Z';
+		sk.quad = quad;
+		sk.active = false;
+		specialKeyUI.insert(make_pair(sk.name, sk));
+	}
+
 }
 
 Boss::~Boss()
@@ -104,40 +127,44 @@ Boss::~Boss()
 	delete Roarparticle;
 	for (int i = 0; i < 3; ++i)
 		delete Runparticle[i];
+
+	FOR(2) {
+		delete blendState[i] ;
+		delete depthState[i] ;
+	}
 }
-void Boss::DoingAttack() {
-	//if(leftCollider->IsCollision(target->))
-	//타겟 공격
-	leftCollider->SetActive(true);
-}
+
 void Boss::Render()
 {
+
+
 	instancing->Render();
 	hpBar->Render();
-	if(!bFind)
-		rangeBar->Render();
+	
 	leftCollider->Render();
 	
 	RoarCollider->Render();
+	hiteffect->Render();
 	collider->Render();
 	Roarparticle->Render();
 	for (int i = 0; i < 3; ++i)
 		Runparticle[i]->Render();
-
-	hiteffect->Render();
-
+	blendState[1]->SetState();
+	if (!bFind)
+		rangeBar->Render();
+	blendState[0]->SetState();
 }
 
 void Boss::Update()
 {
-
-	instancing->Update();
+	if(!dead)
+		instancing->Update();
 	if (curHP <= 0)return;
 	Idle();
 	Direction();
 	Control();
 	Find();
-	
+	CollisionCheck();
 	CoolTimeCheck();
 	MarkTimeCheck();
 	Move();
@@ -149,27 +176,28 @@ void Boss::Update()
 
 	transform->UpdateWorld();
 
-
+	SetPosY();
 	leftCollider->UpdateWorld();
 	collider->UpdateWorld();
-	hpBar->Pos() = transform->Pos() + Vector3(0, 6, 0);
-	Vector3 dir = hpBar->Pos() - CAM->Pos();
-	hpBar->Rot().y = atan2(dir.x, dir.z);
+
+	ProcessHpBar();
 
 
 	ExecuteEvent();
 
-	Mouth->SetWorld(instancing->GetTransformByNode(index, 9));
+	Mouth->SetWorld(instancing->GetTransformByNode(index, 9));	
 	RoarCollider->UpdateWorld();
 	Roarparticle->Update();
-	hpBar->UpdateWorld();
-	rangeBar->UpdateWorld();
 
+	rangeBar->UpdateWorld();
+	hiteffect->Update();
 	for (int i = 0; i < 3; ++i)
 		Runparticle[i]->Update();
 
 
 	UpdateUI();
+
+	CoolDown();
 }
 
 void Boss::PostRender()
@@ -178,6 +206,14 @@ void Boss::PostRender()
 	questionMark->Render();
 	exclamationMark->Render();
 	
+	//특수키 출력
+	for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
+
+		if (iter.second.active)
+		{
+			iter.second.quad->Render();
+		}
+	}
 }
 
 void Boss::GUIRender() {
@@ -203,25 +239,32 @@ void Boss::CalculateEyeSight()
 	if (Enemytothisangle < 0) {
 		Enemytothisangle += 360;
 	}
+	while (rightdir1 > 360.0f)
+		rightdir1 -= 360.0f;
+	while (leftdir1 > 360.0f)
+		leftdir1 -= 360.0f;
 
 	if (Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange) {
-
-
-		if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
-	
-			// 벽뒤에 숨을때 레이작업 하기..
-			bDetection = true;
+		SetRay();
+		if (leftdir1 > 270 && rightdir1 < 90) {
+			if (!((leftdir1 <= Enemytothisangle && rightdir1 + 360 >= Enemytothisangle) || (leftdir1 <= Enemytothisangle + 360 && rightdir1 >= Enemytothisangle)))
+			{
+				bDetection = false;
+				return;
+			}
 		}
 		else {
-			if (Enemytothisangle > 0) {
-				Enemytothisangle += 360;
-			}
+			if (!(leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle))
+			{
+				bDetection = false;
+				
 
-			if (leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle) {
-			
-				bDetection = true;
+				return;
 			}
+		
 		}
+
+		bDetection = ColliderManager::Get()->CompareDistanceObstacleandPlayer(ray);
 	}
 	else
 		bDetection = false;
@@ -270,6 +313,31 @@ bool Boss::CalculateEyeSight(bool _bFind)
 
 void Boss::CalculateEarSight()
 {
+}
+
+void Boss::Assassinated(Vector3 collisionPos, Transform* attackerTrf)
+{
+	transform->Rot() = attackerTrf->Rot();
+	transform->UpdateWorld();
+
+	float dis = Distance(transform->GlobalPos(), attackerTrf->GlobalPos());
+
+	if (dis < 4.f)
+	{
+		transform->Pos() += transform->Back() * (4 - dis);
+	}
+	transform->UpdateWorld();
+
+	instancing->SetOutLine(index, false);
+	//MonsterManager::Get()->specialKeyUI["assassination"].active = false;
+	//MonsterManager::Get()->specialKeyUI["assassination"].quad->UpdateWorld();
+	SetState(HIT);
+	isAssassinated = true;
+	Vector3 pos = transform->GlobalPos();
+	pos.y += 5;
+	Hit(100, pos);
+
+	
 }
 
 void Boss::MarkTimeCheck()
@@ -335,7 +403,7 @@ void Boss::Move()
 	if (bWait)
 		return;
 
-
+	if (CalculateHit()) return;
 
 	transform->Pos() += dir * moveSpeed * DELTA;
 }
@@ -373,8 +441,9 @@ void Boss::Roar()
 {
 	//맵에있는 오크들 다부르며 원거리 공격
 	Audio::Get()->Play("Boss_Roar",transform->GlobalPos());
-	RoarCollider->SetActive(true);
+//	RoarCollider->SetActive(true);
 	Roarparticle->Play();
+	IsHit = false;
 }
 
 
@@ -624,7 +693,6 @@ void Boss::EndAttack()
 	totargetlength = velocity.Length();
 	moveSpeed = runSpeed;
 	dir = velocity.GetNormalized();
-	leftCollider->SetActive(false);
 	if (totargetlength > AttackRange) {
 		SetState(RUN);
 		bWait = false;
@@ -642,7 +710,7 @@ void Boss::EndAttack()
 	}
 	else
 	{
-		eventIters[ATTACK] = totalEvent[ATTACK].begin(); //이벤트 반복자도 등록된 이벤트 시작시점으로
+		SetState(RUN);
 		Audio::Get()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
 	
 	}
@@ -652,12 +720,30 @@ void Boss::EndAttack()
 
 void Boss::EndHit()
 {
+	bWait = false;
+	SetState(RUN);
 }
 
 void Boss::EndDying()
 {
-	exclamationMark->SetActive(false);
+	instancing->SetOutLine(index, false);
+	specialKeyUI["assassination"].active = false;
+	collider->SetActive(false);
+
+	transform->SetActive(false);
+	hpBar->SetActive(false);
+
+	rangeBar->SetActive(false);
+	collider->SetActive(false);
+	RoarCollider->SetActive(false);
+	leftHand->SetActive(false);
+	leftCollider->SetActive(false);
 	questionMark->SetActive(false);
+	exclamationMark->SetActive(false);
+	for (int i = 0; i < 3; ++i) {
+		Runparticle[i]->Stop();
+	}
+	dead = true;
 }
 
 
@@ -665,13 +751,58 @@ void Boss::EndDying()
 void Boss::StartAttack()
 {
 	bWait = true;
+	IsHit = false;
+}
+
+void Boss::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
+{
+	for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
+
+		iter.second.active = false;
+		//iter.second.quad->Pos() = { 0,0,0 };
+		//iter.second.quad->UpdateWorld();
+	}
+
+	
+	
+	float dis = Distance(transform->GlobalPos(), playPos);
+	if (!GetIsDying() && IsOutLine() && !bDetection && dis < 6.f)
+	{
+			//아웃라인이 활성화되고, 플레이어를 발견하지 못했을 때, 거리가 6 이하일때
+			SpecialKeyUI& sk = specialKeyUI["assassination"];
+			sk.active = true;
+			sk.quad->Pos() = CAM->WorldToScreen(transform->GlobalPos() + offset);
+			sk.quad->UpdateWorld();
+
+			InteractManager::Get()->ActiveSkill("assassination", sk.key, bind(&InteractManager::AssassinationBoss, InteractManager::Get(),this));
+			/*sk.active = false;
+			sk.quad->UpdateWorld();*/
+	}
+	
+}
+
+void Boss::OnOutLineByRay(Ray ray)
+{
+	float minDistance = FLT_MAX;
+	Contact con;
+	if (collider->IsRayCollision(ray, &con)) {
+		float hitDistance = Distance(con.hitPoint, ray.pos);
+		if (minDistance > hitDistance) {
+			instancing->SetOutLine(index, true);
+			outLine=true;
+			return;
+		}
+
+	}
+	instancing->SetOutLine(index, false);
+	outLine=false;
+
 
 }
 
 
 void Boss::EndRoar()
 {
-	RoarCollider->SetActive(false);
 	Roarparticle->Stop();
 	bRoar = true;
 	velocity = target->GlobalPos() - transform->GlobalPos();
@@ -737,6 +868,21 @@ void Boss::IdleWalk()
 	dir = velocity.GetNormalized();
 	Audio::Get()->Play("Boss_Walk",transform->GlobalPos(),0.3f);
 }
+bool Boss::OnColliderFloor(Vector3& feedback)
+{
+	Vector3 SkyPos = transform->Pos();
+	SkyPos.y += 3;
+	Ray groundRay = Ray(SkyPos, Vector3(transform->Down()));
+	Contact con;
+	if (ColliderManager::Get()->CloseRayCollisionColliderContact(groundRay, con))
+	{
+		feedback = con.hitPoint;
+		//feedback.y += 0.1f; //살짝 띄움으로서 충돌 방지
+		return true;
+	}
+
+	return false;
+}
 void Boss::Run()
 {
 	if (state == BOSS_STATE::DETECT) {
@@ -755,7 +901,6 @@ void Boss::Run()
 					return;
 				}
 			}
-
 		
 			Runparticle[currunparticle]->Play(transform->GlobalPos(), transform->Rot());	
 			if(!Audio::Get()->IsPlaySound("Boss_Run"))
@@ -763,7 +908,7 @@ void Boss::Run()
 			currunparticle++;
 			if (currunparticle >= 3)
 				currunparticle = 0;
-		
+			
 		
 		}
 
@@ -796,29 +941,194 @@ void Boss::Run()
 void Boss::SetRay()
 {
 	ray.pos = transform->GlobalPos();
-	Vector3 dir = target->GlobalPos() - transform->GlobalPos();
+	ray.pos.y += 10;
+	Vector3 vtarget = target->GlobalPos();
+	vtarget.y += 10;
+	Vector3 vtrasnform = transform->GlobalPos();
+	vtrasnform.y += 10;
+	Vector3 dir = vtarget - vtrasnform;
 	dir.Normalize();
 	ray.dir = dir;
 }
 
+void Boss::SetPosY()
+{
+	if (!OnColliderFloor(feedBackPos)) // 문턱올라가기 때문
+	{
+		if (curRayCoolTime <= 0.f)
+		{
+			Vector3 OrcSkyPos = transform->Pos();
+			OrcSkyPos.y += 100;
+			Ray groundRay = Ray(OrcSkyPos, Vector3(transform->Down()));
+			TerrainComputePicking(feedBackPos, groundRay);
+		}
+	}	
+
+	transform->Pos().y = feedBackPos.y;
+}
+
 void Boss::CollisionCheck()
 {
-	if (!leftCollider->Active() || !RoarCollider->Active())return;
+	if (!leftCollider->Active() && !RoarCollider->Active())return;
 	if (IsHit)return;
 	Player* player = dynamic_cast<Player*>(target);
 	if (!player)return;
 	if (leftCollider->Active())
 	{
-	
+		leftCollider->ResetCollisionPoint();
 		if (leftCollider->IsCollision(player->GetCollider()))
+		{
+			Vector3 pos = leftCollider->GetCollisionPoint();
+			player->SetHitEffectPos(pos);
 			player->Hit(attackdamage);
-		
+			IsHit = true;
+		}
 
 	}
 	if (RoarCollider->Active()) {
 		if (RoarCollider->IsCollision(player->GetCollider()))
-			player->Hit(Roardamage,true);
+		{
+			player->Hit(Roardamage, true);
+			IsHit = true;
+		}
 	}
-		IsHit = true;
+		
 }
 
+bool Boss::TerrainComputePicking(Vector3& feedback, Ray ray)
+{
+	if (terrain)
+	{
+		UINT w = terrain->GetSizeWidth();
+
+		float minx = floor(ray.pos.x);
+		float maxx = ceil(ray.pos.x);
+
+		if (maxx == w - 1 && minx == maxx)
+			minx--;
+		else if (minx == maxx)
+			maxx++;
+
+		float minz = floor(ray.pos.z);
+		float maxz = ceil(ray.pos.z);
+
+		if (maxz == w - 1 && minz == maxz)
+			minz--;
+		else if (minz == maxz)
+			maxz++;
+
+		for (UINT z = w - maxz - 1; z < w - minz - 1; z++)
+		{
+			for (UINT x = minx; x < maxx; x++)
+			{
+				UINT index[4];
+				index[0] = w * z + x;
+				index[1] = w * z + x + 1;
+				index[2] = w * (z + 1) + x;
+				index[3] = w * (z + 1) + x + 1;
+
+				vector<VertexType>& vertices = terrain->GetMesh()->GetVertices();
+
+				Vector3 p[4];
+				for (UINT i = 0; i < 4; i++)
+					p[i] = vertices[index[i]].pos;
+
+				float distance = 0.0f;
+				if (Intersects(ray.pos, ray.dir, p[0], p[1], p[2], distance))
+				{
+					feedback = ray.pos + ray.dir * distance;
+					return true;
+				}
+
+				if (Intersects(ray.pos, ray.dir, p[3], p[1], p[2], distance))
+				{
+					feedback = ray.pos + ray.dir * distance;
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+void Boss::ProcessHpBar()
+{
+	if (isHit || isDying)
+	{
+		if (isDying)
+			curHP -= DELTA * 30 * 7;
+		else
+			curHP -= DELTA * 30 * 2;
+
+		if (curHP <= destHP)
+		{
+			curHP = destHP;
+		}
+		hpBar->SetAmount(curHP / maxHP);
+	}
+	hpBar->Pos() = transform->Pos() + Vector3(0, 6, 0);
+	Vector3 dir = hpBar->Pos() - CAM->Pos();
+	hpBar->Rot().y = atan2(dir.x, dir.z);
+	hpBar->UpdateWorld();
+}
+
+void Boss::Hit(float damage, Vector3 collisionPos,bool _btrue)
+{
+	if (!isHit)
+	{
+		Audio::Get()->Play("hit", transform->Pos()); // 크기조절
+		destHP = (curHP - damage > 0) ? curHP - damage : 0;
+
+		collider->SetActive(false);
+		leftCollider->SetActive(false);
+		RoarCollider->SetActive(false);
+		if (destHP <= 0)
+		{
+			isDying = true;
+			SetState(DEATH);
+			return;
+		}
+
+		SetState(HIT);
+		isHit = true;
+		bWait = true;
+		if(_btrue)
+		hiteffect->Play(collider->GetCollisionPoint()); // 해당위치에서 파티클 재생
+	}
+
+}
+
+
+bool Boss::CalculateHit()
+{
+	if (isHit)
+	{
+		SetState(HIT);
+
+		if (!bFind)
+		{
+			// 탐지 안된 상태에서 맞았을경우 바로 찾기
+			bDetection = true;
+			bFind = true;
+			DetectionStartTime = DetectionEndTime;
+			state = BOSS_STATE::DETECT;
+
+			Vector3 dir = (target->GlobalPos() - transform->GlobalPos()).GetNormalized();
+			float rotY = atan2(dir.x, dir.z) + XM_PI;
+			transform->Rot().y = rotY;
+			transform->UpdateWorld();
+		}
+
+		if (curHP <= destHP)
+		{
+			isHit = false;
+			collider->SetActive(true);
+			leftCollider->SetActive(true);
+			SetState(RUN);
+		}
+
+		return true;
+	}
+	else
+		return false;
+}

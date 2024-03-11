@@ -15,8 +15,8 @@ private:
         WALK,
         RUN,
         ATTACK,
-    
         ROAR,
+        HIT,
         DEATH
 
     };
@@ -53,6 +53,15 @@ private:
         int picked;
         float distance;
     };
+
+    struct SpecialKeyUI
+    {
+        string name;
+        char key;
+        Quad* quad;
+        bool active;
+    };
+
     typedef VertexUVNormalTangentAlpha VertexType;
 
     typedef TerrainEditor LevelData;
@@ -76,6 +85,7 @@ private:
     float walkSpeed = 10;
     float curHP = 200;
     float maxHP = 200;
+    float destHP;
     Transform* leftHand;
     CapsuleCollider* leftCollider;
     
@@ -148,9 +158,28 @@ private:
     float attackdamage = 20.f;
     float Roardamage = 40.f;
 
+    Vector3 feedBackPos;
+    float curRayCoolTime=0.f;
+    DepthStencilState* depthState[2];
+    BlendState* blendState[2];
+    bool outLine = false;
 
-
+    map<string, SpecialKeyUI> specialKeyUI;
+    bool isHit = false;
+    bool isDying = false;
+    bool isAssassinated = false;
+    bool dead = false;
 private:
+    void CoolDown()
+    {
+        if (curRayCoolTime <= 0.0f)
+        {
+            curRayCoolTime = 0.2f;
+        }
+        else
+            curRayCoolTime -= DELTA;
+    }
+
     void MarkTimeCheck();
     void CoolTimeCheck();
    // bool IsFindTarget() { return bFind; };
@@ -160,9 +189,9 @@ private:
     void Move();
     void IdleMove();
     void Roar();
-    void DoingAttack();
+    void EndHit();
     void JumpAttack();
-
+    bool CalculateHit();
     void Die();
     void Find();
     void Rotate();
@@ -177,28 +206,37 @@ private:
     void EndAttack();
 
     void StartAttack();
-  
+   
     void EndRoar();
-    void EndHit();
+   
     void EndDying();
  //   void EndJumpAttack();
     bool IsPatrolPos();
     bool IsFindPos();
     void IdleWalk();
-
+    bool OnColliderFloor(Vector3& feedback);
+  
     void Run();
     void SetRay();
+    void SetPosY();
+
 
     void CollisionCheck();
+    bool TerrainComputePicking(Vector3& feedback, Ray ray);
 
+    void ProcessHpBar();
 public:
+    void Hit(float damage, Vector3 collisionPos,bool _btrue=true);
+    bool GetIsDying() { return isDying; }
+    void ActiveSpecialKey(Vector3 playPos, Vector3 offset);
+    void OnOutLineByRay(Ray ray);
     Transform* GetTransform() { return transform; }
     void SetPath(Vector3 targetPos);
     Boss();
     ~Boss();
     void SetTerrain(LevelData* terrain) { this->terrain = terrain; }
     void SetAStar(AStar* aStar) { this->aStar = aStar; }
-    void SetPatrolPos(Vector3 _pos) { PatrolPos.push_back(_pos); }
+    void SetPatrolPos(Vector3 _pos) { PatrolPos.push_back(_pos); if (1 == PatrolPos.size()) transform->Pos() = _pos; }
     void SetTargetCollider(CapsuleCollider* collider) { targetCollider = collider; }
     Collider* GetCollider() { return collider; }
     void Render();
@@ -211,8 +249,8 @@ public:
     void CalculateEyeSight();
     bool CalculateEyeSight(bool _bFind);
     void CalculateEarSight();//±Í
-    
-    
+    bool IsOutLine() { return outLine; };
+    void Assassinated(Vector3 collisionPos, Transform* attackerTrf);
 
 };
 

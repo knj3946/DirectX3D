@@ -81,6 +81,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     rangeBar = new ProgressBar(L"Textures/UI/Range_bar.png", L"Textures/UI/Range_bar_BG.png");
     rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
     rangeBar->SetParent(transform);
+    rangeBar->SetAlpha(0.5f);
 
     rangeBar->Rot() = { XMConvertToRadians(90.f),0,XMConvertToRadians(-90.f) };
     rangeBar->Pos() = { -15.f,2.f,-650.f };
@@ -88,7 +89,8 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     Audio::Get();
     Audio::Get()->Add("hit", "Sounds/hit.wav");
 
-    particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
+    particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
+   
 }
 
 Orc::~Orc()
@@ -119,11 +121,11 @@ void Orc::SetType(NPC_TYPE _type) {
     switch (_type)
     {
     case Orc::NPC_TYPE::ATTACK:// 오크 타입에 따라 탐지 범위 지정 (현재 임시)
-        informrange = 100;
+        informrange = 50;
         type = NPC_TYPE::ATTACK;
         break;
     case Orc::NPC_TYPE::INFORM:
-        informrange = 750;
+        informrange = 100;
         type = NPC_TYPE::INFORM;
         break;
     default:
@@ -156,14 +158,14 @@ void Orc::Update()
     PartsUpdate(); //모델 각 파츠 업데이트
     StateRevision(); //애니메이션 중간에 끊겨서 변경안된 값들 보정
     
-
+    particleHit->Update();
     //====================== 이동관련==============================
     if (CalculateHit()) return; //맞는 중이면 리턴 (이 아래는 이동과 관련된 것인데 맞는중에는 필요없음)
     if (!GetDutyFlag()) //해야할일(움직임)이 생겼는지 확인
     {
         //해야할일이 없을때
-        SetState(IDLE);
-        //IdleAIMove();
+        //SetState(IDLE);
+        IdleAIMove();
         return;
     }
 
@@ -321,6 +323,8 @@ void Orc::SetGroundPos()
             TerainComputePicking(feedBackPos, groundRay);
         }
     }
+
+    transform->Pos().y = feedBackPos.y;
 }
 
 bool Orc::CalculateHit()
@@ -416,7 +420,7 @@ float Orc::GetDamage()
     return r;
 }
 
-void Orc::Hit(float damage,Vector3 collisionPos)
+void Orc::Hit(float damage,Vector3 collisionPos, bool _btrue)
 {
     if (!isHit)
     {
@@ -438,7 +442,7 @@ void Orc::Hit(float damage,Vector3 collisionPos)
         isHit = true;
 
     
-
+        if(_btrue)
         particleHit->Play(collider->GetCollisionPoint()); // 해당위치에서 파티클 재생
     }
 
@@ -873,6 +877,7 @@ void Orc::TimeCalculator()
 
 
 
+
 void Orc::SetState(State state, float scale, float takeTime)
 {
     if (state == curState) return; // 이미 그 상태라면 굳이 변환 필요 없음
@@ -1048,8 +1053,11 @@ void Orc::EndDying()
 
 void Orc::CalculateEyeSight()
 {
-    //bDetection = true;
-    //return;
+    if (targetStateInfo->isCloaking)
+    {
+        bDetection = false;
+        return;
+    }
 
     float rad = XMConvertToRadians(eyeSightangle);
     Vector3 front = Vector3(transform->Forward().x, 0, transform->Forward().z).GetNormalized();
@@ -1372,44 +1380,53 @@ bool Orc::TerainComputePicking(Vector3& feedback, Ray ray)
 {
     if (terrain && structuredBuffer)
     {
-        rayBuffer->Get().pos = ray.pos;
-        rayBuffer->Get().dir = ray.dir;
-        rayBuffer->Get().triangleSize = terrainTriangleSize;
+        UINT w = terrain->GetSizeWidth();
 
-        rayBuffer->SetCS(0);
+        float minx = floor(ray.pos.x);
+        float maxx = ceil(ray.pos.x);
 
-        DC->CSSetShaderResources(0, 1, &structuredBuffer->GetSRV());
-        DC->CSSetUnorderedAccessViews(0, 1, &structuredBuffer->GetUAV(), nullptr);
+        if (maxx == w - 1 && minx == maxx)
+            minx--;
+        else if(minx == maxx)
+            maxx++;
+        
+        float minz = floor(ray.pos.z);
+        float maxz = ceil(ray.pos.z);
 
-        computeShader->Set();
+        if (maxz == w - 1 && minz == maxz)
+            minz--;
+        else if (minz == maxz)
+            maxz++;
 
-        UINT x = ceil((float)terrainTriangleSize / 1.0f);
-
-        DC->Dispatch(x, 1, 1);
-
-        structuredBuffer->Copy(outputs.data(), sizeof(OutputDesc) * terrainTriangleSize);
-
-        float minDistance = FLT_MAX;
-        int minIndex = -1;
-
-        UINT index = 0;
-        for (OutputDesc output : outputs)
+        for (UINT z = w - maxz - 1; z < w - minz - 1; z++)
         {
-            if (output.picked)
+            for (UINT x = minx; x < maxx; x++)
             {
-                if (minDistance > output.distance)
+                UINT index[4];
+                index[0] = w * z + x;
+                index[1] = w * z + x + 1;
+                index[2] = w * (z + 1) + x;
+                index[3] = w * (z + 1) + x + 1;
+
+                vector<VertexType>& vertices = terrain->GetMesh()->GetVertices();
+
+                Vector3 p[4];
+                for (UINT i = 0; i < 4; i++)
+                    p[i] = vertices[index[i]].pos;
+
+                float distance = 0.0f;
+                if (Intersects(ray.pos, ray.dir, p[0], p[1], p[2], distance))
                 {
-                    minDistance = output.distance;
-                    minIndex = index;
+                    feedback = ray.pos + ray.dir * distance;
+                    return true;
+                }
+
+                if (Intersects(ray.pos, ray.dir, p[3], p[1], p[2], distance))
+                {
+                    feedback = ray.pos + ray.dir * distance;
+                    return true;
                 }
             }
-            index++;
-        }
-
-        if (minIndex >= 0)
-        {
-            feedback = ray.pos + ray.dir * minDistance;
-            return true;
         }
     }
     return false;

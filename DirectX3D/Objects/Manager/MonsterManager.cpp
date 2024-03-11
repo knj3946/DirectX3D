@@ -40,10 +40,10 @@ MonsterManager::MonsterManager()
         specialKeyUI.insert(make_pair(sk.name, sk));
     }
     
+    FOR(2) rasterizerState[i] = new RasterizerState();
     FOR(2) blendState[i] = new BlendState();
     FOR(2) depthState[i] = new DepthStencilState();
-    FOR(2) rasterizerState[i] = new RasterizerState();
-    blendState[1]->AlphaToCoverage(true); //투명색 적용 + 배경색 처리가 있으면 역시 적용
+    blendState[1]->Additive(); //투명색 적용 + 배경색 처리가 있으면 역시 적용
     depthState[1]->DepthWriteMask(D3D11_DEPTH_WRITE_MASK_ALL);  // 다 가리기
     rasterizerState[1]->CullMode(D3D11_CULL_NONE);
 
@@ -171,6 +171,12 @@ void MonsterManager::SetTargetCollider(CapsuleCollider* collider)
 {
     for (const pair<int, OrcInfo>& item : orcs)
         item.second.orc->SetTargetCollider(collider);
+}
+
+void MonsterManager::SetTargetStateInfo(StateInfo* stateInfo)
+{
+    for (const pair<int, OrcInfo>& item : orcs)
+        item.second.orc->SetTargetStateInfo(stateInfo);
 }
 
 bool MonsterManager::IsCollision(Ray ray, Vector3& hitPoint)
@@ -314,6 +320,14 @@ void MonsterManager::Fight(Player* player)
                 }
             }
         }
+        if (collider) {
+            collider->ResetCollisionPoint();
+            if (collider->Active() && collider->IsCapsuleCollision((CapsuleCollider*)boss->GetCollider())) //손 충돌체가 타겟이랑 겹칠때
+            {
+                boss->Hit(player->GetDamage(), collider->GlobalPos());
+            }
+
+        }
     }
     // bow 콜리전담기
 
@@ -418,6 +432,17 @@ void MonsterManager::DieOrc(int index)
     orcs[index].isActive = false;
 }
 
+void MonsterManager::SetOrcGround()
+{
+    for (const pair<int, OrcInfo>& item : orcs)
+    {
+        if (item.second.isActive)
+        {
+            item.second.orc->SetGroundPos();
+        }
+    }
+}
+
 void MonsterManager::Collision()
 {
     for (const pair<int, OrcInfo>& item : orcs)
@@ -429,4 +454,9 @@ void MonsterManager::Collision()
 
 void MonsterManager::SetType(int index, Orc::NPC_TYPE _type) {
     orcs[index].orc->SetType(_type);
+}
+
+void MonsterManager::SetType(int index, UINT _type)
+{
+    orcs[index].orc->SetType((Orc::NPC_TYPE)_type);
 }

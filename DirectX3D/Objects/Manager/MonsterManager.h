@@ -22,7 +22,7 @@ private:
 
     typedef TerrainEditor LevelData;
     //typedef Terrain LevelData;
-    UINT SIZE = 4;
+    UINT SIZE = 8;
 public:
     MonsterManager();
     ~MonsterManager();
@@ -36,11 +36,13 @@ public:
 
     void SetTarget(Transform* target);
     void SetTargetCollider(CapsuleCollider* collider);
+    void SetTargetStateInfo(StateInfo* stateInfo);
 
     bool IsCollision(Ray ray, Vector3& hitPoint);
 
     void SetOrcSRT(int index, Vector3 scale, Vector3 rot, Vector3 pos);
     void SetType(int index,Orc::NPC_TYPE _type);
+    void SetType(int index, UINT _type);
     void SetPatrolPos(UINT idx,Vector3 Pos);
 
 
@@ -64,11 +66,15 @@ public:
 
     void DieOrc(int index);
 
+    void SetOrcGround();
+
+    void SetBoss(Boss* _boss) { boss = _boss; }
+
 private:
     void Collision();   
 
 private:
-
+    Boss* boss;
     ModelAnimatorInstancing* orcInstancing;
     
     //vector<Orc*> orcs;

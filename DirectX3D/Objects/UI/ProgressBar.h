@@ -11,12 +11,13 @@ public:
     void Render();
 
     void SetAmount(float value); //amount : (전체 양에 대한) 현재 비중치
-
+    void SetAlpha(float value) { valueBuffer2->Get()[0] = value; }
 private:
     Texture* backImage; // 배경 이미지.
                         // 이 클래스가 쿼드이기 때문에 결과적으로 이미지 2장을 갖는 것
 
     float fillAmount = 1; // 기본 비중치 = 1 = "전체, 꽉 찼음"
+    float Alpha = 1.f;
 
     // 위 변수만 있어도 사실 괜찮지만... 연산 속도를 높이기 위해서
     // 데이터를 데이터 영역(혹은 다른 유닛)으로 옮기고자 한다
@@ -24,5 +25,6 @@ private:
     FloatValueBuffer* valueBuffer; // 소수 연산용 버퍼 : 무엇이든지 버퍼로 만들 수 있다!
                                    // 버퍼가 많을수록 해당 데이터는 연산이 빨라지고,
                                    // 전체 앱은 느려지고, 메모리 부담은 커진다.
+    FloatValueBuffer* valueBuffer2;
 };
 

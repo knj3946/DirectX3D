@@ -17,6 +17,8 @@ GameManager::GameManager()
 
     //SceneManager::Get()->Add("Grid");
 
+    // È° À§Ä¡ 130 0.5 190
+
     //SceneManager::Get()->Add("ModelAnimation");
     SceneManager::Get()->Add("GameMap");
     //SceneManager::Get()->Add("TestNpcScene");

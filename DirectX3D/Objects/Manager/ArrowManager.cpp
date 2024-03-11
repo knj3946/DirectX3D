@@ -111,7 +111,9 @@ bool ArrowManager::IsCollision()
 	// 다른 장애물과 부딪혔나 체크
 	// 맵이 정해진다면 배경에 따라 장애물에 따라 콜라이더가 안된다면 
 	// pos로 배경에 부딪혔나 판단을 추가할 것
+	
 	//vector<Collider*> monsterColliders = ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC);
+	if (!bStart) { bStart = true; return false; }
 	for (Arrow* arrow : arrows)
 	{
 		if (arrow->IsDropItem())continue;
@@ -120,7 +122,7 @@ bool ArrowManager::IsCollision()
 			if (ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC)[i]->IsSphereCollision(arrow->GetCollider()))
 			{
 				arrow->GetCollider()->SetActive(false);
-				MonsterManager::Get()->GetOrc(i)->Hit(50, arrow->GetTransform()->GlobalPos());
+				MonsterManager::Get()->GetOrc(i)->Hit(50, arrow->GetTransform()->GlobalPos(),false);
 				arrow->HitEffectActive();
 			}
 		}
@@ -139,6 +141,18 @@ bool ArrowManager::IsCollision()
 			}
 		}
 	}
+	for (Arrow* arrow : arrows)
+	{
+		if (arrow->IsDropItem())continue;
+		if (ColliderManager::Get()->Getvector(ColliderManager::BOSS)[0]->IsSphereCollision(arrow->GetCollider())) {
+			arrow->GetCollider()->SetActive(false);
+			ColliderManager::Get()->GetBoss()->Hit(50,  arrow->GetTransform()->GlobalPos(),false);
+			arrow->HitEffectActive();
+		
+		}
+	}
+
+
 
 	return false;
 }
@@ -169,7 +183,7 @@ void ArrowManager::OnOutLineByRay(Ray ray)
 	}
 }
 
-void ArrowManager::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
+void ArrowManager::ActiveSpecialKey(Vector3 playPos, Vector3 offset, bool _btrue)
 {
 	for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
 
@@ -178,29 +192,24 @@ void ArrowManager::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
 		//iter.second.quad->UpdateWorld();
 	}
 
-	for (Arrow* arrow : arrows)
-	{
-		float dis = Distance(arrow->GetTransform()->GlobalPos(), playPos);
-		if (arrow->IsDropItem() && arrow->IsOutLine() &&  dis < 10.f)
-		{
-			//아웃라인이 활성화되고, 거리가 10 이하일때
-			SpecialKeyUI& sk = specialKeyUI["getItem"];
-			sk.active = true;
-			sk.quad->Pos() = CAM->WorldToScreen(arrow->GetTransform()->Pos() + offset);
-			sk.quad->UpdateWorld();
-		}
+	if (_btrue) {
+		SpecialKeyUI& sk = specialKeyUI["getItem"];
+		sk.active = true;
+		sk.quad->Pos() = CAM->WorldToScreen(bow->Pos() + offset);
+		sk.quad->UpdateWorld();
 	}
+
+	
 }
 
 void ArrowManager::ExecuteSpecialKey()// 아이템을 주웠을떄 하게될 동작
 {
-	for (Arrow* arrow : arrows)
-	{
-		if (arrow->IsDropItem() && arrow->IsOutLine())
-		{
-			arrow->SetOutLine(false);
-			arrow->GetItem();
-			playerArrowCount++;
-		}
+	bow->SetActive(false);
+	
+	for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
+
+		iter.second.active = false;
+		//iter.second.quad->Pos() = { 0,0,0 };
+		//iter.second.quad->UpdateWorld();
 	}
 }

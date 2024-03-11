@@ -65,6 +65,8 @@ private:
     typedef TerrainEditor LevelData;
     typedef VertexUVNormalTangentAlpha VertexType;
 
+    
+
 public:
     Player();
     ~Player();
@@ -79,6 +81,7 @@ public:
 
     Vector3 GetVelocity() { return velocity; }
     CapsuleCollider* GetCollider() { return collider; }
+    StateInfo* GetStateInfo() { return stateInfo; }
 
 
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
@@ -92,6 +95,7 @@ public:
     void Hit(float damage,bool camerashake);// 카메라쉐이크용
 
     void SetHeadCrash(bool headCrash) { this->headCrash = headCrash; }
+    void SetBow(Transform* _transform) { BowInstallation = _transform; }
 
     void SetIsPushed(bool value) { isPushed = value; }
     void SetIsCeiling(bool value) { isCeiling = value; }
@@ -106,6 +110,8 @@ public:
 
     void SetHitEffectPos(Vector3& _pos) { particlepos = _pos; }
 
+    void SetBoss(class Boss* _boss) { boss = _boss; }
+
 private:
     void CameraMove(); // 벽에 가려지는 플레이어 현상 해결을 위한 함수
 
@@ -113,6 +119,7 @@ private:
     void Move();
     void UpdateUI();
 
+    void Cloaking();
     void Rotate();
     void Walking();
     void Jump();
@@ -150,7 +157,10 @@ private:
 
 
 private:
-
+    class Boss* boss;
+    Transform* BowInstallation;
+    bool bgetBow = false;
+    bool DrawSpecialkeyBowUI = false;
     POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- �����ڴ� ���� 
 
     State curState = IDLE;
@@ -252,6 +262,14 @@ private:
     float curRayCoolTime = 0.0f;
     bool isRayToDetectTarget = false;
 
+    ParticleSystem* jumpparticle;
+
+    //투명화
+    StateInfo* stateInfo;
+    wstring residualCloakingTime = L"";
+    BlendState* blendState[2];
+
+public: //임시
     bool headCrash;
 
     Transform* aimT;

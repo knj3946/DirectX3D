@@ -24,7 +24,7 @@ Arrow::Arrow(Transform* transform, int id,bool isDropItem)
 	trail = new Trail(L"Textures/Effect/wind.jpg", startEdge, endEdge, 3, 3);
 	trail->Init();
 	trail->SetActive(false);
-	HitEffect = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
+	HitEffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
 	Wallparticle = new ParticleSystem("TextData/Particles/WallEffect.fx");
 }
 
@@ -71,6 +71,7 @@ void Arrow::Update()
 			transform->Rot().x = -acos(front.Length() / direction.Length()); // 방향 적용 + 모델 정면에 따른 보정
 	}
 	HitEffect->Update();
+	Wallparticle->Update();
 	collider->UpdateWorld();
 
 
@@ -91,7 +92,7 @@ void Arrow::Render()
 {
 	collider->Render();
 	HitEffect->Render();
-
+	Wallparticle->Render();
 	if (isDropItem)return;
 
 	if (trail != nullptr)

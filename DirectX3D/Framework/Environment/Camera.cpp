@@ -426,7 +426,7 @@ bool Camera::ContainPoint(Vector3 center, float radius)
 {
     if (!DoingShake)return;
     float fShakeFactor = 5.f;
-    if (shakestrength < 12.f * 3.141592 * fShakeFactor)
+    if (shakestrength < 3.f * 3.141592 * fShakeFactor)
     {
         Pos().y = m_vRestorePos.y + 3.f * sin(shakestrength);
         Pos().z = m_vRestorePos.z + 3.f * -sin(shakestrength);

@@ -85,6 +85,7 @@ public:
     void SetAStar(AStar* aStar) { this->aStar = aStar; }
     void SetTarget(Transform* target) { this->target = target; }
     void SetTargetCollider(CapsuleCollider* collider) { targetCollider = collider; }
+    void SetTargetStateInfo(StateInfo* stateInfo) { this->targetStateInfo = stateInfo; }
     void SetSRT(Vector3 scale, Vector3 rot, Vector3 transform);
     void SetStartPos(Vector3 pos) { this->startPos = pos; this->PatrolPos.push_back(startPos); }
     void SetType(NPC_TYPE _type);
@@ -96,7 +97,7 @@ public:
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
     void RotationRestore();
     float GetDamage();
-    void Hit(float damage,Vector3 collisionPos);
+    void Hit(float damage,Vector3 collisionPos,bool _btrue=false);
     void Spawn(Vector3 pos);
 
     void AddObstacleObj(Collider* collider);
@@ -119,6 +120,7 @@ public:
     bool GetIsDying() { return isDying; }
 
     void CoolDown();
+    void SetGroundPos();
 
 private:
     void Control();
@@ -158,7 +160,6 @@ private:
 
     bool GetDutyFlag();
     void SetParameter();
-    void SetGroundPos();
     bool CalculateHit();
     void PartsUpdate();
     void StateRevision();
@@ -174,7 +175,7 @@ private:
     bool bSensor = false;
 
     float informrange;// Å½Áö¹üÀ§
-    NPC_TYPE type;//
+    NPC_TYPE type= NPC_TYPE::ATTACK;//
     vector<Vector3> PatrolPos;// ¼øÂûÁö
     UINT nextPatrol = 0;// ¼øÂûÁö À§Ä¡
  
@@ -278,4 +279,6 @@ private:
     float rayCoolTime = 0.3f;
     float curRayCoolTime = 0.0f;
     bool isRayToDetectTarget = false;
+
+    StateInfo* targetStateInfo;
 };

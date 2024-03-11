@@ -190,12 +190,13 @@ bool ColliderManager::CompareDistanceObstacleandPlayer(Ray ray)
 		Contact con;
 		if (ob->IsRayCollision(ray, &con))
 		{
+            
 			tmpCol = ob;
 			break;
 		}
 	}
 	if (!tmpCol)
-		return false;
+		return true;
 
 	if (CloseRayCollisionColliderDistance(ray, tmpCol) >= CloseRayCollisionColliderDistance(ray, vecCol[Collision_Type::PLAYER][0])) {
 		return true;

@@ -5,7 +5,7 @@ Player::Player()
     : ModelAnimator("akai")
 {
     ArrowManager::Get();
-
+    
     targetTransform = new Transform();
     //straightRay = Ray(Pos(), Back());
 
@@ -26,11 +26,15 @@ Player::Player()
     weaponColliders.push_back(dagger->GetCollider());
 
     bow = new Model("Elven Long Bow");
-    bow->SetParent(leftHand);
-    bow->Scale() *= 6.f;
-    bow->Pos() = { 0, 6.300, -2.400 };
-    bow->Rot() = { 3.000, 0, 0 };
+    bow->SetActive(false);
+    
+    {
+        bow->SetParent(leftHand);
+        bow->Scale() *= 6.f;
+        bow->Pos() = { 0, 6.300, -2.400 };
+        bow->Rot() = { 3.000, 0, 0 };
 
+    }
     aimT = new Transform();
     aimT->SetParent(this);
     aimT->Pos().x += -40.0f;
@@ -203,6 +207,14 @@ Player::Player()
     }
 
     tempCam = new Transform();
+
+    hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
+    jumpparticle=new ParticleSystem("TextData/Particles/JumpSmoke.fx");
+
+    FOR(2) blendState[i] = new BlendState();
+    blendState[1]->Additive(); //투명색 적용 + 배경색 처리가 있으면 역시 적용
+
+    stateInfo = new StateInfo();
 }
 
 Player::~Player()
@@ -210,7 +222,8 @@ Player::~Player()
     delete collider;
 
     delete hpBar;
-
+    delete hiteffect;
+    delete jumpparticle;
     delete rayBuffer;
     delete structuredBuffer;
 
@@ -288,7 +301,8 @@ void Player::Update()
     ArrowManager::Get()->Update();
     ArrowManager::Get()->IsCollision();
 
-
+    hiteffect->Update();
+    jumpparticle->Update();
     crosshair->UpdateWorld();
 
 
@@ -297,9 +311,9 @@ void Player::Update()
 
 void Player::Render()
 {
+    if(stateInfo->isCloaking)
+        blendState[1]->SetState();
     ModelAnimator::Render();
-    collider->Render();
-
     switch (weaponState)
     {
     case DAGGER:
@@ -309,17 +323,26 @@ void Player::Render()
         bow->Render();
         break;
     }
+    blendState[0]->SetState();
 
+    collider->Render();
+    hiteffect->Render();
+    jumpparticle->Render();
+    
     //leftFootCollider->Render();
     //rightFootCollider->Render();
 
     ArrowManager::Get()->Render();
+
+    Font::Get()->RenderText(L"남은 투명화 시간 : " + residualCloakingTime, { 700,600 }, { 600,100 });
 }
 
 void Player::PostRender()
 {
     hpBar->Render();
+    
     portrait->Render();
+    
     form->Render();
     string str = to_string(ArrowManager::Get()->GetPlayerArrowCount());
 
@@ -339,46 +362,11 @@ void Player::GUIRender()
 
     CAM->GUIRender();
 
-    //ImGui::DragFloat3("Velocity", (float*)&velocity, 0.5f);
-    ////???
-    //ImGui::SliderFloat("moveSpeed", &moveSpeed1, 10, 1000);
-    //ImGui::SliderFloat("moveSpeed", &moveSpeed2, 10, 1000);
-    //ImGui::SliderFloat("rotSpeed", &rotSpeed, 1, 10);
-    //ImGui::SliderFloat("deceleration", &deceleration, 1, 10);
-    //ImGui::Text("isPushed : %d", isPushed);
-    //ImGui::Text("feedBackPosY : %f", feedBackPos.y);
-    //ImGui::Text("heightLevel : %f", heightLevel);
+
 
     ImGui::Text("curState : %d", curState);
 
-    //???? ??
-    //ImGui::SliderFloat("force1", &force1, 1, 500);
-    //ImGui::SliderFloat("force2", &force2, 1, 500);
-    //ImGui::SliderFloat("force3", &force3, 1, 500);
 
-    //ImGui::SliderFloat("jumpSpeed", &jumpSpeed, 0.01f, 5.0f);
-    ////???
-    //ImGui::SliderFloat("gravityMult", &gravityMult, 1, 100);
-
-    ////3?? ???? ?????? ???? ????
-    //ImGui::InputFloat("JumpVel", (float*)&jumpVel);
-    //ImGui::InputFloat("jumpN", (float*)&jumpVel);
-    //ImGui::InputFloat("nextJump", (float*)&nextJump);
-
-    //?????? ?ε??ð?
-    /*ImGui::InputFloat("landingT", (float*)&landingT);
-    ImGui::InputFloat("landing", (float*)&landing);
-
-    ImGui::InputInt("rightHandNode", &rightHandNode);
-    ImGui::InputInt("leftHandNode", &leftHandNode);
-    ImGui::InputInt("leftFootNode", &leftFootNode);
-    ImGui::InputInt("rightFootNode", &rightFootNode);
-
-    ImGui::DragFloat3("bowPos", (float*)&bow->Pos(), 0.1f);
-    ImGui::DragFloat3("bowRot", (float*)&bow->Rot(), 0.1f);
-    ImGui::DragFloat3("bowScale", (float*)&bow->Scale(), 0.1f);*/
-
-    //dagger->GUIRender();
 
     ColliderManager::Get()->GuiRender();
 }
@@ -578,6 +566,8 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     if (KEY_DOWN(VK_ESCAPE))
         camera = !camera;
 
+    if (curState == ASSASSINATION1 || curState == ASSASSINATION2) return;
+
     if (curState != CLIMBING2 && curState != CLIMBING3
         && curState != CLIMBING_JUMP_L && curState != CLIMBING_JUMP_R && curState != CLIMBING_DOWN)
     {
@@ -586,11 +576,18 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             if (static_cast<WeaponState>(weaponState + 1) >= 3)
                 weaponState = DAGGER;
             else
+            {
+                if (!bow->Active())
+                    return;
                 weaponState = static_cast<WeaponState>(weaponState + 1);
+
+            }
         }
 
         if (KEY_UP(VK_LBUTTON))
         {
+            if (!bow->Active())return;
+
             if (weaponState == BOW)
             {
                 if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
@@ -654,9 +651,19 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
         {
             // 화살 줍기
             ArrowManager::Get()->ExecuteSpecialKey();
+            bow->SetActive(true);
+        }
+
+        if (KEY_DOWN(VK_SHIFT))
+        {
+            if (!stateInfo->isCloaking)
+                stateInfo->isCloaking = true;
+            else 
+                stateInfo->isCloaking = false;
         }
     }
 
+    Cloaking();
     Rotate();
     Move();
 
@@ -680,7 +687,7 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
         //{
         //    Vector3 PlayerSkyPos = Pos();
         //    PlayerSkyPos.y += 100;
-        //    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+        //    Ray groundRay = Ray(PlayerSkyPos, Vector3(0.f,-1.f,0.f));
         //    TerainComputePicking(feedBackPos, groundRay);
         //}   
     }
@@ -692,7 +699,7 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
         {
             Vector3 PlayerSkyPos = Pos();
             PlayerSkyPos.y += 1000;
-            Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+            Ray groundRay = Ray(PlayerSkyPos, Vector3(0.f, -1.f, 0.f));
             TerainComputePicking(feedBackPos, groundRay);
         }
 
@@ -734,6 +741,31 @@ void Player::UpdateUI()
     hpBar->Pos() = CAM->WorldToScreen(barPos);
 
     */
+
+    wstring s = L"%.2f";
+    residualCloakingTime = format(s, stateInfo->possibleCloakingTime - stateInfo->curCloakingTime);
+}
+
+void Player::Cloaking()
+{
+    if (stateInfo->isCloaking)
+    {
+        if (stateInfo->possibleCloakingTime <= stateInfo->curCloakingTime)
+        {
+            stateInfo->isCloaking = false;
+            return;
+        }
+        stateInfo->curCloakingTime += DELTA;
+    }
+    else
+    {
+        if (stateInfo->curCloakingTime <= 0)
+        {
+            stateInfo->curCloakingTime = 0.f;
+            return;
+        }
+        stateInfo->curCloakingTime -= DELTA;
+    }
 }
 
 void Player::Rotate()
@@ -828,7 +860,7 @@ void Player::Walking()
         destPos = Pos() + direction * moveSpeed2 * DELTA * -1;
     Vector3 PlayerSkyPos = destPos;
     PlayerSkyPos.y += 1000;
-    Ray groundRay = Ray(PlayerSkyPos, Vector3(Down()));
+    Ray groundRay = Ray(PlayerSkyPos, Vector3(0.f,-1.f,0.f));
     if (!OnColliderFloor(destFeedBackPos)) // 문턱올라가기 때문에 다시 살림
     {
         TerainComputePicking(destFeedBackPos, groundRay);
@@ -948,11 +980,26 @@ void Player::Targeting()
         offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
         MonsterManager::Get()->ActiveSpecialKey(Pos(), offset);
     }
+    {
+        boss->OnOutLineByRay(mouseRay);
+        offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
+        boss->ActiveSpecialKey(Pos(), offset);
+    }
+
+
+
 
     {
         ArrowManager::Get()->OnOutLineByRay(mouseRay);
         offset = (CAM->Right() * 1.5f) + (CAM->Up() * 3.f);
-        ArrowManager::Get()->ActiveSpecialKey(Pos(), offset);
+        bool bTRUE = false;
+        if (!BowInstallation->Active())return;
+        if (Distance(BowInstallation->GlobalPos(), GlobalPos())<6.f) {
+            bTRUE = true;
+        }
+
+
+        ArrowManager::Get()->ActiveSpecialKey(Pos(), offset, bTRUE);
     }
 
     {
@@ -1038,44 +1085,53 @@ bool Player::TerainComputePicking(Vector3& feedback, Ray ray)
 {
     if (terrain && structuredBuffer)
     {
-        rayBuffer->Get().pos = ray.pos;
-        rayBuffer->Get().dir = ray.dir;
-        rayBuffer->Get().triangleSize = terrainTriangleSize;
+        UINT w = terrain->GetSizeWidth();
 
-        rayBuffer->SetCS(0);
+        float minx = floor(ray.pos.x);
+        float maxx = ceil(ray.pos.x);
 
-        DC->CSSetShaderResources(0, 1, &structuredBuffer->GetSRV());
-        DC->CSSetUnorderedAccessViews(0, 1, &structuredBuffer->GetUAV(), nullptr);
+        if (maxx == w - 1 && minx == maxx)
+            minx--;
+        else if (minx == maxx)
+            maxx++;
 
-        computeShader->Set();
+        float minz = floor(ray.pos.z);
+        float maxz = ceil(ray.pos.z);
 
-        UINT x = ceil((float)terrainTriangleSize / 64.0f);
+        if (maxz == w - 1 && minz == maxz)
+            minz--;
+        else if (minz == maxz)
+            maxz++;
 
-        DC->Dispatch(x, 1, 1);
-
-        structuredBuffer->Copy(outputs.data(), sizeof(OutputDesc) * terrainTriangleSize);
-
-        float minDistance = FLT_MAX;
-        int minIndex = -1;
-
-        UINT index = 0;
-        for (OutputDesc output : outputs)
+        for (UINT z = w - maxz - 1; z < w - minz - 1; z++)
         {
-            if (output.picked)
+            for (UINT x = minx; x < maxx; x++)
             {
-                if (minDistance > output.distance)
+                UINT index[4];
+                index[0] = w * z + x;
+                index[1] = w * z + x + 1;
+                index[2] = w * (z + 1) + x;
+                index[3] = w * (z + 1) + x + 1;
+
+                vector<VertexType>& vertices = terrain->GetMesh()->GetVertices();
+
+                Vector3 p[4];
+                for (UINT i = 0; i < 4; i++)
+                    p[i] = vertices[index[i]].pos;
+
+                float distance = 0.0f;
+                if (Intersects(ray.pos, ray.dir, p[0], p[1], p[2], distance))
                 {
-                    minDistance = output.distance;
-                    minIndex = index;
+                    feedback = ray.pos + ray.dir * distance;
+                    return true;
+                }
+
+                if (Intersects(ray.pos, ray.dir, p[3], p[1], p[2], distance))
+                {
+                    feedback = ray.pos + ray.dir * distance;
+                    return true;
                 }
             }
-            index++;
-        }
-
-        if (minIndex >= 0)
-        {
-            feedback = ray.pos + ray.dir * minDistance;
-            return true;
         }
     }
 
@@ -1102,7 +1158,7 @@ void Player::Hit(float damage)
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
         collider->SetActive(false);
-        //hiteffect->Play(particlepos);
+        hiteffect->Play(particlepos);
 
         if (destHP <= 0)
         {
@@ -1270,6 +1326,8 @@ void Player::SetIdle()
     //    SetState(IDLE);
     else
         SetState(IDLE); 
+
+    jumpparticle->Play(Pos());
 }
 
 void Player::SetCameraPos()

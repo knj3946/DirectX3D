@@ -31,6 +31,14 @@ void InteractManager::Assassination(Orc* orc)
 	orc->Assassinated(pos,player);
 }
 
+void InteractManager::AssassinationBoss(Boss* boss)
+{
+    player->Assassination();
+    Vector3 pos = boss->GetTransform()->Pos();
+    pos.y += 5.0f;
+    boss->Assassinated(pos,player);
+}
+
 void InteractManager::Climb(Collider* col)
 {
 	player->Climb(col,col->GetPickContact().hitPoint);

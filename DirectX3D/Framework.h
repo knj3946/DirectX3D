@@ -95,6 +95,7 @@ typedef function<void(int)> IntParamEvent;
 #include "Framework/Utilities/Utility.h"
 #include "Framework/Utilities/Font.h"
 #include "Framework/Utilities/Audio.h"
+#include "Framework/Utilities/Format.h"
 
 using namespace Utility;
 
@@ -137,6 +138,7 @@ using namespace Utility;
 #include "Framework/Collision/SphereCollider.h"
 #include "Framework/Collision/CapsuleCollider.h"
 
+#include "Framework/Model/ObjInfo.h"
 #include "Framework/Model/ModelData.h"
 #include "Framework/Model/ModelExporter.h"
 #include "Framework/Model/ModelMesh.h"
@@ -186,6 +188,7 @@ using namespace GameMath;
 #include "Objects/Items/Weapons/Crowbar.h"
 #include "Objects/Items/Weapons/Dagger.h"
 #include "Objects/Items/Weapons/Arrow.h"
+#include "Objects/Items/Weapons/Bow.h"
 
 #include "Objects/Character/Orc.h"
 #include "Objects/Character/Player.h"

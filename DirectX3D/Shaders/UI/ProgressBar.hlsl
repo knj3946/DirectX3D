@@ -24,12 +24,26 @@ cbuffer ValueBuffer : register(b10)
 	float fillAmount;
 }
 
+cbuffer BlendAlpha : register(b11) {
+	float Blend;
+}
+
 Texture2D backImage : register(t10);
 
 float4 PS(PixelInput input) : SV_TARGET
-{	
+{
+	float4 vColor;
 	if (input.uv.x < fillAmount)
-		return diffuseMap.Sample(samp, input.uv);
-
-	return backImage.Sample(samp, input.uv);
+	{
+		vColor = diffuseMap.Sample(samp, input.uv);;
+	//	vColor.a = Blend;
+		clip(vColor.a - 0.1f);
+		vColor.a = Blend;
+		return vColor;
+	}
+	vColor = backImage.Sample(samp, input.uv);
+	//vColor.a = Blend;
+	clip(vColor.a - 0.1f);
+	vColor.a = Blend;
+	return vColor;
 }
