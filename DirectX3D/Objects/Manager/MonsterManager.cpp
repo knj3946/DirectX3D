@@ -96,18 +96,7 @@ void MonsterManager::Update()
             MonsterManager::Get()->DieOrc(item.first);
     }
 
-    //orcs[0]->Update();
-    //orcs[1].orc->Update();
-  //  for (Orc* orc : orcs)
-  //  {
-  //
-  //
-  //
-  //      
-  //      orc->Update();
-  //      i++;
-  //  }
-
+ 
     for (const pair<int, OrcInfo>& item : orcs)
     {
         if (item.second.orc->IsFindTarget()) // 오크가 발견상태라면

@@ -175,9 +175,11 @@ void ModelAnimatorInstancing::UpdateFrame(UINT instanceID, Motion& motion)
         motion.duration = clip->frameCount / clip->tickPerSecond;
         motion.runningTime += motion.cur.scale * DELTA;
         motion.cur.time += clip->tickPerSecond * motion.cur.scale * DELTA;
+     
 
         if (motion.cur.time >= 1.0f)
         {
+         
             motion.cur.curFrame = (motion.cur.curFrame + 1) % (clip->frameCount - 1);
             motion.cur.time -= 1.0f;
         }

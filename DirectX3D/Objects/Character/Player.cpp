@@ -723,6 +723,7 @@ void Player::UpdateUI()
         {
             curHP = destHP;
             isHit = false;
+            
         }
 
         hpBar->SetAmount(curHP / maxHp);
@@ -1156,8 +1157,7 @@ void Player::Hit(float damage)
     {
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
-        collider->SetActive(false);
-        hiteffect->Play(particlepos);
+      hiteffect->Play(particlepos);
 
         if (destHP <= 0)
         {
@@ -1179,7 +1179,6 @@ void Player::Hit(float damage, bool camerashake)
     {
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
-        collider->SetActive(false);
         CAM->DoShake();
         if (destHP <= 0)
         {

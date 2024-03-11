@@ -82,7 +82,7 @@ public:
     Vector3 GetVelocity() { return velocity; }
     CapsuleCollider* GetCollider() { return collider; }
     StateInfo* GetStateInfo() { return stateInfo; }
-
+    bool IsCloaking() { return stateInfo->isCloaking; }
 
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
 

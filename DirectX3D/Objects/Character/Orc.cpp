@@ -999,6 +999,7 @@ void Orc::EndAttack()
 {
     isAttackable = false;
     SetState(IDLE);
+    battacktarget = false;
     //SetState(ATTACK);
 }
 
@@ -1100,8 +1101,8 @@ void Orc::CalculateEyeSight()
     if (Enemytothisangle < 0) {
         Enemytothisangle += 360;
     }
-
-    if ((Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange)) 
+     DetectionRange =(Distance(target->GlobalPos(), transform->GlobalPos()));
+    if (DetectionRange < eyeSightRange)
     {
         SetEyePos(); //눈 위치만 설정
 
@@ -1185,8 +1186,11 @@ void Orc::Detection()
 {
 
     if (bDetection) {
-        if (!bFind)
-            DetectionStartTime += DELTA;
+        if (!bFind) {
+            float value = eyeSightRange / DetectionRange;
+
+            DetectionStartTime += DELTA*value;
+        }
     }
     else {
         if (DetectionStartTime > 0.f && path.empty()) {
