@@ -351,8 +351,9 @@ void GameMapScene::FirstLoading()
 		MonsterManager::Get()->SetType(7,1);// 1이 알리는애
 		MonsterManager::Get()->SetTerrain(terrain);
 		MonsterManager::Get()->SetAStar(aStar);
-		MonsterManager::Get()->SetTarget(player); //싱글턴 생성 후, 표적 설정까지
-		MonsterManager::Get()->SetTargetCollider(player->GetCollider()); //싱글턴 생성 후, 표적 설정까지
+		MonsterManager::Get()->SetTarget(player);
+		MonsterManager::Get()->SetTargetCollider(player->GetCollider()); 
+		MonsterManager::Get()->SetTargetStateInfo(player->GetStateInfo());
 
 		boss = new Boss;
 		boss->SetTarget(player);

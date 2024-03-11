@@ -207,6 +207,11 @@ Player::Player()
     }
     hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 25, 25, 5, 2, false);
     jumpparticle=new ParticleSystem("TextData/Particles/JumpSmoke.fx");
+
+    FOR(2) blendState[i] = new BlendState();
+    blendState[1]->Additive(); //투명색 적용 + 배경색 처리가 있으면 역시 적용
+
+    stateInfo = new StateInfo();
 }
 
 Player::~Player()
@@ -299,10 +304,9 @@ void Player::Update()
 
 void Player::Render()
 {
+    if(stateInfo->isCloaking)
+        blendState[1]->SetState();
     ModelAnimator::Render();
-    collider->Render();
-    hiteffect->Render();
-    jumpparticle->Render();
     switch (weaponState)
     {
     case DAGGER:
@@ -312,7 +316,12 @@ void Player::Render()
         bow->Render();
         break;
     }
+    blendState[0]->SetState();
 
+    collider->Render();
+    hiteffect->Render();
+    jumpparticle->Render();
+    
     //leftFootCollider->Render();
     //rightFootCollider->Render();
 
@@ -644,8 +653,17 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             ArrowManager::Get()->ExecuteSpecialKey();
             bow->SetActive(true);
         }
+
+        if (KEY_DOWN(VK_SHIFT))
+        {
+            if (!stateInfo->isCloaking)
+                stateInfo->isCloaking = true;
+            else 
+                stateInfo->isCloaking = false;
+        }
     }
 
+    Cloaking();
     Rotate();
     Move();
 
@@ -723,6 +741,28 @@ void Player::UpdateUI()
     hpBar->Pos() = CAM->WorldToScreen(barPos);
 
     */
+}
+
+void Player::Cloaking()
+{
+    if (stateInfo->isCloaking)
+    {
+        if (stateInfo->possibleCloakingTime <= stateInfo->curCloakingTime)
+        {
+            stateInfo->isCloaking == false;
+            return;
+        }
+        stateInfo->curCloakingTime += DELTA;
+    }
+    else
+    {
+        if (stateInfo->curCloakingTime <= 0)
+        {
+            stateInfo->curCloakingTime = 0.f;
+            return;
+        }
+        stateInfo->curCloakingTime -= DELTA;
+    }
 }
 
 void Player::Rotate()

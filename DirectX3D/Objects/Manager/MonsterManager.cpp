@@ -173,6 +173,12 @@ void MonsterManager::SetTargetCollider(CapsuleCollider* collider)
         item.second.orc->SetTargetCollider(collider);
 }
 
+void MonsterManager::SetTargetStateInfo(StateInfo* stateInfo)
+{
+    for (const pair<int, OrcInfo>& item : orcs)
+        item.second.orc->SetTargetStateInfo(stateInfo);
+}
+
 bool MonsterManager::IsCollision(Ray ray, Vector3& hitPoint)
 {
     //외부 호출용

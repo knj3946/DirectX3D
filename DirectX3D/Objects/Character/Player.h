@@ -81,6 +81,7 @@ public:
 
     Vector3 GetVelocity() { return velocity; }
     CapsuleCollider* GetCollider() { return collider; }
+    StateInfo* GetStateInfo() { return stateInfo; }
 
 
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
@@ -115,6 +116,7 @@ private:
     void Move();
     void UpdateUI();
 
+    void Cloaking();
     void Rotate();
     void Walking();
     void Jump();
@@ -258,6 +260,11 @@ private:
     bool isRayToDetectTarget = false;
 
     ParticleSystem* jumpparticle;
+
+    //투명화
+    StateInfo* stateInfo;
+    BlendState* blendState[2];
+
 public: //임시
     bool headCrash;
     Transform* aimT;

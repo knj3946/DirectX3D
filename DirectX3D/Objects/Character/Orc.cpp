@@ -1052,8 +1052,11 @@ void Orc::EndDying()
 
 void Orc::CalculateEyeSight()
 {
-    //bDetection = true;
-    //return;
+    if (targetStateInfo->isCloaking)
+    {
+        bDetection = false;
+        return;
+    }
 
     float rad = XMConvertToRadians(eyeSightangle);
     Vector3 front = Vector3(transform->Forward().x, 0, transform->Forward().z).GetNormalized();

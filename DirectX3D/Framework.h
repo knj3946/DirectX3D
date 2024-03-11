@@ -137,6 +137,7 @@ using namespace Utility;
 #include "Framework/Collision/SphereCollider.h"
 #include "Framework/Collision/CapsuleCollider.h"
 
+#include "Framework/Model/ObjInfo.h"
 #include "Framework/Model/ModelData.h"
 #include "Framework/Model/ModelExporter.h"
 #include "Framework/Model/ModelMesh.h"

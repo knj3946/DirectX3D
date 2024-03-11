@@ -712,7 +712,9 @@ void Boss::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
 	}
 
 	
+	
 	float dis = Distance(transform->GlobalPos(), playPos);
+	/*
 	if (!item.second.orc->GetIsDying() && item.second.orc->IsOutLine() && !item.second.orc->IsDetectTarget() && dis < 6.f)
 	{
 			//아웃라인이 활성화되고, 플레이어를 발견하지 못했을 때, 거리가 6 이하일때
@@ -722,10 +724,10 @@ void Boss::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
 			sk.quad->UpdateWorld();
 
 			InteractManager::Get()->ActiveSkill("assassination", sk.key, bind(&InteractManager::Assassination, InteractManager::Get(), item.second.orc));
-			/*sk.active = false;
-			sk.quad->UpdateWorld();*/
+			//sk.active = false;
+			//sk.quad->UpdateWorld();
 	}
-	
+	*/
 }
 
 void Boss::OnOutLineByRay(Ray ray)

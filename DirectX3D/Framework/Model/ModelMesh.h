@@ -12,6 +12,7 @@ public:
     void CreateMesh(void* vertexData, UINT vertexCount, void* indexData, UINT indexCount);
 
     void SetMaterial(Material* material) { this->material = material; }
+    Material* GetMaterial() { return material; }
 private:
     string name;
 

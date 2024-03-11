@@ -36,6 +36,7 @@ public:
 
     void SetTarget(Transform* target);
     void SetTargetCollider(CapsuleCollider* collider);
+    void SetTargetStateInfo(StateInfo* stateInfo);
 
     bool IsCollision(Ray ray, Vector3& hitPoint);
 
