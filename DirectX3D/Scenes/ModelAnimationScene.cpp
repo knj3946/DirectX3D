@@ -33,7 +33,7 @@ ModelAnimationScene::ModelAnimationScene()
 	//클립 생성해두기 
 	string modelName = "akai";
 	string clipNames[] = {
-		"Braced Hang Drop"
+		"untitled"
 		//"character1@idle1"
 		//"character1@idle2"
 		//,"character1@idle3"
