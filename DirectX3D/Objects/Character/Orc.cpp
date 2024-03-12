@@ -138,7 +138,7 @@ void Orc::Update()
     if (!transform->Active()) return; //활성화 객체가 아니면 리턴
 
     
-    if (curState != DYING || curState != ASSASSINATED)
+    if (curState != DYING && curState != ASSASSINATED)
     {
         Direction();// 방향지정 함수
         CalculateEyeSight(); //시야에 발각됬는지 확인하는 함수 (bDetection 설정)
@@ -148,7 +148,7 @@ void Orc::Update()
     }
     
     TimeCalculator(); //공격 간격을 두기 위한 설정
-    ParticleUpdate(); //파티클이펙트 업데이트
+    //ParticleUpdate(); //파티클이펙트 업데이트
     UpdateUI(); //UI 업데이트
     ExecuteEvent(); //이벤트 있으면 실행
 
@@ -158,7 +158,7 @@ void Orc::Update()
     PartsUpdate(); //모델 각 파츠 업데이트
     StateRevision(); //애니메이션 중간에 끊겨서 변경안된 값들 보정
     
-    particleHit->Update();
+    ParticleUpdate(); //파티클이펙트 업데이트
     //====================== 이동관련==============================
     if (CalculateHit()) return; //맞는 중이면 리턴 (이 아래는 이동과 관련된 것인데 맞는중에는 필요없음)
     if (!GetDutyFlag()) //해야할일(움직임)이 생겼는지 확인
