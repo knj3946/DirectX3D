@@ -26,7 +26,7 @@ Player::Player()
     weaponColliders.push_back(dagger->GetCollider());
 
     bow = new Model("Elven Long Bow");
-    bow->SetActive(false);
+    bow->SetActive(true);
     
     {
         bow->SetParent(leftHand);
@@ -37,8 +37,9 @@ Player::Player()
     }
     aimT = new Transform();
     aimT->SetParent(this);
-    aimT->Pos().x += -40.0f;
-    aimT->Pos().y += -15.0f;
+    aimT->Pos() = aimStartPos;
+    temp = new SphereCollider(5);
+    temp->SetParent(aimT);
 
     crosshair = new Quad(L"Textures/UI/cursor.png");
     crosshair->Pos() = { CENTER_X, CENTER_Y, 0 };
@@ -152,6 +153,7 @@ Player::Player()
     GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //????
 
     GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.34f); // ????? ??????
+   
     //GetClip(CLIMBING1)->SetEvent(bind(&Player::EndClimbing, this), 0.1f);
     //GetClip(CLIMBING2)->SetEvent(bind(&Player::EndClimbing, this), 0.32f);
     //GetClip(CLIMBING3)->SetEvent(bind(&Player::EndClimbing, this), 0.95f);
@@ -251,12 +253,17 @@ Player::~Player()
     delete aimT;
     delete crosshair;
     delete tempCam;
+
+    delete temp;
 }
 
 void Player::Update()
 {
     ColliderManager::Get()->SetHeight();
     ColliderManager::Get()->PushPlayer();
+
+    if (KEY_DOWN('O'))
+        Hit(1);
 
     SetCameraPos();
 
@@ -315,8 +322,10 @@ void Player::Update()
     jumpparticle->Update();
     crosshair->UpdateWorld();
 
-
     CoolDown();
+
+    temp->Pos() = { 0, 0, 0 };
+    temp->UpdateWorld();
 }
 
 void Player::PreRender()
@@ -348,6 +357,8 @@ void Player::Render()
     //rightFootCollider->Render();
 
     ArrowManager::Get()->Render();
+
+    temp->Render();
 }
 
 void Player::PostRender()
@@ -452,10 +463,11 @@ void Player::SetClimbAnim()
     }
     else if (curState == CLIMBING3)
     {
-        SetState(IDLE);
         Pos() = climbArrivePos;
         this->UpdateWorld();
         collider->UpdateWorld();
+
+        SetState(IDLE);
         isClimb = false;
     }
 }
@@ -471,17 +483,22 @@ void Player::Climbing()
 
     Ray headForwardRay = Ray(rayT.Pos(), rayT.Back());
 
-    bool arriveTop = true;
+    bool arriveTop = false;
     Contact con;
-    for (Collider* obstacle : ColliderManager::Get()->GetObstacles())
+
+    if (curState == CLIMBING2)
     {
-        if (obstacle->IsRayCollision(headForwardRay, &con)/* && con.distance < 10.0f*/)
+        arriveTop = true;
+        for (Collider* obstacle : ColliderManager::Get()->GetObstacles())
         {
-            if (con.distance < 1.f)
+            if (obstacle->IsRayCollision(headForwardRay, &con)/* && con.distance < 10.0f*/)
             {
-                arriveTop = false;
-                climbArrivePos = con.hitPoint;
-                break;
+                if (con.distance < 1.f)
+                {
+                    arriveTop = false;
+                    climbArrivePos = con.hitPoint;
+                    break;
+                }
             }
         }
     }
@@ -561,7 +578,7 @@ void Player::Climbing()
         return;
     }
 
-    Pos() += climbVel * DELTA * 5.5f;
+    Pos() += climbVel * DELTA * 4.0f;
     tempCam->Pos() = Pos();
     tempCam->Pos().y += 8.0f;
 
@@ -596,34 +613,18 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             }
         }
 
-        if (KEY_UP(VK_LBUTTON))
-        {
-            if (!bow->Active())return;
-
-            if (weaponState == BOW)
-            {
-                if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
-                {
-                    ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos), chargingT);
-                    chargingT = initSpeed;
-                    SetState(B_RECOIL);
-                }
-                return;
-            }
-        }
-
         if (KEY_DOWN(VK_LBUTTON))
         {
             if (weaponState == BOW)
             {
                 // 보유한 화살이 있는가
-                if (ArrowManager::Get()->GetPlayerArrowCount() <= 0)return;
+                if (ArrowManager::Get()->GetPlayerArrowCount() <= 0) return;
                 SetState(B_DRAW);
+                aimT->Pos() = aimStartPos;
                 return;
             }
         }
-
-        if (KEY_PRESS(VK_LBUTTON))
+        else if (KEY_PRESS(VK_LBUTTON))
         {
             if (weaponState == DAGGER)
             {
@@ -636,10 +637,29 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             else if (weaponState == BOW)
             {
                 if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
-                    if (chargingT <= maxSpeed)
-                        chargingT += DELTA * 65.0f;
+                    if (chargingT < maxSpeed) 
+                    {
+                        Vector3 dir = { 0.1, 0, -1 };
+                        aimT->Pos() += DELTA * dir * 35.0f;
+                        chargingT += DELTA * chargetVal;
+                    }
                     else
                         chargingT = maxSpeed;
+            }
+        }
+        else if (KEY_UP(VK_LBUTTON))
+        {
+            if (!bow->Active())return;
+
+            if (weaponState == BOW)
+            {
+                if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
+                {
+                    ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos), chargingT);
+                    chargingT = initSpeed;
+                    SetState(B_RECOIL);
+                }
+                return;
             }
         }
 
@@ -666,7 +686,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             bow->SetActive(true);
         }
 
-        if (KEY_DOWN(VK_SHIFT))
+        if (KEY_DOWN('R'))
         {
             if (!stateInfo->isCloaking)
                 stateInfo->isCloaking = true;
@@ -729,7 +749,6 @@ void Player::UpdateUI()
         {
             curHP = destHP;
             isHit = false;
-            
         }
 
         hpBar->SetAmount(curHP / maxHp);
@@ -926,7 +945,7 @@ void Player::Jumping()
     if (heightLevel < feedBackPos.y)
         heightLevel = feedBackPos.y;
 
-    if (isCeiling)
+    if (headCrash)
     {
         jumpVel = -20;
         isCeiling = false;
@@ -968,6 +987,8 @@ void Player::Jumping()
             }
             else
                 SetState(JUMP3);
+
+            jumpparticle->Play(Pos());
         }
     }
 
@@ -1090,8 +1111,10 @@ void Player::EndHit()
     isHit = false;
     collider->SetActive(true);
 
-    SetState(preState);
-    preState = IDLE;
+    if (isClimb)
+        isClimb = false;
+
+    SetIdle();
 }
 
 bool Player::OnColliderFloor(Vector3& feedback)
@@ -1182,11 +1205,13 @@ float Player::GetDamage()
 
 void Player::Hit(float damage)
 {
+    if (isHit)
+        int a = 0;
     if (!isHit)
     {
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
-      hiteffect->Play(particlepos);
+        hiteffect->Play(particlepos);
 
         if (destHP <= 0)
         {
@@ -1196,11 +1221,12 @@ void Player::Hit(float damage)
             return;
         }
         preState = curState;
-        SetState(HIT, 0.8f);
-
+        if(!dohitanimation)
+            SetState(HIT, 0.8f);
+        dohitanimation = true;
         isHit = true;
     }
-
+  
 }
 
 void Player::Hit(float damage, bool camerashake)
@@ -1217,8 +1243,9 @@ void Player::Hit(float damage, bool camerashake)
             isDying = true;
             return;
         }
-        SetState(HIT, 0.8f);
-
+        if (!dohitanimation)
+            SetState(HIT, 0.8f);
+        dohitanimation = true;
         isHit = true;
     }
 
@@ -1269,7 +1296,20 @@ void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 �
         if (curState == HIT || curState == KICK || curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3)
             return;
 
-        if (velocity.z > 0.01f && velocity.x < -0.1f)
+
+        if (KEY_PRESS(VK_LSHIFT)) {
+            if (velocity.z > 0.1f)
+                SetState(B_C_F);
+            else if (velocity.z < -0.1f)
+                SetState(B_C_B);
+            else if (velocity.x > 0.1f)
+                SetState(B_C_R);
+            else if (velocity.x < -0.1f)
+                SetState(B_C_L);
+            else
+                SetState(B_C_IDLE);
+        }
+        else if (velocity.z > 0.01f && velocity.x < -0.1f)
             SetState(RUN_DL);
         else if (velocity.z > 0.01f && velocity.x > 0.1f)
             SetState(RUN_DR);
@@ -1287,7 +1327,6 @@ void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 �
     else if (weaponState == BOW)
     {
         if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;
-
 
         if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM || curState == B_RECOIL)
         {
@@ -1341,7 +1380,7 @@ void Player::SetBowAnim()
 void Player::SetIdle()
 {
     SetState(IDLE); 
-
+    dohitanimation = false;
     jumpparticle->Play(Pos());
 }
 
