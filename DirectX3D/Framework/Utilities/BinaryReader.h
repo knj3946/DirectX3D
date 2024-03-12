@@ -21,6 +21,8 @@ public:
     bool IsFailed() { return file == INVALID_HANDLE_VALUE; }
 
 private:
+    vector<char*> vectemp;
+    vector<WCHAR*> vecwchartemp;
     HANDLE file;
     DWORD size = 0;
 };

@@ -38,6 +38,14 @@ ColliderManager::ColliderManager()
 
 ColliderManager::~ColliderManager()
 {
+    for (pair<string, SpecialKeyUI> key : specialKeyUI)
+    {
+        delete key.second.quad;
+    }
+    delete footRay;
+    delete headRay;
+
+
 }
 
 void ColliderManager::SetObstacles(Collider* obstacle)

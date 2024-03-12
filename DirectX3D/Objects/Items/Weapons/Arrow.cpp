@@ -32,7 +32,6 @@ Arrow::~Arrow()
 {
 	delete collider;
 	delete trail;
-
 	delete startEdge;
 	delete endEdge;
 

@@ -19,8 +19,9 @@ ModelAnimator::~ModelAnimator()
 
     delete[] clipTransforms;
     delete[] nodeTransforms;
-
+    if(nullptr!=texture)
     texture->Release();
+    if(nullptr!=srv)
     srv->Release();
 }
 

@@ -20,6 +20,16 @@ ColliderModel::~ColliderModel()
 
     for (ModelMesh* mesh : meshes)
         delete mesh;
+    for (ModelVertex* vertex : vecvertex)
+    {
+        if (nullptr != vertex)
+            delete[] vertex;
+    }
+    for (UINT* indi : vecuint)
+    {
+        if (nullptr != indi)
+            delete[] indi;
+    }
 
     delete worldBuffer;
 }
@@ -91,7 +101,9 @@ void ColliderModel::ReadMaterial()
     FOR(size)
     {
         Material* material = new Material();
+      
         material->Load(reader->String());
+
         materials.push_back(material);
     }
 
@@ -105,8 +117,11 @@ void ColliderModel::ReadMesh()
     BinaryReader* reader = new BinaryReader(file);
 
     if (reader->IsFailed())
+    {
+        delete reader;
         assert(false);
 
+    }
     UINT size = reader->UInt();
 
     meshes.reserve(size);
@@ -119,11 +134,11 @@ void ColliderModel::ReadMesh()
         UINT vertexCount = reader->UInt();
         ModelVertex* vertices = new ModelVertex[vertexCount];
         reader->Byte((void**)&vertices, sizeof(ModelVertex) * vertexCount);
-
+        vecvertex.push_back(vertices);
         UINT indexCount = reader->UInt();
         UINT* indices = new UINT[indexCount];
         reader->Byte((void**)&indices, sizeof(UINT) * indexCount);
-
+        vecuint.push_back(indices);
         mesh->CreateMesh(vertices, vertexCount, indices, indexCount);
 
         meshes.push_back(mesh);

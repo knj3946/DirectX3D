@@ -43,10 +43,15 @@ ArrowManager::ArrowManager()
 
 ArrowManager::~ArrowManager()
 {
+	delete arrowInstancing;
 	for (Arrow* arrow : arrows)
 		delete arrow;
 
-	delete arrowInstancing;
+
+	for (pair<string, SpecialKeyUI> key : specialKeyUI)
+	{
+		delete key.second.quad;
+	}
 }
 
 void ArrowManager::Update()

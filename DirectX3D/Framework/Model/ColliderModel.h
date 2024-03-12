@@ -21,7 +21,7 @@ private:
 
 protected:
     string name;
-
+  
     vector<Material*> materials;
     vector<ModelMesh*> meshes;
     vector<NodeData> nodes;
@@ -32,4 +32,7 @@ protected:
     WorldBuffer* worldBuffer;
 
     vector<Collider*> colliders;
+
+    vector< ModelVertex*> vecvertex;
+    vector<UINT*> vecuint;
 };

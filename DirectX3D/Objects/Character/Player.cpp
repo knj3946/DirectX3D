@@ -220,8 +220,13 @@ Player::Player()
 
 Player::~Player()
 {
+    FOR(2)
+        delete blendState[i];
+    delete stateInfo;
     delete collider;
-
+    delete portrait;
+    delete form;
+   
     delete hpBar;
     delete hiteffect;
     delete jumpparticle;
@@ -241,7 +246,7 @@ Player::~Player()
     delete dagger;
     delete bow;
 
-    delete ArrowManager::Get();
+    ArrowManager::Delete();
 
     delete aimT;
     delete crosshair;
@@ -350,8 +355,8 @@ void Player::PostRender()
     hpBar->Render();
     
     portrait->Render();
-    
-    form->Render();
+    if (bow->Active())
+           form->Render();
     string str = to_string(ArrowManager::Get()->GetPlayerArrowCount());
 
     Vector3 tmp = form->Pos() + Vector3(60, 10, 0);

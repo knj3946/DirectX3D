@@ -115,9 +115,9 @@ Boss::~Boss()
 	delete leftHand;
 	delete leftCollider;
 	delete collider;
-	delete transform;
+	
 	delete instancing;
-	delete motion;
+	
 	delete rangeBar;
 	delete hpBar;
 	delete exclamationMark;
@@ -125,12 +125,17 @@ Boss::~Boss()
 	delete Mouth;
 	delete RoarCollider;
 	delete Roarparticle;
+	delete rayBuffer;
 	for (int i = 0; i < 3; ++i)
 		delete Runparticle[i];
 
 	FOR(2) {
 		delete blendState[i] ;
 		delete depthState[i] ;
+	}
+	for (pair<string, SpecialKeyUI> key : specialKeyUI)
+	{
+		delete key.second.quad;
 	}
 }
 
