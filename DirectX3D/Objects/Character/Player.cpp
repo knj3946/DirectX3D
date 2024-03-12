@@ -338,8 +338,6 @@ void Player::Render()
     //rightFootCollider->Render();
 
     ArrowManager::Get()->Render();
-
-    Font::Get()->RenderText(L"남은 투명화 시간 : " + residualCloakingTime, { 700,600 }, { 600,100 });
 }
 
 void Player::PostRender()
@@ -370,6 +368,11 @@ void Player::GUIRender()
     ImGui::Text("curState : %d", curState);
 
     ColliderManager::Get()->GuiRender();
+}
+
+void Player::TextRender()
+{
+    Font::Get()->RenderText(L"남은 투명화 시간 : " + residualCloakingTime, { 700,600 }, { 600,100 });
 }
 
 void Player::SetTerrain(LevelData* terrain)

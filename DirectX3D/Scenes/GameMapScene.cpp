@@ -152,6 +152,8 @@ void GameMapScene::PostRender()
 		ColliderManager::Get()->PostRender();
 		player->PostRender();
 		boss->PostRender();
+
+		player->TextRender();
 	}
 
 }

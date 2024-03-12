@@ -76,6 +76,7 @@ public:
     void Render();
     void PostRender();
     void GUIRender();
+    void TextRender();
 
     void SetMoveSpeed(float speed) { this->moveSpeed1 = speed; }
     void SetHeightLevel(float heightLevel) { this->heightLevel = heightLevel; }
