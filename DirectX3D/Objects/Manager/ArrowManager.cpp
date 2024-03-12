@@ -99,14 +99,17 @@ bool ArrowManager::IsCollision()
 	//vector<Collider*> monsterColliders = ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC);
 	for (Arrow* arrow : arrows)
 	{
-		if (arrow->IsDropItem())continue;
+		if (!arrow->GetTransform()->Active() || arrow->IsDropItem())continue;
 		for(int i = 0; i < ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC).size(); i++)
 		{
 			if (ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC)[i]->IsSphereCollision(arrow->GetCollider()))
 			{
 				arrow->GetCollider()->SetActive(false);
+				//arrow->HitEffectActive();
 				MonsterManager::Get()->GetOrc(i)->Hit(20, arrow->GetTransform()->GlobalPos());// 화살데미지 임시설정
-				arrow->HitEffectActive();
+				arrow->GetTrail()->SetActive(false);
+				arrow->GetTransform()->SetActive(false);
+				return true;
 			}
 		}
 	}
