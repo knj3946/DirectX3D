@@ -34,6 +34,10 @@ MenuManager::MenuManager()
 
 MenuManager::~MenuManager()
 {
+	delete gameStartScreen;
+	delete loadingBar;
+	delete gameMenu;
+	
 }
 
 void MenuManager::Render()

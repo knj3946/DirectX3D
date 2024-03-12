@@ -31,7 +31,9 @@ private:
 template<typename T>
 inline Mesh<T>::~Mesh()
 {
+    if(nullptr!=vertexBuffer)
     delete vertexBuffer;
+    if(nullptr!=indexBuffer)
     delete indexBuffer;
 }
 

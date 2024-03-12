@@ -41,8 +41,8 @@ MonsterManager::MonsterManager()
     }
     
     FOR(2) rasterizerState[i] = new RasterizerState();
-    FOR(2) blendState[i] = new BlendState();
-    FOR(2) depthState[i] = new DepthStencilState();
+    FOR(2) blendState[i]        = new BlendState();
+    FOR(2) depthState[i]        = new DepthStencilState();
     blendState[1]->Additive(); //투명색 적용 + 배경색 처리가 있으면 역시 적용
     depthState[1]->DepthWriteMask(D3D11_DEPTH_WRITE_MASK_ALL);  // 다 가리기
     rasterizerState[1]->CullMode(D3D11_CULL_NONE);
@@ -56,6 +56,16 @@ MonsterManager::~MonsterManager()
 
     for (pair<int,OrcInfo> item : orcs)
         delete item.second.orc;
+    for (pair<string, SpecialKeyUI> key : specialKeyUI)
+    {
+        delete key.second.quad;
+    }
+    delete shadow;
+    FOR(2) {
+       delete rasterizerState[i]  ;
+       delete     blendState[i]   ;
+       delete     depthState[i]   ;
+    }
 }
 
 void MonsterManager::CreateOrc()

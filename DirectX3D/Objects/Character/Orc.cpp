@@ -102,18 +102,17 @@ Orc::~Orc()
     delete collider;
     //delete terrain;
    // delete aStar;
-    delete instancing;
-    delete motion;
+   
+ 
     //delete root;
     delete exclamationMark;
     delete questionMark;
     delete rangeBar;
     delete hpBar;
-    for (Collider* wcollider : weaponColliders)
-        delete wcollider;
-    
+  
     delete particleHit;
-    delete transform;
+    delete rayBuffer;
+    delete structuredBuffer;
 }
 
 void Orc::SetType(NPC_TYPE _type) {

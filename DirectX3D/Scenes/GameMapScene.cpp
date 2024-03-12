@@ -3,6 +3,8 @@
 
 GameMapScene::GameMapScene()
 {
+
+
 	MenuManager::Get(); //기본 메뉴 생성
 }
 
@@ -12,11 +14,18 @@ GameMapScene::~GameMapScene()
 	{
 		delete colliderModel;
 	}
+	MenuManager::Delete();
+	ColliderManager::Delete();
 	delete bow;
 	delete model;
 	delete terrain;
 	delete aStar;
 	delete skyBox;
+	delete shadow;
+	delete player;
+	delete boss;
+	MonsterManager::Delete();
+
 	KunaiManager::Delete();
 	FOR(2)
 		delete blendState[i];
@@ -34,6 +43,7 @@ void GameMapScene::Update()
 
 	if (MenuManager::Get()->IsPickGameExit())
 	{
+		
 		exit(0);
 	}
 
@@ -163,9 +173,10 @@ void GameMapScene::GUIRender()
 
 	MenuManager::Get()->GUIRender();
 
+	player->GUIRender();
+
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
-		//player->GUIRender();
 		/*
 		for (ColliderModel* cm : colliderModels)
 		{

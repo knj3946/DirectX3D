@@ -14,6 +14,7 @@ Environment::~Environment()
 {
     delete projectionBuffer;  
     delete lightBuffer;
+   
     delete uiViewBuffer;
 
     delete mainCamera;
@@ -23,6 +24,8 @@ Environment::~Environment()
     delete rasterizerState[1];    
     delete blendState[0];
     delete blendState[1];
+    FOR(2)
+        delete depthStencilState[i];
 }
 
 void Environment::Update()

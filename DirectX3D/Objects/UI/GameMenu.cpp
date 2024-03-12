@@ -14,6 +14,7 @@ GameMenu::~GameMenu()
 	{
 		delete quad;
 	}
+	delete menuBackGround;
 }
 
 void GameMenu::Update()

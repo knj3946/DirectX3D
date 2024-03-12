@@ -71,9 +71,9 @@ Player::Player()
     hpBar->SetAmount(curHP / maxHp);
     hpBar->UpdateWorld();
 
-    string temp;    //???? ????
+    string temp;  
 
-    ReadClip("Idle"); // ?????? 0??? 1???? ????
+    ReadClip("Idle");
 
     ReadClip("Medium Run");
     ReadClip("Running Backward");
@@ -83,15 +83,16 @@ Player::Player()
     ReadClip("Jog Forward Diagonal Left");
     ReadClip("Jog Forward Diagonal Right");
 
-    ReadClip("Jumping"); // ?????? 0??? 1???? ????
-    ReadClip("IntheSky"); // ?????? 0??? 1???? ????
-    ReadClip("Falling To Landing"); // ?????? 0??? 1???? ????
+    ReadClip("Jumping Up");
+    ReadClip("IntheSky");
+    ReadClip("Falling To Landing"); 
+    ReadClip("Hard Landing"); 
 
-    ReadClip("Stand To Cover"); // ?????? 0??? 1???? ????
-    ReadClip("Cover Idle"); // ?????? 0??? 1???? ????
-    ReadClip("Crouched Sneaking Right"); // ?????? 0??? 1???? ????
-    ReadClip("Crouched Sneaking Left"); // ?????? 0??? 1???? ????
-    ReadClip("Crouch Turn To Stand"); // ?????? 0??? 1???? ????
+    ReadClip("Stand To Cover"); 
+    ReadClip("Cover Idle");
+    ReadClip("Crouched Sneaking Right");
+    ReadClip("Crouched Sneaking Left");
+    ReadClip("Crouch Turn To Stand");
 
     ReadClip("Head Hit");
 
@@ -145,8 +146,8 @@ Player::Player()
 
     GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.1f);  //????????
     GetClip(JUMP1)->SetEvent(bind(&Player::AfterJumpAnimation, this), 0.20001f);   //???
-
     GetClip(JUMP3)->SetEvent(bind(&Player::SetIdle, this), 0.1f);   //????
+    GetClip(JUMP4)->SetEvent(bind(&Player::JumpSetting, this), 0.78f);   //????
 
     GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //????
 
@@ -219,8 +220,13 @@ Player::Player()
 
 Player::~Player()
 {
+    FOR(2)
+        delete blendState[i];
+    delete stateInfo;
     delete collider;
-
+    delete portrait;
+    delete form;
+   
     delete hpBar;
     delete hiteffect;
     delete jumpparticle;
@@ -240,7 +246,7 @@ Player::~Player()
     delete dagger;
     delete bow;
 
-    delete ArrowManager::Get();
+    ArrowManager::Delete();
 
     delete aimT;
     delete crosshair;
@@ -264,7 +270,11 @@ void Player::Update()
 
     if (isDying) return;
 
-    Control();
+    if(curState != JUMP4)
+        Control();
+    if (!isClimb)
+        Jumping();
+    Rotate();
     Searching();
     Targeting();
     UseSkill();
@@ -345,8 +355,8 @@ void Player::PostRender()
     hpBar->Render();
     
     portrait->Render();
-    
-    form->Render();
+    if (bow->Active())
+           form->Render();
     string str = to_string(ArrowManager::Get()->GetPlayerArrowCount());
 
     Vector3 tmp = form->Pos() + Vector3(60, 10, 0);
@@ -359,8 +369,6 @@ void Player::PostRender()
 
 void Player::GUIRender()
 {
-    Model::GUIRender();
-
     ImGui::Text("playerArrowCount : %d", ArrowManager::Get()->GetPlayerArrowCount());
 
     CAM->GUIRender();
@@ -668,11 +676,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     }
 
     Cloaking();
-    Rotate();
     Move();
-
-    if (!isClimb)
-        Jumping();
 
     //if (targetObject != nullptr && KEY_DOWN('F'))     ////보류
     //{
@@ -882,7 +886,7 @@ void Player::Walking()
     //????
     float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
 
-    if (!isPushed
+    if (!isPushed && curState != JUMP1
         && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y
             || destFeedBackPos.y - feedBackPos.y < 0.5f) // 바닥 올라가게 하기위해 추가함
         ) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????
@@ -907,6 +911,14 @@ void Player::Jump()
 void Player::AfterJumpAnimation()
 {
     SetState(JUMP2);
+}
+
+void Player::JumpSetting()
+{
+    if (curState == JUMP4)
+    {
+        SetState(IDLE);
+    }
 }
 
 void Player::Jumping()
@@ -949,8 +961,13 @@ void Player::Jumping()
         tempJumpVel = 0.0f;
 
         if (curState == JUMP2) {
-            //landing = landingT;   //?????? ????? ???? ????? ????? ??????
-            SetState(JUMP3);
+            if (fallingT >= 0.45f)
+            {
+                SetState(JUMP4);
+                curHP -= 10.0f;
+            }
+            else
+                SetState(JUMP3);
         }
     }
 
@@ -958,7 +975,12 @@ void Player::Jumping()
     jumpVel = tempJumpVel;
 
     if (jumpVel < 0.0f)
+    {
         SetState(JUMP2);
+        fallingT += DELTA;
+    }
+    else
+        fallingT = 0.0f;
 
     preHeight = heightLevel;
 }
@@ -1242,7 +1264,7 @@ void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 �
 
     if (weaponState == DAGGER)
     {
-        if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;
+        if (curState == JUMP1 || curState == JUMP3 || curState == JUMP4 || Pos().y > heightLevel) return;
 
         if (curState == HIT || curState == KICK || curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3)
             return;
@@ -1318,19 +1340,7 @@ void Player::SetBowAnim()
 
 void Player::SetIdle()
 {
-
-    if (curState == TO_COVER) {
-        Pos() = targetTransform->Pos();
-        Rot() = targetTransform->Rot();
-
-        SetState(C_IDLE);
-
-        //toCover = false;
-    }
-    //else if(curState == DAGGER1 && KEY_PRESS(VK_LBUTTON))
-    //    SetState(IDLE);
-    else
-        SetState(IDLE); 
+    SetState(IDLE); 
 
     jumpparticle->Play(Pos());
 }

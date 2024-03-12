@@ -112,5 +112,8 @@ Texture* Texture::Add(wstring key, ID3D11ShaderResourceView* srv)
 void Texture::Delete()
 {
     for (pair<wstring, Texture*> texture : textures)
+    {
         delete texture.second;
+
+    }
 }

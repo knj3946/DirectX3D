@@ -13,8 +13,11 @@ DepthStencil::DepthStencil(UINT width, UINT height, bool isStencil)
 
 DepthStencil::~DepthStencil()
 {
-    dsvTexture->Release();
+    if(nullptr!= dsvTexture)
+        dsvTexture->Release();
+    if (nullptr != dsv)
     dsv->Release();
+    if (nullptr != srv)
     srv->Release();
 }
 

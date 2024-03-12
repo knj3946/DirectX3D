@@ -24,6 +24,10 @@ Bow::Bow()
 Bow::~Bow()
 {
 	delete bow;
+	for (pair<string, SpecialKeyUI> key : specialKeyUI)
+	{
+		delete key.second.quad;
+	}
 }
 
 void Bow::Update()
