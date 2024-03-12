@@ -344,6 +344,7 @@ void MonsterManager::Fight(Player* player)
                     Vector3 pos=collider->GetCollisionPoint();
                     player->SetHitEffectPos(pos);
                     player->Hit(item.second.orc->GetDamage());
+                    collider->SetActive(false);
                 }
             }
         }   

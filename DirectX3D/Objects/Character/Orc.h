@@ -156,7 +156,7 @@ private:
     
     void Throw();
 
-
+    void StartAttack();
     bool GetDutyFlag();
     void SetParameter();
     bool CalculateHit();
@@ -282,4 +282,6 @@ private:
 
     StateInfo* targetStateInfo;
     bool battacktarget = false;
+    bool returntoPatrol = false;
+    Vector3 restorePos;
 };

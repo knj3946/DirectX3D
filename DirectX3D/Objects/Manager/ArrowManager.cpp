@@ -146,6 +146,7 @@ bool ArrowManager::IsCollision()
 			}
 		}
 	}
+	return false;
 	for (Arrow* arrow : arrows)
 	{
 		if (arrow->IsDropItem())continue;

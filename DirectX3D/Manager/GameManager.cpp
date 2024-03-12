@@ -11,9 +11,9 @@
 GameManager::GameManager()
 {
     Create();
-
+   
     //SceneManager::Get()->Create("ModelAnimation", new ModelAnimationScene());
-    //SceneManager::Get()->Create("GameMap", new GameMapScene());
+  //  SceneManager::Get()->Create("GameMap", new GameMapScene());
     SceneManager::Get()->Create("GameSmallMap", new GameSmallMapScene());
     //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
     //SceneManager::Get()->Create("Building", new BuildingScene());
@@ -24,7 +24,7 @@ GameManager::GameManager()
     // È° À§Ä¡ 130 0.5 190
 
     //SceneManager::Get()->Add("ModelAnimation");
-    //SceneManager::Get()->Add("GameMap");
+   // SceneManager::Get()->Add("GameMap");
     SceneManager::Get()->Add("GameSmallMap");
     //SceneManager::Get()->Add("TestNpcScene");
     //SceneManager::Get()->Add("Building");

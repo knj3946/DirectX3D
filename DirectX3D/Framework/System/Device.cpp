@@ -68,6 +68,7 @@ Device::Device()
         &deviceContext
     );
 
+   
     ID3D11Texture2D* backBuffer;
 
     swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
@@ -97,6 +98,10 @@ Device::Device()
 
 Device::~Device()
 {
+
+
+   
+
     device->Release();
     deviceContext->Release();
 
