@@ -6,7 +6,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     string modelName = "Orc";
 
     //�浹ü
-    collider = new CapsuleCollider(50, 120);
+    collider = new CapsuleCollider(40, 120);
     collider->SetParent(transform);
     //collider->Rot().z = XM_PIDIV2 - 0.2f;
     collider->Pos() = { -15, 80, 0 };
