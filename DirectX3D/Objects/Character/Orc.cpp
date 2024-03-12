@@ -159,6 +159,7 @@ void Orc::Update()
     StateRevision(); //애니메이션 중간에 끊겨서 변경안된 값들 보정
     
     ParticleUpdate(); //파티클이펙트 업데이트
+    CoolDown();
     //====================== 이동관련==============================
     if (CalculateHit()) return; //맞는 중이면 리턴 (이 아래는 이동과 관련된 것인데 맞는중에는 필요없음)
     if (!GetDutyFlag()) //해야할일(움직임)이 생겼는지 확인
@@ -173,9 +174,6 @@ void Orc::Update()
     Control(); // 경로설정등 오크가 움직이기 위한 정보들 계산
     Move(); //실제 움직임
     RotationRestore();
-
-    CoolDown();
-    
 }
 
 void Orc::Render()

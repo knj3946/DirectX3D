@@ -150,7 +150,7 @@ Player::Player()
 
     GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //????
 
-    GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f); // ????? ??????
+    GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.34f); // ????? ??????
     //GetClip(CLIMBING1)->SetEvent(bind(&Player::EndClimbing, this), 0.1f);
     //GetClip(CLIMBING2)->SetEvent(bind(&Player::EndClimbing, this), 0.32f);
     //GetClip(CLIMBING3)->SetEvent(bind(&Player::EndClimbing, this), 0.95f);
@@ -985,7 +985,7 @@ void Player::Targeting()
         offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
         MonsterManager::Get()->ActiveSpecialKey(Pos(), offset);
     }
-    {
+    if(boss){
         boss->OnOutLineByRay(mouseRay);
         offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
         boss->ActiveSpecialKey(Pos(), offset);
@@ -1069,7 +1069,7 @@ void Player::EndHit()
     collider->SetActive(true);
 
     SetState(preState);
-    preState == IDLE;
+    preState = IDLE;
 }
 
 bool Player::OnColliderFloor(Vector3& feedback)

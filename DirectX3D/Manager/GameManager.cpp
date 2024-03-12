@@ -1,6 +1,7 @@
 #include "Framework.h"
 
 #include "Scenes/GameMapScene.h"
+#include "Scenes/GameSmallMapScene.h"
 #include "Scenes/TestNpcScene.h"
 #include "Scenes/ModelAnimationScene.h"
 
@@ -12,7 +13,8 @@ GameManager::GameManager()
     Create();
 
     //SceneManager::Get()->Create("ModelAnimation", new ModelAnimationScene());
-    SceneManager::Get()->Create("GameMap", new GameMapScene());
+    //SceneManager::Get()->Create("GameMap", new GameMapScene());
+    SceneManager::Get()->Create("GameSmallMap", new GameSmallMapScene());
     //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
     //SceneManager::Get()->Create("Building", new BuildingScene());
     //SceneManager::Get()->Create("Shadow", new ShadowScene());
@@ -22,10 +24,12 @@ GameManager::GameManager()
     // È° À§Ä¡ 130 0.5 190
 
     //SceneManager::Get()->Add("ModelAnimation");
-    SceneManager::Get()->Add("GameMap");
+    //SceneManager::Get()->Add("GameMap");
+    SceneManager::Get()->Add("GameSmallMap");
     //SceneManager::Get()->Add("TestNpcScene");
     //SceneManager::Get()->Add("Building");
     //SceneManager::Get()->Add("Shadow");
+    
 }
 
 GameManager::~GameManager()
