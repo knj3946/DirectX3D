@@ -174,6 +174,8 @@ private:
     float lastVolume=0;
     float lastWalkVolume = 0;
     float walkVolumeS = 0;
+    bool isAnim = false;
+
 
     int a = 300;
     Ray ray;// ∑π¿Ã

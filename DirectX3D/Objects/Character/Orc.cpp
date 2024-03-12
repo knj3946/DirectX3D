@@ -36,8 +36,12 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     eventIters.resize(instancing->GetClipSize());
 
     //이벤트 세팅
+    SetEvent(ATTACK, bind([=]() {ORCSOUND(index)->Stop("Orc_Walk"); isAnim = true; }), 0.01f);
     SetEvent(ATTACK, bind(&Orc::EndAttack, this), 0.99f);
+    SetEvent(THROW, bind([=]() {ORCSOUND(index)->Stop("Orc_Walk"); isAnim = true; }), 0.01f);
     SetEvent(THROW, bind(&Orc::Throw, this), 0.59f);
+    SetEvent(THROW, bind([=]() {isAnim = false; }), 0.99f);
+    SetEvent(HIT, bind([=]() {ORCSOUND(index)->Stop("Orc_Walk"); isAnim = true; }), 0.01f);
     SetEvent(HIT, bind(&Orc::EndHit, this), 0.99f);
     SetEvent(ASSASSINATED, bind(&Orc::EndAssassinated, this), 0.9f);
     SetEvent(DYING, bind(&Orc::EndDying, this), 0.9f);
@@ -144,17 +148,20 @@ void Orc::Update()
     }
 
     // 사운드 테스트
-    if (bFind && !ORCSOUND(index)->IsPlaySound("Orc_Walk"))
+    if (!isAnim)
     {
-        ORCSOUND(index)->Play("Orc_Walk",0);
-    }
-    if (bFind || ORCSOUND(index)->IsPlaySound("Orc_Walk"))//|| ORCSOUND(index)->IsPlaySound("Orc_Walk")
-    {
-        float distance = Distance(target->Pos(), transform->Pos());
-        distance = (distance > 50) ? 50 : distance;
-        ORCSOUND(index)->SetVolume("Orc_Walk", (100 - distance) / 100.0f);
-        
-        lastWalkVolume = (100 - distance) / 100.0f;
+        if (bFind && !ORCSOUND(index)->IsPlaySound("Orc_Walk"))
+        {
+            ORCSOUND(index)->Play("Orc_Walk", 0);
+        }
+        if (bFind || ORCSOUND(index)->IsPlaySound("Orc_Walk"))//|| ORCSOUND(index)->IsPlaySound("Orc_Walk")
+        {
+            float distance = Distance(target->Pos(), transform->Pos());
+            distance = (distance > 50) ? 50 : distance;
+            ORCSOUND(index)->SetVolume("Orc_Walk", (100 - distance) / 100.0f);
+
+            lastWalkVolume = (100 - distance) / 100.0f;
+        }
     }
     //-------------------------
 
@@ -456,6 +463,7 @@ void Orc::Hit(float damage,Vector3 collisionPos)
         rightWeaponCollider->SetActive(false);
         if (destHP <= 0)
         {
+            
             isDying = true;
             SetState(DYING);
             return;
@@ -895,6 +903,7 @@ void Orc::SetState(State state, float scale, float takeTime)
     // 테스트
     if (state == WALK || state == RUN)
     {
+        //if (isAnim)return;
         float distance = Distance(target->Pos(), transform->Pos());
         distance = (distance < 50) ? distance : 50;
         if (bFind || bDetection)
@@ -955,6 +964,7 @@ void Orc::SetState(State state, float scale, float takeTime)
     }
     else if (curState == DYING)
     {
+        ORCSOUND(index)->Stop("Orc_Walk");
         if(isAssassinated)
             instancing->PlayClip(index, (int)state + 3, 0.8);
         else
@@ -1037,12 +1047,14 @@ void Orc::EndAttack()
 {
     isAttackable = false;
     SetState(IDLE);
+    isAnim = false;
     //SetState(ATTACK);
 }
 
 void Orc::EndHit()
 {
     collider->SetActive(true);
+    isAnim = false;
 }
 
 void Orc::EndAssassinated()
