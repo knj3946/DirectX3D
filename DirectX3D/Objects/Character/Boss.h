@@ -168,7 +168,7 @@ private:
     bool isHit = false;
     bool isDying = false;
     bool isAssassinated = false;
-    bool dead = false;
+    float DetectionRange;
 private:
     void CoolDown()
     {
@@ -226,6 +226,7 @@ private:
 
     void ProcessHpBar();
 public:
+    bool GetIsHit() { return IsHit; }
     void Hit(float damage, Vector3 collisionPos,bool _btrue=true);
     bool GetIsDying() { return isDying; }
     void ActiveSpecialKey(Vector3 playPos, Vector3 offset);

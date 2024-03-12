@@ -314,6 +314,11 @@ void Player::Update()
     CoolDown();
 }
 
+void Player::PreRender()
+{
+
+}
+
 void Player::Render()
 {
     if(stateInfo->isCloaking)
@@ -338,8 +343,6 @@ void Player::Render()
     //rightFootCollider->Render();
 
     ArrowManager::Get()->Render();
-
-    Font::Get()->RenderText(L"남은 투명화 시간 : " + residualCloakingTime, { 700,600 }, { 600,100 });
 }
 
 void Player::PostRender()
@@ -366,10 +369,13 @@ void Player::GUIRender()
     CAM->GUIRender();
 
     ImGui::Text("curState : %d", curState);
-    ImGui::Text("curState : %lf", fallingT);
-
 
     ColliderManager::Get()->GuiRender();
+}
+
+void Player::TextRender()
+{
+    Font::Get()->RenderText(L"남은 투명화 시간 : " + residualCloakingTime, { 700,600 }, { 600,100 });
 }
 
 void Player::SetTerrain(LevelData* terrain)
@@ -718,6 +724,7 @@ void Player::UpdateUI()
         {
             curHP = destHP;
             isHit = false;
+            
         }
 
         hpBar->SetAmount(curHP / maxHp);
@@ -1008,11 +1015,13 @@ void Player::Targeting()
         ArrowManager::Get()->OnOutLineByRay(mouseRay);
         offset = (CAM->Right() * 1.5f) + (CAM->Up() * 3.f);
         bool bTRUE = false;
-        if (!BowInstallation->Active())return;
-        if (Distance(BowInstallation->GlobalPos(), GlobalPos())<6.f) {
-            bTRUE = true;
+        if (BowInstallation)
+        {
+            if (!BowInstallation->Active())return;
+            if (Distance(BowInstallation->GlobalPos(), GlobalPos()) < 6.f) {
+                bTRUE = true;
+            }
         }
-
 
         ArrowManager::Get()->ActiveSpecialKey(Pos(), offset, bTRUE);
     }
@@ -1172,8 +1181,7 @@ void Player::Hit(float damage)
     {
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
-        collider->SetActive(false);
-        hiteffect->Play(particlepos);
+      hiteffect->Play(particlepos);
 
         if (destHP <= 0)
         {
@@ -1196,7 +1204,6 @@ void Player::Hit(float damage, bool camerashake)
     {
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
-        collider->SetActive(false);
         CAM->DoShake();
         if (destHP <= 0)
         {

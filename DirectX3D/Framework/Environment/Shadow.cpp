@@ -10,14 +10,8 @@ Shadow::Shadow(UINT width, UINT height)
     viewBuffer = new ViewBuffer();
     projectionBuffer = new MatrixBuffer();
 
-    //(테스트용) 쿼드 생성
-    quad = new Quad(Vector2(200, 200));
-    quad->Pos() = { 100, 100, 0 };
-    quad->UpdateWorld();
-
-    //텍스처 생성 (및 테스트용으로 만든 쿼드에도 넣기)
+    //텍스처 생성
     Texture* texture = Texture::Add(L"Shadow", renderTarget->GetSRV());
-    quad->GetMaterial()->SetDiffuseMap(texture);
 }
 
 Shadow::~Shadow()
@@ -26,7 +20,6 @@ Shadow::~Shadow()
     delete depthStencil;
     delete viewBuffer;
     delete projectionBuffer;
-    delete quad;
 }
 
 void Shadow::SetRenderTarget()
@@ -52,8 +45,7 @@ void Shadow::SetRender()
 
 void Shadow::PostRender()
 {
-    //위 함수에서 준비된 텍스처....를 입힌 쿼드....를 테스트용으로 출력
-    quad->Render();
+
 }
 
 void Shadow::GUIRender()

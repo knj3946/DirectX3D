@@ -121,7 +121,6 @@ public:
 
     void CoolDown();
     void SetGroundPos();
-
 private:
     void Control();
     void Move();
@@ -164,6 +163,7 @@ private:
     void PartsUpdate();
     void StateRevision();
     void ParticleUpdate();
+    bool GetTargetAttack() { return battacktarget; }
 private:
     Ray ray;// 레이
     Vector3 StorePos;// 소리난 곳 가기 전 위치 저장
@@ -178,7 +178,7 @@ private:
     NPC_TYPE type= NPC_TYPE::ATTACK;//
     vector<Vector3> PatrolPos;// 순찰지
     UINT nextPatrol = 0;// 순찰지 위치
- 
+    float DetectionRange;
     NPC_BehaviorState behaviorstate = NPC_BehaviorState::IDLE;
 
     State curState = IDLE;
@@ -281,4 +281,5 @@ private:
     bool isRayToDetectTarget = false;
 
     StateInfo* targetStateInfo;
+    bool battacktarget = false;
 };

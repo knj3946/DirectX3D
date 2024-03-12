@@ -5,6 +5,7 @@
 #include "Scenes/ModelAnimationScene.h"
 
 #include "Scenes/BuildingScene.h"
+#include "Scenes/ShadowScene.h"
 
 GameManager::GameManager()
 {
@@ -14,6 +15,7 @@ GameManager::GameManager()
     SceneManager::Get()->Create("GameMap", new GameMapScene());
     //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
     //SceneManager::Get()->Create("Building", new BuildingScene());
+    //SceneManager::Get()->Create("Shadow", new ShadowScene());
 
     //SceneManager::Get()->Add("Grid");
 
@@ -23,6 +25,7 @@ GameManager::GameManager()
     SceneManager::Get()->Add("GameMap");
     //SceneManager::Get()->Add("TestNpcScene");
     //SceneManager::Get()->Add("Building");
+    //SceneManager::Get()->Add("Shadow");
 }
 
 GameManager::~GameManager()

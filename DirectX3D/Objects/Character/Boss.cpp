@@ -56,9 +56,9 @@ Boss::Boss()
 
 
 	SetEvent(ATTACK, bind(&Boss::StartAttack, this), 0.f);
-	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.9f);
+	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.75f);
 	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, true), 0.5f); //콜라이더 켜는 시점 설정
-	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, false), 0.98f); //콜라이더 꺼지는 시점 설정
+	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, false), 0.78f); //콜라이더 꺼지는 시점 설정
 	
 	SetEvent(HIT, bind(&Boss::EndHit, this), 0.98f); //콜라이더 꺼지는 시점 설정
 
@@ -157,8 +157,10 @@ void Boss::Render()
 
 void Boss::Update()
 {
-	if(!dead)
-		instancing->Update();
+
+	instancing->Update();
+	ExecuteEvent();
+
 	if (curHP <= 0)return;
 	Idle();
 	Direction();
@@ -183,8 +185,7 @@ void Boss::Update()
 	ProcessHpBar();
 
 
-	ExecuteEvent();
-
+	
 	Mouth->SetWorld(instancing->GetTransformByNode(index, 9));	
 	RoarCollider->UpdateWorld();
 	Roarparticle->Update();
@@ -244,7 +245,8 @@ void Boss::CalculateEyeSight()
 	while (leftdir1 > 360.0f)
 		leftdir1 -= 360.0f;
 
-	if (Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange) {
+	DetectionRange= Distance(target->GlobalPos(), transform->GlobalPos());
+	if (DetectionRange < eyeSightRange) {
 		SetRay();
 		if (leftdir1 > 270 && rightdir1 < 90) {
 			if (!((leftdir1 <= Enemytothisangle && rightdir1 + 360 >= Enemytothisangle) || (leftdir1 <= Enemytothisangle + 360 && rightdir1 >= Enemytothisangle)))
@@ -265,6 +267,7 @@ void Boss::CalculateEyeSight()
 		}
 
 		bDetection = ColliderManager::Get()->CompareDistanceObstacleandPlayer(ray);
+		
 	}
 	else
 		bDetection = false;
@@ -459,9 +462,9 @@ void Boss::Die()
 
 void Boss::Find()
 {
-	/*
+	
 	if (state == BOSS_STATE::DETECT) {
-		if (dynamic_cast<Player*>(target)->GetTest()) {
+		if (dynamic_cast<Player*>(target)->IsCloaking()) {
 			state = BOSS_STATE::FIND;
 			questionMark->SetActive(true);
 			exclamationMark->SetActive(false);
@@ -470,7 +473,7 @@ void Boss::Find()
 		}
 	}
 	if (state == BOSS_STATE::FIND) {
-		if (!dynamic_cast<Player*>(target)->GetTest()) {
+		if (!dynamic_cast<Player*>(target)->IsCloaking()) {
 			if (!CalculateEyeSight(true))
 				return;
 
@@ -480,7 +483,7 @@ void Boss::Find()
 		
 		}
 	}
-	*/
+	
 }
 
 void Boss::Rotate()
@@ -653,7 +656,12 @@ void Boss::SetEvent(int clip, Event event, float timeRatio)
 void Boss::Detection()
 {
 	if (bDetection) {
-		DetectionStartTime += DELTA;
+		float value= eyeSightRange / DetectionRange;
+		
+
+		DetectionStartTime += DELTA*value;
+		
+
 	}
 	else {
 		DetectionStartTime -= DELTA;
@@ -722,14 +730,16 @@ void Boss::EndHit()
 {
 	bWait = false;
 	SetState(RUN);
+	IsHit = false;
+	collider->SetActive(true);
 }
 
 void Boss::EndDying()
 {
+
 	instancing->SetOutLine(index, false);
 	specialKeyUI["assassination"].active = false;
 	collider->SetActive(false);
-
 	transform->SetActive(false);
 	hpBar->SetActive(false);
 
@@ -743,7 +753,7 @@ void Boss::EndDying()
 	for (int i = 0; i < 3; ++i) {
 		Runparticle[i]->Stop();
 	}
-	dead = true;
+	
 }
 
 
@@ -1078,10 +1088,6 @@ void Boss::Hit(float damage, Vector3 collisionPos,bool _btrue)
 	{
 		Audio::Get()->Play("hit", transform->Pos()); // 크기조절
 		destHP = (curHP - damage > 0) ? curHP - damage : 0;
-
-		collider->SetActive(false);
-		leftCollider->SetActive(false);
-		RoarCollider->SetActive(false);
 		if (destHP <= 0)
 		{
 			isDying = true;

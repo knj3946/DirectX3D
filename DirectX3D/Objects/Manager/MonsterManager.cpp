@@ -47,6 +47,7 @@ MonsterManager::MonsterManager()
     depthState[1]->DepthWriteMask(D3D11_DEPTH_WRITE_MASK_ALL);  // 다 가리기
     rasterizerState[1]->CullMode(D3D11_CULL_NONE);
 
+    shadow = new Shadow();
 }
 
 MonsterManager::~MonsterManager()
@@ -96,18 +97,7 @@ void MonsterManager::Update()
             MonsterManager::Get()->DieOrc(item.first);
     }
 
-    //orcs[0]->Update();
-    //orcs[1].orc->Update();
-  //  for (Orc* orc : orcs)
-  //  {
-  //
-  //
-  //
-  //      
-  //      orc->Update();
-  //      i++;
-  //  }
-
+ 
     for (const pair<int, OrcInfo>& item : orcs)
     {
         if (item.second.orc->IsFindTarget()) // 오크가 발견상태라면
@@ -130,9 +120,9 @@ void MonsterManager::Update()
     vecDetectionPos.clear();
 }
 
-void MonsterManager::Render()
+void MonsterManager::Render(bool exceptOutLine)
 {
-    orcInstancing->Render();
+    orcInstancing->Render(exceptOutLine);
 
     blendState[1]->SetState();
     rasterizerState[1]->SetState();
@@ -441,6 +431,11 @@ void MonsterManager::SetOrcGround()
             item.second.orc->SetGroundPos();
         }
     }
+}
+
+void MonsterManager::SetShader(wstring file)
+{
+    orcInstancing->SetShader(file);
 }
 
 void MonsterManager::Collision()

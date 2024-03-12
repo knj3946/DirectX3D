@@ -35,7 +35,7 @@ void ModelAnimatorInstancing::Update()
     UpdateTransforms();
 }
 
-void ModelAnimatorInstancing::Render()
+void ModelAnimatorInstancing::Render(bool exceptOutLine)
 {
     if (texture == nullptr)
         CreateTexture();
@@ -48,37 +48,38 @@ void ModelAnimatorInstancing::Render()
         mesh->RenderInstanced(drawCount);
 
 
-
-    //아웃라이너
-    drawCount = 0;
-    for(pair<int,ModelInfo> item : modelInfoes)
+    if (!exceptOutLine)
     {
-        //UpdateFrame(i, frameInstancingBuffer->Get().motions[i]);
-        if (item.second.isOutLine)
+        //아웃라이너
+        drawCount = 0;
+        for (pair<int, ModelInfo> item : modelInfoes)
         {
-            item.second.transform->Scale() *= 1.1f;
-            item.second.transform->Pos().y -= 0.35f;
-            item.second.transform->UpdateWorld();
-            instanceDatas[drawCount].world = XMMatrixTranspose(item.second.transform->GetWorld());
-            item.second.transform->Scale() /= 1.1f;
-            item.second.transform->Pos().y += 0.35f;
-            instanceDatas[drawCount].index = item.first;
-            drawCount++;
+            //UpdateFrame(i, frameInstancingBuffer->Get().motions[i]);
+            if (item.second.isOutLine)
+            {
+                item.second.transform->Scale() *= 1.1f;
+                item.second.transform->Pos().y -= 0.35f;
+                item.second.transform->UpdateWorld();
+                instanceDatas[drawCount].world = XMMatrixTranspose(item.second.transform->GetWorld());
+                item.second.transform->Scale() /= 1.1f;
+                item.second.transform->Pos().y += 0.35f;
+                instanceDatas[drawCount].index = item.first;
+                drawCount++;
+            }
         }
-    }
-    instanceBuffer->Update(instanceDatas, drawCount);
+        instanceBuffer->Update(instanceDatas, drawCount);
 
-    SetShader(L"Model/ModelAnimationInstancingOutline.hlsl");
-    depthStencilState[1]->SetState();
-    blendState[1]->SetState();
-    for (ModelMesh* mesh : meshes)
-    {
-        mesh->RenderInstanced(drawCount);
+        SetShader(L"Model/ModelAnimationInstancingOutline.hlsl");
+        depthStencilState[1]->SetState();
+        blendState[1]->SetState();
+        for (ModelMesh* mesh : meshes)
+        {
+            mesh->RenderInstanced(drawCount);
+        }
+        depthStencilState[0]->SetState();
+        blendState[0]->SetState();
+        SetShader(L"Model/ModelAnimationInstancing.hlsl");
     }
-    depthStencilState[0]->SetState();
-    blendState[0]->SetState();
-    SetShader(L"Model/ModelAnimationInstancing.hlsl");
-    
 }
 
 void ModelAnimatorInstancing::GUIRender()
@@ -175,9 +176,11 @@ void ModelAnimatorInstancing::UpdateFrame(UINT instanceID, Motion& motion)
         motion.duration = clip->frameCount / clip->tickPerSecond;
         motion.runningTime += motion.cur.scale * DELTA;
         motion.cur.time += clip->tickPerSecond * motion.cur.scale * DELTA;
+     
 
         if (motion.cur.time >= 1.0f)
         {
+         
             motion.cur.curFrame = (motion.cur.curFrame + 1) % (clip->frameCount - 1);
             motion.cur.time -= 1.0f;
         }

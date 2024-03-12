@@ -72,9 +72,11 @@ public:
     ~Player();
 
     void Update();
+    void PreRender();
     void Render();
     void PostRender();
     void GUIRender();
+    void TextRender();
 
     void SetMoveSpeed(float speed) { this->moveSpeed1 = speed; }
     void SetHeightLevel(float heightLevel) { this->heightLevel = heightLevel; }
@@ -82,7 +84,7 @@ public:
     Vector3 GetVelocity() { return velocity; }
     CapsuleCollider* GetCollider() { return collider; }
     StateInfo* GetStateInfo() { return stateInfo; }
-
+    bool IsCloaking() { return stateInfo->isCloaking; }
 
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
 

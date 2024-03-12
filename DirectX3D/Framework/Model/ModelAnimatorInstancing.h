@@ -46,11 +46,12 @@ private:
     };
 
 public:
+    
     ModelAnimatorInstancing(string name);
     ~ModelAnimatorInstancing();
 
     void Update();
-    void Render();
+    void Render(bool exceptOutLine = false);
     void GUIRender();
 
     Transform* Add();
@@ -61,6 +62,7 @@ public:
 
     Matrix GetTransformByNode(UINT instanceID, int nodeIndex);
 
+
     Motion* GetMotion(UINT instanceID)
     { 
         return &frameInstancingBuffer->Get().motions[instanceID];
@@ -69,12 +71,13 @@ public:
     UINT GetClipSize() { return clips.size(); }
 
     void SetOutLine(UINT index,bool flag); // 바꾸기
-
+  
 private:    
     void UpdateFrame(UINT instanceID, Motion& motion);
     void UpdateTransforms();
 
 private:
+  
     //vector<Transform*> transforms;
     // orc의 고유 id 기반으로 처리하기 때문에 map으로 관리
     map<int, ModelInfo> modelInfoes;

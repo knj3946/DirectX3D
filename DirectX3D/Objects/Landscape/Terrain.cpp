@@ -44,9 +44,9 @@ Terrain::~Terrain()
 
 void Terrain::Render()
 {
-    alphaMap->PSSet(10);
-    secondMap->PSSet(11);
-    thirdMap->PSSet(12);
+    alphaMap->PSSet(7);
+    secondMap->PSSet(8);
+    thirdMap->PSSet(9);
 
     GameObject::SetRender();
     mesh->Draw();

@@ -479,6 +479,7 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
     model->Pos() = mPos;
     model->Rot() = mRot;
     model->UpdateWorld();
+    model->SetShader(L"Light/Shadow.hlsl");
 
     FOR(colCount)
     {
