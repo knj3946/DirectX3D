@@ -22,7 +22,7 @@ private:
 
     typedef TerrainEditor LevelData;
     //typedef Terrain LevelData;
-    UINT SIZE = 2;
+    UINT SIZE = 1;
 public:
     MonsterManager();
     ~MonsterManager();
@@ -44,7 +44,7 @@ public:
     void SetType(int index, UINT _type);
     void SetPatrolPos(UINT idx,Vector3 Pos);
 
-
+    UINT GetSIZE() { return SIZE; }
 
     void AddOrcObstacleObj(Collider* collider);
     void SetTerrain(LevelData* terrain);

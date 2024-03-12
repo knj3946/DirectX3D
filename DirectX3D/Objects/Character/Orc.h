@@ -180,7 +180,7 @@ private:
     Vector3 StorePos;// 소리난 곳 가기 전 위치 저장
     Vector3 CheckPoint;// 소리난 곳 저장
     Vector3 eyesPos;
-    float earRange = 100.f;// 듣는 범위 -> 오크가 쿠나이 던지는 거리가 9 -> 테스트를 위해 12->100 으로변경
+    float earRange = 30.f;// 듣는 범위 -> 오크가 쿠나이 던지는 거리가 9
     bool bSound = false;// 소리 체크
     bool NearFind = false;
     bool bSensor = false;
@@ -237,8 +237,9 @@ private:
     bool isAssassinated = false;
     //HitState hitState = HitState::NONE;
 
-    float curRange = 0.f, maxRange = 580.f;// 원래 40, 테스트를 위해 수치변경
-    float destRange;
+    // 사용안해서 주석처리
+    //float curRange = 0.f, maxRange = 180.f;// 원래 40, 테스트를 위해 수치변경 
+    //float destRange;
 
     Quad* questionMark;
     Quad* exclamationMark;
@@ -248,7 +249,7 @@ private:
     CapsuleCollider* leftWeaponCollider;
     CapsuleCollider* rightWeaponCollider;
 
-    float eyeSightRange = 400.f;
+    float eyeSightRange = 60.f;
     float eyeSightangle = 45.f;
     bool bDetection = false;
     bool bFind = false;

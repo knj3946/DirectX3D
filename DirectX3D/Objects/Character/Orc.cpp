@@ -12,6 +12,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     collider->Pos() = { -15, 80, 0 };
     collider->SetActive(false); //spawn 할때 활성화
 
+
     // 무기 충돌체
     leftHand = new Transform();
     leftWeaponCollider = new CapsuleCollider(8, 50);
@@ -116,7 +117,7 @@ void Orc::SetType(NPC_TYPE _type) {
     switch (_type)
     {
     case Orc::NPC_TYPE::ATTACK:// 오크 타입에 따라 탐지 범위 지정 (현재 임시)
-        informrange = 250;
+        informrange = 50;
         type = NPC_TYPE::ATTACK;
         break;
     case Orc::NPC_TYPE::INFORM:
@@ -445,7 +446,7 @@ void Orc::Hit(float damage,Vector3 collisionPos)
             float distance = Distance(target->Pos(), transform->Pos());
             distance = (distance < 60) ? distance : 60;
             // 거리 60까지는 맞았을 때 소리가 들리게, 볼륨 60은 너무 크니 소리자체는 최대 40으로
-            ORCSOUND(index)->Play("Orc_Hit", (100-distance)/100.0f); // 크기조절 가까울수록 사운드 커지게
+            ORCSOUND(index)->Play("Orc_Hit", (100-distance)/20.0f); // 크기조절 가까울수록 사운드 커지게
             lastVolume = ORCSOUND(index)->GetVolume("Orc_Hit");
         }
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
@@ -486,7 +487,7 @@ void Orc::Spawn(Vector3 pos)
 
 void Orc::AttackTarget()
 {
-    return;
+    //return;//??
     if (!bFind)
     {
         bFind = true;
@@ -1058,6 +1059,8 @@ void Orc::EndAssassinated()
 
 void Orc::EndDying()
 {
+    ORCSOUND(index)->Stop("Orc_Walk");
+
     instancing->SetOutLine(index, false);
     MonsterManager::Get()->specialKeyUI["assassination"].active = false;
     ColliderManager::Get()->PopCollision(ColliderManager::Collision_Type::ORC, collider);
@@ -1187,14 +1190,16 @@ void Orc::CalculateEarSight()
 
     // 현재 시프트 누르면 이동속도를 낮춘다. 
     // 나중에 느리게 걷기 사운드를 추가한다면 변경하기
-    if (ORCSOUND(index)->IsPlaySound("Player_Move")&&ColliderManager::Get()->GetPlayer()->GetMoveSpeed()>40) {
+    if (PLAYERSOUND()->IsPlaySound("Player_Move") && ColliderManager::Get()->GetPlayer()->GetMoveSpeed() > 40) {
         
-        pos.x = ORCSOUND(index)->GetSoundPos("Player_Move").x;
-        pos.y = ORCSOUND(index)->GetSoundPos("Player_Move").y;
-        pos.z = ORCSOUND(index)->GetSoundPos("Player_Move").z;
-        volume = ORCSOUND(index)->GetVolume("Player_Move");
+        pos.x = target->Pos().x;
+        pos.y = target->Pos().y;
+        pos.z = target->Pos().z;
         distance = Distance(transform->Pos(), pos);
-        volume = ORCSOUND(index)->GetVolume("Player_Move");
+        
+        // GetVolume() 값은 0.0 ~ 1.0 임
+        volume = PLAYERSOUND()->GetVolume("Player_Move");
+
     }
     // 웅크리고 걷는 소리 ,암살소리  제외
     // 플레이어 소리와 주위 시선 끄는 소리 추가
@@ -1203,7 +1208,7 @@ void Orc::CalculateEarSight()
 
     if (distance == -1.f)return;
 
-    if (distance < earRange * volume) {
+    if (distance < earRange * volume * 0.1) {
         SetState(WALK);
         behaviorstate = NPC_BehaviorState::SOUNDCHECK;
         CheckPoint = pos;
@@ -1233,6 +1238,7 @@ void Orc::Detection()
             if (DetectionStartTime <= 0.f) {
                 DetectionStartTime = 0.f;
                 bFind = false;
+                bSound = false; // 추가
                 if (behaviorstate != NPC_BehaviorState::CHECK)
                     rangeDegree = XMConvertToDegrees(transform->Rot().y);
                 behaviorstate = NPC_BehaviorState::CHECK;

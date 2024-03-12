@@ -324,12 +324,18 @@ void GameMapScene::FirstLoading()
 	else if (MenuManager::Get()->GetLoadingSequence() == 4)
 	{
 		InteractManager::Get()->SetPlayer(player);
-		MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(150.f, 0.f, 175.f));
-		MonsterManager::Get()->SetPatrolPos(0, Vector3(150.f, 0.f, 210.f));
-		MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185));
-		MonsterManager::Get()->SetPatrolPos(1, Vector3(50.f, 0.f, 185.f));
-		MonsterManager::Get()->GetOrc(0)->SetSpeed(8);
-		MonsterManager::Get()->GetOrc(1)->SetSpeed(6);
+
+		FOR(MonsterManager::Get()->GetSIZE())
+		{
+			MonsterManager::Get()->SetOrcSRT(i, srt[i][0],srt[i][1],srt[i][2]);
+			MonsterManager::Get()->SetPatrolPos(i, patrolPos[i]);
+		}
+		/*MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(150.f, 0.f, 175.f));
+		MonsterManager::Get()->SetPatrolPos(0, Vector3(150.f, 0.f, 210.f));*/
+		//MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185));
+		//MonsterManager::Get()->SetPatrolPos(1, Vector3(50.f, 0.f, 185.f));
+		//MonsterManager::Get()->GetOrc(0)->SetSpeed(8);
+		//MonsterManager::Get()->GetOrc(1)->SetSpeed(6);
 		/*MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(85, 0, 120));
 		MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 120.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 70.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(85.f, 0.f, 70.f));
 		MonsterManager::Get()->SetOrcSRT(3, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(62, 0, 40));

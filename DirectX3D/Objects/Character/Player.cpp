@@ -604,6 +604,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
 {
     if (curState == ASSASSINATION1 || curState == ASSASSINATION2) return;
 
+    // 테스트를 위해서 잠시 추가
     if (KEY_DOWN(VK_ESCAPE))
     {
         camera = !camera;
@@ -834,7 +835,7 @@ void Player::Walking()
     if (isMoveX || isMoveZ)
     {
         if (!PLAYERSOUND()->IsPlaySound("Player_Move"))
-            PLAYERSOUND()->Play("Player_Move", 2.5f);
+            PLAYERSOUND()->Play("Player_Move",10);
     }
     else
         PLAYERSOUND()->Stop("Player_Move");
@@ -852,20 +853,18 @@ void Player::Walking()
     Vector3 destFeedBackPos;
     Vector3 destPos;
 
-    if (KEY_DOWN(VK_LSHIFT))
+    /*if (KEY_DOWN(VK_LSHIFT))
     {
-        PLAYERSOUND()->Stop("Player_Move");
-        if (isMoveX || isMoveZ)
+        if (PLAYERSOUND()->IsPlaySound("Player_Move"))
         {
-            PLAYERSOUND()->Play("Player_Move", 1);
+            PLAYERSOUND()->SetVolume("Player_Move", 0.4);
         }
-    }
+    }*/
     if (KEY_UP(VK_LSHIFT))
     {
-        PLAYERSOUND()->Stop("Player_Move");
-        if (isMoveX || isMoveZ)
+        if (PLAYERSOUND()->IsPlaySound("Player_Move"))
         {
-            PLAYERSOUND()->Play("Player_Move", 1);
+            PLAYERSOUND()->SetVolume("Player_Move", 10);
         }
     }
 
@@ -882,6 +881,10 @@ void Player::Walking()
 
     else
     {
+        if (PLAYERSOUND()->IsPlaySound("Player_Move"))
+        {
+            PLAYERSOUND()->SetVolume("Player_Move", 0.4);
+        }
         moveSpeed = moveSpeed2;
         destPos = Pos() + direction * moveSpeed2 * DELTA * -1;
     }
