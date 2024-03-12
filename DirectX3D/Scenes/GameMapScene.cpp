@@ -3,7 +3,6 @@
 
 GameMapScene::GameMapScene()
 {
-<<<<<<< HEAD
 	skyBox = new SkyBox(L"Textures/Landscape/BlueSky.dds");
 
 	FOR(2)
@@ -296,9 +295,10 @@ void GameMapScene::GUIRender()
 
 	MenuManager::Get()->GUIRender();
 
+	player->GUIRender();
+
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
-		//player->GUIRender();
 		/*
 		for (ColliderModel* cm : colliderModels)
 		{
