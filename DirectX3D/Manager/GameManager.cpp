@@ -19,7 +19,7 @@ GameManager::GameManager()
     //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
     //SceneManager::Get()->Create("Building", new BuildingScene());
     //SceneManager::Get()->Create("Shadow", new ShadowScene());
-    SceneManager::Get()->Create("OnlyBoss", new OnlyBossScene());
+    //SceneManager::Get()->Create("OnlyBoss", new OnlyBossScene());
 
     //SceneManager::Get()->Add("Grid");
 
@@ -31,7 +31,7 @@ GameManager::GameManager()
     //SceneManager::Get()->Add("TestNpcScene");
     //SceneManager::Get()->Add("Building");
     //SceneManager::Get()->Add("Shadow");
-    SceneManager::Get()->Add("OnlyBoss");
+    //SceneManager::Get()->Add("OnlyBoss");
 }
 
 GameManager::~GameManager()
