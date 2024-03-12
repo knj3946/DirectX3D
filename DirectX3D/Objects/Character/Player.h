@@ -147,6 +147,7 @@ private:
 
     void EndAssassination(UINT num);
     void EndHit();
+ 
     void EndClimbing();
 
     bool OnColliderFloor(Vector3& feedback);
@@ -290,6 +291,7 @@ private:
     Transform* tempCam;
 
     State preState = IDLE;
+    bool dohitanimation = false;
 
     float fallingT = 0.0f;
 

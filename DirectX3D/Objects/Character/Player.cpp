@@ -153,6 +153,7 @@ Player::Player()
     GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //????
 
     GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.34f); // ????? ??????
+   
     //GetClip(CLIMBING1)->SetEvent(bind(&Player::EndClimbing, this), 0.1f);
     //GetClip(CLIMBING2)->SetEvent(bind(&Player::EndClimbing, this), 0.32f);
     //GetClip(CLIMBING3)->SetEvent(bind(&Player::EndClimbing, this), 0.95f);
@@ -260,6 +261,9 @@ void Player::Update()
 {
     ColliderManager::Get()->SetHeight();
     ColliderManager::Get()->PushPlayer();
+
+    if (KEY_DOWN('O'))
+        Hit(1);
 
     SetCameraPos();
 
@@ -745,7 +749,6 @@ void Player::UpdateUI()
         {
             curHP = destHP;
             isHit = false;
-            
         }
 
         hpBar->SetAmount(curHP / maxHp);
@@ -1111,7 +1114,7 @@ void Player::EndHit()
     if (isClimb)
         isClimb = false;
 
-    SetState(IDLE);
+    SetIdle();
 }
 
 bool Player::OnColliderFloor(Vector3& feedback)
@@ -1202,6 +1205,8 @@ float Player::GetDamage()
 
 void Player::Hit(float damage)
 {
+    if (isHit)
+        int a = 0;
     if (!isHit)
     {
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
@@ -1216,11 +1221,12 @@ void Player::Hit(float damage)
             return;
         }
         preState = curState;
-        SetState(HIT, 0.8f);
-
+        if(!dohitanimation)
+            SetState(HIT, 0.8f);
+        dohitanimation = true;
         isHit = true;
     }
-
+  
 }
 
 void Player::Hit(float damage, bool camerashake)
@@ -1237,8 +1243,9 @@ void Player::Hit(float damage, bool camerashake)
             isDying = true;
             return;
         }
-        SetState(HIT, 0.8f);
-
+        if (!dohitanimation)
+            SetState(HIT, 0.8f);
+        dohitanimation = true;
         isHit = true;
     }
 
@@ -1373,6 +1380,8 @@ void Player::SetBowAnim()
 void Player::SetIdle()
 {
     SetState(IDLE); 
+    dohitanimation = false;
+    jumpparticle->Play(Pos());
 }
 
 void Player::SetCameraPos()

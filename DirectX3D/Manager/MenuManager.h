@@ -23,6 +23,7 @@ public:
     UINT GetLoadingSequence() { return loadingSequence; }
     void IncreaseLoadingSequence() { loadingSequence++; }
     void SetLoadingRate(float rate);
+    UINT Getsequence() { return loadingSequence; }
 private:
     GameMenu* gameMenu;
 
