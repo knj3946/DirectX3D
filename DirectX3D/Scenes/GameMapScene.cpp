@@ -170,11 +170,11 @@ void GameMapScene::PostRender()
 
 void GameMapScene::GUIRender()
 {
-
-	MenuManager::Get()->GUIRender();
-
+	
+	//MenuManager::Get()->GUIRender();
+	/*
 	player->GUIRender();
-
+	*/
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
 		/*
@@ -188,8 +188,10 @@ void GameMapScene::GUIRender()
 		//KunaiManager::Get()->GUIRender();
 
 		Timer::Get()->GUIRender();
+		/*
 		if (bow->Active())
 			bow->GUIRender();
+			*/
 	}
 
 }
