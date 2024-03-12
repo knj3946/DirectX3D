@@ -34,7 +34,7 @@ ModelAnimationScene::ModelAnimationScene()
 	string modelName = "akai";
 	string clipNames[] = {
 		"Jumping Up",
-		"Hard Landing"
+		//"Hard Landing"
 		//"character1@idle1"
 		//"character1@idle2"
 		//,"character1@idle3"

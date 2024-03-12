@@ -272,13 +272,14 @@ private:
     wstring residualCloakingTime = L"";
     BlendState* blendState[2];
 
-public: //임시
     bool headCrash;
 
     Transform* aimT;
+    const Vector3 aimStartPos = { -40.0f, -15.0f, 0.0f };
     Quad* crosshair;
     const float initSpeed = 20.0f;
     const float maxSpeed = 200.0f;
+    const float chargetVal = 65.0f;
     float chargingT = initSpeed;
 
     bool canClimbControl = false;
@@ -290,8 +291,8 @@ public: //임시
 
     State preState = IDLE;
 
-public: //임시
     float fallingT = 0.0f;
 
-
+public: //임시
+    SphereCollider* temp;
 };
