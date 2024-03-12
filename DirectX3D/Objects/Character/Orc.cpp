@@ -1243,7 +1243,9 @@ void Orc::Detection()
             DetectionStartTime += DELTA;
     }
     else {
-        if (DetectionStartTime > 0.f && path.empty()) {
+        //  앞 조건문 : 목적지에 도착해서 부터 게이지가 줄어들게
+        //  뒤 조건문 : 사운드 체크일 때 줄어들게
+        if (DetectionStartTime > 0.f && (path.empty()|| behaviorstate==NPC_BehaviorState::SOUNDCHECK)) {
             DetectionStartTime -= DELTA * 2;
             
         
@@ -1410,7 +1412,7 @@ void Orc::RangeCheck()
 
 void Orc::SoundPositionCheck()
 {
-
+    // 소리가 나면 해당위치로 setPath 설정 -> 해당 위치에 근접했다면 거기서 부터 탐지 시작
     if (behaviorstate == NPC_BehaviorState::SOUNDCHECK) {
         if (CheckPoint.x + 1.0f > transform->Pos().x && CheckPoint.x - 1.0f < transform->Pos().x &&
             CheckPoint.z + 1.0f > transform->Pos().z && CheckPoint.z - 1.0f < transform->Pos().z)
