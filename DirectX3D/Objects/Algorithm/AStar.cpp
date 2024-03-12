@@ -289,7 +289,6 @@ bool AStar::IsCollisionObstacle(Vector3 start, Vector3 end)
 
 bool AStar::IsCollisionObstacleCompute(Vector3 start, Vector3 end)
 {
-    Timer::Get()->SaveStartTime();
     if (!structuredBuffer)
     {
         structuredBuffer = new StructuredBuffer(
@@ -367,7 +366,6 @@ bool AStar::IsCollisionObstacleCompute(Vector3 start, Vector3 end)
         }
     }
     
-    Timer::Get()->SaveFinishTime();
     return false;
 }
 
