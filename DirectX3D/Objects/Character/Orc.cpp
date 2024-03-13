@@ -74,7 +74,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     SetEvent(THROW, bind(&Orc::Throw, this), 0.59f);
     SetEvent(THROW, bind([=]() {isAnim = false; }), 0.99f);
     SetEvent(HIT, bind([=]() {ORCSOUND(index)->Stop("Orc_Run"); isAnim = true; }), 0.01f);
-    SetEvent(HIT, bind(&Orc::EndHit, this), 0.99f);
+    SetEvent(HIT, bind(&Orc::EndHit, this), 0.95f);
     SetEvent(ASSASSINATED, bind(&Orc::EndAssassinated, this), 0.9f);
     SetEvent(DYING, bind(&Orc::EndDying, this), 0.9f);
 
@@ -166,6 +166,7 @@ void Orc::Update()
     if (!transform->Active()) return; //활성화 객체가 아니면 리턴
 
     
+
     if (curState != DYING || curState != ASSASSINATED)
     {
         Direction();// 방향지정 함수
@@ -418,7 +419,7 @@ bool Orc::CalculateHit()
 {
     if (isHit)
     {
-        SetState(HIT);
+        //SetState(HIT);
 
         if (!bFind)
         {
@@ -437,11 +438,11 @@ bool Orc::CalculateHit()
 
         if (curHP <= destHP)
         {
-            isHit = false;
-            collider->SetActive(true);
-            leftWeaponCollider->SetActive(true);
-            rightWeaponCollider->SetActive(true);
-            SetState(IDLE);
+            //isHit = false;
+            //collider->SetActive(true);
+            //leftWeaponCollider->SetActive(true);
+            //rightWeaponCollider->SetActive(true);
+            //SetState(IDLE);
         }
 
         return true; 
@@ -476,6 +477,26 @@ void Orc::StateRevision()
 void Orc::ParticleUpdate()
 {
     particleHit->Update();
+}
+
+void Orc::SetAttackState()
+{
+    if (curState == ATTACK1 || curState == ATTACK2 || curState == ATTACK3)return;
+    int randNum = GameMath::Random(0, 3);
+    switch (randNum)
+    {
+    case 0:
+        SetState(ATTACK1,0.7);
+        break;
+    case 1:
+        SetState(ATTACK2,0.8);
+        break;
+    case 2:
+        SetState(ATTACK3,0.7);
+        break;
+    default:
+        break;
+    }
 }
 
 void Orc::RotationRestore()
@@ -680,7 +701,7 @@ void Orc::Control()
                     path.clear();
                     
                     // 세팅할 때는 1을 주고 함수안에서 랜덤으로 정한다.
-                    SetState(ATTACK1);
+                    SetAttackState();
                 }
 
             }
@@ -764,7 +785,7 @@ void Orc::Move()
         }
         else
         {
-            SetState(ATTACK1);
+            SetAttackState();
         }
     }
     
@@ -968,7 +989,9 @@ void Orc::SetState(State state, float scale, float takeTime)
 {
     if (state == curState) return; // 이미 그 상태라면 굳이 변환 필요 없음
 
-    // 공격을 할때는 우선 SetState(ATTACK1)로 설정하고 이 함수 안에서 1,2,3 중 한개 모션으로 실행한다.
+    // 공격을 할때는 우선 SetAttackState()로 설정하고 이 함수 안에서 1,2,3 중 한개 모션으로 실행한다.
+
+    if (state != HIT && isHit)return;
 
     // 공격 속도 조절 -> Attack이지만 attackSpeed만큼 시간이 지나지 않았다면 공격 x
     if (state == ATTACK1 && !isAttackable)
@@ -983,43 +1006,43 @@ void Orc::SetState(State state, float scale, float takeTime)
         transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI;
     }
     curState = state; //매개변수에 따라 상태 변화
-    if (state == ATTACK1)
-    {
-        int randNum = GameMath::Random(0, 3);
-        //int randNum = 2;
-        //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
-        //curState = ATTACK1 + randNum;
-        switch (randNum)
-        {
-        case 0:
-            instancing->PlayClip(index, (int)state, 0.7);
-            break;
-        case 1:
-            instancing->PlayClip(index, (int)state+1, 0.8);
-            state = State::ATTACK2;
-            curState = state;
-            break;
-        case 2:
-            instancing->PlayClip(index, (int)state+2, 0.7);
-            state = State::ATTACK3;
-            curState = state;
-            break;
+    //if (state == ATTACK1)
+    //{
+    //    int randNum = GameMath::Random(0, 3);
+    //    //int randNum = 2;
+    //    //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
+    //    switch (randNum)
+    //    {
+    //    case 0:
+    //        instancing->PlayClip(index, (int)state, 0.7);
+    //        break;
+    //    case 1:
+    //        instancing->PlayClip(index, (int)state + 1, 0.8);
+    //        state = State::ATTACK2;
+    //        break;
+    //    case 2:
+    //        instancing->PlayClip(index, (int)state + 2, 0.7);
+    //        state = State::ATTACK3;
+    //        break;
 
-        default:
-            break;
-        }
-    }
-    else if (curState == DYING)
+    //    default:
+    //        break;
+    //    }
+    //}
+    if (curState == DYING)
     {
         ORCSOUND(index)->AllStop();
         ORCSOUND(index)->Play("Orc_Die",3);
-        if(isAssassinated)
+        if (isAssassinated)
+        {
             instancing->PlayClip(index, (int)state + 1, 0.8);
+        }
         else
             instancing->PlayClip(index, (int)state + 0, 0.8);
     }
     else
         instancing->PlayClip(index, (int)state, scale); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
+    
     
     eventIters[state] = totalEvent[state].begin(); //이벤트 반복자도 등록된 이벤트 시작시점으로
 }
@@ -1101,6 +1124,8 @@ void Orc::EndHit()
 {
     collider->SetActive(true);
     isAnim = false;
+    isHit = false;
+    SetState(IDLE);
 }
 
 void Orc::EndAssassinated()

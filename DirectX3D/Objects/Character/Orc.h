@@ -168,6 +168,8 @@ private:
     void ParticleUpdate();
 
     
+    void SetAttackState();
+
 private:
 
     // 디버그 변수
