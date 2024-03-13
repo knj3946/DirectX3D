@@ -12,10 +12,17 @@ Model::~Model()
 {
     for (Material* material : materials)
         delete material;
-
+    materials.clear();
     for (ModelMesh* mesh : meshes)
         delete mesh;
 
+    meshes.clear();
+    for (ModelVertex* vertex : vecvertex)
+        delete vertex;
+    vecvertex.clear();
+    for (UINT* indice : vecuint)
+        delete indice;
+    vecuint.clear();
     delete worldBuffer;
 }
 
@@ -71,8 +78,11 @@ void Model::ReadMesh()
 
     BinaryReader* reader = new BinaryReader(file);
 
-    if (reader->IsFailed())
+    if (reader->IsFailed()) {
+        delete reader;
         assert(false);
+
+    }
 
     UINT size = reader->UInt();
 
@@ -86,13 +96,13 @@ void Model::ReadMesh()
         UINT vertexCount = reader->UInt();
         ModelVertex* vertices = new ModelVertex[vertexCount];
         reader->Byte((void**)&vertices, sizeof(ModelVertex) * vertexCount);
-
+        vecvertex.push_back(vertices);
         UINT indexCount = reader->UInt();
         UINT* indices = new UINT[indexCount];
         reader->Byte((void**)&indices, sizeof(UINT) * indexCount);
 
         mesh->CreateMesh(vertices, vertexCount, indices, indexCount);
-
+        vecuint.push_back(indices);
         meshes.push_back(mesh);
     }
 

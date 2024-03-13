@@ -48,7 +48,7 @@ private:
 public:
     
     ModelAnimatorInstancing(string name);
-    ~ModelAnimatorInstancing();
+     ~ModelAnimatorInstancing();
 
     void Update();
     void Render(bool exceptOutLine = false);

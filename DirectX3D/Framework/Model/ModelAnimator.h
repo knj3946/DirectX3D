@@ -38,7 +38,7 @@ protected:
 
 public:
     ModelAnimator(string name);
-    ~ModelAnimator();
+     ~ModelAnimator();
 
     void Update();
     void Render();
@@ -61,7 +61,7 @@ protected:
 
 protected:
     bool isPlay = true;
-
+    vector<KeyFrame*> vecKey;
     vector<ModelClip*> clips;
 
     FrameBuffer* frameBuffer;

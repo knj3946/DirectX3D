@@ -21,12 +21,16 @@ ModelAnimatorInstancing::ModelAnimatorInstancing(string name)
 
 ModelAnimatorInstancing::~ModelAnimatorInstancing()
 {
+  
     delete instanceBuffer;
     delete frameInstancingBuffer;
 
     for (pair<int, ModelInfo> item : modelInfoes)
         delete item.second.transform;
-
+    FOR(2) {
+        delete depthStencilState[i];
+        delete blendState[i];
+    }
     modelInfoes.clear();
 }
 

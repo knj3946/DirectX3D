@@ -5,6 +5,7 @@ ModelClip::~ModelClip()
     for (auto keyFrame : keyFrames)
     {
         delete keyFrame.second;
+        keyFrame.second = nullptr;
     }
 }
 

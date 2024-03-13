@@ -99,9 +99,7 @@ Device::Device()
 Device::~Device()
 {
 
-
-   
-
+ 
     device->Release();
     deviceContext->Release();
 

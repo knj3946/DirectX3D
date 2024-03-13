@@ -194,6 +194,7 @@ void GameSmallMapScene::FirstLoading()
 			blendState[i] = new BlendState();
 		blendState[1]->AlphaToCoverage(true); // 알파 혹은 지정된 배경색을 외부 픽셀과 결합할 것인가
 		MenuManager::Get()->IncreaseLoadingSequence();
+		int a=MenuManager::Get()->Getsequence();
 		MenuManager::Get()->SetLoadingRate(10.f);
 
 		LightBuffer::Light* light = Environment::Get()->GetLight(0); // 기본으로 설정된 빛 가져오기

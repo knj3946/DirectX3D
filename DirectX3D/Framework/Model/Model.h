@@ -26,4 +26,7 @@ protected:
     map<string, UINT> boneMap;
 
     WorldBuffer* worldBuffer;
+
+    vector<ModelVertex*> vecvertex;
+    vector<UINT*> vecuint;
 };

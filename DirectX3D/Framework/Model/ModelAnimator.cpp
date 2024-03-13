@@ -13,8 +13,13 @@ ModelAnimator::ModelAnimator(string name)
 ModelAnimator::~ModelAnimator()
 {
     for (ModelClip* clip : clips)
-        delete clip;
+    {
 
+        delete clip;
+        clip = nullptr;
+    }
+
+    vecKey;
     delete frameBuffer;
 
     delete[] clipTransforms;
@@ -38,6 +43,7 @@ void ModelAnimator::Render()
 
     frameBuffer->SetVS(3);
     DC->VSSetShaderResources(0, 1, &srv);
+
 
     Model::Render();
 }
@@ -71,9 +77,10 @@ void ModelAnimator::ReadClip(string clipName, UINT clipNum, string lockBone)
     UINT boneCount = reader->UInt();
     FOR(boneCount)
     {
+       
         KeyFrame* keyFrame = new KeyFrame();
         keyFrame->boneName = reader->String();
-
+        vecKey.push_back(keyFrame);
         UINT size = reader->UInt();
         if (size > 0)
         {

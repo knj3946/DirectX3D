@@ -941,13 +941,12 @@ void Orc::SetState(State state, float scale, float takeTime)
 
 void Orc::SetPath(Vector3 targetPos)
 {
+    
     int startIndex = aStar->FindCloseNode(transform->GlobalPos());
     int endIndex = aStar->FindCloseNode(targetPos); // 헤더에서(+업데이트에서) 정해진 목적지
-
-    aStar->GetPath(startIndex, endIndex, path); // 길을 낸 다음 path 벡터에 저장
     
+    aStar->GetPath(startIndex, endIndex, path); // 길을 낸 다음 path 벡터에 저장
     aStar->MakeDirectionPath(transform->GlobalPos(), targetPos, path); // 장애물을 지우고 path에 덮어씌우기
-
     UINT pathSize = path.size(); // 처음 나온 경로 벡터 크기를 저장
 
     while (path.size() > 2) // "남겨진" 경로 노드가 1군데 이하가 될 때까지
@@ -979,7 +978,7 @@ void Orc::SetPath(Vector3 targetPos)
     // 다시 조정된, 내가 갈 수 있는 경로에, 최종 목적지를 다시 한번 추가한다
     path.insert(path.begin(), targetPos);
 
-
+    
     //직선거리일때 한칸한칸이동할 필요가 없다 -> 장애물 전까지는 하나의 벡터로 가도 된다 ->MakeDirectionPath를 쓰는이유
 }
 

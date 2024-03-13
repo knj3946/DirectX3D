@@ -45,6 +45,13 @@ ColliderManager::~ColliderManager()
     delete footRay;
     delete headRay;
 
+    for (int i = 0; i <vecCol[ColliderManager::WALL].size(); ++i) {
+        if (nullptr != vecCol[ColliderManager::WALL][i]) {
+            delete vecCol[ColliderManager::WALL][i];
+            vecCol[ColliderManager::WALL][i] = nullptr;
+        }
+    }
+
 
 }
 
