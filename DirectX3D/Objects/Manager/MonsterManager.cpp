@@ -53,12 +53,16 @@ MonsterManager::MonsterManager()
 MonsterManager::~MonsterManager()
 {
     delete orcInstancing;
-
-    for (pair<int,OrcInfo> item : orcs)
+    orcInstancing = nullptr;
+    for (pair<int, OrcInfo> item : orcs)
+    {
         delete item.second.orc;
+        item.second.orc = nullptr;
+    }
     for (pair<string, SpecialKeyUI> key : specialKeyUI)
     {
         delete key.second.quad;
+        key.second.quad = nullptr;
     }
     delete shadow;
     FOR(2) {

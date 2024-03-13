@@ -17,7 +17,7 @@ protected: //이 클래스를 상속받아야 할 진짜 개별 파티클이 있으므로 여기선 상속 �
 
 public:
     Particle();
-    ~Particle();
+   virtual  ~Particle();
 
     // 상속을 전제로 한 부모 함수 (virtual은 쓰는데 가상함수는 아님)
     virtual void Update() {}

@@ -26,6 +26,7 @@
 #define CAM Environment::Get()->GetMainCamera()
 
 #define DIALOG ImGuiFileDialog::Instance()
+#define SAFE_DELETE(p)if(nullptr!= p){delete p p=nullptr;}
 
 #define FOR(n) for(int i = 0; i < n ; i++)
 

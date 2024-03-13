@@ -13,9 +13,11 @@ GameMapScene::~GameMapScene()
 	for (ColliderModel* colliderModel : colliderModels)
 	{
 		delete colliderModel;
+		colliderModel = nullptr;
 	}
 	MenuManager::Delete();
 	ColliderManager::Delete();
+	InteractManager::Delete();
 	delete bow;
 	delete model;
 	delete terrain;
