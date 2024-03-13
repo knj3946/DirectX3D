@@ -19,7 +19,7 @@ PixelInput VS(VertexUV input)
 	return output;
 }
 
-TextureCube cubeMap : register(t10);
+TextureCube cubeMap : register(t14);
 
 float4 PS(PixelInput input) : SV_TARGET
 {
