@@ -6,7 +6,7 @@ private:
     enum State
     {
         IDLE, WALK
-        , RUN, HIT, ASSASSINATED, ATTACK, THROW, DYING
+        , RUN, HIT, ASSASSINATED, ATTACK1,ATTACK2,ATTACK3, THROW, DYING
     };// throw 는 attack16 클립
     
 
@@ -172,9 +172,12 @@ private:
 
     // 디버그 변수
     float lastVolume=0;
+    float lastRunVolume = 0;
     float lastWalkVolume = 0;
     float walkVolumeS = 0;
-    bool isAnim = false;
+    bool isAnim = false; // 애니메이션 실행 중에는 true
+    float volume = 10.0f; // 한번에 사운드 조절하기 위한 변수 -> 10이 기본설정인게 좋은듯
+    float lastDist = 0;
 
 
     int a = 300;

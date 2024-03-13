@@ -836,7 +836,7 @@ void Player::Walking()
     if (isMoveX || isMoveZ)
     {
         if (!PLAYERSOUND()->IsPlaySound("Player_Move"))
-            PLAYERSOUND()->Play("Player_Move",10);
+            PLAYERSOUND()->Play("Player_Move",4);
     }
     else
         PLAYERSOUND()->Stop("Player_Move");
@@ -865,7 +865,7 @@ void Player::Walking()
     {
         if (PLAYERSOUND()->IsPlaySound("Player_Move"))
         {
-            PLAYERSOUND()->SetVolume("Player_Move", 7);
+            PLAYERSOUND()->SetVolume("Player_Move", 4);
         }
     }
 
