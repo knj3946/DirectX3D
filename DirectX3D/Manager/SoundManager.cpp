@@ -50,10 +50,10 @@ void SoundManager::OrcCreate(int id, Transform* t)
 
 	// 오크 사운드
 	audio->Add("Orc_Hit", "Sounds/Orc/hit.wav", false, false, true);
-	audio->Add("Orc_Attack", "Sounds/Orc/OrcAttack.mp3", false, false, true);
-	audio->Add("Orc_Attack2", "Sounds/Orc/OrcAttack2.mp3", false, false, true);
-	audio->Add("Orc_Walk", "Sounds/Orc/Orc_Walk.mp3", false, true, true);
-	audio->Add("Orc_Run", "Sounds/Orc/Orc_Run.wav", false, true, true);
+	audio->Add("Orc_Attack", "Sounds/Orc/OrcAttack.mp3", false, false, false);
+	audio->Add("Orc_Attack2", "Sounds/Orc/OrcAttack2.mp3", false, false, false);
+	audio->Add("Orc_Walk", "Sounds/Orc/Orc_Walk.mp3", false, false, true);
+	audio->Add("Orc_Run", "Sounds/Orc/Orc_Run.wav", false, false, true);
 	audio->Add("Orc_Die", "Sounds/Orc/Die.mp3", false, false, true);
 
 	orcAudios.insert({ id,audio });

@@ -37,18 +37,35 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
 
     //이벤트 세팅
 #pragma region 공격 애니메이션 이벤트 설정
-    SetEvent(ATTACK1, bind([=]() {ORCSOUND(index)->Stop("Orc_Run"); isAnim = true; }), 0.01f);
-    SetEvent(ATTACK2, bind([=]() {ORCSOUND(index)->Stop("Orc_Run"); isAnim = true; }), 0.01f);
-    SetEvent(ATTACK3, bind([=]() {ORCSOUND(index)->Stop("Orc_Run"); isAnim = true; }), 0.01f);
+    SetEvent(ATTACK1, bind([=]() {ORCSOUND(index)->AllStop(); isAnim = true; }), 0.01f);
+    SetEvent(ATTACK2, bind([=]() {ORCSOUND(index)->AllStop(); isAnim = true; }), 0.01f);
+    SetEvent(ATTACK3, bind([=]() {ORCSOUND(index)->AllStop(); isAnim = true; }), 0.01f);
     SetEvent(ATTACK1, bind(&Orc::EndAttack, this), 0.99f);
     SetEvent(ATTACK2, bind(&Orc::EndAttack, this), 0.99f);
     SetEvent(ATTACK3, bind(&Orc::EndAttack, this), 0.99f);
     // 공격별 타이밍 맞추기
-    //SetEvent(ATTACK, bind(&Collider::SetActive, leftWeaponCollider, true), 0.11f); //콜라이더 켜는 시점 설정
-    //SetEvent(ATTACK, bind(&Collider::SetActive, rightWeaponCollider, true), 0.12f); //콜라이더 켜는 시점 설정
+    SetEvent(ATTACK1, bind(&Collider::SetActive, leftWeaponCollider, true), 0.11f); //콜라이더 켜는 시점 설정
+    SetEvent(ATTACK2, bind(&Collider::SetActive, leftWeaponCollider, true), 0.11f); //콜라이더 켜는 시점 설정
+    SetEvent(ATTACK3, bind(&Collider::SetActive, leftWeaponCollider, true), 0.11f); //콜라이더 켜는 시점 설정
+    SetEvent(ATTACK1, bind(&Collider::SetActive, rightWeaponCollider, true), 0.12f); //콜라이더 켜는 시점 설정
+    SetEvent(ATTACK2, bind(&Collider::SetActive, rightWeaponCollider, true), 0.12f); //콜라이더 켜는 시점 설정
+    SetEvent(ATTACK3, bind(&Collider::SetActive, rightWeaponCollider, true), 0.12f); //콜라이더 켜는 시점 설정
 
-    //SetEvent(ATTACK, bind(&Collider::SetActive, leftWeaponCollider, false), 0.98f); //콜라이더 꺼지는 시점 설정
-    //SetEvent(ATTACK, bind(&Collider::SetActive, rightWeaponCollider, false), 0.99f); //콜라이더 꺼지는 시점 설정
+    SetEvent(ATTACK1, bind(&Collider::SetActive, leftWeaponCollider, false), 0.98f); //콜라이더 꺼지는 시점 설정
+    SetEvent(ATTACK2, bind(&Collider::SetActive, leftWeaponCollider, false), 0.98f); //콜라이더 꺼지는 시점 설정
+    SetEvent(ATTACK3, bind(&Collider::SetActive, leftWeaponCollider, false), 0.98f); //콜라이더 꺼지는 시점 설정
+    SetEvent(ATTACK1, bind(&Collider::SetActive, rightWeaponCollider, false), 0.99f); //콜라이더 꺼지는 시점 설정
+    SetEvent(ATTACK2, bind(&Collider::SetActive, rightWeaponCollider, false), 0.99f); //콜라이더 꺼지는 시점 설정
+    SetEvent(ATTACK3, bind(&Collider::SetActive, rightWeaponCollider, false), 0.99f); //콜라이더 꺼지는 시점 설정
+
+    // 공격별 사운드 타이밍
+    SetEvent(ATTACK1, bind([=]() {ORCSOUND(index)->Play("Orc_Attack",3); }), 0.31f);
+    SetEvent(ATTACK2, bind([=]() {ORCSOUND(index)->Play("Orc_Attack",3); }), 0.25f);
+    SetEvent(ATTACK2, bind([=]() {ORCSOUND(index)->Play("Orc_Attack",3); }), 0.66f);
+    SetEvent(ATTACK3, bind([=]() {ORCSOUND(index)->Play("Orc_Attack2",3); }), 0.31f);
+    SetEvent(ATTACK3, bind([=]() {ORCSOUND(index)->Play("Orc_Attack2",3); }), 0.70f);
+
+
 #pragma endregion
 
    
@@ -161,17 +178,21 @@ void Orc::Update()
     // 사운드 테스트
     if (!isAnim)
     {
-        if (bFind && !ORCSOUND(index)->IsPlaySound("Orc_Run"))
+        if (bFind && !ORCSOUND(index)->IsPlaySound("Orc_Run") && curState == RUN)
         {
-            ORCSOUND(index)->Play("Orc_Run", 0);
+            ORCSOUND(index)->Play("Orc_Run");
         }
-        if (bFind || ORCSOUND(index)->IsPlaySound("Orc_Run"))
+        if (bFind && ORCSOUND(index)->IsPlaySound("Orc_Run") && curState == RUN)
         {
             float distance = Distance(target->Pos(), transform->Pos());
-            distance = (distance > 40) ? 40 : distance;
-            ORCSOUND(index)->SetVolume("Orc_Run", (40 - distance) / 10.0f * volume);
+            distance = (distance > 50) ? 50 : distance;
+            ORCSOUND(index)->SetVolume("Orc_Run", (50 - distance) / 10.0f * volume);
             lastDist = distance;
-            lastRunVolume = (40 - distance) / 10.0f * volume;
+            lastRunVolume = (50 - distance) / 10.0f * volume;
+        }
+        else
+        {
+            ORCSOUND(index)->Stop("Orc_Run");
         }
 
         if (behaviorstate == NPC_BehaviorState::IDLE)
@@ -237,7 +258,7 @@ void Orc::Render()
     leftWeaponCollider->Render();
     rightWeaponCollider->Render();
     hpBar->Render();
-    if(behaviorstate != NPC_BehaviorState::DETECT)
+    if(behaviorstate != NPC_BehaviorState::DETECT&& !isDying) // 죽으면 바로 렌더안하게
         rangeBar->Render();
     //aStar->Render();
 
@@ -301,6 +322,8 @@ void Orc::GUIRender()
     ImGui::Text("OrcHitVolume : %f",lastVolume);
     ImGui::Text("earCal : %d", bSound);
     ImGui::Text("lastDist : %f", lastDist);
+
+    ImGui::Text("curState : %d", curState);
 
 
     ImGui::SliderFloat("OrcMoveSound", &volume, 0, 10);
@@ -488,7 +511,7 @@ void Orc::Hit(float damage,Vector3 collisionPos)
 {
     if (!isHit)
     {
-        ORCSOUND(index)->AllStop();
+        //ORCSOUND(index)->AllStop();
 
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
@@ -506,9 +529,8 @@ void Orc::Hit(float damage,Vector3 collisionPos)
         if (!ORCSOUND(index)->IsPlaySound("Orc_Hit"))
         {
             float distance = Distance(target->Pos(), transform->Pos());
-            distance = (distance < 60) ? distance : 60;
-            // 거리 60까지는 맞았을 때 소리가 들리게, 볼륨 60은 너무 크니 소리자체는 최대 40으로
-            ORCSOUND(index)->Play("Orc_Hit", (100 - distance) / 5); // 크기조절 가까울수록 사운드 커지게
+            distance = (distance > 40) ? 40 : distance;
+            ORCSOUND(index)->Play("Orc_Hit", (40 - distance) / 10.0f * volume); // 크기조절 가까울수록 사운드 커지게
             lastVolume = ORCSOUND(index)->GetVolume("Orc_Hit");
         }
 
@@ -946,31 +968,6 @@ void Orc::SetState(State state, float scale, float takeTime)
 {
     if (state == curState) return; // 이미 그 상태라면 굳이 변환 필요 없음
 
-    if (state == DYING || state == ASSASSINATED)
-        ORCSOUND(index)->AllStop();
-
-    // 테스트
-    if (state == WALK || state == RUN)
-    {
-        float distance = Distance(target->Pos(), transform->Pos());
-        distance = (distance < 50) ? distance : 50;
-        if (bFind || bDetection)
-        {
-            if (!ORCSOUND(index)->IsPlaySound("Orc_Run"))
-            {
-                ORCSOUND(index)->Play("Orc_Run", (100 - distance)/100.0f);
-                lastRunVolume = ORCSOUND(index)->GetVolume("Orc_Run");
-            }
-        }
-        else
-        {
-            ORCSOUND(index)->Stop("Orc_Run");
-        }
-        
-    }
-    else
-        ORCSOUND(index)->Stop("Orc_Run");
-
     // 공격을 할때는 우선 SetState(ATTACK1)로 설정하고 이 함수 안에서 1,2,3 중 한개 모션으로 실행한다.
 
     // 공격 속도 조절 -> Attack이지만 attackSpeed만큼 시간이 지나지 않았다면 공격 x
@@ -989,22 +986,23 @@ void Orc::SetState(State state, float scale, float takeTime)
     if (state == ATTACK1)
     {
         int randNum = GameMath::Random(0, 3);
+        //int randNum = 2;
         //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
+        //curState = ATTACK1 + randNum;
         switch (randNum)
         {
         case 0:
-            instancing->PlayClip(index, (int)state + randNum, 0.7);
-            ORCSOUND(index)->Play("Orc_Attack",3);
+            instancing->PlayClip(index, (int)state, 0.7);
             break;
         case 1:
-            instancing->PlayClip(index, (int)state + randNum, 0.7);
-            curState = ATTACK2;
-            ORCSOUND(index)->Play("Orc_Attack",3);
+            instancing->PlayClip(index, (int)state+1, 0.8);
+            state = State::ATTACK2;
+            curState = state;
             break;
         case 2:
-            instancing->PlayClip(index, (int)state + randNum, 0.7);
-            curState = ATTACK3;
-            ORCSOUND(index)->Play("Orc_Attack2",3);
+            instancing->PlayClip(index, (int)state+2, 0.7);
+            state = State::ATTACK3;
+            curState = state;
             break;
 
         default:
@@ -1013,8 +1011,8 @@ void Orc::SetState(State state, float scale, float takeTime)
     }
     else if (curState == DYING)
     {
-        //ORCSOUND(index)->AllStop();
-        ORCSOUND(index)->Play("Orc_Die",4);
+        ORCSOUND(index)->AllStop();
+        ORCSOUND(index)->Play("Orc_Die",3);
         if(isAssassinated)
             instancing->PlayClip(index, (int)state + 1, 0.8);
         else
@@ -1022,10 +1020,8 @@ void Orc::SetState(State state, float scale, float takeTime)
     }
     else
         instancing->PlayClip(index, (int)state, scale); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
+    
     eventIters[state] = totalEvent[state].begin(); //이벤트 반복자도 등록된 이벤트 시작시점으로
-
-    // ->이렇게 상태와 동작을 하나로 통합해두면
-    // ->이 캐릭터는 상태만 바꿔주면 행동은 그때그때 알아서 바꿔준다
 }
 
 void Orc::SetPath(Vector3 targetPos)
