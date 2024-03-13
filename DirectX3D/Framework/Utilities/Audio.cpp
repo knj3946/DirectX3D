@@ -100,6 +100,14 @@ void Audio::Stop(string key)
     sounds[key]->channel->stop();
 }
 
+void Audio::AllStop()
+{
+    for (auto it : sounds)
+    {
+        it.second->channel->stop();
+    }
+}
+
 void Audio::Pause(string key)
 {
     if (sounds.count(key) == 0) return;

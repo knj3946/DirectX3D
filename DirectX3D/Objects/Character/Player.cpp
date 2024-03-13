@@ -423,7 +423,7 @@ void Player::SetTerrain(LevelData* terrain)
 void Player::Assassination()
 {
     SetState(ASSASSINATION1, 2.0f);
-    PLAYERSOUND()->Play("Player_Assassination",3);
+    PLAYERSOUND()->Play("Player_Assassination",5);
 }
 
 void Player::Climb(Collider* col, Vector3 climbPos)
@@ -628,7 +628,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
                 if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
                 {
                     ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos));
-                    PLAYERSOUND()->Play("Player_ShootArrow");
+                    PLAYERSOUND()->Play("Player_ShootArrow",2);
                     SetState(B_RECOIL);
                 }
                 return;
@@ -642,7 +642,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             // 보유한 화살이 있는가
             if (ArrowManager::Get()->GetPlayerArrowCount() <= 0)return;
             
-            PLAYERSOUND()->Play("Player_BowLoading",3);
+            PLAYERSOUND()->Play("Player_BowLoading",8);
             SetState(B_DRAW);
             return;
         }
@@ -677,6 +677,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
         if (KEY_DOWN(VK_SPACE) && !InTheAir())
         {
             SetState(JUMP1);
+            PLAYERSOUND()->Play("Player_Jump", 5);
         }
 
         // 스페셜 키
@@ -864,7 +865,7 @@ void Player::Walking()
     {
         if (PLAYERSOUND()->IsPlaySound("Player_Move"))
         {
-            PLAYERSOUND()->SetVolume("Player_Move", 10);
+            PLAYERSOUND()->SetVolume("Player_Move", 7);
         }
     }
 
@@ -883,7 +884,7 @@ void Player::Walking()
     {
         if (PLAYERSOUND()->IsPlaySound("Player_Move"))
         {
-            PLAYERSOUND()->SetVolume("Player_Move", 0.4);
+            PLAYERSOUND()->SetVolume("Player_Move", 1);
         }
         moveSpeed = moveSpeed2;
         destPos = Pos() + direction * moveSpeed2 * DELTA * -1;

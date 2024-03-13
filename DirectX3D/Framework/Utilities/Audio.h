@@ -36,6 +36,7 @@ public:
     void Play(string key, float valume = 1.0f);
     void Play(string key, Float3 position, float valume = 1.0f);
     void Stop(string key);
+    void AllStop();
     void Pause(string key);
     void Resume(string key);
 
