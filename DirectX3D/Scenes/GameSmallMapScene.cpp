@@ -159,10 +159,10 @@ void GameSmallMapScene::GUIRender()
 {
 
 	MenuManager::Get()->GUIRender();
+	player->GUIRender();
 
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
-		//player->GUIRender();
 		/*
 		for (ColliderModel* cm : colliderModels)
 		{

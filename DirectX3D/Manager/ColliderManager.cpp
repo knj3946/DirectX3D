@@ -66,10 +66,9 @@ void ColliderManager::PushPlayer()
     {
         if (obstacle->Role() == Collider::BLOCK)
         {
-            if (obstacle != onBlock && obstacle->PushCollision(playerCollider) && !isPushed)
+            if (obstacle != onBlock && obstacle->PushCollision(playerCollider))
             {
                 isPushed = true;
-                break;
             }
         }
     }

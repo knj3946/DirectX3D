@@ -59,15 +59,14 @@ void Arrow::Update()
 		transform->Pos() += direction * speed * DELTA;
 	else
 	{
-		transform->Pos() += direction * speed * DELTA;
-		
+		transform->Pos() += direction * DELTA;
+		direction.y -= 9.8f * DELTA * 2.f;
 
-		direction.y += 0.01f * -9.8f * DELTA;
-		Vector3 front = { direction.x, 0.0f, direction.z };
+		Vector3 front = { direction.x, 0.0f, direction.z};
 		if(direction.y >= 0.0f)
-			transform->Rot().x = acos(front.Length() / direction.Length()); // 방향 적용 + 모델 정면에 따른 보정
+			transform->Rot().x = acos(front.Length() / direction.Length());
 		else
-			transform->Rot().x = -acos(front.Length() / direction.Length()); // 방향 적용 + 모델 정면에 따른 보정
+			transform->Rot().x = -acos(front.Length() / direction.Length());
 	}
 	HitEffect->Update();
 	Wallparticle->Update();
@@ -129,7 +128,8 @@ void Arrow::Throw(Vector3 pos, Vector3 dir, float chargingT)
 	transform->SetActive(true);
 	collider->SetActive(true);
 	transform->Pos() = pos;
-	direction = dir;
+
+	direction = dir * chargingT;
 
 	startEdge->Pos() = transform->Pos();
 	endEdge->Pos() = transform->Pos();

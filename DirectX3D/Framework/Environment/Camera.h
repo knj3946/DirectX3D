@@ -75,7 +75,4 @@ private:
     bool global = false;
 
     float shakestrength = 1.f;
-
-public:
-    bool temp = true;
 };

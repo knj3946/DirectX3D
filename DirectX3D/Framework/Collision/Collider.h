@@ -42,7 +42,7 @@ public:
         TYPE_Z_UNDER //Z축기준 콜라이더 포지션보다 작은 부분에서만 등반 가능
     };
 
-    const float PUSH_SPEED = 10.0f;
+    const float PUSH_SPEED = 5.0f;
 
 public:
     Collider();

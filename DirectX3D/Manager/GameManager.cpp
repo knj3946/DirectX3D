@@ -15,7 +15,7 @@ GameManager::GameManager()
    
     //SceneManager::Get()->Create("ModelAnimation", new ModelAnimationScene());
   //  SceneManager::Get()->Create("GameMap", new GameMapScene());
-    SceneManager::Get()->Create("GameSmallMap", new GameSmallMapScene());
+    //SceneManager::Get()->Create("GameSmallMap", new GameSmallMapScene());
     //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
     //SceneManager::Get()->Create("Building", new BuildingScene());
     //SceneManager::Get()->Create("Shadow", new ShadowScene());
@@ -27,7 +27,7 @@ GameManager::GameManager()
 
     //SceneManager::Get()->Add("ModelAnimation");
    // SceneManager::Get()->Add("GameMap");
-    SceneManager::Get()->Add("GameSmallMap");
+    //SceneManager::Get()->Add("GameSmallMap");
     //SceneManager::Get()->Add("TestNpcScene");
     //SceneManager::Get()->Add("Building");
     //SceneManager::Get()->Add("Shadow");

@@ -115,7 +115,6 @@ public:
     void SetBoss(class Boss* _boss) { boss = _boss; }
 
 private:
-    void CameraMove(); // 벽에 가려지는 플레이어 현상 해결을 위한 함수
 
     void Control();
     void Move();
@@ -125,7 +124,6 @@ private:
     void Rotate();
     void Walking();
     void Jump();
-    void AfterJumpAnimation();
     void JumpSetting();
     void Jumping();
     void Cover();
@@ -202,7 +200,7 @@ private:
 
     float teleport = 110.000f;
 
-    bool camera = true;
+    bool cameraHold = true;
 
     LevelData* terrain;
 
@@ -278,8 +276,8 @@ private:
     const Vector3 aimStartPos = { -40.0f, -15.0f, 0.0f };
     Quad* crosshair;
     const float initSpeed = 20.0f;
-    const float maxSpeed = 200.0f;
-    const float chargetVal = 65.0f;
+    const float maxSpeed = 800.0f;
+    const float chargetVal = 300.0f;
     float chargingT = initSpeed;
 
     bool canClimbControl = false;
@@ -294,5 +292,4 @@ private:
     float fallingT = 0.0f;
 
 public: //임시
-    SphereCollider* temp;
 };
