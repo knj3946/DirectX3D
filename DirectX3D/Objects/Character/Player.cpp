@@ -423,7 +423,7 @@ void Player::Assassination()
 
 void Player::Climb(Collider* col, Vector3 climbPos)
 {
-    Pos() = { climbPos.x, 1.0f, climbPos.z };
+    Pos() = { climbPos.x, Pos().y, climbPos.z};
     isClimb = true;
     UpdateWorld();
 
@@ -562,7 +562,7 @@ void Player::Climbing()
         }
 
 
-        if (curState == CLIMBING_DOWN || Pos().y <= heightLevel)
+        if (curState == CLIMBING_DOWN && Pos().y <= heightLevel)
         {
             climbVel = 0;
 
@@ -1228,7 +1228,7 @@ void Player::Hit(float damage)
             SetState(HIT, 0.8f);
 
         preState = curState;
-        if(!dohitanimation)
+        if(!dohitanimation && curState != JUMP4)
             SetState(HIT, 0.8f);
         dohitanimation = true;
 
