@@ -326,7 +326,7 @@ void MonsterManager::Fight(Player* player)
             if (collider)
             {
                 collider->ResetCollisionPoint();
-                if (collider->Active() && collider->IsCapsuleCollision(player->GetCollider())) //¿ÀÅ©ÀÇ ¿þÆù Ãæµ¹Ã¼°¡ Å¸°ÙÀÌ¶û °ãÄ¥¶§
+                if (player->GetCollider()->Active() && collider->Active() && collider->IsCapsuleCollision(player->GetCollider())) //¿ÀÅ©ÀÇ ¿þÆù Ãæµ¹Ã¼°¡ Å¸°ÙÀÌ¶û °ãÄ¥¶§
                 {
                     Vector3 pos=collider->GetCollisionPoint();
                     player->SetHitEffectPos(pos);

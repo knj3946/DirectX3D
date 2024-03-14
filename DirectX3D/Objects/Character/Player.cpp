@@ -146,7 +146,7 @@ Player::Player()
 
     GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //????
 
-    GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f); // ????? ??????
+    GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f); // 0.35 ->0.7
     //GetClip(CLIMBING1)->SetEvent(bind(&Player::EndClimbing, this), 0.1f);
     //GetClip(CLIMBING2)->SetEvent(bind(&Player::EndClimbing, this), 0.32f);
     //GetClip(CLIMBING3)->SetEvent(bind(&Player::EndClimbing, this), 0.95f);
@@ -423,7 +423,7 @@ void Player::SetTerrain(LevelData* terrain)
 void Player::Assassination()
 {
     SetState(ASSASSINATION1, 2.0f);
-    PLAYERSOUND()->Play("Player_Assassination",5);
+    PLAYERSOUND()->Play("Player_Assassination", assassinationVolume * VOLUME);
 }
 
 void Player::Climb(Collider* col, Vector3 climbPos)
@@ -628,7 +628,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
                 if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
                 {
                     ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos));
-                    PLAYERSOUND()->Play("Player_ShootArrow",2);
+                    PLAYERSOUND()->Play("Player_ShootArrow",shootArrowVolume*VOLUME);
                     SetState(B_RECOIL);
                 }
                 return;
@@ -642,7 +642,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             // 보유한 화살이 있는가
             if (ArrowManager::Get()->GetPlayerArrowCount() <= 0)return;
             
-            PLAYERSOUND()->Play("Player_BowLoading",8);
+            PLAYERSOUND()->Play("Player_BowLoading",bowLoadingVolume*VOLUME);
             SetState(B_DRAW);
             return;
         }
@@ -677,7 +677,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
         if (KEY_DOWN(VK_SPACE) && !InTheAir())
         {
             SetState(JUMP1);
-            PLAYERSOUND()->Play("Player_Jump", 5);
+            PLAYERSOUND()->Play("Player_Jump", jumpVolume*VOLUME);
         }
 
         // 스페셜 키
@@ -836,7 +836,7 @@ void Player::Walking()
     if (isMoveX || isMoveZ)
     {
         if (!PLAYERSOUND()->IsPlaySound("Player_Move"))
-            PLAYERSOUND()->Play("Player_Move",4);
+            PLAYERSOUND()->Play("Player_Move",moveVolume*VOLUME);
     }
     else
         PLAYERSOUND()->Stop("Player_Move");
@@ -865,11 +865,11 @@ void Player::Walking()
     {
         if (PLAYERSOUND()->IsPlaySound("Player_Move"))
         {
-            PLAYERSOUND()->SetVolume("Player_Move", 4);
+            PLAYERSOUND()->SetVolume("Player_Move", moveVolume*VOLUME);
         }
     }
 
-    if (!KEY_PRESS(VK_LSHIFT))
+    if (!KEY_PRESS(VK_LSHIFT))// 그냥 걷기
     {
         /*if (curState == B_AIM || curState == B_DRAW || curState == B_ODRAW)
             destPos = Pos() + direction * aimMoveSpeed * DELTA * -1;
@@ -880,11 +880,11 @@ void Player::Walking()
         
     }
 
-    else
+    else// 조용히 걷기
     {
         if (PLAYERSOUND()->IsPlaySound("Player_Move"))
         {
-            PLAYERSOUND()->SetVolume("Player_Move", 1);
+            PLAYERSOUND()->SetVolume("Player_Move", q_moveVolume * VOLUME);
         }
         moveSpeed = moveSpeed2;
         destPos = Pos() + direction * moveSpeed2 * DELTA * -1;
@@ -1064,7 +1064,7 @@ bool Player::InTheAir() {
 void Player::SetDaggerAnim()
 {
     dagger->GetCollider()->SetActive(true);
-    PLAYERSOUND()->Play("Player_Attack");
+    PLAYERSOUND()->Play("Player_Attack",attackVolume*VOLUME);
 }
 
 void Player::EndAssassination(UINT num)
@@ -1182,11 +1182,12 @@ void Player::Hit(float damage)
     damage = 1;
     if (!isHit)
     {
+        isHit = true;
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
         collider->SetActive(false);
         hiteffect->Play(particlepos);
-        PLAYERSOUND()->Play("Player_Hit", 3 * VOLUME);
+        PLAYERSOUND()->Play("Player_Hit", hitVolume * VOLUME);
         if (destHP <= 0)
         {
             //SetState(DYING);
@@ -1196,7 +1197,7 @@ void Player::Hit(float damage)
         }
         SetState(HIT, 0.8f);
 
-        isHit = true;
+        
     }
 
 }

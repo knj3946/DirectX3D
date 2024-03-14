@@ -167,6 +167,7 @@ private:
     void StateRevision();
     void ParticleUpdate();
 
+    void SoundControl();
     
     void SetAttackState();
 
@@ -181,6 +182,8 @@ private:
     
     float lastDist = 0;
 
+    float attackVolume = 1.0f;
+    float dieVolume = 1.0f;
 
     int a = 300;
     Ray ray;// ∑π¿Ã

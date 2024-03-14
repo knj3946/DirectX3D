@@ -154,6 +154,16 @@ private:
 
 private:
 
+    // 사운드
+    float assassinationVolume = 1.0f;
+    float shootArrowVolume = 1.0f;
+    float bowLoadingVolume = 1.f;
+    float jumpVolume = 1.f;
+    float moveVolume = 1.f;
+    float q_moveVolume = 0.5f;
+    float attackVolume = 1.f;
+    float hitVolume = 1.f;
+
     POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- �����ڴ� ���� 
 
     State curState = IDLE;

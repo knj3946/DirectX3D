@@ -59,11 +59,11 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     SetEvent(ATTACK3, bind(&Collider::SetActive, rightWeaponCollider, false), 0.99f); //콜라이더 꺼지는 시점 설정
 
     // 공격별 사운드 타이밍
-    SetEvent(ATTACK1, bind([=]() {ORCSOUND(index)->Play("Orc_Attack",3); }), 0.31f);
-    SetEvent(ATTACK2, bind([=]() {ORCSOUND(index)->Play("Orc_Attack",3); }), 0.25f);
-    SetEvent(ATTACK2, bind([=]() {ORCSOUND(index)->Play("Orc_Attack",3); }), 0.66f);
-    SetEvent(ATTACK3, bind([=]() {ORCSOUND(index)->Play("Orc_Attack2",3); }), 0.31f);
-    SetEvent(ATTACK3, bind([=]() {ORCSOUND(index)->Play("Orc_Attack2",3); }), 0.70f);
+    SetEvent(ATTACK1, bind([=]() {ORCSOUND(index)->Play("Orc_Attack",attackVolume*VOLUME); }), 0.31f);
+    SetEvent(ATTACK2, bind([=]() {ORCSOUND(index)->Play("Orc_Attack", attackVolume* VOLUME); }), 0.25f);
+    SetEvent(ATTACK2, bind([=]() {ORCSOUND(index)->Play("Orc_Attack", attackVolume*VOLUME); }), 0.66f);
+    SetEvent(ATTACK3, bind([=]() {ORCSOUND(index)->Play("Orc_Attack2", attackVolume* VOLUME); }), 0.31f);
+    SetEvent(ATTACK3, bind([=]() {ORCSOUND(index)->Play("Orc_Attack2", attackVolume*VOLUME); }), 0.70f);
 
 
 #pragma endregion
@@ -177,49 +177,7 @@ void Orc::Update()
     }
 
     // 사운드 테스트
-    if (!isAnim)
-    {
-        if (bFind && !ORCSOUND(index)->IsPlaySound("Orc_Run") && curState == RUN)
-        {
-            ORCSOUND(index)->Play("Orc_Run");
-        }
-        if (bFind && ORCSOUND(index)->IsPlaySound("Orc_Run") && curState == RUN)
-        {
-            float distance = Distance(target->Pos(), transform->Pos());
-            distance = (distance > 50) ? 50 : distance;
-            ORCSOUND(index)->SetVolume("Orc_Run", (50 - distance) / 10.0f * VOLUME);
-            lastDist = distance;
-            lastRunVolume = (50 - distance) / 10.0f * VOLUME;
-        }
-        else
-        {
-            ORCSOUND(index)->Stop("Orc_Run");
-        }
-
-        if (behaviorstate == NPC_BehaviorState::IDLE)
-        {
-            if (curState == WALK)
-            {
-                if (!ORCSOUND(index)->IsPlaySound("Orc_Walk"))
-                {
-                    ORCSOUND(index)->Play("Orc_Walk");
-                }
-                else
-                {
-                    float distance = Distance(target->Pos(), transform->Pos());
-                    distance = (distance > 40) ? 40 : distance;
-                    ORCSOUND(index)->SetVolume("Orc_Walk", (40 - distance) / 30.0f * VOLUME);
-                    lastWalkVolume = (40 - distance) / 30.0f * VOLUME;
-                    lastDist = distance;
-                }
-            }
-            else
-            {
-                ORCSOUND(index)->Stop("Orc_Walk");
-            }
-
-        }
-    }
+    SoundControl();
     //-------------------------
 
     TimeCalculator(); //공격 간격을 두기 위한 설정
@@ -477,6 +435,61 @@ void Orc::StateRevision()
 void Orc::ParticleUpdate()
 {
     particleHit->Update();
+}
+
+void Orc::SoundControl()
+{
+    if (!isAnim)
+    {
+        if (curState != RUN && curState != WALK)
+        {
+            // 달리거나 걷는 상태가 아니면 소리 멈추가ㅣ
+            ORCSOUND(index)->Stop("Orc_Run");
+            ORCSOUND(index)->Stop("Orc_Walk");
+            return;
+        }
+
+        if (bFind && !ORCSOUND(index)->IsPlaySound("Orc_Run") && curState == RUN)
+        {
+            ORCSOUND(index)->Play("Orc_Run");
+        }
+        if (bFind && ORCSOUND(index)->IsPlaySound("Orc_Run") && curState == RUN)
+        {
+            float distance = Distance(target->Pos(), transform->Pos());
+            distance = (distance > 50) ? 50 : distance;
+            ORCSOUND(index)->SetVolume("Orc_Run", (50 - distance) / 10.0f * VOLUME);
+            lastDist = distance;
+            lastRunVolume = (50 - distance) / 10.0f * VOLUME;
+        }
+        else
+        {
+            ORCSOUND(index)->Stop("Orc_Run");
+        }
+
+        if (behaviorstate == NPC_BehaviorState::IDLE)
+        {
+            if (curState == WALK)
+            {
+                if (!ORCSOUND(index)->IsPlaySound("Orc_Walk"))
+                {
+                    ORCSOUND(index)->Play("Orc_Walk");
+                }
+                else
+                {
+                    float distance = Distance(target->Pos(), transform->Pos());
+                    distance = (distance > 40) ? 40 : distance;
+                    ORCSOUND(index)->SetVolume("Orc_Walk", (40 - distance) / 30.0f * VOLUME);
+                    lastWalkVolume = (40 - distance) / 30.0f * VOLUME;
+                    lastDist = distance;
+                }
+            }
+            else
+            {
+                ORCSOUND(index)->Stop("Orc_Walk");
+            }
+
+        }
+    }
 }
 
 void Orc::SetAttackState()
@@ -1006,33 +1019,11 @@ void Orc::SetState(State state, float scale, float takeTime)
         transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI;
     }
     curState = state; //매개변수에 따라 상태 변화
-    //if (state == ATTACK1)
-    //{
-    //    int randNum = GameMath::Random(0, 3);
-    //    //int randNum = 2;
-    //    //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
-    //    switch (randNum)
-    //    {
-    //    case 0:
-    //        instancing->PlayClip(index, (int)state, 0.7);
-    //        break;
-    //    case 1:
-    //        instancing->PlayClip(index, (int)state + 1, 0.8);
-    //        state = State::ATTACK2;
-    //        break;
-    //    case 2:
-    //        instancing->PlayClip(index, (int)state + 2, 0.7);
-    //        state = State::ATTACK3;
-    //        break;
 
-    //    default:
-    //        break;
-    //    }
-    //}
     if (curState == DYING)
     {
         ORCSOUND(index)->AllStop();
-        ORCSOUND(index)->Play("Orc_Die",3);
+        ORCSOUND(index)->Play("Orc_Die", dieVolume * VOLUME);
         if (isAssassinated)
         {
             instancing->PlayClip(index, (int)state + 1, 0.8);
