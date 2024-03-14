@@ -167,7 +167,9 @@ private:
     // 임시로 여기에 추가 -> 사운드 관련 UI
     Quad* soundUI;
     Quad* volumeControlUI;
-
+    Quad* settingBG;
+    Quad* title;
+    Quad* volumeControlBG;
     // -----------------------------
     POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- �����ڴ� ���� 
 

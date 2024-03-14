@@ -26,6 +26,8 @@ SoundManager::~SoundManager()
 
 void SoundManager::Update()
 {
+	if (GameControlManager::Get()->PauseGame())return;
+
 	//if (target == nullptr)return;
 	//listenerPos = { target->Pos().x, target->Pos().y, target->Pos().z };
 	listenerPos = { CAM->Pos().x, CAM->Pos().y, CAM->Pos().z };

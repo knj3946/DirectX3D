@@ -165,7 +165,7 @@ void Orc::Update()
 {
     if (!transform->Active()) return; //활성화 객체가 아니면 리턴
 
-    
+    //!GameControlManager::Get()->PauseGame()
 
     if (curState != DYING || curState != ASSASSINATED)
     {

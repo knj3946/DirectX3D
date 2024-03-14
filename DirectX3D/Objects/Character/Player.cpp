@@ -213,13 +213,38 @@ Player::Player()
     jumpparticle=new ParticleSystem("TextData/Particles/JumpSmoke.fx");
 
     // 사운드 UI 관련
+    settingBG = new Quad(Vector2(450, 200));
+    settingBG->GetMaterial()->SetDiffuseMap(L"Textures/UI/Setting_BG.png");
+    settingBG->Pos() = Vector3(WIN_WIDTH / 2, WIN_HEIGHT - 350, 0);
+    settingBG->UpdateWorld();
+
+
+    title = new Quad(Vector2(300, 80));
+    title->GetMaterial()->SetDiffuseMap(L"Textures/UI/menu_1.png");
+    title->SetParent(settingBG);
+    title->Pos().y += 100;
+    title->UpdateWorld();
+
+    volumeControlBG = new Quad(Vector2(260, 50));
+    volumeControlBG->GetMaterial()->SetDiffuseMap(L"Textures/UI/menu_back.png");
+    volumeControlBG->SetParent(settingBG);
+    volumeControlBG->Pos().y -= 50;
+    volumeControlBG->UpdateWorld();
+
+
     soundUI = new Quad(Vector2(250, 40));
     soundUI->GetMaterial()->SetDiffuseMap(L"Textures/UI/hp_bar_BG.png");
+    soundUI->SetParent(settingBG);
+    //soundUI->GetMaterial()->GetDiffuseMap()->PSSet(1);
+    soundUI->Pos().y -= 50;
+    soundUI->UpdateWorld();
 
     volumeControlUI = new Quad(Vector2(40, 40));
     volumeControlUI->GetMaterial()->SetDiffuseMap(L"Textures/UI/portrait.png");
     volumeControlUI->SetParent(soundUI);
+    //volumeControlUI->GetMaterial()->GetDiffuseMap()->PSSet(2);
     volumeControlUI->Pos().x = 0;// 최소 -100 , 최대 100 
+    volumeControlUI->UpdateWorld();
 }
 
 Player::~Player()
@@ -284,8 +309,8 @@ void Player::Update()
         }
 
         volumeControlUI->Pos().x = VOLUME * 20 - 100;
-        soundUI->Pos() = Vector3(WIN_WIDTH/2, WIN_HEIGHT-250,0);
-        soundUI->UpdateWorld();
+        //soundUI->Pos() = Vector3(WIN_WIDTH/2, WIN_HEIGHT-250,0);
+        //soundUI->UpdateWorld();
         volumeControlUI->UpdateWorld();
 
         return; // 게임이 중지됐으니 다른건 계산할 필요 없음.
@@ -374,6 +399,9 @@ void Player::PostRender()
 {
     if (GameControlManager::Get()->PauseGame())
     {
+        settingBG->Render();
+        title->Render();
+        volumeControlBG->Render();
         soundUI->Render();
         volumeControlUI->Render();
     }
