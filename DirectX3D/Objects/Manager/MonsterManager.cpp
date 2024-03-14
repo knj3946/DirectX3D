@@ -48,6 +48,7 @@ MonsterManager::MonsterManager()
     rasterizerState[1]->CullMode(D3D11_CULL_NONE);
 
     shadow = new Shadow();
+
 }
 
 MonsterManager::~MonsterManager()
@@ -132,6 +133,7 @@ void MonsterManager::Update()
     }
     orcInstancing->Update();
     vecDetectionPos.clear();
+
 }
 
 void MonsterManager::Render(bool exceptOutLine)
@@ -370,11 +372,12 @@ void MonsterManager::CalculateDistance()
                 pos.y = vecDetectionPos[i].y;
                 pos.z = vecDetectionPos[i].z;
                 if (Distance(pos, item.second.orc->GetTransform()->GlobalPos()) <= vecDetectionPos[i].w) {
-                    item.second.orc->Findrange();
+                    item.second.orc->Findrange((i+1)*0.2f);
                 }
             }
         }
     }
+    
 }
 
 void MonsterManager::OnOutLineByRay(Ray ray)

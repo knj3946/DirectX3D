@@ -108,7 +108,7 @@ public:
 
     bool FindTarget() { return bSensor; }
 
-    void Findrange();
+    void Findrange(float startCool);
 
     void SetOutLine(bool flag);
     bool IsOutLine() { return outLine; };
@@ -121,6 +121,8 @@ public:
 
     void CoolDown();
     void SetGroundPos();
+
+    void SetStartCoolDown(float cool) { this->searchStartCoolDown = cool; }
 private:
     void Control();
     void Move();
@@ -152,7 +154,7 @@ private:
     bool TerainComputePicking(Vector3& feedback, Ray ray);
     bool EyesRayToDetectTarget(Collider* targetCol, Vector3 orcEyesPos);
     void RangeCheck();
-    void  SoundPositionCheck();;
+    void SoundPositionCheck();;
     
     void Throw();
 
@@ -199,6 +201,7 @@ private:
     AStar* aStar;
 
     float searchCoolDown = 0.0f;
+    float searchStartCoolDown = 0.0f;
     Transform* target;
     CapsuleCollider* targetCollider;
 

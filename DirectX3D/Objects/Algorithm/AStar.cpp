@@ -9,9 +9,9 @@ AStar::AStar(UINT width, UINT height)
     //SetNode(); //기본 노드 세팅이 있다면 여기서 나중에 호출
                  //지금은 지형에 대응시킬 거라서 생성자에서는 노드 설치 안 함
 
-    computeShader = Shader::AddCS(L"Compute/AstarObstacleCollision.hlsl");
+    //computeShader = Shader::AddCS(L"Compute/AstarObstacleCollision.hlsl");
 
-    rayBuffer = new RayBuffer();
+    //rayBuffer = new RayBuffer();
 }
 
 AStar::~AStar()
@@ -20,8 +20,8 @@ AStar::~AStar()
         delete node;
     delete heap;
 
-    delete rayBuffer;
-    delete structuredBuffer;
+    //delete rayBuffer;
+    //delete structuredBuffer;
 }
 
 void AStar::Update()
@@ -213,7 +213,7 @@ void AStar::MakeDirectionPath(IN Vector3 start, IN Vector3 end, OUT vector<Vecto
     
     FOR(path.size()) //경로를 검사해서
     {
-        if (!IsCollisionObstacleCompute(start, path[i])) // 장애물을 해당 경로의 i번째까지 안 봤다면
+        if (!IsCollisionObstacle(start, path[i])) // 장애물을 해당 경로의 i번째까지 안 봤다면
         {
             cutNodeNum = path.size() - i - 1;
             break;
@@ -237,7 +237,7 @@ void AStar::MakeDirectionPath(IN Vector3 start, IN Vector3 end, OUT vector<Vecto
     
     FOR(path.size()) // 여기까지 계산에서 줄어들었을지도 모르는 경로 개수만큼 다시 반복
     {
-        if (!IsCollisionObstacleCompute(end, path[path.size() - i - 1])) //벡터의 뒤에서부터 검사
+        if (!IsCollisionObstacle(end, path[path.size() - i - 1])) //벡터의 뒤에서부터 검사
         {
             cutNodeNum = path.size() - i - 1;
             break;
@@ -286,7 +286,7 @@ bool AStar::IsCollisionObstacle(Vector3 start, Vector3 end)
     // 반복문 끝날 때까지 그런 충돌이 없었으면
     return false; // 아무 일도.... 없었다!
 }
-
+/*
 bool AStar::IsCollisionObstacleCompute(Vector3 start, Vector3 end)
 {
     if (!structuredBuffer)
@@ -368,7 +368,7 @@ bool AStar::IsCollisionObstacleCompute(Vector3 start, Vector3 end)
     
     return false;
 }
-
+*/
 void AStar::AddObstacle(Collider* collider)
 {
     obstacles.push_back(collider);

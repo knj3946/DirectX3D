@@ -72,7 +72,7 @@ public:
     // 3D에서는 필수 과정
 
     bool IsCollisionObstacle(Vector3 start, Vector3 end);
-    bool IsCollisionObstacleCompute(Vector3 start, Vector3 end);
+    //bool IsCollisionObstacleCompute(Vector3 start, Vector3 end);
     //시작에서 끝까지 직선으로 이었을 때, 장애물과 부딪치는가?
 
     void AddObstacle(Collider* collider); //장애물 수동추가 (클래스 내 호출도 가능)
@@ -114,12 +114,12 @@ private:
     UINT width, height;
     Vector2 interval; //노드 간격. Vector3여도 되지만 지금은 2차원 노드 배치를 할 거라서 Vector2
 
-    RayBuffer* rayBuffer;
-    StructuredBuffer* structuredBuffer;
+    //RayBuffer* rayBuffer;
+    //StructuredBuffer* structuredBuffer;
 
     vector<InputDesc> inputs;
     vector<OutputDesc> outputs;
 
-    ComputeShader* computeShader;
+    //ComputeShader* computeShader;
 };
 
