@@ -1,6 +1,6 @@
 ﻿#include "Framework.h"
 #include "Player.h"
-
+bool Player::modeld = false;
 Player::Player()
     : ModelAnimator("akai")
 {

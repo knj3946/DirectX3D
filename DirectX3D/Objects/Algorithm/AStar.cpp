@@ -122,13 +122,15 @@ int AStar::FindRandomPos(Vector3 pos, float range)
     for (Node* node : nodes)
     {
         float distance = Distance(pos, node->GlobalPos());
+        if (node->Pos().y > 1.f)continue;
         if (distance < range) findNodes.push_back(node); // 범위 내 노드 벡터에 추가하기
     }
     //여기까지 오면 범위 안의 모든 노드를 벡터로 받는다
     //여기서 아무거나 랜덤으로 하나 뽑기
 
+    if (findNodes.size() == 0) { return 0; }
     Node* findNode = findNodes[Random(0, findNodes.size())];
-
+ 
     return findNode->index; // 랜덤으로 나온 노드의 인덱스
 }
 

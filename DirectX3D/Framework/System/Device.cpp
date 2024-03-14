@@ -68,7 +68,6 @@ Device::Device()
         &deviceContext
     );
 
-   
     ID3D11Texture2D* backBuffer;
 
     swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
@@ -86,7 +85,9 @@ Device::Device()
     depthDesc.SampleDesc.Count = 1;
     depthDesc.Usage = D3D11_USAGE_DEFAULT;
     depthDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-    
+    device->QueryInterface(__uuidof(ID3D11Debug), (void**)&debug);
+    if (debug)
+        debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
     device->CreateTexture2D(&depthDesc, nullptr, &depthBuffer);
 
     D3D11_DEPTH_STENCIL_VIEW_DESC depthViewDesc = {};
@@ -99,7 +100,9 @@ Device::Device()
 Device::~Device()
 {
 
- 
+
+  
+    debug->Release();
     device->Release();
     deviceContext->Release();
 

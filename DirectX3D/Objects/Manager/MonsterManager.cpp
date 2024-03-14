@@ -4,6 +4,7 @@
 MonsterManager::MonsterManager()
 {
     orcInstancing = new ModelAnimatorInstancing("character1");
+    Player::modeld = true;
     orcInstancing->ReadClip("Orc_Idle");
     //orcInstancing->ReadClip("Orc_Walk");
     orcInstancing->ReadClip("character1@walk3");
@@ -20,7 +21,7 @@ MonsterManager::MonsterManager()
 
     orcInstancing->ReadClip("Orc_Death"); // 기본 죽음
     orcInstancing->ReadClip("character1@death3");  // 암살 죽음
-
+    Player::modeld = false;
     // 몬스터 생성
     FOR(SIZE)
     {
