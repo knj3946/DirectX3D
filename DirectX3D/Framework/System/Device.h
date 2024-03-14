@@ -17,6 +17,7 @@ public:
     IDXGISwapChain* GetSwapChain() { return swapChain; }
 
 private:
+    ID3D11Debug* debug;
     ID3D11Device* device;
     ID3D11DeviceContext* deviceContext;
     

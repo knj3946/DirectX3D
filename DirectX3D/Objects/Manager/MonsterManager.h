@@ -24,6 +24,7 @@ private:
     //typedef Terrain LevelData;
     UINT SIZE = 8;
 public:
+   
     MonsterManager();
     ~MonsterManager();
 
@@ -102,6 +103,7 @@ private:
     BlendState* blendState[2];
     DepthStencilState* depthState[2];
     RasterizerState* rasterizerState[2];
+
 
 
     Shadow* shadow; // ±×¸²ÀÚ
