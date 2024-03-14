@@ -121,11 +121,11 @@ void Orc::SetType(NPC_TYPE _type) {
     switch (_type)
     {
     case Orc::NPC_TYPE::ATTACK:// 오크 타입에 따라 탐지 범위 지정 (현재 임시)
-        informrange = 50;
+        informrange = 40;
         type = NPC_TYPE::ATTACK;
         break;
     case Orc::NPC_TYPE::INFORM:
-        informrange = 100;
+        informrange = 70;
         type = NPC_TYPE::INFORM;
         break;
     default:
@@ -993,7 +993,6 @@ void Orc::SetPath(Vector3 targetPos)
 
     // 다시 조정된, 내가 갈 수 있는 경로에, 최종 목적지를 다시 한번 추가한다
     path.insert(path.begin(), targetPos);
-    
     //직선거리일때 한칸한칸이동할 필요가 없다 -> 장애물 전까지는 하나의 벡터로 가도 된다 ->MakeDirectionPath를 쓰는이유
 }
 
