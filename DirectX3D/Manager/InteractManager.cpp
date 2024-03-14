@@ -50,6 +50,7 @@ void InteractManager::Climb(Collider* col)
 
     int maxIndex = -1;
     float maxValue = -99999.0f;
+    float maxVal = 0.0f;
 
     for (int i = 0; i < 3; ++i)
     {
@@ -85,12 +86,36 @@ void InteractManager::Climb(Collider* col)
             {
                 maxIndex = i;
                 maxValue = abs(Val) - abs(halfSize[i]);
+                maxVal = Val;
             }
         }
     }
     if (maxIndex > -1)
     {
         float rotY = asin(maxValue/v2m1.Length());
-        player->Rot().y = rotY;
+
+        if (maxIndex == 0) //x축일경우
+        {
+            if (maxVal >= 0) //방향
+            {
+                player->Rot().y = rotY + XM_PIDIV2 + XM_PI; //270도
+            }
+            else
+            {
+                player->Rot().y = rotY + XM_PIDIV2; //90도
+            }
+        }
+        else if (maxIndex == 2) //z축일경우
+        {
+            if (maxVal >= 0) //방향
+            {
+                player->Rot().y = rotY + XM_PI; // 180도
+            }
+            else
+            {
+                player->Rot().y = rotY;
+            }
+        }
+        
     }
 }

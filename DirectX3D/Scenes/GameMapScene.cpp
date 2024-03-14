@@ -52,6 +52,46 @@ void GameMapScene::Update()
 
 	if (MenuManager::Get()->GetSelectGameMenu() == 1) //인게임
 	{
+		if (MenuManager::Get()->GetSelectFailMenu() == 1)
+		{
+			//처음부터 시작하도록 로직작성
+
+			player->Respawn(Vector3(60, 0, 90));
+			MonsterManager::Get()->Respawn();
+
+			MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(150.f, 0.f, 175.f));
+			MonsterManager::Get()->SetPatrolPos(0, Vector3(150.f, 0.f, 210.f));
+			MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185));
+			MonsterManager::Get()->SetPatrolPos(1, Vector3(50.f, 0.f, 185.f));
+			MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(85, 0, 120));
+			MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 120.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 70.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(85.f, 0.f, 70.f));
+			MonsterManager::Get()->SetOrcSRT(3, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(62, 0, 40));
+			MonsterManager::Get()->SetPatrolPos(3, Vector3(62.f, 0.f, 65.f));
+			MonsterManager::Get()->SetOrcSRT(4, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(110, 0, 80));
+			MonsterManager::Get()->SetPatrolPos(4, Vector3(110.f, 0.f, 40.f));
+			MonsterManager::Get()->SetOrcSRT(5, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(170, 0, 40));
+			MonsterManager::Get()->SetPatrolPos(5, Vector3(170.f, 0.f, 80.f)); MonsterManager::Get()->SetPatrolPos(5, Vector3(120.f, 0.f, 80.f));   MonsterManager::Get()->SetPatrolPos(5, Vector3(170.f, 0.f, 80.f));
+			MonsterManager::Get()->SetOrcSRT(6, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(160, 0, 120));
+			MonsterManager::Get()->SetPatrolPos(6, Vector3(170.f, 0.f, 120.f));
+			MonsterManager::Get()->SetOrcSRT(7, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(50, 0, 135));
+			MonsterManager::Get()->SetPatrolPos(7, Vector3(100.f, 0.f, 135.f));
+
+			MenuManager::Get()->SetFailFlag(false);
+			MenuManager::Get()->SetSelectFailMenu(0);
+
+		}
+		if (MenuManager::Get()->GetSelectFailMenu() == 2)
+		{
+			exit(0);
+		}
+
+		if (MenuManager::Get()->GetFailFlag() && MenuManager::Get()->GetSelectFailMenu() == 0)
+		{
+			MenuManager::Get()->FailMenuUpdate();
+			return;
+		}
+
+
 		terrain->UpdateWorld();
 		aStar->Update();
 		for (ColliderModel* cm : colliderModels)
@@ -150,6 +190,7 @@ void GameMapScene::Render()
 		bow->Render();
 
 		//aStar->Render();
+
 	}
 }
 
@@ -159,15 +200,16 @@ void GameMapScene::PostRender()
 
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
-		MonsterManager::Get()->PostRender();
-		ArrowManager::Get()->PostRender();
-		ColliderManager::Get()->PostRender();
-		player->PostRender();
-		boss->PostRender();
-
-		player->TextRender();
+		if (!MenuManager::Get()->GetFailFlag())
+		{
+			MonsterManager::Get()->PostRender();
+			ArrowManager::Get()->PostRender();
+			ColliderManager::Get()->PostRender();
+			player->PostRender();
+			boss->PostRender();
+			player->TextRender();
+		}
 	}
-
 }
 
 void GameMapScene::GUIRender()

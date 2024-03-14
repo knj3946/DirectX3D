@@ -71,6 +71,7 @@ public:
     void SetShader(wstring file);
     void SetBoss(Boss* _boss) { boss = _boss; }
 
+    void Respawn();
 private:
     void Collision();   
 

@@ -99,7 +99,7 @@ public:
     void RotationRestore();
     float GetDamage();
     void Hit(float damage,Vector3 collisionPos,bool _btrue=false);
-    void Spawn(Vector3 pos);
+    void Spawn(Vector3 pos = {0,0,0});
 
     void AddObstacleObj(Collider* collider);
 

@@ -759,6 +759,7 @@ void Boss::EndDying()
 		Runparticle[i]->Stop();
 	}
 	
+	MenuManager::Get()->SetEndFlag(true);
 }
 
 

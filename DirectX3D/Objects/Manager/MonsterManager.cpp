@@ -456,6 +456,17 @@ void MonsterManager::SetShader(wstring file)
     orcInstancing->SetShader(file);
 }
 
+void MonsterManager::Respawn()
+{
+    for (const pair<int, OrcInfo>& item : orcs)
+    {
+        if (item.second.isActive)
+        {
+            item.second.orc->Spawn();
+        }
+    }
+}
+
 void MonsterManager::Collision()
 {
     for (const pair<int, OrcInfo>& item : orcs)
