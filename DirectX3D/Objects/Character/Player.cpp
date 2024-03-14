@@ -220,7 +220,7 @@ Player::Player()
 
 
     title = new Quad(Vector2(300, 80));
-    title->GetMaterial()->SetDiffuseMap(L"Textures/UI/menu_1.png");
+    title->GetMaterial()->SetDiffuseMap(L"Textures/UI/Setting_Text.png");
     title->SetParent(settingBG);
     title->Pos().y += 100;
     title->UpdateWorld();
@@ -249,6 +249,12 @@ Player::Player()
 
 Player::~Player()
 {
+    delete soundUI;
+    delete volumeControlUI;
+    delete settingBG;
+    delete title;
+    delete volumeControlBG;
+
     delete collider;
 
     delete hpBar;

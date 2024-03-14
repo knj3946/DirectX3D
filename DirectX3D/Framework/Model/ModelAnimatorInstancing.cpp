@@ -169,6 +169,7 @@ void ModelAnimatorInstancing::SetOutLine(UINT index,bool flag)
 
 void ModelAnimatorInstancing::UpdateFrame(UINT instanceID, Motion& motion)
 {
+    // 여기서 오크 움직ㅈ이는거 
     {
         ModelClip* clip = clips[motion.cur.clip];
 
