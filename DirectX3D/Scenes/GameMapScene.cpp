@@ -145,6 +145,7 @@ void GameMapScene::GUIRender()
 
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
+		ImGui::Text("volume : %f", VOLUME);
 		//player->GUIRender();
 		/*
 		for (ColliderModel* cm : colliderModels)
@@ -153,7 +154,7 @@ void GameMapScene::GUIRender()
 		}
 		*/
 
-		MonsterManager::Get()->GUIRender();
+		//MonsterManager::Get()->GUIRender();
 		//KunaiManager::Get()->GUIRender();
 
 		//Timer::Get()->GUIRender();

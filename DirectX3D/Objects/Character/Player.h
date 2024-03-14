@@ -164,6 +164,11 @@ private:
     float attackVolume = 1.f;
     float hitVolume = 1.f;
 
+    // 임시로 여기에 추가 -> 사운드 관련 UI
+    Quad* soundUI;
+    Quad* volumeControlUI;
+
+    // -----------------------------
     POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- �����ڴ� ���� 
 
     State curState = IDLE;

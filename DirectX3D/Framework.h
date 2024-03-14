@@ -214,6 +214,7 @@ using namespace GameMath;
 #include "Manager/InteractManager.h"
 #include "Manager/SoundManager.h"
 #include "Manager/MenuManager.h"
+#include "Manager/GameControlManager.h"
 
 extern HWND hWnd;
 extern Vector3 mousePos;

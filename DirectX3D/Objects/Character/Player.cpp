@@ -211,6 +211,15 @@ Player::Player()
 
     hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 25, 25, 5, 2, false);
     jumpparticle=new ParticleSystem("TextData/Particles/JumpSmoke.fx");
+
+    // 사운드 UI 관련
+    soundUI = new Quad(Vector2(250, 40));
+    soundUI->GetMaterial()->SetDiffuseMap(L"Textures/UI/hp_bar_BG.png");
+
+    volumeControlUI = new Quad(Vector2(40, 40));
+    volumeControlUI->GetMaterial()->SetDiffuseMap(L"Textures/UI/portrait.png");
+    volumeControlUI->SetParent(soundUI);
+    volumeControlUI->Pos().x = 0;// 최소 -100 , 최대 100 
 }
 
 Player::~Player()
@@ -244,6 +253,44 @@ Player::~Player()
 
 void Player::Update()
 {
+    if (KEY_DOWN('1'))
+    {
+        // 게임을 멈추고 마우스 고정 해제
+        //Timer::Get()->SetTimeScale(0);
+        camera = false;
+        GameControlManager::Get()->SetPauseGame(true);
+    }
+    else if (KEY_DOWN('2'))
+    {
+        //Timer::Get()->SetTimeScale(1);
+        camera = true;
+        GameControlManager::Get()->SetPauseGame(false);
+    }
+
+    if (GameControlManager::Get()->PauseGame())
+    {
+        if (KEY_PRESS(VK_LEFT))
+        {
+            // 0 일때, pos -100
+            // 5 일때, pos 0
+            // 10 일때, pos 100
+            // 위의 규칙을 위한 식 : volume * 200 - 100
+            SoundManager::Get()->SetVolume(Clamp(0, 10, VOLUME - DELTA * 3)); // 누를때 1씩 줄어들게
+        }
+        else if (KEY_PRESS(VK_RIGHT))
+        {
+            SoundManager::Get()->SetVolume(Clamp(0, 10, VOLUME + DELTA * 3)); // 누를때 1씩 늘어나게
+            //volumeControlUI->Pos().x += DELTA * 20.f;
+        }
+
+        volumeControlUI->Pos().x = VOLUME * 20 - 100;
+        soundUI->Pos() = Vector3(WIN_WIDTH/2, WIN_HEIGHT-250,0);
+        soundUI->UpdateWorld();
+        volumeControlUI->UpdateWorld();
+
+        return; // 게임이 중지됐으니 다른건 계산할 필요 없음.
+    }
+
     ColliderManager::Get()->SetHeight();
     ColliderManager::Get()->PushPlayer();
 
@@ -325,6 +372,11 @@ void Player::Render()
 
 void Player::PostRender()
 {
+    if (GameControlManager::Get()->PauseGame())
+    {
+        soundUI->Render();
+        volumeControlUI->Render();
+    }
     hpBar->Render();
     
     portrait->Render();
@@ -1382,6 +1434,8 @@ void Player::SetCameraPos()
     else
     {
         crosshair->SetActive(false);
+        
+        // 개발 시 편리함을 위해 잠시 추가 -> 나중에 삭제
         if (!camera)
             CAM->SetTarget(nullptr);
         else 

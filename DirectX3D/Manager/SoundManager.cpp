@@ -65,7 +65,7 @@ void SoundManager::PlayerCreate(Transform* t)
 
 	// 배경음
 	audio->Add("bgm1", "Sounds/BGM/dramatic-choir.wav", true, true, false);
-	audio->Play("bgm1", 0.6f);
+	audio->Play("bgm1", 0.1f * VOLUME); // 조절필요
 
 	// 플레이어 사운드
 	audio->Add("Player_Move", "Sounds/Player/footstep.wav", false, true, true);	// 걷기

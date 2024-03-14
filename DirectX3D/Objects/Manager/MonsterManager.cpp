@@ -81,6 +81,14 @@ void MonsterManager::CreateOrc()
 
 void MonsterManager::Update()
 {
+    // ¿ÀÅ©°¡ ·»´õ°¡ ¾ÈµÊ.
+    if (GameControlManager::Get()->PauseGame())
+    {
+        orcInstancing->Update();
+        return;
+    }
+        
+
     Collision();
     
     for (const pair<int, OrcInfo>& item : orcs)

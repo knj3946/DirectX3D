@@ -14,7 +14,13 @@ public:
 
 	void FirstLoading();
 
+	
+
 private:
+
+	// 임시로 여기서
+	bool isPauseGame = false;
+
 	vector<ColliderModel*> colliderModels;
 	ColliderModel* model;
 
