@@ -1186,7 +1186,7 @@ void Player::Hit(float damage)
 
         collider->SetActive(false);
         hiteffect->Play(particlepos);
-
+        PLAYERSOUND()->Play("Player_Hit", 3 * VOLUME);
         if (destHP <= 0)
         {
             //SetState(DYING);

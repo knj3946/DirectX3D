@@ -187,9 +187,9 @@ void Orc::Update()
         {
             float distance = Distance(target->Pos(), transform->Pos());
             distance = (distance > 50) ? 50 : distance;
-            ORCSOUND(index)->SetVolume("Orc_Run", (50 - distance) / 10.0f * volume);
+            ORCSOUND(index)->SetVolume("Orc_Run", (50 - distance) / 10.0f * VOLUME);
             lastDist = distance;
-            lastRunVolume = (50 - distance) / 10.0f * volume;
+            lastRunVolume = (50 - distance) / 10.0f * VOLUME;
         }
         else
         {
@@ -208,8 +208,8 @@ void Orc::Update()
                 {
                     float distance = Distance(target->Pos(), transform->Pos());
                     distance = (distance > 40) ? 40 : distance;
-                    ORCSOUND(index)->SetVolume("Orc_Walk", (40 - distance) / 30.0f * volume);
-                    lastWalkVolume = (40 - distance) / 30.0f * volume;
+                    ORCSOUND(index)->SetVolume("Orc_Walk", (40 - distance) / 30.0f * VOLUME);
+                    lastWalkVolume = (40 - distance) / 30.0f * VOLUME;
                     lastDist = distance;
                 }
             }
@@ -327,7 +327,7 @@ void Orc::GUIRender()
     ImGui::Text("curState : %d", curState);
 
 
-    ImGui::SliderFloat("OrcMoveSound", &volume, 0, 10);
+    //ImGui::SliderFloat("OrcMoveSound", &volume, 0, 10);
 
     //ImGui::SliderFloat("OrcWalkSetVolume", &walkVolumeS, 0, 100);
 
@@ -551,7 +551,7 @@ void Orc::Hit(float damage,Vector3 collisionPos)
         {
             float distance = Distance(target->Pos(), transform->Pos());
             distance = (distance > 40) ? 40 : distance;
-            ORCSOUND(index)->Play("Orc_Hit", (40 - distance) / 10.0f * volume); // 크기조절 가까울수록 사운드 커지게
+            ORCSOUND(index)->Play("Orc_Hit", (40 - distance) / 10.0f * VOLUME); // 크기조절 가까울수록 사운드 커지게
             lastVolume = ORCSOUND(index)->GetVolume("Orc_Hit");
         }
 

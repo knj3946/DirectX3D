@@ -30,7 +30,7 @@
 #define PLAYERSOUND() SoundManager::Get()->GetPlayerAudio()
 #define BOSSSOUND() SoundManager::Get()->GetBossAudio()
 #define ORCSOUND(index) SoundManager::Get()->GetOrcAudio(index)
-
+#define VOLUME SoundManager::Get()->GetVolume()
 
 #define DIALOG ImGuiFileDialog::Instance()
 

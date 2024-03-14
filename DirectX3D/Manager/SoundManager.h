@@ -27,6 +27,8 @@ public:
 	Audio* GetPlayerAudio() { return playerAudio; }
 
 	System* GetSoundSystem() { return soundSystem; }
+
+	float GetVolume() { return volume; }
 private:
 
 	Audio* AudioCreate(Transform* t); // 오디오 만들 때 여기서 뭔가 더 세팅할게 있다면 이 함수로
@@ -39,5 +41,8 @@ private:
 	map<int, Audio*> orcAudios; // 각 오크마다 오디오시스템을 가지고 있는다.
 	Audio* playerAudio;
 	Audio* bossAudio;
+
+	float volume = 10.0f; // 한번에 사운드 조절하기 위한 변수 -> 10이 기본설정인게 좋은듯
+
 };
 

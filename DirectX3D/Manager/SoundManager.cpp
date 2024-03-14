@@ -73,8 +73,9 @@ void SoundManager::PlayerCreate(Transform* t)
 	audio->Add("Player_Attack", "Sounds/Player/PlayerAttack.mp3", false, false, false);	// 대거 공격
 	audio->Add("Player_BowLoading", "Sounds/Player/BowLoading.mp3", false, false, false);	// 시위 당기기
 	audio->Add("Player_ShootArrow", "Sounds/Player/ShootArrow.mp3", false, false, false);	// 활 쏘기
-	audio->Add("Player_Land", "Sounds/Player/land.mp3", false, false, false);	// 착지
+	audio->Add("Player_Land", "Sounds/Player/land.mp3", false, false, true);	// 착지
 	audio->Add("Player_Jump", "Sounds/Player/jump.mp3", false, false, false);	// 점프
+	audio->Add("Player_Hit", "Sounds/Player/Hit.mp3", false, false, false);		// 피격
 
 	playerAudio = audio;
 }
