@@ -250,9 +250,9 @@ void MonsterManager::Blocking(Collider* collider)
     {
         if (collider->Role() == Collider::Collider_Role::BLOCK)
         {
-            if (collider->IsCollision(item.second.orc->GetCollider()))
+            if (collider->IsCollision(item.second.orc->GetMoveCollider()))
             {
-                Vector3 dir = item.second.orc->GetCollider()->GlobalPos() - collider->GlobalPos();
+                Vector3 dir = item.second.orc->GetMoveCollider()->GlobalPos() - collider->GlobalPos();
 
                 int maxIndex = 0;
                 float maxValue = -99999.0f;

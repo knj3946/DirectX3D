@@ -94,6 +94,7 @@ public:
 
     Transform* GetTransform() { return transform; }
     CapsuleCollider* GetCollider() { return collider; }
+    CapsuleCollider* GetMoveCollider() { return moveCollider; }
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
     void RotationRestore();
     float GetDamage();
@@ -216,6 +217,8 @@ private:
 
     Transform* transform;
     CapsuleCollider* collider;
+    CapsuleCollider* moveCollider;
+
     vector<Collider*> weaponColliders;
 
     ProgressBar* hpBar;

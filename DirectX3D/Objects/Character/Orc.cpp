@@ -5,12 +5,19 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     //클립 생성해두기 
     string modelName = "Orc";
 
-    //충돌체
+    //히트 충돌체
     collider = new CapsuleCollider(40, 120);
     collider->SetParent(transform);
     //collider->Rot().z = XM_PIDIV2 - 0.2f;
     collider->Pos() = { -15, 80, 0 };
     collider->SetActive(false); //spawn 할때 활성화
+
+    //이동 충돌체
+    moveCollider = new CapsuleCollider(5, 120);
+    moveCollider->SetParent(transform);
+    //moveCollider->Rot().z = XM_PIDIV2 - 0.2f;
+    moveCollider->Pos() = { -15, 80, 0 };
+    moveCollider->SetActive(false); //spawn 할때 활성화
 
     // 무기 충돌체
     leftHand = new Transform();
@@ -474,6 +481,7 @@ void Orc::Spawn(Vector3 pos)
 
     transform->SetActive(true); //비활성화였다면 활성화 시작
     collider->SetActive(true);
+    moveCollider->SetActive(true);
     //leftWeaponCollider->SetActive(true);
     //rightWeaponCollider->SetActive(true);
 }
