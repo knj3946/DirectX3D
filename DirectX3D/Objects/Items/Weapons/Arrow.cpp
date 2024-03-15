@@ -8,7 +8,7 @@ Arrow::Arrow(Transform* transform, int id,bool isDropItem)
 	//transform->Rot().y += 1.57f;
 
 	collider = new SphereCollider();
-	collider->Scale().z *= 10.0f;
+	collider->Scale().z *= 20.0f;
 	collider->SetParent(transform);
 
 	collider->Pos() = {};			// 위치 기본 값 : 부모 위치
@@ -21,7 +21,8 @@ Arrow::Arrow(Transform* transform, int id,bool isDropItem)
 	endEdge->Pos() = transform->Pos();
 	startEdge->UpdateWorld();
 	endEdge->UpdateWorld();
-	trail = new Trail(L"Textures/Effect/wind.jpg", startEdge, endEdge, 3, 3);
+	//trail = new Trail(L"Textures/Effect/Trail.png", startEdge, endEdge, 5, 5);
+	trail = new Trail(L"Textures/Effect/wind.jpg", startEdge, endEdge, 3, 6); // 스피드 임시로 6으로 설정
 	trail->Init();
 	trail->SetActive(false);
 	HitEffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
@@ -42,14 +43,14 @@ Arrow::~Arrow()
 void Arrow::Update()
 {
 	// 비활성화 중에는 안 움직임
-	if (!transform->Active()||isDropItem)
+	if (!transform->Active() || isDropItem)
 	{
 		return;
 	}
 
 	time += DELTA; // 시간 경과에 따라 변수에 누적
 
-	if (time > LIFE_SPAN)
+	if (time > LIFE_SPAN || transform->GlobalPos().y < 0.0f)
 	{
 		trail->SetActive(false);
 		transform->SetActive(false);

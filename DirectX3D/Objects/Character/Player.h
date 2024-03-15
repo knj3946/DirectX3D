@@ -113,6 +113,9 @@ public:
 
     void SetHitEffectPos(Vector3& _pos) { particlepos = _pos; }
 
+    float GetMoveSpeed() { return moveSpeed; }
+
+
     void SetBoss(class Boss* _boss) { boss = _boss; }
 
     void Respawn(Vector3 pos = {0,0,0});
@@ -145,6 +148,7 @@ private:
     void UseSkill();
     bool InTheAir();
 
+    void SetDaggerAnim();
     void EndAssassination(UINT num);
     void EndHit();
  
@@ -161,6 +165,26 @@ private:
 
 
 private:
+
+    // 사운드
+    float assassinationVolume = 1.0f;
+    float shootArrowVolume = 1.0f;
+    float bowLoadingVolume = 1.f;
+    float jumpVolume = 1.f;
+    float moveVolume = 0.6f;
+    float q_moveVolume = 0.5f;
+    float attackVolume = 1.f;
+    float hitVolume = 3.f;
+    float landVolume = 1.f;
+    float hideVolume = 1.f;
+
+    // 임시로 여기에 추가 -> 사운드 관련 UI
+    Quad* soundUI;
+    Quad* volumeControlUI;
+    Quad* settingBG;
+    Quad* title;
+    Quad* volumeControlBG;
+    // -----------------------------
     class Boss* boss;
     Transform* BowInstallation;
     bool bgetBow = false;
@@ -173,6 +197,7 @@ private:
     Vector3 velocity;
     Vector3 targetPos;
 
+    float moveSpeed;
     float moveSpeed1 = 50;
     float moveSpeed2 = 15;
     float rotSpeed = 0.3;
@@ -283,12 +308,11 @@ private:
     const float chargetVal = 300.0f;
     float chargingT = initSpeed;
 
+    Transform* climbCam;
     bool canClimbControl = false;
     Vector3 climbVel;
     Vector3 climbArrivePos;
     float climbJ_y;
-
-    Transform* tempCam;
 
     State preState = IDLE;
     bool dohitanimation = false;

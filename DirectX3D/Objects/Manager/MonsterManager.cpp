@@ -6,7 +6,6 @@ MonsterManager::MonsterManager()
     orcInstancing = new ModelAnimatorInstancing("character1");
     Player::modeld = true;
     orcInstancing->ReadClip("Orc_Idle");
-    //orcInstancing->ReadClip("Orc_Walk");
     orcInstancing->ReadClip("character1@walk3");
     orcInstancing->ReadClip("Orc_Run");
     orcInstancing->ReadClip("Orc_Hit");
@@ -92,11 +91,21 @@ void MonsterManager::CreateOrc()
     orcs.insert(make_pair(orcIndex,orcInfo));
     orc->Spawn(orcInfo.position);
 
+    SoundManager::Get()->OrcCreate(orcIndex,orc->GetTransform());
+
     orcIndex++;
 }
 
 void MonsterManager::Update()
 {
+    // ¿ÀÅ©°¡ ·»´õ°¡ ¾ÈµÊ.
+    if (GameControlManager::Get()->PauseGame())
+    {
+        orcInstancing->Update();
+        return;
+    }
+        
+
     Collision();
     
     for (const pair<int, OrcInfo>& item : orcs)
@@ -406,7 +415,7 @@ void MonsterManager::Fight(Player* player)
             if (collider)
             {
                 collider->ResetCollisionPoint();
-                if (collider->Active() && collider->IsCapsuleCollision(player->GetCollider())) //¿ÀÅ©ÀÇ ¿þÆù Ãæµ¹Ã¼°¡ Å¸°ÙÀÌ¶û °ãÄ¥¶§
+                if (player->GetCollider()->Active() && collider->Active() && collider->IsCapsuleCollision(player->GetCollider())) //¿ÀÅ©ÀÇ ¿þÆù Ãæµ¹Ã¼°¡ Å¸°ÙÀÌ¶û °ãÄ¥¶§
                 {
                     Vector3 pos=collider->GetCollisionPoint();
                     player->SetHitEffectPos(pos);
@@ -499,6 +508,8 @@ void MonsterManager::DieOrc(int index)
     //delete orcs[index].orc;
     //orcs.erase(index);
     orcs[index].isActive = false;
+    //Audio::Get()->Stop("Orc_Test");
+
 }
 
 void MonsterManager::SetOrcGround()

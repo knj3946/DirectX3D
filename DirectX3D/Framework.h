@@ -25,6 +25,13 @@
 
 #define CAM Environment::Get()->GetMainCamera()
 
+//#define PLAYSOUND(key,volumn) Audio::Get()->Play(key,volumn);
+//#define STOPSOUND(key) Audio::Get()->Stop(key);
+#define PLAYERSOUND() SoundManager::Get()->GetPlayerAudio()
+#define BOSSSOUND() SoundManager::Get()->GetBossAudio()
+#define ORCSOUND(index) SoundManager::Get()->GetOrcAudio(index)
+#define VOLUME SoundManager::Get()->GetVolume()
+
 #define DIALOG ImGuiFileDialog::Instance()
 #define SAFE_DELETE(p)if(nullptr!= p){delete p p=nullptr;}
 
@@ -210,7 +217,9 @@ using namespace GameMath;
 #include "Manager/GameManager.h"
 #include "Manager/ColliderManager.h"
 #include "Manager/InteractManager.h"
+#include "Manager/SoundManager.h"
 #include "Manager/MenuManager.h"
+#include "Manager/GameControlManager.h"
 
 extern HWND hWnd;
 extern Vector3 mousePos;

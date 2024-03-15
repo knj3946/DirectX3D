@@ -68,16 +68,22 @@ vector<Collider*>& ColliderManager::GetObstacles()
 void ColliderManager::PushPlayer()
 {
     bool isPushed = false;
+    vector<Vector3> dirs;
 
     for (Collider* obstacle : GetObstacles())
     {
         if (obstacle->Role() == Collider::BLOCK)
         {
-            if (obstacle != onBlock && obstacle->PushCollision(playerCollider))
+            if (obstacle != onBlock && obstacle->PushCollision(playerCollider, &dirs))
             {
                 isPushed = true;
             }
         }
+    }
+
+    for (Vector3 dir : dirs)
+    {
+        player->Pos() += dir * 10.0f * DELTA;
     }
 
     player->SetIsPushed(isPushed);
@@ -85,7 +91,8 @@ void ColliderManager::PushPlayer()
 
 void ColliderManager::SetHeight()
 {
-    headRay->pos = playerCollider->GlobalPos();
+    player->UpdateWorld();
+    headRay->pos = player->Pos();
     headRay->pos.y = player->Pos().y + 6.2f;
     footRay->pos = playerCollider->GlobalPos();
 
@@ -102,7 +109,8 @@ void ColliderManager::SetHeight()
         //위 물체의 높이가 너무 낮으면 스페이스 입력을 무시할지말지 결정하는 법도 고려
         if (obstacle->IsRayCollision(*headRay, &maxHeadPoint) && maxHeadPoint.distance < FLT_EPSILON)
         {
-            player->SetHeadCrash(true);
+            if(maxHeadPoint.distance < FLT_EPSILON)
+                player->SetHeadCrash(true);
         }
         else if (obstacle->IsRayCollision(*footRay, &underObj) && underObj.hitPoint.y > maxHeight)
         {
@@ -588,7 +596,7 @@ void ColliderManager::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
     for (Collider* col : GetObstacles())
     {
         float dis = Distance(col->GetPickContact().hitPoint, playPos);
-        if (col->IsPickFlag() && col->IsTrustedRelation(playPos) && dis < 5.f)
+        if (col->IsPickFlag() &&/* col->IsTrustedRelation(playPos) &&*/ dis < 5.f)
         {
             SpecialKeyUI& sk = specialKeyUI["climb"];
             sk.active = true;
