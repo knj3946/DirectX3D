@@ -98,7 +98,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     Audio::Get()->Add("hit", "Sounds/hit.wav");
 
     particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
-   
+    particleHit->Stop();
 }
 
 Orc::~Orc()
@@ -108,6 +108,7 @@ Orc::~Orc()
     delete leftWeaponCollider;
     delete rightWeaponCollider;
     delete collider;
+    delete moveCollider;
     //delete terrain;
    // delete aStar;
    
@@ -143,8 +144,7 @@ void Orc::SetType(NPC_TYPE _type) {
 void Orc::Update()
 {
     if (!transform->Active()) return; //활성화 객체가 아니면 리턴
-
-    
+   
     if (curState != DYING && curState != ASSASSINATED)
     {
         Direction();// 방향지정 함수
@@ -379,6 +379,7 @@ void Orc::PartsUpdate()
     if (transform->Active()==false || isDying == true)return;
     transform->SetWorld(instancing->GetTransformByNode(index, 5));
     collider->UpdateWorld();
+    moveCollider->UpdateWorld();
     transform->UpdateWorld();
 
     leftHand->SetWorld(instancing->GetTransformByNode(index, 170));//170
@@ -453,8 +454,12 @@ void Orc::Hit(float damage,Vector3 collisionPos, bool _btrue)
         isHit = true;
 
     
-        if(_btrue)
-        particleHit->Play(collider->GetCollisionPoint()); // 해당위치에서 파티클 재생
+        if (_btrue)
+        {
+           
+            particleHit->Play(InteractManager::Get()->GetPartilcePos()); // 해당위치에서 파티클 재생
+            InteractManager::Get()->SetParticlePos({});
+        }
     }
 
     /*if (curState == ASSASSINATED)
@@ -1084,10 +1089,14 @@ void Orc::EndDying()
 
 void Orc::CalculateEyeSight()
 {
-    if (targetStateInfo->isCloaking)
-    {
-        bDetection = false;
-        return;
+    if (bDetection) {
+        if (targetStateInfo->isCloaking)
+        {
+            bDetection = false;
+            SetState(IDLE);
+            DetectionStartTime = DELTA * 0.1f;
+            return;
+        }
     }
 
     float rad = XMConvertToRadians(eyeSightangle);

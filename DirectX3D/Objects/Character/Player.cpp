@@ -210,6 +210,7 @@ Player::Player()
     tempCam = new Transform();
 
     hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
+    hiteffect->Stop();
     jumpparticle=new ParticleSystem("TextData/Particles/JumpSmoke.fx");
 
     FOR(2) blendState[i] = new BlendState();
@@ -265,8 +266,7 @@ void Player::Update()
     if(!isClimb)
         ColliderManager::Get()->PushPlayer();
 
-    if (KEY_DOWN('O'))
-        Hit(1);
+  
 
     SetCameraPos();
 
@@ -1227,8 +1227,7 @@ float Player::GetDamage()
 
 void Player::Hit(float damage)
 {
-    if (isHit)
-        int a = 0;
+   
     if (!isHit)
     {
         destHP = (curHP - damage > 0) ? curHP - damage : 0;

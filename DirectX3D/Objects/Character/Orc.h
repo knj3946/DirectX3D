@@ -55,7 +55,7 @@ private:
     
     typedef TerrainEditor LevelData;
     //typedef Terrain LevelData;
-
+   
 public:
     enum class NPC_TYPE {
         ATTACK,

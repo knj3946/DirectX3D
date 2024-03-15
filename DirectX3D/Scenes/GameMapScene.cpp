@@ -141,8 +141,12 @@ void GameMapScene::Update()
 			{
 				MonsterManager::Get()->Blocking(collider);
 			}
+			
 		}
+		FOR(6) {
+			MonsterManager::Get()->Blocking(HeightCollider[i]);
 
+		}
 		if (waitSettingTime >= 1)
 		{
 			MonsterManager::Get()->Fight(player);
@@ -388,6 +392,29 @@ void GameMapScene::FirstLoading()
 
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(55.f);
+		FOR(6)
+			HeightCollider[i] = new BoxCollider;
+
+		HeightCollider[0]->Pos() = {128.f,25.f,18.f};
+		HeightCollider[0]->Scale() = {256.f,50.f,30.f};
+		HeightCollider[1]->Pos() = { 128.f,25.f, 246.5f };
+		HeightCollider[1]->Scale() = { 256.f,50.f,30.f };
+		HeightCollider[2]->Pos() = { 239.f,25.f,128.f };
+		HeightCollider[2]->Scale() = { 30.f,50.f,256.f };
+		HeightCollider[3]->Pos() = { 13.7f,25.f, 128.f };
+		HeightCollider[3]->Scale() = { 30.f,50.f,256.f };
+		HeightCollider[4]->Pos() = { 128.f,15.f,129.f };
+		HeightCollider[4]->Rot() = { 0.f,21.f,0.f };
+		HeightCollider[4]->Scale() = { 14.7f,22.4f,59.4f };
+		HeightCollider[5]->Pos() = { 183.f,15.f, 152.7f };
+		HeightCollider[5]->Rot() = { 0.f,0.f,0.f };
+		HeightCollider[5]->Scale() = {110.f,30.f,14.1f };
+		FOR(6) {
+			HeightCollider[i]->Role() = Collider::Collider_Role::BLOCK;
+			HeightCollider[i]->UpdateWorld();
+			ColliderManager::Get()->SetObstacles(HeightCollider[i]);
+		}
+
 	}
 	else if (MenuManager::Get()->GetLoadingSequence() == 3)
 	{
@@ -439,6 +466,7 @@ void GameMapScene::FirstLoading()
 
 		boss = new Boss;
 		boss->SetTarget(player);
+		boss->SetTargetCollider(player->GetCollider());
 		boss->SetTerrain(terrain);
 		boss->SetAStar(aStar);
 		boss->GetCollider()->UpdateWorld();

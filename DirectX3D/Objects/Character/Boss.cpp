@@ -22,7 +22,12 @@ Boss::Boss()
 	collider->SetParent(transform);
 
 	collider->Pos().y += 100;
-	
+	moveCollider = new CapsuleCollider(5, 100);
+	moveCollider->SetParent(transform);
+	//moveCollider->Rot().z = XM_PIDIV2 - 0.2f;
+	moveCollider->Pos() = { 0, 100, 0 };
+	moveCollider->SetActive(false); //spawn 할때 활성화
+
 	Mouth = new Transform;
 	RoarCollider = new CapsuleCollider();
 	RoarCollider->Pos().z -= 140.f;
@@ -89,6 +94,7 @@ Boss::Boss()
 	Audio::Get()->Add("Boss_Run", "Sounds/Bossfootstep.mp3", false, false, true);
 	Audio::Get()->Add("Boss_Walk", "Sounds/Bosswalk.mp3", false, false, true);
 	hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
+	hiteffect->Stop();
 	leftCollider->SetActive(false);
 	FOR(2) blendState[i] = new BlendState();
 	FOR(2) depthState[i] = new DepthStencilState();
@@ -115,6 +121,7 @@ Boss::~Boss()
 	delete leftHand;
 	delete leftCollider;
 	delete collider;
+	delete moveCollider;
 	
 	delete instancing;
 	
@@ -186,6 +193,7 @@ void Boss::Update()
 	SetPosY();
 	leftCollider->UpdateWorld();
 	collider->UpdateWorld();
+	moveCollider->UpdateWorld();
 
 	ProcessHpBar();
 
@@ -250,12 +258,23 @@ void Boss::CalculateEyeSight()
 	while (leftdir1 > 360.0f)
 		leftdir1 -= 360.0f;
 
-	DetectionRange= Distance(target->GlobalPos(), transform->GlobalPos());
-	if (DetectionRange < eyeSightRange) {
-		SetRay();
+	
+	DetectionRange = (Distance(target->GlobalPos(), transform->GlobalPos()));
+	if (DetectionRange < eyeSightRange)
+	{
+		SetEyePos(); //눈 위치만 설정
+
+		if (!EyesRayToDetectTarget(targetCollider, eyesPos)) //리턴 값 false면 가려서 안보이는 것
+		{
+			
+			bDetection = false;
+			return;
+		}
+	
 		if (leftdir1 > 270 && rightdir1 < 90) {
 			if (!((leftdir1 <= Enemytothisangle && rightdir1 + 360 >= Enemytothisangle) || (leftdir1 <= Enemytothisangle + 360 && rightdir1 >= Enemytothisangle)))
 			{
+			
 				bDetection = false;
 				return;
 			}
@@ -263,16 +282,15 @@ void Boss::CalculateEyeSight()
 		else {
 			if (!(leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle))
 			{
+			
 				bDetection = false;
-				
-
 				return;
 			}
-		
 		}
 
-		bDetection = ColliderManager::Get()->CompareDistanceObstacleandPlayer(ray);
-		
+		// 추후 오크매니저에서 씬에 깔린 모든 벽들 체크해서 ray충돌페크
+		// behaviorstate = NPC_BehaviorState::DETECT;
+		bDetection = true;
 	}
 	else
 		bDetection = false;
@@ -461,6 +479,7 @@ void Boss::Roar()
 	Audio::Get()->Play("Boss_Roar",transform->GlobalPos());
 //	RoarCollider->SetActive(true);
 	Roarparticle->Play();
+	bRotate = true;
 	IsHit = false;
 }
 
@@ -514,7 +533,7 @@ void Boss::Find()
 
 void Boss::Rotate()
 {
-
+	if (bRotate)return;
 	 if (!path.empty()) {
 		Vector3 dest = path.back();
 
@@ -739,6 +758,7 @@ void Boss::EndAttack()
 	velocity = target->GlobalPos() - transform->GlobalPos();
 	totargetlength = velocity.Length();
 	moveSpeed = runSpeed;
+	bRotate = false;
 	dir = velocity.GetNormalized();
 	if (totargetlength > AttackRange) {
 		SetState(RUN);
@@ -801,6 +821,7 @@ void Boss::EndDying()
 void Boss::StartAttack()
 {
 	bWait = true;
+	bRotate = true;
 	IsHit = false;
 }
 
@@ -846,7 +867,7 @@ void Boss::OnOutLineByRay(Ray ray)
 	}
 	instancing->SetOutLine(index, false);
 	outLine=false;
-
+	bRotate = false;
 
 }
 
@@ -1160,8 +1181,11 @@ void Boss::Hit(float damage, Vector3 collisionPos,bool _btrue)
 		SetState(HIT);
 		isHit = true;
 		bWait = true;
-		if(_btrue)
-		hiteffect->Play(collider->GetCollisionPoint()); // 해당위치에서 파티클 재생
+		if (_btrue)
+		{
+			hiteffect->Play(InteractManager::Get()->GetPartilcePos()); // 해당위치에서 파티클 재생
+			InteractManager::Get()->SetParticlePos({});
+		}
 	}
 
 }
@@ -1199,4 +1223,71 @@ bool Boss::CalculateHit()
 	}
 	else
 		return false;
+}
+
+bool Boss::EyesRayToDetectTarget(Collider* targetCol, Vector3 orcEyesPos)
+{
+	// 목표 콜라이더 맨위 맨 아래 맨 왼쪽 맨 오른쪽 중앙 5군데만 레이를 쏴서 확인 (0.8을 곱해서 좀 안쪽으로 쏘기)
+
+	if (curRayCoolTime <= 0.f)
+	{
+		switch (targetCol->GetType())
+		{
+		case Collider::Type::CAPSULE:
+		{
+			CapsuleCollider* targetCapsuleCol = static_cast<CapsuleCollider*>(targetCol);
+
+			Vector3 top = targetCapsuleCol->GlobalPos() + (transform->Up() * targetCapsuleCol->Height() * 0.4 + transform->Up() * targetCapsuleCol->Radius() * 0.8);
+			Vector3 bottom = targetCapsuleCol->GlobalPos() + (transform->Down() * targetCapsuleCol->Height() * 0.4 + transform->Down() * targetCapsuleCol->Radius() * 0.8);
+			Vector3 left = targetCapsuleCol->GlobalPos() + (transform->Right() * targetCapsuleCol->Radius() * 0.8);
+			Vector3 right = targetCapsuleCol->GlobalPos() + (transform->Left() * targetCapsuleCol->Radius() * 0.8);
+			Vector3 center = targetCapsuleCol->GlobalPos();
+
+			Contact topCon;
+			Contact bottomCon;
+			Contact leftCon;
+			Contact rightCon;
+			Contact centerCon;
+
+			Ray topRay = Ray(orcEyesPos, (top - orcEyesPos).GetNormalized());
+			Ray bottomRay = Ray(orcEyesPos, (bottom - orcEyesPos).GetNormalized());
+			Ray leftRay = Ray(orcEyesPos, (left - orcEyesPos).GetNormalized());
+			Ray rightRay = Ray(orcEyesPos, (right - orcEyesPos).GetNormalized());
+			Ray centerRay = Ray(orcEyesPos, (center - orcEyesPos).GetNormalized());
+
+			targetCollider->IsRayCollision(topRay, &topCon);
+			targetCollider->IsRayCollision(bottomRay, &bottomCon);
+			targetCollider->IsRayCollision(leftRay, &leftCon);
+			targetCollider->IsRayCollision(rightRay, &rightCon);
+			targetCollider->IsRayCollision(centerRay, &centerCon);
+
+			float topBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(topRay);
+			float bottomBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(bottomRay);
+			float leftBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(leftRay);
+			float rightBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(rightRay);
+			float centerBlockdistance = ColliderManager::Get()->CloseRayCollisionColliderDistance(centerRay);
+
+			if (topBlockdistance < Distance(topCon.hitPoint, topRay.pos)
+				&& bottomBlockdistance < Distance(bottomCon.hitPoint, bottomRay.pos)
+				&& leftBlockdistance < Distance(leftCon.hitPoint, leftRay.pos)
+				&& rightBlockdistance < Distance(rightCon.hitPoint, rightRay.pos)
+				&& centerBlockdistance < Distance(centerCon.hitPoint, centerRay.pos)
+				)
+			{
+				//모든 부분에서 엄폐되었다
+				isRayToDetectTarget = false;
+			}
+			else
+			{
+				isRayToDetectTarget = true;
+			}
+
+		}
+		default:
+		{
+		}
+		}
+	}
+
+	return isRayToDetectTarget;
 }

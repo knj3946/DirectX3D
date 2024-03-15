@@ -305,7 +305,66 @@ void MonsterManager::Blocking(Collider* collider)
             }
         }
     }
+    {
+        //º¸½º
+        if (collider->Role() == Collider::Collider_Role::BLOCK)
+        {
+            if (collider->IsCollision(boss->GetMoveCollider()))
+            {
+                Vector3 dir = boss->GetMoveCollider()->GlobalPos() - collider->GlobalPos();
 
+                int maxIndex = 0;
+                float maxValue = -99999.0f;
+
+                for (int i = 0; i < 3; ++i)
+                {
+
+                    Vector3 halfSize = ((BoxCollider*)collider)->GetHalfSize();
+
+                    if (i != 1)
+                    {
+                        if (abs(dir[i]) - abs(halfSize[i]) > maxValue)
+                        {
+                            maxIndex = i;
+                            maxValue = abs(dir[i]) - abs(halfSize[i]);
+                        }
+                    }
+                }
+
+                switch (maxIndex)
+                {
+                case 0: // x
+                    dir.x = dir.x > 0 ? 1.0f : -1.0f;
+                    dir.y = 0;
+                    dir.z = 0;
+                    break;
+
+                case 1: // y
+                    dir.x = 0;
+                    dir.y = dir.y > 0 ? 1.0f : -1.0f;;
+                    dir.z = 0;
+                    break;
+
+                case 2: // z
+                    dir.x = 0;
+                    dir.y = 0;
+                    dir.z = dir.z > 0 ? 1.0f : -1.0f;;
+                    break;
+                }
+
+                dir.y = 0;
+
+                // --- ÀÌÇÏ »ùÇÃ ÄÚµå : ´ë»óÀº ºí·ÏÀ¸·ÎºÎÅÍ ¹Ð¸² ---
+
+                if (NearlyEqual(dir.y, 1.0f)) return; // ¹ý¼±ÀÌ ¹ØÀÎ °æ¿ì
+
+                boss->GetTransform()->Pos() += dir * 50.0f * DELTA;
+
+            }
+        }
+
+    }
+    
 }
 
 void MonsterManager::Fight(Player* player)
@@ -322,7 +381,7 @@ void MonsterManager::Fight(Player* player)
                 collider->ResetCollisionPoint();
                 if (collider->Active() && collider->IsCapsuleCollision(item.second.orc->GetCollider())) //¼Õ Ãæµ¹Ã¼°¡ Å¸°ÙÀÌ¶û °ãÄ¥¶§
                 {
-
+                    InteractManager::Get()->SetParticlePos(collider->GetCollisionPoint());
                     item.second.orc->Hit(player->GetDamage(), collider->GlobalPos());
                 }
             }
@@ -331,6 +390,7 @@ void MonsterManager::Fight(Player* player)
             collider->ResetCollisionPoint();
             if (collider->Active() && collider->IsCapsuleCollision((CapsuleCollider*)boss->GetCollider())) //¼Õ Ãæµ¹Ã¼°¡ Å¸°ÙÀÌ¶û °ãÄ¥¶§
             {
+                InteractManager::Get()->SetParticlePos(collider->GetCollisionPoint());
                 boss->Hit(player->GetDamage(), collider->GlobalPos());
             }
 
