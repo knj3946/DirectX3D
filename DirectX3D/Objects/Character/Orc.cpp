@@ -455,11 +455,11 @@ void Orc::SoundControl()
         }
 
         // 오크가 발견해서 쫓아올 때도 walk를 한다고 하면ㅁ 아래 코드 
-        /*if (bFind && !ORCSOUND(index)->IsPlaySound("Orc_Walk") && curState == RUN)
+        if (bFind && !ORCSOUND(index)->IsPlaySound("Orc_Walk") && curState == WALK)
         {
             ORCSOUND(index)->Play("Orc_Walk");
         }
-        if (bFind && ORCSOUND(index)->IsPlaySound("Orc_Walk") && curState == RUN)
+        if (bFind && ORCSOUND(index)->IsPlaySound("Orc_Walk") && curState == WALK)
         {
             float distance = Distance(target->Pos(), transform->Pos());
             distance = (distance > 50) ? 50 : distance;
@@ -470,7 +470,7 @@ void Orc::SoundControl()
         else
         {
             ORCSOUND(index)->Stop("Orc_Walk");
-        }*/
+        }
         // -------------------------------------------------------------
 
         if (bFind && !ORCSOUND(index)->IsPlaySound("Orc_Run") && curState == RUN)

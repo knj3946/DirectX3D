@@ -174,7 +174,7 @@ private:
     float moveVolume = 0.6f;
     float q_moveVolume = 0.5f;
     float attackVolume = 1.f;
-    float hitVolume = 1.f;
+    float hitVolume = 3.f;
     float landVolume = 1.f;
     float hideVolume = 1.f;
 

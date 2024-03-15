@@ -168,7 +168,7 @@ void Boss::Render()
 
 void Boss::Update()
 {
-
+	if (GameControlManager::Get()->PauseGame())return;
 	instancing->Update();
 	ExecuteEvent();
 
