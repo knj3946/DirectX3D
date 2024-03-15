@@ -1095,9 +1095,6 @@ void Player::JumpSetting()
     else if (curState == JUMP4)
     {
         SetState(IDLE);
-        PLAYERSOUND()->Play("Player_LandDamage", landVolume * VOLUME);
-        //PLAYERSOUND()->Play("Player_Hit",hitVolume*VOLUME);
-        //PLAYERSOUND()->Play("Player_Land", landVolume * VOLUME); // 나중에 다른 사운드로
     }
 }
 
@@ -1382,7 +1379,10 @@ void Player::Hit(float damage)
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
         hiteffect->Play(particlepos);
-        PLAYERSOUND()->Play("Player_Hit", hitVolume * VOLUME);
+        if(curState==JUMP4)
+            PLAYERSOUND()->Play("Player_LandDamage", landVolume * VOLUME);
+        else
+            PLAYERSOUND()->Play("Player_Hit", hitVolume * VOLUME);
         if (destHP <= 0)
         {
             //SetState(DYING);

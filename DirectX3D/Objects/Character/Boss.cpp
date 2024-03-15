@@ -464,7 +464,7 @@ void Boss::IdleMove() {
 void Boss::Roar()
 {
 	//맵에있는 오크들 다부르며 원거리 공격
-	BOSSSOUND()->Play("Boss_Roar", transform->GlobalPos());
+	BOSSSOUND()->Play("Boss_Roar", 1.f * VOLUME);
 	RoarCollider->SetActive(true);
 	Roarparticle->Play();
 	IsHit = false;
@@ -885,7 +885,7 @@ void Boss::EndRoar()
 		path.clear();
 		SetState(ATTACK, 3.0f);
 		bWait = true;
-		BOSSSOUND()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
+		BOSSSOUND()->Play("Boss_Splash", 1.f * VOLUME);
 
 	}
 	
@@ -935,7 +935,7 @@ void Boss::IdleWalk()
 	totargetlength = velocity.Length();
 	moveSpeed = walkSpeed;
 	dir = velocity.GetNormalized();
-	BOSSSOUND()->Play("Boss_Walk",transform->GlobalPos(),0.3f);
+	BOSSSOUND()->Play("Boss_Walk", 0.3f * VOLUME);
 }
 bool Boss::OnColliderFloor(Vector3& feedback)
 {
@@ -972,8 +972,8 @@ void Boss::Run()
 			}
 		
 			Runparticle[currunparticle]->Play(transform->GlobalPos(), transform->Rot());	
-			if(!BOSSSOUND()->IsPlaySound("Boss_Run"))
-				BOSSSOUND()->Play("Boss_Run", transform->GlobalPos(), 1.f);
+			if (!BOSSSOUND()->IsPlaySound("Boss_Run"))
+				BOSSSOUND()->Play("Boss_Run", 1.f * VOLUME);
 			currunparticle++;
 			if (currunparticle >= 3)
 				currunparticle = 0;
