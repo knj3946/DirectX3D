@@ -1,6 +1,6 @@
 ﻿#include "Framework.h"
 #include "Player.h"
-
+bool Player::modeld = false;
 Player::Player()
     : ModelAnimator("akai")
 {
@@ -256,6 +256,11 @@ Player::~Player()
 
 void Player::Update()
 {
+    if (isDying)
+    {
+        MenuManager::Get()->SetFailFlag(true);
+    }
+
     ColliderManager::Get()->SetHeight();
     if(!isClimb)
         ColliderManager::Get()->PushPlayer();
@@ -589,6 +594,20 @@ void Player::Climbing()
     climbCam->Pos().y += 8.0f;
 
     climbCam->UpdateWorld();
+}
+
+void Player::Respawn(Vector3 pos)
+{
+
+    SetState(IDLE);
+
+    curHP = maxHp;
+    hpBar->SetAmount(curHP / maxHp);
+
+    collider->SetActive(true);
+    isDying = false;
+
+    Pos() = pos;
 }
 
 void Player::Control()  //??????? ?????, ???콺 ??? ???

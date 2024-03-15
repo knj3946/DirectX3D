@@ -1,5 +1,5 @@
 #include "Framework.h"
-
+//#include "Objects/Manager/MonsterManager.h"
 ModelAnimator::ModelAnimator(string name)
     : Model(name)
 {
@@ -18,8 +18,21 @@ ModelAnimator::~ModelAnimator()
         delete clip;
         clip = nullptr;
     }
+    for (int i = 0; i < vecKey.size(); ++i) {
+        if (vecKey[i]->transforms.size() == 0)
+        {
+            vecKey[i] = nullptr;
+            continue;
+        }
 
-    vecKey;
+        if (nullptr != vecKey[i])
+        {
+            delete vecKey[i];
+            vecKey[i] = nullptr;
+        }
+    }
+    vecKey.clear();
+    
     delete frameBuffer;
 
     delete[] clipTransforms;
@@ -80,7 +93,8 @@ void ModelAnimator::ReadClip(string clipName, UINT clipNum, string lockBone)
        
         KeyFrame* keyFrame = new KeyFrame();
         keyFrame->boneName = reader->String();
-        vecKey.push_back(keyFrame);
+     if(Player::modeld)
+         vecKey.push_back(keyFrame);
         UINT size = reader->UInt();
         if (size > 0)
         {

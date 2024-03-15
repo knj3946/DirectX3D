@@ -94,11 +94,12 @@ public:
 
     Transform* GetTransform() { return transform; }
     CapsuleCollider* GetCollider() { return collider; }
+    CapsuleCollider* GetMoveCollider() { return moveCollider; }
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
     void RotationRestore();
     float GetDamage();
     void Hit(float damage,Vector3 collisionPos,bool _btrue=false);
-    void Spawn(Vector3 pos);
+    void Spawn(Vector3 pos = {0,0,0});
 
     void AddObstacleObj(Collider* collider);
 
@@ -108,7 +109,7 @@ public:
 
     bool FindTarget() { return bSensor; }
 
-    void Findrange();
+    void Findrange(float startCool);
 
     void SetOutLine(bool flag);
     bool IsOutLine() { return outLine; };
@@ -121,6 +122,8 @@ public:
 
     void CoolDown();
     void SetGroundPos();
+
+    void SetStartCoolDown(float cool) { this->searchStartCoolDown = cool; }
 private:
     void Control();
     void Move();
@@ -152,7 +155,7 @@ private:
     bool TerainComputePicking(Vector3& feedback, Ray ray);
     bool EyesRayToDetectTarget(Collider* targetCol, Vector3 orcEyesPos);
     void RangeCheck();
-    void  SoundPositionCheck();;
+    void SoundPositionCheck();;
     
     void Throw();
 
@@ -199,6 +202,7 @@ private:
     AStar* aStar;
 
     float searchCoolDown = 0.0f;
+    float searchStartCoolDown = 0.0f;
     Transform* target;
     CapsuleCollider* targetCollider;
 
@@ -213,6 +217,8 @@ private:
 
     Transform* transform;
     CapsuleCollider* collider;
+    CapsuleCollider* moveCollider;
+
     vector<Collider*> weaponColliders;
 
     ProgressBar* hpBar;

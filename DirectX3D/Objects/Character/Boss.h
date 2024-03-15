@@ -169,6 +169,7 @@ private:
     bool isDying = false;
     bool isAssassinated = false;
     float DetectionRange;
+    bool IsPlayer = false;
 private:
     void CoolDown()
     {

@@ -24,6 +24,7 @@ private:
     //typedef Terrain LevelData;
     UINT SIZE = 1;
 public:
+   
     MonsterManager();
     ~MonsterManager();
 
@@ -71,6 +72,7 @@ public:
     void SetShader(wstring file);
     void SetBoss(Boss* _boss) { boss = _boss; }
 
+    void Respawn();
 private:
     void Collision();   
 
@@ -101,6 +103,7 @@ private:
     BlendState* blendState[2];
     DepthStencilState* depthState[2];
     RasterizerState* rasterizerState[2];
+
 
 
     Shadow* shadow; // ±×¸²ÀÚ

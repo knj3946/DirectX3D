@@ -5,12 +5,19 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     //클립 생성해두기 
     string modelName = "Orc";
 
-    //충돌체
+    //히트 충돌체
     collider = new CapsuleCollider(40, 120);
     collider->SetParent(transform);
     //collider->Rot().z = XM_PIDIV2 - 0.2f;
     collider->Pos() = { -15, 80, 0 };
     collider->SetActive(false); //spawn 할때 활성화
+
+    //이동 충돌체
+    moveCollider = new CapsuleCollider(5, 120);
+    moveCollider->SetParent(transform);
+    //moveCollider->Rot().z = XM_PIDIV2 - 0.2f;
+    moveCollider->Pos() = { -15, 80, 0 };
+    moveCollider->SetActive(false); //spawn 할때 활성화
 
     // 무기 충돌체
     leftHand = new Transform();
@@ -121,11 +128,11 @@ void Orc::SetType(NPC_TYPE _type) {
     switch (_type)
     {
     case Orc::NPC_TYPE::ATTACK:// 오크 타입에 따라 탐지 범위 지정 (현재 임시)
-        informrange = 50;
+        informrange = 40;
         type = NPC_TYPE::ATTACK;
         break;
     case Orc::NPC_TYPE::INFORM:
-        informrange = 100;
+        informrange = 70;
         type = NPC_TYPE::INFORM;
         break;
     default:
@@ -474,6 +481,7 @@ void Orc::Spawn(Vector3 pos)
 
     transform->SetActive(true); //비활성화였다면 활성화 시작
     collider->SetActive(true);
+    moveCollider->SetActive(true);
     //leftWeaponCollider->SetActive(true);
     //rightWeaponCollider->SetActive(true);
 }
@@ -491,7 +499,7 @@ void Orc::AttackTarget()
 }
 
 
-void Orc::Findrange()
+void Orc::Findrange(float startCool)
 {
     if (curState == ATTACK)return;
     // 탐지시 범위에 닿은 애에게 설정
@@ -499,6 +507,8 @@ void Orc::Findrange()
     DetectionStartTime = DetectionEndTime;
     isTracking = true;
     SetState(RUN);
+
+    /*
     if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
     {
         SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
@@ -508,7 +518,11 @@ void Orc::Findrange()
         path.clear(); // 굳이 장애물없는데 길찾기 필요 x
         path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
     }
+    */
+
     behaviorstate = NPC_BehaviorState::DETECT;
+
+    searchStartCoolDown = startCool;
 }
 
 void Orc::Assassinated(Vector3 collisionPos,Transform* attackerTrf)
@@ -554,7 +568,7 @@ void Orc::Control()
     if (behaviorstate == NPC_BehaviorState::CHECK)return;
     if (behaviorstate == NPC_BehaviorState::SOUNDCHECK)return;
     if (curState == DYING)return;
-    if (searchCoolDown > 1)
+    if (searchCoolDown > 1 && searchStartCoolDown <= 0)
     {
         Vector3 dist = target->Pos() - transform->GlobalPos();
 
@@ -618,6 +632,7 @@ void Orc::Control()
             {
                 // 가장 최근 보였던 곳으로 이동
                 // 놔두면 자동으로 최근까지 이동한다. 
+                /*
                 if (aStar->IsCollisionObstacle(transform->GlobalPos(), restorePos))// 중간에 장애물이 있으면
                 {
                     SetPath(restorePos); // 구체적인 경로 내어서 가기
@@ -627,6 +642,10 @@ void Orc::Control()
                     path.clear(); // 굳이 장애물없는데 길찾기 필요 x
                     path.push_back(restorePos); // 가야할 곳만 경로에 집어넣기
                 }
+                */
+
+                //직선레이에 장애물이 탐지되지 않아도 몸통 콜라이더가 걸려서 못갈수도 있기 때문에 항상 경로 내기
+                SetPath(restorePos); // 구체적인 경로 내어서 가기
             }
             else
             {
@@ -648,6 +667,11 @@ void Orc::Control()
     }
     else
         searchCoolDown += DELTA;
+
+    if (searchStartCoolDown > 0.f)
+        searchStartCoolDown -= DELTA;
+    else
+        searchStartCoolDown = 0.f;
 }
 
 void Orc::Move()
@@ -977,8 +1001,6 @@ void Orc::SetPath(Vector3 targetPos)
 
     // 다시 조정된, 내가 갈 수 있는 경로에, 최종 목적지를 다시 한번 추가한다
     path.insert(path.begin(), targetPos);
-
-    
     //직선거리일때 한칸한칸이동할 필요가 없다 -> 장애물 전까지는 하나의 벡터로 가도 된다 ->MakeDirectionPath를 쓰는이유
 }
 

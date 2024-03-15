@@ -4,6 +4,7 @@
 MonsterManager::MonsterManager()
 {
     orcInstancing = new ModelAnimatorInstancing("character1");
+    Player::modeld = true;
     orcInstancing->ReadClip("Orc_Idle");
     //orcInstancing->ReadClip("Orc_Walk");
     orcInstancing->ReadClip("character1@walk3");
@@ -20,7 +21,7 @@ MonsterManager::MonsterManager()
 
     orcInstancing->ReadClip("Orc_Death"); // 기본 죽음
     orcInstancing->ReadClip("character1@death3");  // 암살 죽음
-
+    Player::modeld = false;
     // 몬스터 생성
     FOR(SIZE)
     {
@@ -48,6 +49,7 @@ MonsterManager::MonsterManager()
     rasterizerState[1]->CullMode(D3D11_CULL_NONE);
 
     shadow = new Shadow();
+
 }
 
 MonsterManager::~MonsterManager()
@@ -132,6 +134,7 @@ void MonsterManager::Update()
     }
     orcInstancing->Update();
     vecDetectionPos.clear();
+
 }
 
 void MonsterManager::Render(bool exceptOutLine)
@@ -248,9 +251,9 @@ void MonsterManager::Blocking(Collider* collider)
     {
         if (collider->Role() == Collider::Collider_Role::BLOCK)
         {
-            if (collider->IsCollision(item.second.orc->GetCollider()))
+            if (collider->IsCollision(item.second.orc->GetMoveCollider()))
             {
-                Vector3 dir = item.second.orc->GetCollider()->GlobalPos() - collider->GlobalPos();
+                Vector3 dir = item.second.orc->GetMoveCollider()->GlobalPos() - collider->GlobalPos();
 
                 int maxIndex = 0;
                 float maxValue = -99999.0f;
@@ -370,11 +373,12 @@ void MonsterManager::CalculateDistance()
                 pos.y = vecDetectionPos[i].y;
                 pos.z = vecDetectionPos[i].z;
                 if (Distance(pos, item.second.orc->GetTransform()->GlobalPos()) <= vecDetectionPos[i].w) {
-                    item.second.orc->Findrange();
+                    item.second.orc->Findrange((i+1)*0.2f);
                 }
             }
         }
     }
+    
 }
 
 void MonsterManager::OnOutLineByRay(Ray ray)
@@ -451,6 +455,17 @@ void MonsterManager::SetOrcGround()
 void MonsterManager::SetShader(wstring file)
 {
     orcInstancing->SetShader(file);
+}
+
+void MonsterManager::Respawn()
+{
+    for (const pair<int, OrcInfo>& item : orcs)
+    {
+        if (item.second.isActive)
+        {
+            item.second.orc->Spawn();
+        }
+    }
 }
 
 void MonsterManager::Collision()

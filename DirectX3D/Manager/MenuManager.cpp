@@ -9,6 +9,17 @@ MenuManager::MenuManager()
 	gameStartScreen->Pos() = { CENTER_X, CENTER_Y, 0 };
 	gameStartScreen->UpdateWorld();
 
+	gameFailScreen = new Quad(Vector2(1280, 720));
+	gameFailScreen->GetMaterial()->SetDiffuseMap(L"Textures/Etc/failScreen.png");//임시
+	gameFailScreen->Pos() = { CENTER_X, CENTER_Y, 0 };
+	gameFailScreen->UpdateWorld();
+
+	gameEndScreen = new Quad(Vector2(1280, 720));
+	gameEndScreen->GetMaterial()->SetDiffuseMap(L"Textures/Etc/sun.jpg");//임시
+	gameEndScreen->Pos() = { CENTER_X, CENTER_Y, 0 };
+	gameEndScreen->UpdateWorld();
+
+
 	loadingBar = new ProgressBar(L"Textures/UI/hp_bar2.png", L"Textures/UI/hp_bar2_BG.png"); //임시
 	loadingBar->Scale() = { 0.2,0.1,0.1 };
 	loadingBar->Pos() = { CENTER_X,CENTER_Y - 200,0 };
@@ -29,7 +40,22 @@ MenuManager::MenuManager()
 	menuBackGround->GetMaterial()->SetDiffuseMap(L"Textures/UI/menu_back.png");
 	menuBackGround->GetMaterial()->GetData().diffuse.w = 1.9f;
 	gameMenu->SetMenuBackGround(menuBackGround);
-	
+
+	failMenu = new GameMenu(Vector3(1, 1, 1), Vector3(CENTER_X, CENTER_Y, 0));
+
+	Quad* failMenu1 = new Quad(Vector2(340, 80));
+	failMenu1->GetMaterial()->SetDiffuseMap(L"Textures/UI/fail_1.png");
+	failMenu->AddMenu(failMenu1);
+
+	Quad* failMenu2 = new Quad(Vector2(340, 80));
+	failMenu2->GetMaterial()->SetDiffuseMap(L"Textures/UI/menu_exit.png");
+	failMenu->AddMenu(failMenu2);
+
+	Quad* failMenuBackGround = new Quad(Vector2(340, 80));
+	failMenuBackGround->GetMaterial()->SetDiffuseMap(L"Textures/UI/menu_back.png");
+	failMenuBackGround->GetMaterial()->GetData().diffuse.w = 1.9f;
+	failMenu->SetMenuBackGround(failMenuBackGround);
+
 }
 
 MenuManager::~MenuManager()
@@ -37,6 +63,7 @@ MenuManager::~MenuManager()
 	delete gameStartScreen;
 	delete loadingBar;
 	delete gameMenu;
+	delete failMenu;
 	
 }
 
@@ -58,6 +85,16 @@ void MenuManager::PostRender()
 	{
 		gameStartScreen->Render();
 		gameMenu->Render();
+	}
+
+	if (failFlag)
+	{
+		gameFailScreen->Render();
+		failMenu->Render();
+	}
+	else if (endFlag)
+	{
+		gameEndScreen->Render();
 	}
 }
 
@@ -104,6 +141,31 @@ void MenuManager::GameMenuUpdate()
 			gameMenu->GetQuad(i)->GetMaterial()->SetDiffuseMap(L"Textures/Color/Green.png");//임시
 	}
 	*/
+}
+
+void MenuManager::FailMenuUpdate()
+{
+	if (KEY_DOWN(VK_UP))
+	{
+		fail_cursor--;
+		if (fail_cursor < 1)
+			fail_cursor = 1;
+	}
+
+	if (KEY_DOWN(VK_DOWN))
+	{
+		fail_cursor++;
+		if (fail_cursor > 2)
+			fail_cursor = 2;
+	}
+	if (KEY_DOWN(VK_RETURN))
+	{
+		fail_select = fail_cursor;
+		return;
+	}
+
+	failMenu->SetMenuBackGroundPos(fail_cursor - 1);
+	
 }
 
 bool MenuManager::IsPickGameExit()

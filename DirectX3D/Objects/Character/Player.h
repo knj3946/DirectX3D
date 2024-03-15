@@ -4,23 +4,23 @@ class Player : public ModelAnimator
 private:
     enum State
     {
-        IDLE,                                                   
-        RUN_F, RUN_B, RUN_L, RUN_R,                             
-        RUN_DL, RUN_DR,                                        
-        JUMP1, JUMP2, JUMP3, JUMP4,                            
-        TO_COVER, C_IDLE, C_R, C_L, TO_STAND,                   
-        HIT,                                                    
-        CLIMBING1, CLIMBING2, CLIMBING3,                       
-        CLIMBING_JUMP_L, CLIMBING_JUMP_R, CLIMBING_DOWN,        
+        IDLE,
+        RUN_F, RUN_B, RUN_L, RUN_R,
+        RUN_DL, RUN_DR,
+        JUMP1, JUMP2, JUMP3, JUMP4,
+        TO_COVER, C_IDLE, C_R, C_L, TO_STAND,
+        HIT,
+        CLIMBING1, CLIMBING2, CLIMBING3,
+        CLIMBING_JUMP_L, CLIMBING_JUMP_R, CLIMBING_DOWN,
         CLIMBING_JUMP_D,
-        KICK,                                   
-        ASSASSINATION1, ASSASSINATION2,       
-        DAGGER1, DAGGER2, DAGGER3,              
-        B_IDLE,                                
-        B_RUN_F, B_RUN_B, B_RUN_L, B_RUN_R,     
-        B_DRAW, B_ODRAW, B_AIM, B_RECOIL,       
-        B_S_TO_C, B_C_TO_S, B_C_IDLE,        
-        B_C_F, B_C_B, B_C_L, B_C_R            
+        KICK,
+        ASSASSINATION1, ASSASSINATION2,
+        DAGGER1, DAGGER2, DAGGER3,
+        B_IDLE,
+        B_RUN_F, B_RUN_B, B_RUN_L, B_RUN_R,
+        B_DRAW, B_ODRAW, B_AIM, B_RECOIL,
+        B_S_TO_C, B_C_TO_S, B_C_IDLE,
+        B_C_F, B_C_B, B_C_L, B_C_R
     };
 
     enum WeaponState
@@ -65,9 +65,10 @@ private:
     typedef TerrainEditor LevelData;
     typedef VertexUVNormalTangentAlpha VertexType;
 
-    
+
 
 public:
+    static  bool modeld;
     Player();
     ~Player();
 
@@ -94,7 +95,7 @@ public:
 
     float GetDamage();
     void Hit(float damage);
-    void Hit(float damage,bool camerashake);// 카메라쉐이크용
+    void Hit(float damage, bool camerashake);// 카메라쉐이크용
 
     void SetHeadCrash(bool headCrash) { this->headCrash = headCrash; }
     void SetBow(Transform* _transform) { BowInstallation = _transform; }
@@ -104,7 +105,7 @@ public:
 
     void Assassination();
 
-    void Climb(Collider* col,Vector3 climbPos);
+    void Climb(Collider* col, Vector3 climbPos);
 
     void SetClimbAnim();
 
@@ -114,6 +115,7 @@ public:
 
     void SetBoss(class Boss* _boss) { boss = _boss; }
 
+    void Respawn(Vector3 pos = {0,0,0});
 private:
 
     void Control();

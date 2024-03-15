@@ -92,7 +92,11 @@ void InteractManager::Climb(Collider* col)
     }
     if (maxIndex > -1)
     {
+<<<<<<< HEAD
         float rotY = asin(maxValue / v2m1.Length());
+=======
+        float rotY = asin(maxValue/v2m1.Length());
+>>>>>>> 9e7772b5e3e0e03446cb5c86eb06a70d8719cbbe
 
         if (maxIndex == 0) //x축일경우
         {
@@ -116,6 +120,10 @@ void InteractManager::Climb(Collider* col)
                 player->Rot().y = rotY;
             }
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 9e7772b5e3e0e03446cb5c86eb06a70d8719cbbe
     }
 }

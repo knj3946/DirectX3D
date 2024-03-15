@@ -417,14 +417,24 @@ void Boss::Move()
 }
 void Boss::IdleMove() {
 	if (state != BOSS_STATE::IDLE)return;
+	if (IsPlayer) {
+		if (!bWait)
+		{
+			bWait = true;
+			SetState(IDLE);
+			return;
+		}
+	}
+
 	if (IsPatrolPos())
 	{
-
+		
 		if (!bWait)
 		{
 			bWait = true;
 			SetState(IDLE);
 		}
+		
 	}
 
 
@@ -472,9 +482,20 @@ void Boss::Find()
 		if (dynamic_cast<Player*>(target)->IsCloaking()) {
 			state = BOSS_STATE::FIND;
 			questionMark->SetActive(true);
+			path.clear();
 			exclamationMark->SetActive(false);
 			FindPos = aStar->FindPos(transform->GlobalPos(), 30.f);
-			
+			if (aStar->IsCollisionObstacle(transform->GlobalPos(), FindPos)) // 중간에 장애물이 있으면
+			{
+				SetPath(FindPos); // 구체적인 경로 내어서 가기
+			}
+			else //장애물이 없는 경우
+			{
+				path.clear(); //3D에서 장애물도 없는데 굳이 길찾기를 쓸 필요 없음
+				path.push_back(FindPos); // 가야 할 곳만 경로 벡터에 집어넣기
+				// -> 그러면 여우는 Move()로 목적지를 찾아갈 것
+			}
+
 		}
 	}
 	if (state == BOSS_STATE::FIND) {
@@ -493,12 +514,8 @@ void Boss::Find()
 
 void Boss::Rotate()
 {
-	if (path.empty()) {
-		transform->Rot().y = atan2(dir.x, dir.z) + XM_PI; // XY좌표 방향 + 전후반전(문워크 방지)
 
-
-	}
-	else {
+	 if (!path.empty()) {
 		Vector3 dest = path.back();
 
 		Vector3 direction = dest - transform->GlobalPos();
@@ -511,8 +528,10 @@ void Boss::Rotate()
 			path.pop_back();
 		}
 		dir = direction.GetNormalized();
-		transform->Rot().y = atan2(dir.x, dir.z) + XM_PI; // XY좌표 방향 + 전후반전(문워크 방지)
+	//	transform->Rot().y = atan2(dir.x, dir.z) + XM_PI; // XY좌표 방향 + 전후반전(문워크 방지)
 	}
+	transform->Rot().y = atan2(dir.x, dir.z) + XM_PI; // XY좌표 방향 + 전후반전(문워크 방지)
+
 	float value = XMConvertToDegrees(transform->Rot().y);
 
 	if (value > 180.f) {
@@ -663,21 +682,36 @@ void Boss::Detection()
 	if (bDetection) {
 		float value= eyeSightRange / DetectionRange;
 		
-
+		IsPlayer = true;
 		DetectionStartTime += DELTA*value;
 		
-
+		questionMark->SetActive(true);
 	}
 	else {
-		DetectionStartTime -= DELTA;
-		if (DetectionStartTime <= 0.f)
+		if(DetectionStartTime>0.f)
+			DetectionStartTime -= DELTA;
+		if (DetectionStartTime < 0.f)
+		{
 			DetectionStartTime = 0.f;
+			bWait = false;
+			IsPlayer = false;
+			SetState(WALK);
+			if (IsPatrolPos()) {
+				curPatrol += 1;
+				if (curPatrol >= PatrolPos.size())
+					curPatrol = 0;
+			}
+			DetectionStartTime = 0.f;
+			questionMark->SetActive(false);
+		}
 	}
 
 	if (DetectionEndTime <= DetectionStartTime) {
 		if (bFind)return;
 		bFind = true;
 		state = BOSS_STATE::DETECT;
+		questionMark->SetActive(false);
+		IsPlayer = false;
 		exclamationMark->SetActive(true);
 		bWait = false;
 		if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos())) // 중간에 장애물이 있으면
@@ -759,6 +793,7 @@ void Boss::EndDying()
 		Runparticle[i]->Stop();
 	}
 	
+	MenuManager::Get()->SetEndFlag(true);
 }
 
 
@@ -869,6 +904,19 @@ bool Boss::IsFindPos()
 void Boss::IdleWalk()
 {
 	if (state != BOSS_STATE::IDLE)return;
+	if (IsPlayer) {
+		if (!bWait)
+		{
+			bWait = true;
+			SetState(IDLE);
+			return;
+		}
+	}
+	else
+	{
+		SetState(WALK);
+	}
+	
 	if (IsPatrolPos())
 	{
 		if (!bWait)
@@ -941,7 +989,16 @@ void Boss::Run()
 	else if(state==BOSS_STATE::FIND) {
 		if (IsFindPos()) {
 			FindPos = aStar->FindPos(transform->GlobalPos(), 30.f);
-
+			if (aStar->IsCollisionObstacle(transform->GlobalPos(), FindPos)) // 중간에 장애물이 있으면
+			{
+				SetPath(FindPos); // 구체적인 경로 내어서 가기
+			}
+			else //장애물이 없는 경우
+			{
+				path.clear(); //3D에서 장애물도 없는데 굳이 길찾기를 쓸 필요 없음
+				path.push_back(FindPos); // 가야 할 곳만 경로 벡터에 집어넣기
+				// -> 그러면 여우는 Move()로 목적지를 찾아갈 것
+			}
 		}
 
 		velocity = FindPos - transform->GlobalPos();
