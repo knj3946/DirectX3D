@@ -7,7 +7,7 @@ class Audio// : public Singleton<Audio>
 private:
     //friend class Singleton;
 
-    const int MAX_CHANNEL = 20;
+    //const int MAX_CHANNEL = 20;
 
     struct SoundInfo
     {
@@ -36,6 +36,7 @@ public:
     void Play(string key, float valume = 1.0f);
     void Play(string key, Float3 position, float valume = 1.0f);
     void Stop(string key);
+    void AllStop();
     void Pause(string key);
     void Resume(string key);
 
@@ -50,7 +51,7 @@ public:
         FMOD_VECTOR pos; FMOD_VECTOR vel; sounds[key]->channel->get3DAttributes(&pos, &vel); return vel;
     }
 private:
-    System* soundSystem;
+    //System* soundSystem;
 
     unordered_map<string, SoundInfo*> sounds;
 

@@ -6,6 +6,11 @@ SoundManager::SoundManager()
 	// 각 단어의 첫 문자만 대문자로
 
 	// 여기서 모든 오디오소스 추가
+
+	System_Create(&soundSystem);
+	soundSystem->init(MAX_CHANNEL, FMOD_INIT_NORMAL, nullptr);
+
+	soundSystem->set3DSettings(1.0f, 300.0f, 0.01f);
 }
 
 SoundManager::~SoundManager()
@@ -16,15 +21,25 @@ SoundManager::~SoundManager()
 
 	delete playerAudio;
 	delete bossAudio;
+	soundSystem->release();
 }
 
 void SoundManager::Update()
 {
-	playerAudio->Update();
+	if (GameControlManager::Get()->PauseGame())return;
+
+	//if (target == nullptr)return;
+	//listenerPos = { target->Pos().x, target->Pos().y, target->Pos().z };
+	listenerPos = { CAM->Pos().x, CAM->Pos().y, CAM->Pos().z };
+	soundSystem->set3DListenerAttributes(0, &listenerPos, nullptr, nullptr, nullptr);
+
+	soundSystem->update();
+
+	//playerAudio->Update();
 	//bossAudio->Update(); // 보스 생성하면 주석 해제하기
 
-	for (pair<int, Audio*> item : orcAudios)
-		item.second->Update();
+	//for (pair<int, Audio*> item : orcAudios)
+		//item.second->Update();
 }
 
 void SoundManager::GUIRender()
@@ -37,8 +52,11 @@ void SoundManager::OrcCreate(int id, Transform* t)
 
 	// 오크 사운드
 	audio->Add("Orc_Hit", "Sounds/Orc/hit.wav", false, false, true);
-	//audio->Add("Orc_Test", "Sounds/move.wav", false, true, true);
-	audio->Add("Orc_Walk", "Sounds/Orc/Orc_WALK.wav", false, true, true);
+	audio->Add("Orc_Attack", "Sounds/Orc/OrcAttack.mp3", false, false, false);
+	audio->Add("Orc_Attack2", "Sounds/Orc/OrcAttack2.mp3", false, false, false);
+	audio->Add("Orc_Walk", "Sounds/Orc/Orc_Walk.mp3", false, false, true);
+	audio->Add("Orc_Run", "Sounds/Orc/Orc_Run.wav", false, false, true);
+	audio->Add("Orc_Die", "Sounds/Orc/Die.mp3", false, false, true);
 
 	orcAudios.insert({ id,audio });
 }
@@ -49,7 +67,7 @@ void SoundManager::PlayerCreate(Transform* t)
 
 	// 배경음
 	audio->Add("bgm1", "Sounds/BGM/dramatic-choir.wav", true, true, false);
-	audio->Play("bgm1", 0.6f);
+	audio->Play("bgm1", 0.1f * VOLUME); // 조절필요
 
 	// 플레이어 사운드
 	audio->Add("Player_Move", "Sounds/Player/footstep.wav", false, true, true);	// 걷기
@@ -57,6 +75,9 @@ void SoundManager::PlayerCreate(Transform* t)
 	audio->Add("Player_Attack", "Sounds/Player/PlayerAttack.mp3", false, false, false);	// 대거 공격
 	audio->Add("Player_BowLoading", "Sounds/Player/BowLoading.mp3", false, false, false);	// 시위 당기기
 	audio->Add("Player_ShootArrow", "Sounds/Player/ShootArrow.mp3", false, false, false);	// 활 쏘기
+	audio->Add("Player_Land", "Sounds/Player/land.mp3", false, false, true);	// 착지
+	audio->Add("Player_Jump", "Sounds/Player/jump.mp3", false, false, false);	// 점프
+	audio->Add("Player_Hit", "Sounds/Player/Hit.mp3", false, false, false);		// 피격
 
 	playerAudio = audio;
 }

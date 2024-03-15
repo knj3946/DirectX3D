@@ -121,14 +121,17 @@ bool ArrowManager::IsCollision()
 	if (!bStart) { bStart = true; return false; }
 	for (Arrow* arrow : arrows)
 	{
-		if (arrow->IsDropItem())continue;
+		if (!arrow->GetTransform()->Active() || arrow->IsDropItem())continue;
 		for(int i = 0; i < ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC).size(); i++)
 		{
 			if (ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC)[i]->IsSphereCollision(arrow->GetCollider()))
 			{
 				arrow->GetCollider()->SetActive(false);
-				MonsterManager::Get()->GetOrc(i)->Hit(50, arrow->GetTransform()->GlobalPos(),false);
-				arrow->HitEffectActive();
+				//arrow->HitEffectActive();
+				MonsterManager::Get()->GetOrc(i)->Hit(20, arrow->GetTransform()->GlobalPos());// 화살데미지 임시설정
+				arrow->GetTrail()->SetActive(false);
+				arrow->GetTransform()->SetActive(false);
+				return true;
 			}
 		}
 	}
@@ -208,7 +211,7 @@ void ArrowManager::ActiveSpecialKey(Vector3 playPos, Vector3 offset, bool _btrue
 	
 }
 
-void ArrowManager::ExecuteSpecialKey()// 아이템을 주웠을떄 하게될 동작
+void ArrowManager::ExecuteSpecialKey()// 아이템을 주웠을 때 하게될 동작
 {
 	bow->SetActive(false);
 	

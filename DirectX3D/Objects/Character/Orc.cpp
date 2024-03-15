@@ -42,18 +42,51 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     eventIters.resize(instancing->GetClipSize());
 
     //이벤트 세팅
+#pragma region 공격 애니메이션 이벤트 설정
+    SetEvent(ATTACK1, bind([=]() {ORCSOUND(index)->AllStop(); isAnim = true; }), 0.01f);
+    SetEvent(ATTACK2, bind([=]() {ORCSOUND(index)->AllStop(); isAnim = true; }), 0.01f);
+    SetEvent(ATTACK3, bind([=]() {ORCSOUND(index)->AllStop(); isAnim = true; }), 0.01f);
+    SetEvent(ATTACK1, bind(&Orc::EndAttack, this), 0.99f);
+    SetEvent(ATTACK2, bind(&Orc::EndAttack, this), 0.99f);
+    SetEvent(ATTACK3, bind(&Orc::EndAttack, this), 0.99f);
+    // 공격별 타이밍 맞추기
+    SetEvent(ATTACK1, bind(&Collider::SetActive, leftWeaponCollider, true), 0.11f); //콜라이더 켜는 시점 설정
+    SetEvent(ATTACK2, bind(&Collider::SetActive, leftWeaponCollider, true), 0.11f); //콜라이더 켜는 시점 설정
+    SetEvent(ATTACK3, bind(&Collider::SetActive, leftWeaponCollider, true), 0.11f); //콜라이더 켜는 시점 설정
+    SetEvent(ATTACK1, bind(&Collider::SetActive, rightWeaponCollider, true), 0.12f); //콜라이더 켜는 시점 설정
+    SetEvent(ATTACK2, bind(&Collider::SetActive, rightWeaponCollider, true), 0.12f); //콜라이더 켜는 시점 설정
+    SetEvent(ATTACK3, bind(&Collider::SetActive, rightWeaponCollider, true), 0.12f); //콜라이더 켜는 시점 설정
+
+    SetEvent(ATTACK1, bind(&Collider::SetActive, leftWeaponCollider, false), 0.98f); //콜라이더 꺼지는 시점 설정
+    SetEvent(ATTACK2, bind(&Collider::SetActive, leftWeaponCollider, false), 0.98f); //콜라이더 꺼지는 시점 설정
+    SetEvent(ATTACK3, bind(&Collider::SetActive, leftWeaponCollider, false), 0.98f); //콜라이더 꺼지는 시점 설정
+    SetEvent(ATTACK1, bind(&Collider::SetActive, rightWeaponCollider, false), 0.99f); //콜라이더 꺼지는 시점 설정
+    SetEvent(ATTACK2, bind(&Collider::SetActive, rightWeaponCollider, false), 0.99f); //콜라이더 꺼지는 시점 설정
+    SetEvent(ATTACK3, bind(&Collider::SetActive, rightWeaponCollider, false), 0.99f); //콜라이더 꺼지는 시점 설정
+
+    // 공격별 사운드 타이밍
+    SetEvent(ATTACK1, bind([=]() {ORCSOUND(index)->Play("Orc_Attack",attackVolume*VOLUME); }), 0.31f);
+    SetEvent(ATTACK2, bind([=]() {ORCSOUND(index)->Play("Orc_Attack", attackVolume* VOLUME); }), 0.25f);
+    SetEvent(ATTACK2, bind([=]() {ORCSOUND(index)->Play("Orc_Attack", attackVolume*VOLUME); }), 0.66f);
+    SetEvent(ATTACK3, bind([=]() {ORCSOUND(index)->Play("Orc_Attack2", attackVolume* VOLUME); }), 0.31f);
+    SetEvent(ATTACK3, bind([=]() {ORCSOUND(index)->Play("Orc_Attack2", attackVolume*VOLUME); }), 0.70f);
+
+
+#pragma endregion
+
+   
+    
+    SetEvent(THROW, bind([=]() {ORCSOUND(index)->Stop("Orc_Run"); isAnim = true; }), 0.01f);
     SetEvent(ATTACK, bind(&Orc::StartAttack, this), 0.3f);
     SetEvent(ATTACK, bind(&Orc::EndAttack, this), 0.99f);
     SetEvent(THROW, bind(&Orc::Throw, this), 0.59f);
-    SetEvent(HIT, bind(&Orc::EndHit, this), 0.99f);
+    SetEvent(THROW, bind([=]() {isAnim = false; }), 0.99f);
+    SetEvent(HIT, bind([=]() {ORCSOUND(index)->Stop("Orc_Run"); isAnim = true; }), 0.01f);
+    SetEvent(HIT, bind(&Orc::EndHit, this), 0.95f);
     SetEvent(ASSASSINATED, bind(&Orc::EndAssassinated, this), 0.9f);
     SetEvent(DYING, bind(&Orc::EndDying, this), 0.9f);
 
-    SetEvent(ATTACK,bind(&Collider::SetActive, leftWeaponCollider, true), 0.11f); //콜라이더 켜는 시점 설정
-    SetEvent(ATTACK,bind(&Collider::SetActive, rightWeaponCollider, true), 0.12f); //콜라이더 켜는 시점 설정
-
-    SetEvent(ATTACK,bind(&Collider::SetActive, leftWeaponCollider, false), 0.98f); //콜라이더 꺼지는 시점 설정
-    SetEvent(ATTACK,bind(&Collider::SetActive, rightWeaponCollider, false), 0.99f); //콜라이더 꺼지는 시점 설정
+    
 
     FOR(totalEvent.size())
     {
@@ -154,7 +187,11 @@ void Orc::Update()
         Detection(); //플레이어를 인지했는지 확인하는 함수
         RangeCheck(); //발견되었다가 사라진 플레이어 탐지
     }
-    
+
+    // 사운드 테스트
+    SoundControl();
+    //-------------------------
+
     TimeCalculator(); //공격 간격을 두기 위한 설정
     //ParticleUpdate(); //파티클이펙트 업데이트
     UpdateUI(); //UI 업데이트
@@ -190,7 +227,7 @@ void Orc::Render()
     leftWeaponCollider->Render();
     rightWeaponCollider->Render();
     hpBar->Render();
-    if(behaviorstate != NPC_BehaviorState::DETECT)
+    if(behaviorstate != NPC_BehaviorState::DETECT&& !isDying) // 죽으면 바로 렌더안하게
         rangeBar->Render();
     //aStar->Render();
 
@@ -249,10 +286,20 @@ void Orc::SetSRT(Vector3 scale, Vector3 rot, Vector3 pos)
 
 void Orc::GUIRender()
 {
-    ImGui::Text("OrcWalkVolume : %f", ORCSOUND(index)->GetVolume("Orc_Walk"));
+    ImGui::Text("OrcRunVolume : %f", lastRunVolume);
+    ImGui::Text("OrcWalkVolume : %f", lastWalkVolume);
+    ImGui::Text("OrcHitVolume : %f",lastVolume);
     ImGui::Text("earCal : %d", bSound);
+    ImGui::Text("lastDist : %f", lastDist);
 
-    ImGui::Text("bFind : %d", bFind);
+    ImGui::Text("curState : %d", curState);
+
+
+    //ImGui::SliderFloat("OrcMoveSound", &volume, 0, 10);
+
+    //ImGui::SliderFloat("OrcWalkSetVolume", &walkVolumeS, 0, 100);
+
+    /*ImGui::Text("bFind : %d", bFind);
     ImGui::Text("bDetection : %d", bDetection);
     ImGui::Text("isTracking : %d", isTracking);
     ImGui::Text("path.empty() : %d", path.empty());
@@ -261,11 +308,11 @@ void Orc::GUIRender()
     ImGui::Text("curState : %d", curState);
 
     ImGui::Text("FeedbackPosY : %f", feedBackPos.y);
-    ImGui::Text("eyeSightRange : %f", eyeSightRange);
+    ImGui::Text("eyeSightRange : %f", eyeSightRange);*/
     //ImGui::Text("curhp : %f", curHP);
     //ImGui::Text("desthp : %f", destHP);
 
-    rangeBar->GUIRender();
+    //rangeBar->GUIRender();
 
     /*
     if (!path.empty())
@@ -346,7 +393,7 @@ bool Orc::CalculateHit()
 {
     if (isHit)
     {
-        SetState(HIT);
+        //SetState(HIT);
 
         if (!bFind)
         {
@@ -365,11 +412,11 @@ bool Orc::CalculateHit()
 
         if (curHP <= destHP)
         {
-            isHit = false;
-            collider->SetActive(true);
-            leftWeaponCollider->SetActive(true);
-            rightWeaponCollider->SetActive(true);
-            SetState(IDLE);
+            //isHit = false;
+            //collider->SetActive(true);
+            //leftWeaponCollider->SetActive(true);
+            //rightWeaponCollider->SetActive(true);
+            //SetState(IDLE);
         }
 
         return true; 
@@ -394,7 +441,7 @@ void Orc::PartsUpdate()
 
 void Orc::StateRevision()
 {
-    if (curState != ATTACK)
+    if (curState != ATTACK1 && curState!=ATTACK2 && curState!=ATTACK3)
     {
         leftWeaponCollider->SetActive(false);
         rightWeaponCollider->SetActive(false);
@@ -404,6 +451,81 @@ void Orc::StateRevision()
 void Orc::ParticleUpdate()
 {
     particleHit->Update();
+}
+
+void Orc::SoundControl()
+{
+    if (!isAnim)
+    {
+        if (curState != RUN && curState != WALK)
+        {
+            // 달리거나 걷는 상태가 아니면 소리 멈추가ㅣ
+            ORCSOUND(index)->Stop("Orc_Run");
+            ORCSOUND(index)->Stop("Orc_Walk");
+            return;
+        }
+
+        if (bFind && !ORCSOUND(index)->IsPlaySound("Orc_Run") && curState == RUN)
+        {
+            ORCSOUND(index)->Play("Orc_Run");
+        }
+        if (bFind && ORCSOUND(index)->IsPlaySound("Orc_Run") && curState == RUN)
+        {
+            float distance = Distance(target->Pos(), transform->Pos());
+            distance = (distance > 50) ? 50 : distance;
+            ORCSOUND(index)->SetVolume("Orc_Run", (50 - distance) / 10.0f * VOLUME);
+            lastDist = distance;
+            lastRunVolume = (50 - distance) / 10.0f * VOLUME;
+        }
+        else
+        {
+            ORCSOUND(index)->Stop("Orc_Run");
+        }
+
+        if (behaviorstate == NPC_BehaviorState::IDLE)
+        {
+            if (curState == WALK)
+            {
+                if (!ORCSOUND(index)->IsPlaySound("Orc_Walk"))
+                {
+                    ORCSOUND(index)->Play("Orc_Walk");
+                }
+                else
+                {
+                    float distance = Distance(target->Pos(), transform->Pos());
+                    distance = (distance > 40) ? 40 : distance;
+                    ORCSOUND(index)->SetVolume("Orc_Walk", (40 - distance) / 30.0f * VOLUME);
+                    lastWalkVolume = (40 - distance) / 30.0f * VOLUME;
+                    lastDist = distance;
+                }
+            }
+            else
+            {
+                ORCSOUND(index)->Stop("Orc_Walk");
+            }
+
+        }
+    }
+}
+
+void Orc::SetAttackState()
+{
+    if (curState == ATTACK1 || curState == ATTACK2 || curState == ATTACK3)return;
+    int randNum = GameMath::Random(0, 3);
+    switch (randNum)
+    {
+    case 0:
+        SetState(ATTACK1,0.7);
+        break;
+    case 1:
+        SetState(ATTACK2,0.8);
+        break;
+    case 2:
+        SetState(ATTACK3,0.7);
+        break;
+    default:
+        break;
+    }
 }
 
 void Orc::RotationRestore()
@@ -428,7 +550,7 @@ void Orc::RotationRestore()
 float Orc::GetDamage()
 {
     float r = 0.0f;
-    if (curState == ATTACK)
+    if (curState == ATTACK1||curState==ATTACK2||curState==ATTACK3)
     {
         r = 10.0f;// 임시로 바꿈 10 -> 60
     }
@@ -439,13 +561,8 @@ void Orc::Hit(float damage,Vector3 collisionPos, bool _btrue)
 {
     if (!isHit)
     {
-        if (!ORCSOUND(index)->IsPlaySound("Orc_Hit"))
-        {
-            float distance = Distance(target->Pos(), transform->Pos());
-            distance = (distance < 30) ? distance : 0;
-            ORCSOUND(index)->Play("Orc_Hit", 30 - distance); // 크기조절 가까울수록 사운드 커지게
-            
-        }
+        //ORCSOUND(index)->AllStop();
+
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
         collider->SetActive(false);
@@ -453,9 +570,18 @@ void Orc::Hit(float damage,Vector3 collisionPos, bool _btrue)
         rightWeaponCollider->SetActive(false);
         if (destHP <= 0)
         {
+            
             isDying = true;
             SetState(DYING);
             return;
+        }
+
+        if (!ORCSOUND(index)->IsPlaySound("Orc_Hit"))
+        {
+            float distance = Distance(target->Pos(), transform->Pos());
+            distance = (distance > 40) ? 40 : distance;
+            ORCSOUND(index)->Play("Orc_Hit", (40 - distance) / 10.0f * VOLUME); // 크기조절 가까울수록 사운드 커지게
+            lastVolume = ORCSOUND(index)->GetVolume("Orc_Hit");
         }
 
         SetState(HIT);
@@ -487,7 +613,7 @@ void Orc::Spawn(Vector3 pos)
 
 void Orc::AttackTarget()
 {
-    return;
+    //return;//??
     if (!bFind)
     {
         bFind = true;
@@ -500,7 +626,7 @@ void Orc::AttackTarget()
 
 void Orc::Findrange(float startCool)
 {
-    if (curState == ATTACK)return;
+    if (curState == ATTACK1 || curState == ATTACK2 || curState == ATTACK3)return;
     // 탐지시 범위에 닿은 애에게 설정
     bFind = true; bDetection = true;
     DetectionStartTime = DetectionEndTime;
@@ -612,7 +738,8 @@ void Orc::Control()
                 {
                     path.clear();
                     
-                    SetState(ATTACK);
+                    // 세팅할 때는 1을 주고 함수안에서 랜덤으로 정한다.
+                    SetAttackState();
                 }
 
             }
@@ -699,14 +826,16 @@ void Orc::Move()
         }
         else
         {
-            SetState(ATTACK);
+            SetAttackState();
         }
     }
     
     
     float f=velocity.Length();
     if (curState == IDLE) return; 
-    if (curState == ATTACK) return;
+    if (curState == ATTACK1) return;
+    if (curState == ATTACK2) return;
+    if (curState == ATTACK3) return;
     if (curState == THROW) return;
     if (curState == HIT) return;
     if (curState == DYING) return;
@@ -782,7 +911,7 @@ void Orc::Move()
 
 void Orc::IdleAIMove()
 {
-    // WALK애니메이션 해결 -> Orc_Walk0.clip 대신 character1@walk30.clip 사용할 것
+    // WALK애니메이션 해결 -> Orc_Run0.clip 대신 character1@walk30.clip 사용할 것
 
     if (behaviorstate == NPC_BehaviorState::CHECK)return;
   
@@ -914,69 +1043,40 @@ void Orc::SetState(State state, float scale, float takeTime)
 {
     if (state == curState) return; // 이미 그 상태라면 굳이 변환 필요 없음
 
-    // 테스트
-    if (state == WALK || state == RUN)
-    {
-        float distance = Distance(target->Pos(), transform->Pos());
-        distance = (distance < 30) ? distance : 0;
-        if (!ORCSOUND(index)->IsPlaySound("Orc_Walk"))
-        {
-            ORCSOUND(index)->Play("Orc_Walk", 30 - distance);
-        }
-        else
-        {
-            ORCSOUND(index)->SetVolume("Orc_Walk", 30 - distance);
-        }
-    }
-    else
-        ORCSOUND(index)->Stop("Orc_Walk");
+    // 공격을 할때는 우선 SetAttackState()로 설정하고 이 함수 안에서 1,2,3 중 한개 모션으로 실행한다.
+
+    if (state != HIT && isHit)return;
 
     // 공격 속도 조절 -> Attack이지만 attackSpeed만큼 시간이 지나지 않았다면 공격 x
-    if (state == ATTACK && !isAttackable)
+    if (state == ATTACK1 && !isAttackable)
     {
         state = IDLE;
         //return;
     }
-    if (state == ATTACK || state == THROW)
+    if (state == ATTACK1 || state == THROW)
     {
         // 방향도 바꾸기
         velocity = target->Pos() - transform->Pos();
         transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI;
     }
     curState = state; //매개변수에 따라 상태 변화
-    if (state == ATTACK)
-    {
-        int randNum = GameMath::Random(0, 3);
-        //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
-        switch (randNum)
-        {
-        case 0:
-            instancing->PlayClip(index, (int)state + randNum, 0.7);
-            break;
-        case 1:
-            instancing->PlayClip(index, (int)state + randNum, 0.7);
-            break;
-        case 2:
-            instancing->PlayClip(index, (int)state + randNum, 0.7);
-            break;
 
-        default:
-            break;
-        }
-    }
-    else if (curState == DYING)
+    if (curState == DYING)
     {
-        if(isAssassinated)
-            instancing->PlayClip(index, (int)state + 3, 0.8);
+        ORCSOUND(index)->AllStop();
+        ORCSOUND(index)->Play("Orc_Die", dieVolume * VOLUME);
+        if (isAssassinated)
+        {
+            instancing->PlayClip(index, (int)state + 1, 0.8);
+        }
         else
-            instancing->PlayClip(index, (int)state + 2, 0.8);
+            instancing->PlayClip(index, (int)state + 0, 0.8);
     }
     else
         instancing->PlayClip(index, (int)state, scale); //인스턴싱 내 자기 트랜스폼에서 동작 수행 시작
+    
+    
     eventIters[state] = totalEvent[state].begin(); //이벤트 반복자도 등록된 이벤트 시작시점으로
-
-    // ->이렇게 상태와 동작을 하나로 통합해두면
-    // ->이 캐릭터는 상태만 바꿔주면 행동은 그때그때 알아서 바꿔준다
 }
 
 void Orc::SetPath(Vector3 targetPos)
@@ -1045,6 +1145,7 @@ void Orc::EndAttack()
 {
     isAttackable = false;
     SetState(IDLE);
+    isAnim = false;
     battacktarget = false;
     //SetState(ATTACK);
 }
@@ -1052,6 +1153,9 @@ void Orc::EndAttack()
 void Orc::EndHit()
 {
     collider->SetActive(true);
+    isAnim = false;
+    isHit = false;
+    SetState(IDLE);
 }
 
 void Orc::EndAssassinated()
@@ -1068,6 +1172,8 @@ void Orc::EndAssassinated()
 
 void Orc::EndDying()
 {
+    //ORCSOUND(index)->AllStop();
+
     instancing->SetOutLine(index, false);
     MonsterManager::Get()->specialKeyUI["assassination"].active = false;
     ColliderManager::Get()->PopCollision(ColliderManager::Collision_Type::ORC, collider);
@@ -1202,14 +1308,19 @@ void Orc::CalculateEarSight()
     Vector3 pos;
     float volume = -1.f;
     float distance = -1.f;
-    if (ORCSOUND(index)->IsPlaySound("Player_Move")) {
+
+    // 현재 시프트 누르면 이동속도를 낮춘다. 
+    // 나중에 느리게 걷기 사운드를 추가한다면 변경하기
+    if (PLAYERSOUND()->IsPlaySound("Player_Move") && ColliderManager::Get()->GetPlayer()->GetMoveSpeed() > 40) {
         
-        pos.x = ORCSOUND(index)->GetSoundPos("Player_Move").x;
-        pos.y = ORCSOUND(index)->GetSoundPos("Player_Move").y;
-        pos.z = ORCSOUND(index)->GetSoundPos("Player_Move").z;
-        volume = ORCSOUND(index)->GetVolume("Player_Move");
+        pos.x = target->Pos().x;
+        pos.y = target->Pos().y;
+        pos.z = target->Pos().z;
         distance = Distance(transform->Pos(), pos);
-        volume = ORCSOUND(index)->GetVolume("Player_Move");
+        
+        // GetVolume() 값은 0.0 ~ 1.0 임
+        volume = PLAYERSOUND()->GetVolume("Player_Move");
+
     }
     // 웅크리고 걷는 소리 ,암살소리  제외
     // 플레이어 소리와 주위 시선 끄는 소리 추가
@@ -1218,7 +1329,7 @@ void Orc::CalculateEarSight()
 
     if (distance == -1.f)return;
 
-    if (distance < earRange * volume) {
+    if (distance < earRange ) { // * volume * 0.1 볼륨 조절 시 게임 플레이 요소가 변경되는게 이상함
         SetState(WALK);
         behaviorstate = NPC_BehaviorState::SOUNDCHECK;
         CheckPoint = pos;
@@ -1244,6 +1355,10 @@ void Orc::Detection()
         }
     }
     else {
+        //  앞 조건문 : 목적지에 도착해서 부터 게이지가 줄어들게
+        //  뒤 조건문 : 사운드 체크일 때 줄어들게
+        if (DetectionStartTime > 0.f && (path.empty()|| behaviorstate==NPC_BehaviorState::SOUNDCHECK)) {
+            DetectionStartTime -= DELTA * 2;
         if (DetectionStartTime > 0.f ) {
             DetectionStartTime -= DELTA * 0.5f;
             
@@ -1252,6 +1367,7 @@ void Orc::Detection()
                 DetectionStartTime = 0.f;
                 path.clear();
                 bFind = false;
+                bSound = false; // 추가
                 if (behaviorstate != NPC_BehaviorState::CHECK)
                     rangeDegree = XMConvertToDegrees(transform->Rot().y);
                 behaviorstate = NPC_BehaviorState::CHECK;
@@ -1423,10 +1539,10 @@ void Orc::RangeCheck()
 
 void Orc::SoundPositionCheck()
 {
-
+    // 소리가 나면 해당위치로 setPath 설정 -> 해당 위치에 근접했다면 거기서 부터 탐지 시작
     if (behaviorstate == NPC_BehaviorState::SOUNDCHECK) {
-        if (CheckPoint.x + 1.0f > transform->Pos().x && CheckPoint.x - 1.0f < transform->Pos().x &&
-            CheckPoint.z + 1.0f > transform->Pos().z && CheckPoint.z - 1.0f < transform->Pos().z)
+        if (CheckPoint.x + 2.0f > transform->Pos().x && CheckPoint.x - 2.0f < transform->Pos().x &&
+            CheckPoint.z + 2.0f > transform->Pos().z && CheckPoint.z - 2.0f < transform->Pos().z)
         {
             behaviorstate = NPC_BehaviorState::CHECK;
             rangeDegree = XMConvertToDegrees(transform->Rot().y);

@@ -2,10 +2,10 @@
 
 Audio::Audio()
 {
-    System_Create(&soundSystem);
+    /*System_Create(&soundSystem);
     soundSystem->init(MAX_CHANNEL, FMOD_INIT_NORMAL, nullptr);
 
-    soundSystem->set3DSettings(1.0f, 100.0f, 0.01f);    
+    soundSystem->set3DSettings(1.0f, 100.0f, 0.01f);    */
 }
 
 Audio::~Audio()
@@ -13,16 +13,17 @@ Audio::~Audio()
     for (pair<string, SoundInfo*> sound : sounds)
         delete sound.second;
 
-    soundSystem->release();
+    //soundSystem->release();
 }
 
 void Audio::Update()
 {
-    if (target == nullptr)return;
-    listenerPos = { target->Pos().x, target->Pos().y, target->Pos().z };
-    soundSystem->set3DListenerAttributes(0, &listenerPos, nullptr, nullptr, nullptr);
+    //if (target == nullptr)return;
+    ////listenerPos = { target->Pos().x, target->Pos().y, target->Pos().z };
+    //listenerPos = { CAM->Pos().x, CAM->Pos().y, CAM->Pos().z };
+    //soundSystem->set3DListenerAttributes(0, &listenerPos, nullptr, nullptr, nullptr);
 
-    soundSystem->update();
+    //soundSystem->update();
 }
 
 void Audio::Add(string key, string file, bool bgm, bool loop, bool is3D)
@@ -33,7 +34,7 @@ void Audio::Add(string key, string file, bool bgm, bool loop, bool is3D)
 
     if (bgm)
     {
-        soundSystem->createStream(file.c_str(),
+        SoundManager::Get()->GetSoundSystem()->createStream(file.c_str(),
             FMOD_LOOP_NORMAL, nullptr, &info->sound);
     }
     else
@@ -42,12 +43,12 @@ void Audio::Add(string key, string file, bool bgm, bool loop, bool is3D)
         {
             if (loop)
             {
-                soundSystem->createSound(file.c_str(),
+                SoundManager::Get()->GetSoundSystem()->createSound(file.c_str(),
                     FMOD_3D | FMOD_LOOP_NORMAL, nullptr, &info->sound);
             }
             else
             {
-                soundSystem->createSound(file.c_str(),
+                SoundManager::Get()->GetSoundSystem()->createSound(file.c_str(),
                     FMOD_3D, nullptr, &info->sound);
             }            
         }
@@ -55,12 +56,12 @@ void Audio::Add(string key, string file, bool bgm, bool loop, bool is3D)
         {
             if (loop)
             {
-                soundSystem->createSound(file.c_str(),
+                SoundManager::Get()->GetSoundSystem()->createSound(file.c_str(),
                     FMOD_LOOP_NORMAL, nullptr, &info->sound);
             }
             else
             {
-                soundSystem->createSound(file.c_str(),
+                SoundManager::Get()->GetSoundSystem()->createSound(file.c_str(),
                     FMOD_DEFAULT, nullptr, &info->sound);
             }
         }        
@@ -73,7 +74,7 @@ void Audio::Play(string key, float valume)
 {
     if (sounds.count(key) == 0) return;
 
-    soundSystem->playSound(sounds[key]->sound,
+    SoundManager::Get()->GetSoundSystem()->playSound(sounds[key]->sound,
         nullptr, false, &sounds[key]->channel);
     sounds[key]->channel->setVolume(valume);
 }
@@ -82,11 +83,11 @@ void Audio::Play(string key, Float3 position, float valume)
 {
     if (sounds.count(key) == 0) return;
 
-    soundSystem->playSound(sounds[key]->sound,
+    SoundManager::Get()->GetSoundSystem()->playSound(sounds[key]->sound,
         nullptr, false, &sounds[key]->channel);
 
     sounds[key]->channel->setVolume(valume);    
-    FMOD_VECTOR pos = { position.x, position.y, position.z };        
+    FMOD_VECTOR pos = { position.x, position.y, position.z };     
     FMOD_VECTOR vel = {};
     sounds[key]->channel->set3DAttributes(&pos, &vel);    
     sounds[key]->channel->set3DMinMaxDistance(1.0f, 50.0f);
@@ -97,6 +98,14 @@ void Audio::Stop(string key)
     if (sounds.count(key) == 0) return;
 
     sounds[key]->channel->stop();
+}
+
+void Audio::AllStop()
+{
+    for (auto it : sounds)
+    {
+        it.second->channel->stop();
+    }
 }
 
 void Audio::Pause(string key)

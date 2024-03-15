@@ -766,7 +766,7 @@ void Boss::EndAttack()
 	else
 	{
 		SetState(RUN);
-		Audio::Get()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
+		BOSSSOUND()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
 	
 	}
 

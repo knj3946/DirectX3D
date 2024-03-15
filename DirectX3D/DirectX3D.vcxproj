@@ -148,6 +148,7 @@
     <ClInclude Include="Framework\Model\ObjInfo.h" />
     <ClInclude Include="Scenes\GameSmallMapScene.h" />
     <ClInclude Include="Objects\Items\Weapons\Bow.h" />
+    <ClInclude Include="Manager\GameControlManager.h" />
     <ClInclude Include="Manager\MenuManager.h" />
     <ClInclude Include="Objects\UI\GameMenu.h" />
     <ClInclude Include="Manager\InteractManager.h" />
@@ -258,6 +259,7 @@
   <ItemGroup>
     <ClCompile Include="Scenes\GameSmallMapScene.cpp" />
     <ClCompile Include="Objects\Items\Weapons\Bow.cpp" />
+    <ClCompile Include="Manager\GameControlManager.cpp" />
     <ClCompile Include="Manager\MenuManager.cpp" />
     <ClCompile Include="Objects\UI\GameMenu.cpp" />
     <ClCompile Include="Manager\InteractManager.cpp" />

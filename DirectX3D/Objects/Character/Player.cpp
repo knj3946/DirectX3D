@@ -216,6 +216,40 @@ Player::Player()
     hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
     jumpparticle=new ParticleSystem("TextData/Particles/JumpSmoke.fx");
 
+    // 사운드 UI 관련
+    settingBG = new Quad(Vector2(450, 200));
+    settingBG->GetMaterial()->SetDiffuseMap(L"Textures/UI/Setting_BG.png");
+    settingBG->Pos() = Vector3(WIN_WIDTH / 2, WIN_HEIGHT - 350, 0);
+    settingBG->UpdateWorld();
+
+
+    title = new Quad(Vector2(300, 80));
+    title->GetMaterial()->SetDiffuseMap(L"Textures/UI/Setting_Text.png");
+    title->SetParent(settingBG);
+    title->Pos().y += 100;
+    title->UpdateWorld();
+
+    volumeControlBG = new Quad(Vector2(260, 50));
+    volumeControlBG->GetMaterial()->SetDiffuseMap(L"Textures/UI/menu_back.png");
+    volumeControlBG->SetParent(settingBG);
+    volumeControlBG->Pos().y -= 50;
+    volumeControlBG->UpdateWorld();
+
+
+    soundUI = new Quad(Vector2(250, 40));
+    soundUI->GetMaterial()->SetDiffuseMap(L"Textures/UI/hp_bar_BG.png");
+    soundUI->SetParent(settingBG);
+    //soundUI->GetMaterial()->GetDiffuseMap()->PSSet(1);
+    soundUI->Pos().y -= 50;
+    soundUI->UpdateWorld();
+
+    volumeControlUI = new Quad(Vector2(40, 40));
+    volumeControlUI->GetMaterial()->SetDiffuseMap(L"Textures/UI/portrait.png");
+    volumeControlUI->SetParent(soundUI);
+    //volumeControlUI->GetMaterial()->GetDiffuseMap()->PSSet(2);
+    volumeControlUI->Pos().x = 0;// 최소 -100 , 최대 100 
+    volumeControlUI->UpdateWorld();
+
     FOR(2) blendState[i] = new BlendState();
     blendState[1]->Additive(); //투명색 적용 + 배경색 처리가 있으면 역시 적용
 
@@ -225,6 +259,12 @@ Player::Player()
 
 Player::~Player()
 {
+    delete soundUI;
+    delete volumeControlUI;
+    delete settingBG;
+    delete title;
+    delete volumeControlBG;
+
     FOR(2)
         delete blendState[i];
     delete stateInfo;
@@ -260,6 +300,44 @@ Player::~Player()
 
 void Player::Update()
 {
+    if (KEY_DOWN('1'))
+    {
+        // 게임을 멈추고 마우스 고정 해제
+        //Timer::Get()->SetTimeScale(0);
+        camera = false;
+        GameControlManager::Get()->SetPauseGame(true);
+    }
+    else if (KEY_DOWN('2'))
+    {
+        //Timer::Get()->SetTimeScale(1);
+        camera = true;
+        GameControlManager::Get()->SetPauseGame(false);
+    }
+
+    if (GameControlManager::Get()->PauseGame())
+    {
+        if (KEY_PRESS(VK_LEFT))
+        {
+            // 0 일때, pos -100
+            // 5 일때, pos 0
+            // 10 일때, pos 100
+            // 위의 규칙을 위한 식 : volume * 200 - 100
+            SoundManager::Get()->SetVolume(Clamp(0, 10, VOLUME - DELTA * 3)); // 누를때 1씩 줄어들게
+        }
+        else if (KEY_PRESS(VK_RIGHT))
+        {
+            SoundManager::Get()->SetVolume(Clamp(0, 10, VOLUME + DELTA * 3)); // 누를때 1씩 늘어나게
+            //volumeControlUI->Pos().x += DELTA * 20.f;
+        }
+
+        volumeControlUI->Pos().x = VOLUME * 20 - 100;
+        //soundUI->Pos() = Vector3(WIN_WIDTH/2, WIN_HEIGHT-250,0);
+        //soundUI->UpdateWorld();
+        volumeControlUI->UpdateWorld();
+
+        return; // 게임이 중지됐으니 다른건 계산할 필요 없음.
+    }
+
     if (isDying)
     {
         MenuManager::Get()->SetFailFlag(true);
@@ -366,6 +444,14 @@ void Player::Render()
 
 void Player::PostRender()
 {
+    if (GameControlManager::Get()->PauseGame())
+    {
+        settingBG->Render();
+        title->Render();
+        volumeControlBG->Render();
+        soundUI->Render();
+        volumeControlUI->Render();
+    }
     hpBar->Render();
     
     portrait->Render();
@@ -428,7 +514,7 @@ void Player::SetTerrain(LevelData* terrain)
 void Player::Assassination()
 {
     SetState(ASSASSINATION1, 2.0f);
-    PLAYERSOUND()->Play("Player_Assassination",3);
+    PLAYERSOUND()->Play("Player_Assassination", assassinationVolume * VOLUME);
 }
 
 void Player::Climb(Collider* col, Vector3 climbPos)
@@ -619,6 +705,14 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     if (KEY_DOWN(VK_ESCAPE))
         cameraHold = !cameraHold;
 
+    // 테스트를 위해서 잠시 추가
+    if (KEY_DOWN(VK_ESCAPE))
+    {
+        camera = !camera;
+    }
+
+    if (curState != CLIMBING2 && curState != CLIMBING3
+        && curState != CLIMBING_JUMP_L && curState != CLIMBING_JUMP_R && curState != CLIMBING_DOWN)
     if (!isClimb)
     {
         if (KEY_DOWN(VK_TAB)) {
@@ -637,7 +731,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
                 if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
                 {
                     ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos));
-                    PLAYERSOUND()->Play("Player_ShootArrow");
+                    PLAYERSOUND()->Play("Player_ShootArrow",shootArrowVolume*VOLUME);
                     SetState(B_RECOIL);
                 }
                 return;
@@ -701,7 +795,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             // 보유한 화살이 있는가
             if (ArrowManager::Get()->GetPlayerArrowCount() <= 0)return;
             
-            PLAYERSOUND()->Play("Player_BowLoading",3);
+            PLAYERSOUND()->Play("Player_BowLoading",bowLoadingVolume*VOLUME);
             SetState(B_DRAW);
             return;
         }
@@ -741,6 +835,7 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
         if (KEY_DOWN(VK_SPACE) && !InTheAir())
         {
             SetState(JUMP1);
+            PLAYERSOUND()->Play("Player_Jump", jumpVolume*VOLUME);
         }
 
         // 스페셜 키
@@ -933,7 +1028,7 @@ void Player::Walking()
     if (isMoveX || isMoveZ)
     {
         if (!PLAYERSOUND()->IsPlaySound("Player_Move"))
-            PLAYERSOUND()->Play("Player_Move", 2.5f);
+            PLAYERSOUND()->Play("Player_Move",moveVolume*VOLUME);
     }
     else
         PLAYERSOUND()->Stop("Player_Move");
@@ -951,35 +1046,41 @@ void Player::Walking()
     Vector3 destFeedBackPos;
     Vector3 destPos;
 
-    if (KEY_DOWN(VK_LSHIFT))
+    /*if (KEY_DOWN(VK_LSHIFT))
     {
-        PLAYERSOUND()->Stop("Player_Move");
-        if (isMoveX || isMoveZ)
+        if (PLAYERSOUND()->IsPlaySound("Player_Move"))
         {
-            PLAYERSOUND()->Play("Player_Move", 1);
+            PLAYERSOUND()->SetVolume("Player_Move", 0.4);
         }
-    }
+    }*/
     if (KEY_UP(VK_LSHIFT))
     {
-        PLAYERSOUND()->Stop("Player_Move");
-        if (isMoveX || isMoveZ)
+        if (PLAYERSOUND()->IsPlaySound("Player_Move"))
         {
-            PLAYERSOUND()->Play("Player_Move", 1);
+            PLAYERSOUND()->SetVolume("Player_Move", moveVolume*VOLUME);
         }
     }
 
-    if (!KEY_PRESS(VK_LSHIFT))
+    if (!KEY_PRESS(VK_LSHIFT))// 그냥 걷기
     {
         /*if (curState == B_AIM || curState == B_DRAW || curState == B_ODRAW)
             destPos = Pos() + direction * aimMoveSpeed * DELTA * -1;
         else*/
+        moveSpeed = moveSpeed1;
         destPos = Pos() + direction * moveSpeed1 * DELTA * -1;
 
         
     }
 
-    else
+    else// 조용히 걷기
+    {
+        if (PLAYERSOUND()->IsPlaySound("Player_Move"))
+        {
+            PLAYERSOUND()->SetVolume("Player_Move", q_moveVolume * VOLUME);
+        }
+        moveSpeed = moveSpeed2;
         destPos = Pos() + direction * moveSpeed2 * DELTA * -1;
+    }
 
 
 
@@ -1196,7 +1297,7 @@ bool Player::InTheAir() {
 void Player::SetDaggerAnim()
 {
     dagger->GetCollider()->SetActive(true);
-    PLAYERSOUND()->Play("Player_Attack");
+    PLAYERSOUND()->Play("Player_Attack",attackVolume*VOLUME);
 }
 
 void Player::EndAssassination(UINT num)
@@ -1316,12 +1417,15 @@ void Player::Hit(float damage)
 {
     if (isHit)
         int a = 0;
+    // 임시로 데미지 1로
+    damage = 1;
     if (!isHit)
     {
+        isHit = true;
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
         hiteffect->Play(particlepos);
-
+        PLAYERSOUND()->Play("Player_Hit", hitVolume * VOLUME);
         if (destHP <= 0)
         {
             //SetState(DYING);
@@ -1338,7 +1442,7 @@ void Player::Hit(float damage)
             SetState(HIT, 0.8f);
         dohitanimation = true;
 
-        isHit = true;
+        
     }
   
 }
@@ -1525,8 +1629,12 @@ void Player::SetCameraPos()
     else
     {
         crosshair->SetActive(false);
-
-        CAM->SetTarget(this);
+        
+        // 개발 시 편리함을 위해 잠시 추가 -> 나중에 삭제
+        if (!camera)
+            CAM->SetTarget(nullptr);
+        else 
+            CAM->SetTarget(this);
 
         Ray playerBackRay = Ray(Pos(), Forward());
         playerBackRay.pos.y += 3.5f;

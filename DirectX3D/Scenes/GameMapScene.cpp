@@ -221,6 +221,8 @@ void GameMapScene::GUIRender()
 	*/
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
+		ImGui::Text("volume : %f", VOLUME);
+		//player->GUIRender();
 		/*
 		for (ColliderModel* cm : colliderModels)
 		{
@@ -228,15 +230,10 @@ void GameMapScene::GUIRender()
 		}
 		*/
 
-		MonsterManager::Get()->GUIRender();
+		//MonsterManager::Get()->GUIRender();
 		//KunaiManager::Get()->GUIRender();
 
-		Timer::Get()->GUIRender();
-		/*
-		if (bow->Active())
-			bow->GUIRender();
-			*/
-	}
+		//Timer::Get()->GUIRender();
 
 }
 
@@ -415,11 +412,19 @@ void GameMapScene::FirstLoading()
 	else if (MenuManager::Get()->GetLoadingSequence() == 4)
 	{
 		InteractManager::Get()->SetPlayer(player);
-		MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(150.f, 0.f, 175.f));
-		MonsterManager::Get()->SetPatrolPos(0, Vector3(150.f, 0.f, 210.f));
-		MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185));
-		MonsterManager::Get()->SetPatrolPos(1, Vector3(50.f, 0.f, 185.f));
-		MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(85, 0, 120));
+
+		FOR(MonsterManager::Get()->GetSIZE())
+		{
+			MonsterManager::Get()->SetOrcSRT(i, srt[i][0],srt[i][1],srt[i][2]);
+			MonsterManager::Get()->SetPatrolPos(i, patrolPos[i]);
+		}
+		/*MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(150.f, 0.f, 175.f));
+		MonsterManager::Get()->SetPatrolPos(0, Vector3(150.f, 0.f, 210.f));*/
+		//MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185));
+		//MonsterManager::Get()->SetPatrolPos(1, Vector3(50.f, 0.f, 185.f));
+		//MonsterManager::Get()->GetOrc(0)->SetSpeed(8);
+		//MonsterManager::Get()->GetOrc(1)->SetSpeed(6);
+		/*MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(85, 0, 120));
 		MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 120.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 70.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(85.f, 0.f, 70.f));
 		MonsterManager::Get()->SetOrcSRT(3, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(62, 0, 40));
 		MonsterManager::Get()->SetPatrolPos(3, Vector3(62.f, 0.f, 65.f));
@@ -430,8 +435,8 @@ void GameMapScene::FirstLoading()
 		MonsterManager::Get()->SetOrcSRT(6, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(160, 0, 120));
 		MonsterManager::Get()->SetPatrolPos(6, Vector3(170.f, 0.f, 120.f));
 		MonsterManager::Get()->SetOrcSRT(7, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(50, 0, 135));
-		MonsterManager::Get()->SetPatrolPos(7, Vector3(100.f, 0.f, 135.f));
-		MonsterManager::Get()->SetType(7,1);// 1이 알리는애
+		MonsterManager::Get()->SetPatrolPos(7, Vector3(100.f, 0.f, 135.f));*/
+		//MonsterManager::Get()->SetType(7,1);// 1이 알리는애
 		MonsterManager::Get()->SetTerrain(terrain);
 		MonsterManager::Get()->SetAStar(aStar);
 		MonsterManager::Get()->SetTarget(player);

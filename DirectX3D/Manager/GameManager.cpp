@@ -4,7 +4,6 @@
 #include "Scenes/GameSmallMapScene.h"
 #include "Scenes/TestNpcScene.h"
 #include "Scenes/ModelAnimationScene.h"
-
 #include "Scenes/BuildingScene.h"
 #include "Scenes/ShadowScene.h"
 #include "Scenes/OnlyBossScene.h"
@@ -42,11 +41,11 @@ GameManager::~GameManager()
 void GameManager::Update()
 {
     Keyboard::Get()->Update();
-    Timer::Get()->Update();
     //Audio::Get()->Update();
 
     SceneManager::Get()->Update();
     Environment::Get()->Update();
+    Timer::Get()->Update();
 }
 
 void GameManager::Render()
