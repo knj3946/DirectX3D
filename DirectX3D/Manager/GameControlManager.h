@@ -14,7 +14,7 @@ public:
     void GUIRender();
 
     bool PauseGame() { return isPauseGame; }
-    void SetPauseGame(bool b) { isPauseGame = b; }
+    void SetPauseGame(bool b) { isPauseGame = b;}
 
 private:
     bool isPauseGame = false;

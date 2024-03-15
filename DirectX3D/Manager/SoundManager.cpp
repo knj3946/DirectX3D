@@ -78,6 +78,8 @@ void SoundManager::PlayerCreate(Transform* t)
 	audio->Add("Player_Land", "Sounds/Player/land.mp3", false, false, true);	// 착지
 	audio->Add("Player_Jump", "Sounds/Player/jump.mp3", false, false, false);	// 점프
 	audio->Add("Player_Hit", "Sounds/Player/Hit.mp3", false, false, false);		// 피격
+	audio->Add("Player_LandDamage", "Sounds/Player/land_damage.mp3", false, false, false);		// 피격
+	audio->Add("Player_Hide", "Sounds/Player/hide.mp3", false, false, false);		// 피격
 
 	playerAudio = audio;
 }

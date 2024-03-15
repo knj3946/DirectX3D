@@ -311,6 +311,7 @@ void Player::Update()
     {
         //Timer::Get()->SetTimeScale(1);
         GameControlManager::Get()->SetPauseGame(false);
+        PLAYERSOUND()->Play("bgm1", 0.1f * VOLUME);
     }
 
     if (GameControlManager::Get()->PauseGame())
@@ -798,7 +799,10 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
         if (KEY_DOWN('R'))
         {
             if (!stateInfo->isCloaking)
+            {
                 stateInfo->isCloaking = true;
+                PLAYERSOUND()->Play("Player_Hide", hideVolume * VOLUME);
+            }
             else
                 stateInfo->isCloaking = false;
         }
@@ -1091,8 +1095,9 @@ void Player::JumpSetting()
     else if (curState == JUMP4)
     {
         SetState(IDLE);
-        PLAYERSOUND()->Play("Player_Hit",hitVolume*VOLUME);
-        PLAYERSOUND()->Play("Player_Land", landVolume * VOLUME); // 나중에 다른 사운드로
+        PLAYERSOUND()->Play("Player_LandDamage", landVolume * VOLUME);
+        //PLAYERSOUND()->Play("Player_Hit",hitVolume*VOLUME);
+        //PLAYERSOUND()->Play("Player_Land", landVolume * VOLUME); // 나중에 다른 사운드로
     }
 }
 

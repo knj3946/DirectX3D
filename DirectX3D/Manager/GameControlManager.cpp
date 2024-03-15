@@ -20,3 +20,4 @@ void GameControlManager::PostRender()
 void GameControlManager::GUIRender()
 {
 }
+
