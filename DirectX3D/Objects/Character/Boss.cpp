@@ -765,7 +765,6 @@ void Boss::EndAttack()
 	{
 		SetState(RUN);
 		BOSSSOUND()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
-	
 	}
 
 	
@@ -935,7 +934,8 @@ void Boss::IdleWalk()
 	totargetlength = velocity.Length();
 	moveSpeed = walkSpeed;
 	dir = velocity.GetNormalized();
-	BOSSSOUND()->Play("Boss_Walk", 0.3f * VOLUME);
+	if(!BOSSSOUND()->IsPlaySound("Boss_Walk"))
+		BOSSSOUND()->Play("Boss_Walk", 0.3f * VOLUME);
 }
 bool Boss::OnColliderFloor(Vector3& feedback)
 {

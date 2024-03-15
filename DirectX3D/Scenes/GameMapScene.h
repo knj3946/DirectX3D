@@ -18,6 +18,11 @@ public:
 
 private:
 
+	BoxCollider* testCol1;
+	BoxCollider* testCol2;
+	BoxCollider* testCol3;
+	BoxCollider* testCol4;
+
 	// 임시로 여기서
 	bool isPauseGame = false;
 

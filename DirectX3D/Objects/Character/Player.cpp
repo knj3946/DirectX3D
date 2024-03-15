@@ -1089,7 +1089,6 @@ void Player::JumpSetting()
     else if (curState == JUMP3)
     {
         SetState(IDLE);
-        PLAYERSOUND()->Play("Player_Land",landVolume * VOLUME);
     }
     else if (curState == JUMP4)
     {
@@ -1143,7 +1142,10 @@ void Player::Jumping()
                 Hit(fallingT * 10.0f);
             }
             else
+            {
                 SetState(JUMP3);
+                PLAYERSOUND()->Play("Player_Land", landVolume * VOLUME);
+            }
 
             jumpparticle->Play(Pos());
         }
