@@ -704,160 +704,114 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
     if (KEY_DOWN(VK_ESCAPE))
         cameraHold = !cameraHold;
 
-    /*if (curState != CLIMBING2 && curState != CLIMBING3
-        && curState != CLIMBING_JUMP_L && curState != CLIMBING_JUMP_R && curState != CLIMBING_DOWN)*/
-        if (!isClimb)
-        {
-            if (KEY_DOWN(VK_TAB)) {
-                if (static_cast<WeaponState>(weaponState + 1) >= 3)
-                    weaponState = DAGGER;
-                else
-                {
-                    if (!bow->Active())
-                        return;
-                    weaponState = static_cast<WeaponState>(weaponState + 1);
+    if (!isClimb)
+    {
+        if (KEY_DOWN(VK_TAB)) {
+            if (static_cast<WeaponState>(weaponState + 1) >= 3)
+                weaponState = DAGGER;
+            else
+            {
+                if (!bow->Active())
+                    return;
+                weaponState = static_cast<WeaponState>(weaponState + 1);
 
-                    if (KEY_UP(VK_LBUTTON))
-                    {
-                        if (weaponState == BOW)
-                        {
-                            if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
-                            {
-                                ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos));
-                                PLAYERSOUND()->Play("Player_ShootArrow", shootArrowVolume * VOLUME);
-                                SetState(B_RECOIL);
-                            }
-                            return;
-                        }
-                    }
-
-                    if (!InTheAir())
-                        if (KEY_DOWN(VK_LBUTTON))
-                        {
-                            if (weaponState == BOW)
-                            {
-                                // 보유한 화살이 있는가
-                                if (ArrowManager::Get()->GetPlayerArrowCount() <= 0) return;
-                                SetState(B_DRAW);
-                                aimT->Pos() = aimStartPos;
-                                return;
-                            }
-                        }
-                        else if (KEY_PRESS(VK_LBUTTON))
-                        {
-                            if (weaponState == DAGGER)
-                            {
-                                if (curState != DAGGER1 && curState != DAGGER2 && curState != DAGGER3)
-                                {
-                                    ComboAttack();
-                                    //dagger->GetCollider()->SetActive(true); //콜라이더 켜지는 시점은 이벤트로 설정
-                                }
-                            }
-                            else if (weaponState == BOW)
-                            {
-                                if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
-                                    if (chargingT < maxSpeed)
-                                    {
-                                        Vector3 dir = { 0.1, 0, -1 };
-                                        aimT->Pos() += DELTA * dir * 30.0f;
-                                        chargingT += DELTA * chargetVal;
-                                    }
-                                    else
-                                        chargingT = maxSpeed;
-                            }
-                        }
-                        else if (KEY_UP(VK_LBUTTON))
-                        {
-                            if (!bow->Active())return;
-
-                            if (weaponState == BOW)
-                            {
-                                if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
-                                {
-                                    ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos), chargingT);
-                                    chargingT = initSpeed;
-                                    SetState(B_RECOIL);
-                                }
-                                return;
-                            }
-                        }
-                    if (KEY_DOWN(VK_LBUTTON))
-                    {
-                        if (weaponState == BOW)
-                        {
-                            // 보유한 화살이 있는가
-                            if (ArrowManager::Get()->GetPlayerArrowCount() <= 0)return;
-
-                            PLAYERSOUND()->Play("Player_BowLoading", bowLoadingVolume * VOLUME);
-                            SetState(B_DRAW);
-                            return;
-                        }
-                    }
-
-                    if (KEY_PRESS(VK_LBUTTON))
-                    {
-                        if (weaponState == DAGGER)
-                        {
-                            if (curState != DAGGER1 && curState != DAGGER2 && curState != DAGGER3)
-                            {
-                                ComboAttack();
-                                //dagger->GetCollider()->SetActive(true); //콜라이더 켜지는 시점은 이벤트로 설정
-                            }
-                        }
-                        //else if (weaponState == BOW)
-                        //{
-                        //    if (curState == B_IDLE)
-                        //        SetState(B_DRAW);
-                        //}
-                    }
-                    if (KEY_UP(VK_LBUTTON))
-                    {
-                        //dagger->GetCollider()->SetActive(false); //콜라이더 꺼지는 시점은 이벤트로 설정
-                    }
-
-                    //if (KEY_UP(VK_LBUTTON))
-                    //{
-                    //    //dagger->GetCollider()->SetActive(false); //콜라이더 꺼지는 시점은 이벤트로 설정
-                    //}
-
-                    if (isHit)   //?´°? ?????????? Jumping????? ?????? ????? ????? ????? ?ð??? ?þ?
-                    {
-                        return;
-                    }
-
-                    if (KEY_DOWN(VK_SPACE) && !InTheAir())
-                    {
-                        SetState(JUMP1);
-                        PLAYERSOUND()->Play("Player_Jump", jumpVolume * VOLUME);
-                    }
-
-                    // 스페셜 키
-                    if (KEY_DOWN('C'))
-                    {
-                        // 화살 줍기
-                        ArrowManager::Get()->ExecuteSpecialKey();
-                        bow->SetActive(true);
-                    }
-
-                    if (KEY_DOWN('R'))
-                    {
-                        if (!stateInfo->isCloaking)
-                            stateInfo->isCloaking = true;
-                        else
-                            stateInfo->isCloaking = false;
-                    }
-                }
-
-                Cloaking();
-                Move();
-
-                //if (targetObject != nullptr && KEY_DOWN('F'))     ////보류
-                //{
-                //    velocity = 0;
-                //    SetState(TO_ASSASIN);
-                //}
             }
         }
+
+        if (!InTheAir())
+            if (KEY_DOWN(VK_LBUTTON))
+            {
+                if (weaponState == BOW)
+                {
+                    // 보유한 화살이 있는가
+                    if (ArrowManager::Get()->GetPlayerArrowCount() <= 0) return;
+                    SetState(B_DRAW);
+                    PLAYERSOUND()->Play("Player_BowLoading", bowLoadingVolume * VOLUME);
+                    aimT->Pos() = aimStartPos;
+                    return;
+                }
+            }
+            else if (KEY_PRESS(VK_LBUTTON))
+            {
+                if (weaponState == DAGGER)
+                {
+                    if (curState != DAGGER1 && curState != DAGGER2 && curState != DAGGER3)
+                    {
+                        ComboAttack();
+                        //dagger->GetCollider()->SetActive(true); //콜라이더 켜지는 시점은 이벤트로 설정
+                    }
+                }
+                else if (weaponState == BOW)
+                {
+                    if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
+                        if (chargingT < maxSpeed)
+                        {
+                            Vector3 dir = { 0.1, 0, -1 };
+                            aimT->Pos() += DELTA * dir * 30.0f;
+                            chargingT += DELTA * chargetVal;
+                        }
+                        else
+                            chargingT = maxSpeed;
+                }
+            }
+            else if (KEY_UP(VK_LBUTTON))
+            {
+                if (!bow->Active())return;
+
+                if (weaponState == BOW)
+                {
+                    if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
+                    {
+                        ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos), chargingT);
+                        PLAYERSOUND()->Play("Player_ShootArrow", shootArrowVolume * VOLUME);
+                        chargingT = initSpeed;
+                        SetState(B_RECOIL);
+                    }
+                    return;
+                }
+            }
+
+        //if (KEY_UP(VK_LBUTTON))
+        //{
+        //    //dagger->GetCollider()->SetActive(false); //콜라이더 꺼지는 시점은 이벤트로 설정
+        //}
+
+        if (isHit)   //?´°? ?????????? Jumping????? ?????? ????? ????? ????? ?ð??? ?þ?
+        {
+            return;
+        }
+
+        if (KEY_DOWN(VK_SPACE) && !InTheAir())
+        {
+            SetState(JUMP1);
+            PLAYERSOUND()->Play("Player_Jump", jumpVolume * VOLUME);
+        }
+
+        // 스페셜 키
+        if (KEY_DOWN('C'))
+        {
+            // 화살 줍기
+            ArrowManager::Get()->ExecuteSpecialKey();
+            bow->SetActive(true);
+        }
+
+        if (KEY_DOWN('R'))
+        {
+            if (!stateInfo->isCloaking)
+                stateInfo->isCloaking = true;
+            else
+                stateInfo->isCloaking = false;
+        }
+    }
+
+    Cloaking();
+    Move();
+
+    //if (targetObject != nullptr && KEY_DOWN('F'))     ////보류
+    //{
+    //    velocity = 0;
+    //    SetState(TO_ASSASIN);
+    //}
 }
 
 void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ???????? ?? ??? ??)
@@ -1132,10 +1086,13 @@ void Player::JumpSetting()
     else if (curState == JUMP3)
     {
         SetState(IDLE);
+        PLAYERSOUND()->Play("Player_Land",landVolume * VOLUME);
     }
     else if (curState == JUMP4)
     {
         SetState(IDLE);
+        PLAYERSOUND()->Play("Player_Hit",hitVolume*VOLUME);
+        PLAYERSOUND()->Play("Player_Land", landVolume * VOLUME); // 나중에 다른 사운드로
     }
 }
 

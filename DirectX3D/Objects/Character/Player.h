@@ -171,10 +171,11 @@ private:
     float shootArrowVolume = 1.0f;
     float bowLoadingVolume = 1.f;
     float jumpVolume = 1.f;
-    float moveVolume = 1.f;
+    float moveVolume = 0.6f;
     float q_moveVolume = 0.5f;
     float attackVolume = 1.f;
     float hitVolume = 1.f;
+    float landVolume = 1.f;
 
     // 임시로 여기에 추가 -> 사운드 관련 UI
     Quad* soundUI;

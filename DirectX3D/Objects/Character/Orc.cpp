@@ -454,6 +454,25 @@ void Orc::SoundControl()
             return;
         }
 
+        // 오크가 발견해서 쫓아올 때도 walk를 한다고 하면ㅁ 아래 코드 
+        /*if (bFind && !ORCSOUND(index)->IsPlaySound("Orc_Walk") && curState == RUN)
+        {
+            ORCSOUND(index)->Play("Orc_Walk");
+        }
+        if (bFind && ORCSOUND(index)->IsPlaySound("Orc_Walk") && curState == RUN)
+        {
+            float distance = Distance(target->Pos(), transform->Pos());
+            distance = (distance > 50) ? 50 : distance;
+            ORCSOUND(index)->SetVolume("Orc_Walk", (50 - distance) / 10.0f * VOLUME);
+            lastDist = distance;
+            lastRunVolume = (50 - distance) / 10.0f * VOLUME;
+        }
+        else
+        {
+            ORCSOUND(index)->Stop("Orc_Walk");
+        }*/
+        // -------------------------------------------------------------
+
         if (bFind && !ORCSOUND(index)->IsPlaySound("Orc_Run") && curState == RUN)
         {
             ORCSOUND(index)->Play("Orc_Run");
@@ -1300,7 +1319,8 @@ void Orc::CalculateEarSight()
 
     // 현재 시프트 누르면 이동속도를 낮춘다. 
     // 나중에 느리게 걷기 사운드를 추가한다면 변경하기
-    if (PLAYERSOUND()->IsPlaySound("Player_Move") && ColliderManager::Get()->GetPlayer()->GetMoveSpeed() > 40) {
+    if ((PLAYERSOUND()->IsPlaySound("Player_Move") && ColliderManager::Get()->GetPlayer()->GetMoveSpeed() > 40)
+        || (PLAYERSOUND()->IsPlaySound("Player_Land"))) {
         
         pos.x = target->Pos().x;
         pos.y = target->Pos().y;
@@ -1308,7 +1328,10 @@ void Orc::CalculateEarSight()
         distance = Distance(transform->Pos(), pos);
         
         // GetVolume() 값은 0.0 ~ 1.0 임
-        volume = PLAYERSOUND()->GetVolume("Player_Move");
+        if (PLAYERSOUND()->IsPlaySound("Player_Move"))
+            volume = PLAYERSOUND()->GetVolume("Player_Move");
+        else
+            volume = PLAYERSOUND()->GetVolume("Player_Land");
 
     }
     // 웅크리고 걷는 소리 ,암살소리  제외
@@ -1345,15 +1368,12 @@ void Orc::Detection()
         }
     }
     else {
-        //  앞 조건문 : 목적지에 도착해서 부터 게이지가 줄어들게
-        //  뒤 조건문 : 사운드 체크일 때 줄어들게
-        if (DetectionStartTime > 0.f && (path.empty() || behaviorstate == NPC_BehaviorState::SOUNDCHECK)) {
-            DetectionStartTime -= DELTA * 2;
-            if (DetectionStartTime > 0.f) {
-                DetectionStartTime -= DELTA * 0.5f;
+
+        if (DetectionStartTime > 0.f) {
+            DetectionStartTime -= DELTA * 0.5f;
 
 
-                if (DetectionStartTime <= 0.f) {
+            if (DetectionStartTime <= 0.f) {
                     DetectionStartTime = 0.f;
                     path.clear();
                     bFind = false;
@@ -1365,7 +1385,6 @@ void Orc::Detection()
                     missTargetTrigger = false;
                     restorePos = {};
                 }
-            }
         }
         rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
 
@@ -1423,8 +1442,8 @@ void Orc::Patrol()
 bool Orc::IsStartPos()
 {
    
-    if (PatrolPos[nextPatrol].x + 1.0f > transform->Pos().x && PatrolPos[nextPatrol].x - 1.0f < transform->Pos().x &&
-        PatrolPos[nextPatrol].z + 1.0f > transform->Pos().z && PatrolPos[nextPatrol].z - 1.0f < transform->Pos().z)
+    if (PatrolPos[nextPatrol].x + 2.0f > transform->Pos().x && PatrolPos[nextPatrol].x - 2.0f < transform->Pos().x &&
+        PatrolPos[nextPatrol].z + 2.0f > transform->Pos().z && PatrolPos[nextPatrol].z - 2.0f < transform->Pos().z)
         return true;
     else return false;
 }
