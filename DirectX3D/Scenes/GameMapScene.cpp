@@ -214,7 +214,7 @@ void GameMapScene::PostRender()
 
 void GameMapScene::GUIRender()
 {
-	
+
 	//MenuManager::Get()->GUIRender();
 	/*
 	player->GUIRender();
@@ -235,6 +235,7 @@ void GameMapScene::GUIRender()
 
 		//Timer::Get()->GUIRender();
 
+	}
 }
 
 void GameMapScene::FirstLoading()
@@ -403,6 +404,9 @@ void GameMapScene::FirstLoading()
 		CAM->SetTarget(player);
 		CAM->TargetOptionLoad("GameMapScenePlayer");
 		CAM->LookAtTarget();
+
+		// 사운드 추가
+		SoundManager::Get()->PlayerCreate(player);
 
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(75.f);

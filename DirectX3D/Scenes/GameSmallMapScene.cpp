@@ -46,35 +46,35 @@ void GameSmallMapScene::Update()
 		{
 			cm->UpdateWorld();
 		}
-		Audio::Get()->Update();
+		//Audio::Get()->Update();
 
-		if (KEY_UP('7')) // 123456 은 플레이어 조작에 써야되서 바꿈
-		{
-			if (Audio::Get()->IsPlaySound("bgm1")) // 1번사운드가 플레이 중이라면
-			{
-				Audio::Get()->Stop("bgm1"); // 플레이 중지
-			}
-			else
-			{
-				Audio::Get()->Play("bgm1", 2.0f); // 1번사운드 플레이
-			}
-		}
+		//if (KEY_UP('7')) // 123456 은 플레이어 조작에 써야되서 바꿈
+		//{
+		//	if (Audio::Get()->IsPlaySound("bgm1")) // 1번사운드가 플레이 중이라면
+		//	{
+		//		Audio::Get()->Stop("bgm1"); // 플레이 중지
+		//	}
+		//	else
+		//	{
+		//		Audio::Get()->Play("bgm1", 2.0f); // 1번사운드 플레이
+		//	}
+		//}
 
-		if (KEY_UP('P'))
-		{
-			if (Audio::Get()->IsPlaySound("bgm1"))
-			{
-				Audio::Get()->Pause("bgm1"); // 일시정지
-			}
-		}
+		//if (KEY_UP('P'))
+		//{
+		//	if (Audio::Get()->IsPlaySound("bgm1"))
+		//	{
+		//		Audio::Get()->Pause("bgm1"); // 일시정지
+		//	}
+		//}
 
-		if (KEY_UP('R'))
-		{
-			if (Audio::Get()->IsPlaySound("bgm1"))
-			{
-				Audio::Get()->Resume("bgm1"); // 일시정지된 지점부터 다시 재생
-			}
-		}
+		//if (KEY_UP('R'))
+		//{
+		//	if (Audio::Get()->IsPlaySound("bgm1"))
+		//	{
+		//		Audio::Get()->Resume("bgm1"); // 일시정지된 지점부터 다시 재생
+		//	}
+		//}
 
 		MonsterManager::Get()->Update();
 		KunaiManager::Get()->Update();
@@ -234,7 +234,7 @@ void GameSmallMapScene::FirstLoading()
 	}
 	else if (MenuManager::Get()->GetLoadingSequence() == 3)
 	{
-		Audio::Get()->Add("bgm1", "Sounds/dramatic-choir.wav", true, true, false);
+		//Audio::Get()->Add("bgm1", "Sounds/dramatic-choir.wav", true, true, false);
 
 		player = new Player();
 		player->Scale() = { 0.03f,0.03f,0.03f };

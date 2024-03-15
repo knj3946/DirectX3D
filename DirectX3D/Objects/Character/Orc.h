@@ -133,6 +133,10 @@ private:
     void IdleAIMove();      
     void UpdateUI();
 
+    void SoundControl();
+
+    void SetAttackState();
+
     void TimeCalculator(); // 시간 계산하는 것들은 여기서 한번에 관리하는게 편할거같아서 추가해본 함수
 
     void SetState(State state, float scale = 1.0f, float takeTime = 0.2f);
@@ -170,6 +174,7 @@ private:
     void StateRevision();
     void ParticleUpdate();
     bool GetTargetAttack() { return battacktarget; }
+
 private:
 
     // 디버그 변수

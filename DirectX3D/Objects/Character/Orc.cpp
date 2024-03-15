@@ -46,23 +46,15 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     SetEvent(ATTACK1, bind([=]() {ORCSOUND(index)->AllStop(); isAnim = true; }), 0.01f);
     SetEvent(ATTACK2, bind([=]() {ORCSOUND(index)->AllStop(); isAnim = true; }), 0.01f);
     SetEvent(ATTACK3, bind([=]() {ORCSOUND(index)->AllStop(); isAnim = true; }), 0.01f);
+    
+    // 공격별 타이밍 맞추기
+    SetEvent(ATTACK1, bind(&Orc::StartAttack, this), 0.3f);
+    SetEvent(ATTACK2, bind(&Orc::StartAttack, this), 0.3f);
+    SetEvent(ATTACK3, bind(&Orc::StartAttack, this), 0.3f);
     SetEvent(ATTACK1, bind(&Orc::EndAttack, this), 0.99f);
     SetEvent(ATTACK2, bind(&Orc::EndAttack, this), 0.99f);
     SetEvent(ATTACK3, bind(&Orc::EndAttack, this), 0.99f);
-    // 공격별 타이밍 맞추기
-    SetEvent(ATTACK1, bind(&Collider::SetActive, leftWeaponCollider, true), 0.11f); //콜라이더 켜는 시점 설정
-    SetEvent(ATTACK2, bind(&Collider::SetActive, leftWeaponCollider, true), 0.11f); //콜라이더 켜는 시점 설정
-    SetEvent(ATTACK3, bind(&Collider::SetActive, leftWeaponCollider, true), 0.11f); //콜라이더 켜는 시점 설정
-    SetEvent(ATTACK1, bind(&Collider::SetActive, rightWeaponCollider, true), 0.12f); //콜라이더 켜는 시점 설정
-    SetEvent(ATTACK2, bind(&Collider::SetActive, rightWeaponCollider, true), 0.12f); //콜라이더 켜는 시점 설정
-    SetEvent(ATTACK3, bind(&Collider::SetActive, rightWeaponCollider, true), 0.12f); //콜라이더 켜는 시점 설정
-
-    SetEvent(ATTACK1, bind(&Collider::SetActive, leftWeaponCollider, false), 0.98f); //콜라이더 꺼지는 시점 설정
-    SetEvent(ATTACK2, bind(&Collider::SetActive, leftWeaponCollider, false), 0.98f); //콜라이더 꺼지는 시점 설정
-    SetEvent(ATTACK3, bind(&Collider::SetActive, leftWeaponCollider, false), 0.98f); //콜라이더 꺼지는 시점 설정
-    SetEvent(ATTACK1, bind(&Collider::SetActive, rightWeaponCollider, false), 0.99f); //콜라이더 꺼지는 시점 설정
-    SetEvent(ATTACK2, bind(&Collider::SetActive, rightWeaponCollider, false), 0.99f); //콜라이더 꺼지는 시점 설정
-    SetEvent(ATTACK3, bind(&Collider::SetActive, rightWeaponCollider, false), 0.99f); //콜라이더 꺼지는 시점 설정
+    
 
     // 공격별 사운드 타이밍
     SetEvent(ATTACK1, bind([=]() {ORCSOUND(index)->Play("Orc_Attack",attackVolume*VOLUME); }), 0.31f);
@@ -77,8 +69,8 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
    
     
     SetEvent(THROW, bind([=]() {ORCSOUND(index)->Stop("Orc_Run"); isAnim = true; }), 0.01f);
-    SetEvent(ATTACK, bind(&Orc::StartAttack, this), 0.3f);
-    SetEvent(ATTACK, bind(&Orc::EndAttack, this), 0.99f);
+    //SetEvent(ATTACK, bind(&Orc::StartAttack, this), 0.3f);
+    //SetEvent(ATTACK, bind(&Orc::EndAttack, this), 0.99f);
     SetEvent(THROW, bind(&Orc::Throw, this), 0.59f);
     SetEvent(THROW, bind([=]() {isAnim = false; }), 0.99f);
     SetEvent(HIT, bind([=]() {ORCSOUND(index)->Stop("Orc_Run"); isAnim = true; }), 0.01f);
@@ -126,9 +118,6 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
 
     rangeBar->Rot() = { XMConvertToRadians(90.f),0,XMConvertToRadians(-90.f) };
     rangeBar->Pos() = { -15.f,2.f,-650.f };
-
-    Audio::Get();
-    Audio::Get()->Add("hit", "Sounds/hit.wav");
 
     particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
    
@@ -1346,57 +1335,57 @@ void Orc::CalculateEarSight()
 
 void Orc::Detection()
 {
-
-    if (bDetection) {
-        if (!bFind) {
+    if (bDetection)
+    {
+        if (!bFind)
+        {
             float value = eyeSightRange / DetectionRange;
 
-            DetectionStartTime += DELTA*value;
+            DetectionStartTime += DELTA * value;
         }
     }
     else {
         //  앞 조건문 : 목적지에 도착해서 부터 게이지가 줄어들게
         //  뒤 조건문 : 사운드 체크일 때 줄어들게
-        if (DetectionStartTime > 0.f && (path.empty()|| behaviorstate==NPC_BehaviorState::SOUNDCHECK)) {
+        if (DetectionStartTime > 0.f && (path.empty() || behaviorstate == NPC_BehaviorState::SOUNDCHECK)) {
             DetectionStartTime -= DELTA * 2;
-        if (DetectionStartTime > 0.f ) {
-            DetectionStartTime -= DELTA * 0.5f;
-            
-        
-            if (DetectionStartTime <= 0.f) {
-                DetectionStartTime = 0.f;
-                path.clear();
-                bFind = false;
-                bSound = false; // 추가
-                if (behaviorstate != NPC_BehaviorState::CHECK)
-                    rangeDegree = XMConvertToDegrees(transform->Rot().y);
-                behaviorstate = NPC_BehaviorState::CHECK;
-                SetState(IDLE);
-                missTargetTrigger = false;
-                restorePos = {};
+            if (DetectionStartTime > 0.f) {
+                DetectionStartTime -= DELTA * 0.5f;
+
+
+                if (DetectionStartTime <= 0.f) {
+                    DetectionStartTime = 0.f;
+                    path.clear();
+                    bFind = false;
+                    bSound = false; // 추가
+                    if (behaviorstate != NPC_BehaviorState::CHECK)
+                        rangeDegree = XMConvertToDegrees(transform->Rot().y);
+                    behaviorstate = NPC_BehaviorState::CHECK;
+                    SetState(IDLE);
+                    missTargetTrigger = false;
+                    restorePos = {};
+                }
             }
         }
+        rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
+
+        if (DetectionEndTime <= DetectionStartTime) {
+            if (bFind)return;
+            bFind = true;
+            isTracking = true;
+            Float4 pos;
+            behaviorstate = NPC_BehaviorState::DETECT;
+            pos.x = transform->GlobalPos().x;
+            pos.y = transform->GlobalPos().y;
+            pos.z = transform->GlobalPos().z;
+            pos.w = informrange;
+            MonsterManager::Get()->PushPosition(pos);
+            MonsterManager::Get()->CalculateDistance();
+            if (curState == IDLE)
+                SetState(RUN);
+            returntoPatrol = false;
+        }
     }
-    rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
-
-    if (DetectionEndTime <= DetectionStartTime) {
-        if (bFind)return;
-        bFind = true;
-        isTracking = true;
-        Float4 pos;
-        behaviorstate = NPC_BehaviorState::DETECT;
-        pos.x = transform->GlobalPos().x;
-        pos.y = transform->GlobalPos().y;
-        pos.z = transform->GlobalPos().z;
-        pos.w = informrange;
-        MonsterManager::Get()->PushPosition(pos);
-        MonsterManager::Get()->CalculateDistance();
-        if (curState == IDLE)
-            SetState(RUN);
-        returntoPatrol = false;
-    }
-
-
 }
 
 void Orc::SetRay(Vector3 _pos)
