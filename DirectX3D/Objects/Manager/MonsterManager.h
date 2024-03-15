@@ -24,18 +24,20 @@ private:
     //typedef Terrain LevelData;
     UINT SIZE = 8;
 public:
+   
     MonsterManager();
     ~MonsterManager();
 
     void CreateOrc();
 
     void Update();
-    void Render();
+    void Render(bool exceptOutLine = false);
     void PostRender();
     void GUIRender();
 
     void SetTarget(Transform* target);
     void SetTargetCollider(CapsuleCollider* collider);
+    void SetTargetStateInfo(StateInfo* stateInfo);
 
     bool IsCollision(Ray ray, Vector3& hitPoint);
 
@@ -67,11 +69,15 @@ public:
 
     void SetOrcGround();
 
+    void SetShader(wstring file);
+    void SetBoss(Boss* _boss) { boss = _boss; }
+
+    void Respawn();
 private:
     void Collision();   
 
 private:
-
+    Boss* boss;
     ModelAnimatorInstancing* orcInstancing;
     
     //vector<Orc*> orcs;
@@ -98,5 +104,8 @@ private:
     DepthStencilState* depthState[2];
     RasterizerState* rasterizerState[2];
 
+
+
+    Shadow* shadow; // ±×¸²ÀÚ
 };
 

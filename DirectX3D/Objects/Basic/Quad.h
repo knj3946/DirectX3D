@@ -20,4 +20,7 @@ private:
     Vector2 size;
 
     Mesh<VertexType>* mesh;    
+
+
+    
 };

@@ -3,6 +3,8 @@
 
 GameMapScene::GameMapScene()
 {
+
+
 	MenuManager::Get(); //기본 메뉴 생성
 }
 
@@ -11,12 +13,21 @@ GameMapScene::~GameMapScene()
 	for (ColliderModel* colliderModel : colliderModels)
 	{
 		delete colliderModel;
+		colliderModel = nullptr;
 	}
-
+	MenuManager::Delete();
+	ColliderManager::Delete();
+	InteractManager::Delete();
+	delete bow;
 	delete model;
 	delete terrain;
 	delete aStar;
 	delete skyBox;
+	delete shadow;
+	delete player;
+	delete boss;
+	MonsterManager::Delete();
+
 	KunaiManager::Delete();
 	FOR(2)
 		delete blendState[i];
@@ -34,12 +45,53 @@ void GameMapScene::Update()
 
 	if (MenuManager::Get()->IsPickGameExit())
 	{
+		
 		exit(0);
 	}
 
 
 	if (MenuManager::Get()->GetSelectGameMenu() == 1) //인게임
 	{
+		if (MenuManager::Get()->GetSelectFailMenu() == 1)
+		{
+			//처음부터 시작하도록 로직작성
+
+			player->Respawn(Vector3(60, 0, 90));
+			MonsterManager::Get()->Respawn();
+
+			MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(150.f, 0.f, 175.f));
+			MonsterManager::Get()->SetPatrolPos(0, Vector3(150.f, 0.f, 210.f));
+			MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185));
+			MonsterManager::Get()->SetPatrolPos(1, Vector3(50.f, 0.f, 185.f));
+			MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(85, 0, 120));
+			MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 120.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 70.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(85.f, 0.f, 70.f));
+			MonsterManager::Get()->SetOrcSRT(3, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(62, 0, 40));
+			MonsterManager::Get()->SetPatrolPos(3, Vector3(62.f, 0.f, 65.f));
+			MonsterManager::Get()->SetOrcSRT(4, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(110, 0, 80));
+			MonsterManager::Get()->SetPatrolPos(4, Vector3(110.f, 0.f, 40.f));
+			MonsterManager::Get()->SetOrcSRT(5, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(170, 0, 40));
+			MonsterManager::Get()->SetPatrolPos(5, Vector3(170.f, 0.f, 80.f)); MonsterManager::Get()->SetPatrolPos(5, Vector3(120.f, 0.f, 80.f));   MonsterManager::Get()->SetPatrolPos(5, Vector3(170.f, 0.f, 80.f));
+			MonsterManager::Get()->SetOrcSRT(6, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(160, 0, 120));
+			MonsterManager::Get()->SetPatrolPos(6, Vector3(170.f, 0.f, 120.f));
+			MonsterManager::Get()->SetOrcSRT(7, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(50, 0, 135));
+			MonsterManager::Get()->SetPatrolPos(7, Vector3(100.f, 0.f, 135.f));
+
+			MenuManager::Get()->SetFailFlag(false);
+			MenuManager::Get()->SetSelectFailMenu(0);
+
+		}
+		if (MenuManager::Get()->GetSelectFailMenu() == 2)
+		{
+			exit(0);
+		}
+
+		if (MenuManager::Get()->GetFailFlag() && MenuManager::Get()->GetSelectFailMenu() == 0)
+		{
+			MenuManager::Get()->FailMenuUpdate();
+			return;
+		}
+
+
 		terrain->UpdateWorld();
 		aStar->Update();
 		for (ColliderModel* cm : colliderModels)
@@ -79,6 +131,8 @@ void GameMapScene::Update()
 		MonsterManager::Get()->Update();
 		KunaiManager::Get()->Update();
 		player->Update();
+		if(!bow->Active())
+		bow->Update();
 		boss->Update();
 
 		for (ColliderModel* colliderModel : colliderModels)
@@ -100,13 +154,26 @@ void GameMapScene::Update()
 
 void GameMapScene::PreRender()
 {
+	if (MenuManager::Get()->GetSelectGameMenu() == 1)
+	{
+		shadow->SetRenderTarget();
+		player->SetShader(L"Light/DepthMap.hlsl");
+		player->Render();
+		MonsterManager::Get()->Render(true);
+	}
 }
 
 void GameMapScene::Render()
 {
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
+		//순서 중요!
 		skyBox->Render();
+
+		//그림자 렌더설정
+		shadow->SetRender();
+		player->SetShader(L"Light/Shadow.hlsl");
+
 		terrain->Render();
 
 		for (ColliderModel* cm : colliderModels)
@@ -119,8 +186,11 @@ void GameMapScene::Render()
 		KunaiManager::Get()->Render();
 
 		boss->Render();
+		if(bow->Active())
+		bow->Render();
 
 		//aStar->Render();
+
 	}
 }
 
@@ -130,22 +200,27 @@ void GameMapScene::PostRender()
 
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
-		MonsterManager::Get()->PostRender();
-		ArrowManager::Get()->PostRender();
-		ColliderManager::Get()->PostRender();
-		player->PostRender();
+		if (!MenuManager::Get()->GetFailFlag())
+		{
+			MonsterManager::Get()->PostRender();
+			ArrowManager::Get()->PostRender();
+			ColliderManager::Get()->PostRender();
+			player->PostRender();
+			boss->PostRender();
+			player->TextRender();
+		}
 	}
-
 }
 
 void GameMapScene::GUIRender()
 {
-
-	MenuManager::Get()->GUIRender();
-
+	
+	//MenuManager::Get()->GUIRender();
+	/*
+	player->GUIRender();
+	*/
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
-		//player->GUIRender();
 		/*
 		for (ColliderModel* cm : colliderModels)
 		{
@@ -157,8 +232,12 @@ void GameMapScene::GUIRender()
 		//KunaiManager::Get()->GUIRender();
 
 		Timer::Get()->GUIRender();
-
+		/*
+		if (bow->Active())
+			bow->GUIRender();
+			*/
 	}
+
 }
 
 void GameMapScene::FirstLoading()
@@ -172,6 +251,12 @@ void GameMapScene::FirstLoading()
 		blendState[1]->AlphaToCoverage(true); // 알파 혹은 지정된 배경색을 외부 픽셀과 결합할 것인가
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(10.f);
+
+		LightBuffer::Light* light = Environment::Get()->GetLight(0); // 기본으로 설정된 빛 가져오기
+
+		light->type = 1;               //광원 종류 (상세 설명은 이후에)
+		light->pos = { 0, 50, -50 }; //광원 위치
+		light->range = 3000;           //조명 범위 (빛이 실제로 닿는 범위)
 	}
 	else if (MenuManager::Get()->GetLoadingSequence() == 1)
 	{
@@ -180,6 +265,7 @@ void GameMapScene::FirstLoading()
 		terrain->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
 		terrain->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
 		terrain->SetHeightMap(L"Textures/HeightMaps/SamepleHeightMap02.png");
+		terrain->GetMaterial()->SetShader(L"Light/Shadow.hlsl");
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(25.f);
 	}
@@ -313,13 +399,18 @@ void GameMapScene::FirstLoading()
 		player->Pos() = { 60,0,90 };
 		player->SetTerrain(terrain);
 		//player->SetMoveSpeed(50);
-
+		bow = new Bow;
+		bow->SetTarget(player);
+		player->SetBow(bow->GetModel());
+		ArrowManager::Get()->SetBowTransform(bow->GetModel());
 		CAM->SetTarget(player);
 		CAM->TargetOptionLoad("GameMapScenePlayer");
 		CAM->LookAtTarget();
 
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(75.f);
+
+		shadow = new Shadow();
 	}
 	else if (MenuManager::Get()->GetLoadingSequence() == 4)
 	{
@@ -343,18 +434,23 @@ void GameMapScene::FirstLoading()
 		MonsterManager::Get()->SetType(7,1);// 1이 알리는애
 		MonsterManager::Get()->SetTerrain(terrain);
 		MonsterManager::Get()->SetAStar(aStar);
-		MonsterManager::Get()->SetTarget(player); //싱글턴 생성 후, 표적 설정까지
-		MonsterManager::Get()->SetTargetCollider(player->GetCollider()); //싱글턴 생성 후, 표적 설정까지
+		MonsterManager::Get()->SetTarget(player);
+		MonsterManager::Get()->SetTargetCollider(player->GetCollider()); 
+		MonsterManager::Get()->SetTargetStateInfo(player->GetStateInfo());
 
 		boss = new Boss;
 		boss->SetTarget(player);
 		boss->SetTerrain(terrain);
 		boss->SetAStar(aStar);
+		boss->GetCollider()->UpdateWorld();
+		player->SetBoss(boss);
 		boss->SetPatrolPos(Vector3(205.f, 0.f, 110.f));
 		boss->SetPatrolPos(Vector3(205.f, 0.f, 80.f));
-
+		ColliderManager::Get()->PushCollision(ColliderManager::BOSS, boss->GetCollider());
+		ColliderManager::Get()->SetBoss(boss);
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(95.f);
+		MonsterManager::Get()->SetBoss(boss);
 	}
 	else if (MenuManager::Get()->GetLoadingSequence() == 5)
 	{
@@ -384,10 +480,13 @@ void GameMapScene::FirstLoading()
 			cm->Render();
 		}
 
+		player->PreRender();
 		player->Render();
 		MonsterManager::Get()->Render();
 		KunaiManager::Get()->Render();
-
+	
+		if (!bow->Active())
+			bow->Render();
 	}
 
 	if (MenuManager::Get()->GetLoadingSequence() == 6)

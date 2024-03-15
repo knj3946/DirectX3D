@@ -85,6 +85,7 @@ public:
     void SetAStar(AStar* aStar) { this->aStar = aStar; }
     void SetTarget(Transform* target) { this->target = target; }
     void SetTargetCollider(CapsuleCollider* collider) { targetCollider = collider; }
+    void SetTargetStateInfo(StateInfo* stateInfo) { this->targetStateInfo = stateInfo; }
     void SetSRT(Vector3 scale, Vector3 rot, Vector3 transform);
     void SetStartPos(Vector3 pos) { this->startPos = pos; this->PatrolPos.push_back(startPos); }
     void SetType(NPC_TYPE _type);
@@ -93,11 +94,12 @@ public:
 
     Transform* GetTransform() { return transform; }
     CapsuleCollider* GetCollider() { return collider; }
+    CapsuleCollider* GetMoveCollider() { return moveCollider; }
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
     void RotationRestore();
     float GetDamage();
-    void Hit(float damage,Vector3 collisionPos);
-    void Spawn(Vector3 pos);
+    void Hit(float damage,Vector3 collisionPos,bool _btrue=false);
+    void Spawn(Vector3 pos = {0,0,0});
 
     void AddObstacleObj(Collider* collider);
 
@@ -107,7 +109,7 @@ public:
 
     bool FindTarget() { return bSensor; }
 
-    void Findrange();
+    void Findrange(float startCool);
 
     void SetOutLine(bool flag);
     bool IsOutLine() { return outLine; };
@@ -121,6 +123,7 @@ public:
     void CoolDown();
     void SetGroundPos();
 
+    void SetStartCoolDown(float cool) { this->searchStartCoolDown = cool; }
 private:
     void Control();
     void Move();
@@ -152,17 +155,18 @@ private:
     bool TerainComputePicking(Vector3& feedback, Ray ray);
     bool EyesRayToDetectTarget(Collider* targetCol, Vector3 orcEyesPos);
     void RangeCheck();
-    void  SoundPositionCheck();;
+    void SoundPositionCheck();;
     
     void Throw();
 
-
+    void StartAttack();
     bool GetDutyFlag();
     void SetParameter();
     bool CalculateHit();
     void PartsUpdate();
     void StateRevision();
     void ParticleUpdate();
+    bool GetTargetAttack() { return battacktarget; }
 private:
 
     int a = 300;
@@ -179,7 +183,7 @@ private:
     NPC_TYPE type= NPC_TYPE::ATTACK;//
     vector<Vector3> PatrolPos;// ¼øÂûÁö
     UINT nextPatrol = 0;// ¼øÂûÁö À§Ä¡
- 
+    float DetectionRange;
     NPC_BehaviorState behaviorstate = NPC_BehaviorState::IDLE;
 
     State curState = IDLE;
@@ -200,6 +204,7 @@ private:
     AStar* aStar;
 
     float searchCoolDown = 0.0f;
+    float searchStartCoolDown = 0.0f;
     Transform* target;
     CapsuleCollider* targetCollider;
 
@@ -214,6 +219,8 @@ private:
 
     Transform* transform;
     CapsuleCollider* collider;
+    CapsuleCollider* moveCollider;
+
     vector<Collider*> weaponColliders;
 
     ProgressBar* hpBar;
@@ -280,4 +287,9 @@ private:
     float rayCoolTime = 0.3f;
     float curRayCoolTime = 0.0f;
     bool isRayToDetectTarget = false;
+
+    StateInfo* targetStateInfo;
+    bool battacktarget = false;
+    bool returntoPatrol = false;
+    Vector3 restorePos;
 };

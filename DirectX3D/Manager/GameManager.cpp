@@ -1,19 +1,25 @@
 #include "Framework.h"
 
 #include "Scenes/GameMapScene.h"
+#include "Scenes/GameSmallMapScene.h"
 #include "Scenes/TestNpcScene.h"
 #include "Scenes/ModelAnimationScene.h"
 
 #include "Scenes/BuildingScene.h"
+#include "Scenes/ShadowScene.h"
+#include "Scenes/OnlyBossScene.h"
 
 GameManager::GameManager()
 {
     Create();
-
+   
     //SceneManager::Get()->Create("ModelAnimation", new ModelAnimationScene());
     SceneManager::Get()->Create("GameMap", new GameMapScene());
+    //SceneManager::Get()->Create("GameSmallMap", new GameSmallMapScene());
     //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
     //SceneManager::Get()->Create("Building", new BuildingScene());
+    //SceneManager::Get()->Create("Shadow", new ShadowScene());
+    //SceneManager::Get()->Create("OnlyBoss", new OnlyBossScene());
 
     //SceneManager::Get()->Add("Grid");
 
@@ -21,8 +27,11 @@ GameManager::GameManager()
 
     //SceneManager::Get()->Add("ModelAnimation");
     SceneManager::Get()->Add("GameMap");
+    //SceneManager::Get()->Add("GameSmallMap");
     //SceneManager::Get()->Add("TestNpcScene");
     //SceneManager::Get()->Add("Building");
+    //SceneManager::Get()->Add("Shadow");
+    //SceneManager::Get()->Add("OnlyBoss");
 }
 
 GameManager::~GameManager()
@@ -53,9 +62,9 @@ void GameManager::Render()
     Environment::Get()->PostSet();
     SceneManager::Get()->PostRender();
 
-    ImGui_ImplDX11_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
+   ImGui_ImplDX11_NewFrame();
+   ImGui_ImplWin32_NewFrame();
+   ImGui::NewFrame();
 
     string fps = "FPS : " + to_string(Timer::Get()->GetFPS());
     Font::Get()->RenderText(fps, { 100, WIN_HEIGHT - 10 });
@@ -69,7 +78,7 @@ void GameManager::Render()
         SceneManager::Get()->GUIRender();
         ImGui::End();
     }
-
+ 
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
@@ -96,11 +105,11 @@ void GameManager::Create()
 
     Texture::Add(L"Textures/Color/White.png");
 
-    ImGui::CreateContext();
-    ImGui::StyleColorsDark();
-
-    ImGui_ImplWin32_Init(hWnd);
-    ImGui_ImplDX11_Init(DEVICE, DC);
+   ImGui::CreateContext();
+   ImGui::StyleColorsDark();
+ 
+   ImGui_ImplWin32_Init(hWnd);
+   ImGui_ImplDX11_Init(DEVICE, DC);
 
     srand((unsigned int)time(NULL));
 }
@@ -109,6 +118,7 @@ void GameManager::Delete()
 {
     Keyboard::Delete();
     Timer::Delete();
+    SceneManager::Delete();
     Device::Delete();
     Shader::Delete();
     Texture::Delete();
@@ -117,8 +127,9 @@ void GameManager::Delete()
     Font::Delete();
     //Audio::Delete();
 
-    ImGui_ImplDX11_Shutdown();
-    ImGui_ImplWin32_Shutdown();
+   ImGui_ImplDX11_Shutdown();
+   ImGui_ImplWin32_Shutdown();
+  
 
-    ImGui::DestroyContext();
+   ImGui::DestroyContext();
 }

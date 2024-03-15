@@ -33,6 +33,7 @@
 
 
 #define DIALOG ImGuiFileDialog::Instance()
+#define SAFE_DELETE(p)if(nullptr!= p){delete p p=nullptr;}
 
 #define FOR(n) for(int i = 0; i < n ; i++)
 
@@ -63,6 +64,7 @@
 #include <mmsystem.h>
 #include <dsound.h>
 #include <dxgi.h>
+#include <crtdbg.h>	
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -102,6 +104,7 @@ typedef function<void(int)> IntParamEvent;
 #include "Framework/Utilities/Utility.h"
 #include "Framework/Utilities/Font.h"
 #include "Framework/Utilities/Audio.h"
+#include "Framework/Utilities/Format.h"
 
 using namespace Utility;
 
@@ -144,6 +147,7 @@ using namespace Utility;
 #include "Framework/Collision/SphereCollider.h"
 #include "Framework/Collision/CapsuleCollider.h"
 
+#include "Framework/Model/ObjInfo.h"
 #include "Framework/Model/ModelData.h"
 #include "Framework/Model/ModelExporter.h"
 #include "Framework/Model/ModelMesh.h"
@@ -193,6 +197,7 @@ using namespace GameMath;
 #include "Objects/Items/Weapons/Crowbar.h"
 #include "Objects/Items/Weapons/Dagger.h"
 #include "Objects/Items/Weapons/Arrow.h"
+#include "Objects/Items/Weapons/Bow.h"
 
 #include "Objects/Character/Orc.h"
 #include "Objects/Character/Player.h"

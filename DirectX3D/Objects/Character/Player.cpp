@@ -1,11 +1,11 @@
 ﻿#include "Framework.h"
 #include "Player.h"
-
+bool Player::modeld = false;
 Player::Player()
     : ModelAnimator("akai")
 {
     ArrowManager::Get();
-
+    
     targetTransform = new Transform();
     //straightRay = Ray(Pos(), Back());
 
@@ -26,15 +26,18 @@ Player::Player()
     weaponColliders.push_back(dagger->GetCollider());
 
     bow = new Model("Elven Long Bow");
-    bow->SetParent(leftHand);
-    bow->Scale() *= 6.f;
-    bow->Pos() = { 0, 6.300, -2.400 };
-    bow->Rot() = { 3.000, 0, 0 };
+    bow->SetActive(true);
+    
+    {
+        bow->SetParent(leftHand);
+        bow->Scale() *= 6.f;
+        bow->Pos() = { 0, 6.300, -2.400 };
+        bow->Rot() = { 3.000, 0, 0 };
 
+    }
     aimT = new Transform();
     aimT->SetParent(this);
-    aimT->Pos().x += -40.0f;
-    aimT->Pos().y += -15.0f;
+    aimT->Pos() = aimStartPos;
 
     crosshair = new Quad(L"Textures/UI/cursor.png");
     crosshair->Pos() = { CENTER_X, CENTER_Y, 0 };
@@ -67,9 +70,9 @@ Player::Player()
     hpBar->SetAmount(curHP / maxHp);
     hpBar->UpdateWorld();
 
-    string temp;    //???? ????
+    string temp;  
 
-    ReadClip("Idle"); // ?????? 0??? 1???? ????
+    ReadClip("Idle");
 
     ReadClip("Medium Run");
     ReadClip("Running Backward");
@@ -79,15 +82,16 @@ Player::Player()
     ReadClip("Jog Forward Diagonal Left");
     ReadClip("Jog Forward Diagonal Right");
 
-    ReadClip("Jumping"); // ?????? 0??? 1???? ????
-    ReadClip("IntheSky"); // ?????? 0??? 1???? ????
-    ReadClip("Falling To Landing"); // ?????? 0??? 1???? ????
+    ReadClip("Jumping Up");
+    ReadClip("IntheSky");
+    ReadClip("Falling To Landing"); 
+    ReadClip("Hard Landing"); 
 
-    ReadClip("Stand To Cover"); // ?????? 0??? 1???? ????
-    ReadClip("Cover Idle"); // ?????? 0??? 1???? ????
-    ReadClip("Crouched Sneaking Right"); // ?????? 0??? 1???? ????
-    ReadClip("Crouched Sneaking Left"); // ?????? 0??? 1???? ????
-    ReadClip("Crouch Turn To Stand"); // ?????? 0??? 1???? ????
+    ReadClip("Stand To Cover"); 
+    ReadClip("Cover Idle");
+    ReadClip("Crouched Sneaking Right");
+    ReadClip("Crouched Sneaking Left");
+    ReadClip("Crouch Turn To Stand");
 
     ReadClip("Head Hit");
 
@@ -140,24 +144,25 @@ Player::Player()
 
 
     GetClip(JUMP1)->SetEvent(bind(&Player::Jump, this), 0.1f);  //????????
-    GetClip(JUMP1)->SetEvent(bind(&Player::AfterJumpAnimation, this), 0.20001f);   //???
-
-    GetClip(JUMP3)->SetEvent(bind(&Player::SetIdle, this), 0.1f);   //????
+    GetClip(JUMP1)->SetEvent(bind(&Player::JumpSetting, this), 0.20001f);   //???
+    GetClip(JUMP3)->SetEvent(bind(&Player::JumpSetting, this), 0.1f);   //????
+    GetClip(JUMP4)->SetEvent(bind(&Player::JumpSetting, this), 0.78f);   //????
 
     GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //????
 
-    GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.35f); // ????? ??????
+    GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.34f); // ????? ??????
+   
     //GetClip(CLIMBING1)->SetEvent(bind(&Player::EndClimbing, this), 0.1f);
     //GetClip(CLIMBING2)->SetEvent(bind(&Player::EndClimbing, this), 0.32f);
     //GetClip(CLIMBING3)->SetEvent(bind(&Player::EndClimbing, this), 0.95f);
 
-    GetClip(CLIMBING1)->SetEvent(bind(&Player::SetClimbAnim, this), 0.1f);
+    GetClip(CLIMBING1)->SetEvent(bind(&Player::SetClimbAnim, this), 0.7f);
     GetClip(CLIMBING2)->SetEvent(bind(&Player::SetClimbAnim, this), 0.85f);
     GetClip(CLIMBING3)->SetEvent(bind(&Player::SetClimbAnim, this), 0.9f);
     GetClip(CLIMBING_JUMP_R)->SetEvent(bind(&Player::SetClimbAnim, this), 0.8f);
     GetClip(CLIMBING_JUMP_L)->SetEvent(bind(&Player::SetClimbAnim, this), 0.8f);
     GetClip(CLIMBING_DOWN)->SetEvent(bind(&Player::SetClimbAnim, this), 0.9f);
-    GetClip(CLIMBING_JUMP_D)->SetEvent(bind(&Player::SetClimbAnim, this), 0.7f);
+    //GetClip(CLIMBING_JUMP_D)->SetEvent(bind(&Player::SetClimbAnim, this), 0.5f);
 
     GetClip(ASSASSINATION1)->SetEvent(bind(&Player::EndAssassination, this, 1), 0.9f);
     GetClip(ASSASSINATION2)->SetEvent(bind(&Player::EndAssassination, this, 2), 0.9f);
@@ -206,17 +211,27 @@ Player::Player()
         form->UpdateWorld();
     }
 
-    // 사운드 생성 및 초기화
-    SoundManager::Get()->PlayerCreate(this);
+    tempCam = new Transform();
 
-    hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 25, 25, 5, 2, false);
+    hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
     jumpparticle=new ParticleSystem("TextData/Particles/JumpSmoke.fx");
+
+    FOR(2) blendState[i] = new BlendState();
+    blendState[1]->Additive(); //투명색 적용 + 배경색 처리가 있으면 역시 적용
+
+    stateInfo = new StateInfo();
+
 }
 
 Player::~Player()
 {
+    FOR(2)
+        delete blendState[i];
+    delete stateInfo;
     delete collider;
-
+    delete portrait;
+    delete form;
+   
     delete hpBar;
     delete hiteffect;
     delete jumpparticle;
@@ -236,44 +251,47 @@ Player::~Player()
     delete dagger;
     delete bow;
 
-    delete ArrowManager::Get();
+    ArrowManager::Delete();
 
     delete aimT;
     delete crosshair;
+    delete tempCam;
 }
 
 void Player::Update()
 {
+    if (isDying)
+    {
+        MenuManager::Get()->SetFailFlag(true);
+    }
+
     ColliderManager::Get()->SetHeight();
-    ColliderManager::Get()->PushPlayer();
+    if(!isClimb)
+        ColliderManager::Get()->PushPlayer();
+
+    if (KEY_DOWN('O'))
+        Hit(1);
 
     SetCameraPos();
 
-    collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
-    collider->UpdateWorld();
-
-    UpdateUI();
+    if (collider->GetParent() == this)
+    {
+        collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
+        collider->UpdateWorld();
+    }
 
     if (isDying) return;
 
-    Control();
+    if(curState != JUMP4 && curState != CLIMBING3 && curState != ASSASSINATION1 && curState != ASSASSINATION2)
+        Control();
+    if (!isClimb)
+        Jumping();
+
     Searching();
     Targeting();
     UseSkill();
 
-    //이 함수 내에서 조건으로 애니메이션 세팅을 중단하지 말고,
-    //특정 애니메이션이 동작하면 canSettingAnim같은 bool 변수를 false로 만들어서
-    //이 함수를 캔슬하는 방식 고려
 
-    ModelAnimator::Update();
-
-    if (comboHolding > 0.0f)
-        comboHolding -= DELTA;  //???? ???, ????ð? ?? ?ð? ???? ??? ?????
-    else
-    {
-        comboHolding = 0.0f;
-        comboStack = 0;
-    }
 
     rightHand->SetWorld(this->GetTransformByNode(rightHandNode));
     leftHand->SetWorld(this->GetTransformByNode(leftHandNode));
@@ -288,7 +306,6 @@ void Player::Update()
     //rightFoot->SetWorld(this->GetTransformByNode(rightFootNode));
     //rightFootCollider->UpdateWorld();
 
-    SetAnimation();
 
     ArrowManager::Get()->Update();
     ArrowManager::Get()->IsCollision();
@@ -297,16 +314,35 @@ void Player::Update()
     jumpparticle->Update();
     crosshair->UpdateWorld();
 
-
     CoolDown();
+
+    SetAnimation();
+    ModelAnimator::Update();
+
+    SetCameraPos();
+    Rotate();
+
+    UpdateUI();
+
+    if (comboHolding > 0.0f)
+        comboHolding -= DELTA;
+    else
+    {
+        comboHolding = 0.0f;
+        comboStack = 0;
+    }
+}
+
+void Player::PreRender()
+{
+
 }
 
 void Player::Render()
 {
+    if(stateInfo->isCloaking)
+        blendState[1]->SetState();
     ModelAnimator::Render();
-    collider->Render();
-    hiteffect->Render();
-    jumpparticle->Render();
     switch (weaponState)
     {
     case DAGGER:
@@ -316,7 +352,12 @@ void Player::Render()
         bow->Render();
         break;
     }
+    blendState[0]->SetState();
 
+    collider->Render();
+    hiteffect->Render();
+    jumpparticle->Render();
+    
     //leftFootCollider->Render();
     //rightFootCollider->Render();
 
@@ -328,8 +369,8 @@ void Player::PostRender()
     hpBar->Render();
     
     portrait->Render();
-    
-    form->Render();
+    if (bow->Active())
+           form->Render();
     string str = to_string(ArrowManager::Get()->GetPlayerArrowCount());
 
     Vector3 tmp = form->Pos() + Vector3(60, 10, 0);
@@ -342,54 +383,18 @@ void Player::PostRender()
 
 void Player::GUIRender()
 {
-    Model::GUIRender();
-
     ImGui::Text("playerArrowCount : %d", ArrowManager::Get()->GetPlayerArrowCount());
 
     CAM->GUIRender();
 
-    //ImGui::DragFloat3("Velocity", (float*)&velocity, 0.5f);
-    ////???
-    //ImGui::SliderFloat("moveSpeed", &moveSpeed1, 10, 1000);
-    //ImGui::SliderFloat("moveSpeed", &moveSpeed2, 10, 1000);
-    //ImGui::SliderFloat("rotSpeed", &rotSpeed, 1, 10);
-    //ImGui::SliderFloat("deceleration", &deceleration, 1, 10);
-    //ImGui::Text("isPushed : %d", isPushed);
-    //ImGui::Text("feedBackPosY : %f", feedBackPos.y);
-    //ImGui::Text("heightLevel : %f", heightLevel);
-
     ImGui::Text("curState : %d", curState);
 
-    //???? ??
-    //ImGui::SliderFloat("force1", &force1, 1, 500);
-    //ImGui::SliderFloat("force2", &force2, 1, 500);
-    //ImGui::SliderFloat("force3", &force3, 1, 500);
-
-    //ImGui::SliderFloat("jumpSpeed", &jumpSpeed, 0.01f, 5.0f);
-    ////???
-    //ImGui::SliderFloat("gravityMult", &gravityMult, 1, 100);
-
-    ////3?? ???? ?????? ???? ????
-    //ImGui::InputFloat("JumpVel", (float*)&jumpVel);
-    //ImGui::InputFloat("jumpN", (float*)&jumpVel);
-    //ImGui::InputFloat("nextJump", (float*)&nextJump);
-
-    //?????? ?ε??ð?
-    /*ImGui::InputFloat("landingT", (float*)&landingT);
-    ImGui::InputFloat("landing", (float*)&landing);
-
-    ImGui::InputInt("rightHandNode", &rightHandNode);
-    ImGui::InputInt("leftHandNode", &leftHandNode);
-    ImGui::InputInt("leftFootNode", &leftFootNode);
-    ImGui::InputInt("rightFootNode", &rightFootNode);
-
-    ImGui::DragFloat3("bowPos", (float*)&bow->Pos(), 0.1f);
-    ImGui::DragFloat3("bowRot", (float*)&bow->Rot(), 0.1f);
-    ImGui::DragFloat3("bowScale", (float*)&bow->Scale(), 0.1f);*/
-
-    //dagger->GUIRender();
-
     ColliderManager::Get()->GuiRender();
+}
+
+void Player::TextRender()
+{
+    Font::Get()->RenderText(L"남은 투명화 시간 : " + residualCloakingTime, { 700,600 }, { 600,100 });
 }
 
 void Player::SetTerrain(LevelData* terrain)
@@ -428,14 +433,17 @@ void Player::Assassination()
 
 void Player::Climb(Collider* col, Vector3 climbPos)
 {
-    Pos() = { climbPos.x, Pos().y, climbPos.z };
+    Pos() = { climbPos.x, Pos().y, climbPos.z};
+    isClimb = true;
     UpdateWorld();
 
     //remainClimbDis = col->GetHalfSize().z * 2; // 콜라이더의 로컬좌표계는 z가 높이인 좌표계임
-    isClimb = true;
 
     canClimbControl = true;
     SetState(CLIMBING1);
+
+    tempCam->Pos() = Pos();
+    tempCam->Rot() = Rot();
 }
 
 void Player::SetClimbAnim()
@@ -443,37 +451,25 @@ void Player::SetClimbAnim()
     if (curState == CLIMBING_JUMP_D)
     {
         Pos().y = climbJ_y;
-        Pos() += Back();
+        Pos() += Back() * 3.0f;
         velocity = Back();
+        this->UpdateWorld();
+        SetState(JUMP2);
 
         isClimb = false;
     }
-    else if (curState == CLIMBING_DOWN)
-    {
-        Pos() = saveT->Pos();
-        Rot() = saveT->Rot();
-
-        SetState(CLIMBING1);
-        canClimbControl = true;
-
-        CAM->SetTarget(this);
-        collider->SetParent(this);
-
-        if (TSaved)
-        {
-            delete saveT;
-            TSaved = false;
-        }
-    }
-    else if (curState == CLIMBING2 || curState == CLIMBING_JUMP_R || curState == CLIMBING_JUMP_L)
+    else if (curState == CLIMBING_DOWN || curState == CLIMBING2 || curState == CLIMBING_JUMP_R || curState == CLIMBING_JUMP_L)
     {
         SetState(CLIMBING1);
         canClimbControl = true;
     }
     else if (curState == CLIMBING3)
     {
-        SetState(IDLE);
         Pos() = climbArrivePos;
+        this->UpdateWorld();
+        collider->UpdateWorld();
+
+        SetState(IDLE);
         isClimb = false;
     }
 }
@@ -483,43 +479,18 @@ void Player::Climbing()
     if (curState == CLIMBING3 || curState == CLIMBING_JUMP_D)
         return;
 
-    //현재는 건물이 직각이기 때문에 가능한 코드, 굴곡이 있다면 Ray로 바꾸고 distance 체크하면서 이동하기로 구현
-    Transform rayT = *this;
-    rayT.Pos().y += 7.2f;
-
-    Ray headForwardRay = Ray(rayT.Pos(), rayT.Back());
-
-    bool arriveTop = true;
-    Contact con;
-    for (Collider* obstacle : ColliderManager::Get()->GetObstacles())
-    {
-        if (obstacle->IsRayCollision(headForwardRay, &con)/* && con.distance < 10.0f*/)
-        {
-            if (con.distance < 1.f)
-            {
-                arriveTop = false;
-                climbArrivePos = con.hitPoint;
-                break;
-            }
-        }
-    }
-
-    //if (arriveTop)    ////꼭대기 올라가는 코드, 테스트 위해서 주석처리 함
-    //{
-    //    climbArrivePos.y += 0.1f;
-
-    //    SetState(CLIMBING3);
-    //    return;
-    //}
-
     if (canClimbControl)
     {
         if (KEY_DOWN(VK_SPACE))
         {
+            canClimbControl = false;
             SetState(CLIMBING_JUMP_D);
-            climbJ_y = Pos().y; //왜인지 위의 state의 바인딩 함수가 실행되고 y축이 0이돼서 
-            //Jumping을 통한 추락이 잘 안됨, 그래서 임시로 기억
-//isClimb = false;
+            climbJ_y = Pos().y;
+
+            velocity = Back();
+
+            isClimb = false;
+
             return;
         }
 
@@ -528,92 +499,136 @@ void Player::Climbing()
         if (KEY_PRESS('W'))
         {
             climbVel.y = 1.0f;
-            canClimbControl = false;
             SetState(CLIMBING2);
+            canClimbControl = false;
         }
         else if (KEY_PRESS('S'))
-        {
-            SetState(CLIMBING_DOWN);
-
-            saveT = new Transform(*this);   //애니메이션이 실제 위치보다 높게 출력되기 때문에
-            //실제 시작 위치를 가져옴
-            TSaved = true;
-            CAM->SetTarget(saveT);
-            collider->SetParent(saveT);
-
-            Pos().y -= 3.0f;
-
+        {   //1.3f정도 위에서 애니메이션이 재생되는듯
             climbVel = Down();
+            SetState(CLIMBING_DOWN);
             canClimbControl = false;
         }
 
         if (KEY_PRESS('A'))
         {
             climbVel = Right();
-            climbVel.y = 0.0f;
-            canClimbControl = false;
             SetState(CLIMBING_JUMP_L);
+            canClimbControl = false;
         }
         else if (KEY_PRESS('D'))
         {
             climbVel = Left();
-            climbVel.y = 0.0f;
-            canClimbControl = false;
             SetState(CLIMBING_JUMP_R);
+            canClimbControl = false;
         }
     }
-
-    if (TSaved && saveT->Pos().y <= heightLevel)
+    else
     {
-        climbVel = 0;
+        //현재는 건물이 직각이기 때문에 가능한 코드, 굴곡이 있다면 Ray로 바꾸고 distance 체크하면서 이동하기로 구현
+        Transform rayT = *this;
+        rayT.Pos().y += 7.2f;
 
-        Pos() = saveT->Pos();
-        Pos().y = heightLevel + 0.01f;   //heightLevel이 갱신되는지 확인해야 함, 현재는 건물 밑에 바닥밖에 없어서 상관x
+        Ray headForwardRay = Ray(rayT.Pos(), rayT.Back());
 
-        if (Pos().y < 0.0f)
-            Pos().y = 0.0f;
+        bool emptySpace = true;
+        Contact con;
 
-        collider->SetParent(this);
-        CAM->SetTarget(this);
-
-        if (TSaved)
+        for (Collider* obstacle : ColliderManager::Get()->GetObstacles())
         {
-            delete saveT;
-            TSaved = false;
+            if (obstacle->IsRayCollision(headForwardRay, &con)/* && con.distance < 10.0f*/)
+            {
+                if (con.distance < 1.0f) 
+                {
+                    emptySpace = false;
+                    climbArrivePos = con.hitPoint;
+                    break;
+                }
+            }
         }
 
-        isClimb = false;
+        if (emptySpace)    ////꼭대기 올라가는 코드, 테스트 위해서 주석처리 함
+        {
+            if (curState == CLIMBING2) {
+                climbArrivePos += Back() * 2.0f;
+                SetState(CLIMBING3);
+                return;
+            }
+            else
+            {
+                canClimbControl = false;
 
-        return;
+                if (curState == CLIMBING_JUMP_L)
+                    velocity = Left();          //Left의 값이 이상함
+                else
+                    velocity = Right();
+
+                SetState(CLIMBING_JUMP_D);
+                climbJ_y = Pos().y;
+
+                isClimb = false;
+
+                return;
+            }
+        }
+
+
+        if (curState == CLIMBING_DOWN && Pos().y <= heightLevel)
+        {
+            climbVel = 0;
+
+            Pos() = tempCam->Pos();
+            Pos().y = heightLevel + 0.01f;   //heightLevel이 갱신되는지 확인해야 함, 현재는 건물 밑에 바닥밖에 없어서 상F관x
+
+            if (Pos().y < 0.0f)
+                Pos().y = 0.0f;
+
+            collider->SetParent(this);
+            CAM->SetTarget(this);
+
+            isClimb = false;
+
+            return;
+        }
+
+        Pos() += climbVel * DELTA * 4.0f;
     }
 
-    Pos() += climbVel * DELTA * 5.5f;
-    if (TSaved) //내려가는 동안만 true
-    {
-        saveT->Pos() += climbVel * DELTA * 5.5f;
-        saveT->UpdateWorld();
-    }
+
+    tempCam->Pos() = Pos();
+    tempCam->Pos().y += 8.0f;
+
+    tempCam->UpdateWorld();
 }
 
-void Player::CameraMove()
+void Player::Respawn(Vector3 pos)
 {
-    Ray cameraRay = CAM->ScreenPointToRay(mousePos);
+
+    SetState(IDLE);
+
+    curHP = maxHp;
+    hpBar->SetAmount(curHP / maxHp);
+
+    collider->SetActive(true);
+    isDying = false;
+
+    Pos() = pos;
 }
 
 void Player::Control()  //??????? ?????, ???콺 ??? ???
 {
-    if (curState == ASSASSINATION1 || curState == ASSASSINATION2) return;
+    if (KEY_DOWN(VK_ESCAPE))
+        cameraHold = !cameraHold;
 
-    if (curState != CLIMBING2 && curState != CLIMBING3
-        && curState != CLIMBING_JUMP_L && curState != CLIMBING_JUMP_R && curState != CLIMBING_DOWN)
+    if (!isClimb)
     {
-
         if (KEY_DOWN(VK_TAB)) {
             if (static_cast<WeaponState>(weaponState + 1) >= 3)
                 weaponState = DAGGER;
             else
+            {
+                if (!bow->Active())
+                    return;
                 weaponState = static_cast<WeaponState>(weaponState + 1);
-        }
 
         if (KEY_UP(VK_LBUTTON))
         {
@@ -629,6 +644,56 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             }
         }
 
+        if(!InTheAir())
+            if (KEY_DOWN(VK_LBUTTON))
+            {
+                if (weaponState == BOW)
+                {
+                    // 보유한 화살이 있는가
+                    if (ArrowManager::Get()->GetPlayerArrowCount() <= 0) return;
+                    SetState(B_DRAW);
+                    aimT->Pos() = aimStartPos;
+                    return;
+                }
+            }
+            else if (KEY_PRESS(VK_LBUTTON))
+            {
+                if (weaponState == DAGGER)
+                {
+                    if (curState != DAGGER1 && curState != DAGGER2 && curState != DAGGER3)
+                    {
+                        ComboAttack();
+                        //dagger->GetCollider()->SetActive(true); //콜라이더 켜지는 시점은 이벤트로 설정
+                    }
+                }
+                else if (weaponState == BOW)
+                {
+                    if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
+                        if (chargingT < maxSpeed) 
+                        {
+                            Vector3 dir = { 0.1, 0, -1 };
+                            aimT->Pos() += DELTA * dir * 30.0f;
+                            chargingT += DELTA * chargetVal;
+                        }
+                        else
+                            chargingT = maxSpeed;
+                }
+            }
+            else if (KEY_UP(VK_LBUTTON))
+            {
+                if (!bow->Active())return;
+
+                if (weaponState == BOW)
+                {
+                    if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
+                    {
+                        ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos), chargingT);
+                        chargingT = initSpeed;
+                        SetState(B_RECOIL);
+                    }
+                    return;
+                }
+            }
     if (KEY_DOWN(VK_LBUTTON))
     {
         if (weaponState == BOW)
@@ -663,6 +728,11 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             //dagger->GetCollider()->SetActive(false); //콜라이더 꺼지는 시점은 이벤트로 설정
         }
 
+        //if (KEY_UP(VK_LBUTTON))
+        //{
+        //    //dagger->GetCollider()->SetActive(false); //콜라이더 꺼지는 시점은 이벤트로 설정
+        //}
+
         if (isHit)   //?´°? ?????????? Jumping????? ?????? ????? ????? ????? ?ð??? ?þ?
         {
             return;
@@ -678,14 +748,20 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
         {
             // 화살 줍기
             ArrowManager::Get()->ExecuteSpecialKey();
+            bow->SetActive(true);
+        }
+
+        if (KEY_DOWN('R'))
+        {
+            if (!stateInfo->isCloaking)
+                stateInfo->isCloaking = true;
+            else 
+                stateInfo->isCloaking = false;
         }
     }
 
-    Rotate();
+    Cloaking();
     Move();
-
-    if (!isClimb)
-        Jumping();
 
     //if (targetObject != nullptr && KEY_DOWN('F'))     ////보류
     //{
@@ -758,20 +834,48 @@ void Player::UpdateUI()
     hpBar->Pos() = CAM->WorldToScreen(barPos);
 
     */
+
+    wstring s = L"%.2f";
+    residualCloakingTime = format(s, stateInfo->possibleCloakingTime - stateInfo->curCloakingTime);
+}
+
+void Player::Cloaking()
+{
+    if (stateInfo->isCloaking)
+    {
+        if (stateInfo->possibleCloakingTime <= stateInfo->curCloakingTime)
+        {
+            stateInfo->isCloaking = false;
+            return;
+        }
+        stateInfo->curCloakingTime += DELTA;
+    }
+    else
+    {
+        if (stateInfo->curCloakingTime <= 0)
+        {
+            stateInfo->curCloakingTime = 0.f;
+            return;
+        }
+        stateInfo->curCloakingTime -= DELTA;
+    }
 }
 
 void Player::Rotate()
 {
     Vector3 delta = mousePos - Vector3(CENTER_X, CENTER_Y);
 
-    if (!camera)
+    if (!cameraHold)
         return;
 
     SetCursorPos(clientCenterPos.x, clientCenterPos.y);
 
     if (!isClimb)
         Rot().y += delta.x * rotSpeed * DELTA;
-    CAM->Rot().x -= delta.y * rotSpeed * DELTA;
+    else
+        tempCam->Rot().y += delta.x * rotSpeed * DELTA;
+
+    CAM->Rot().x -= delta.y * rotSpeed * DELTA; //벽 타는 중에도 위아래로 카메라 회전 가능
 
     if (KEY_PRESS('Q'))
         Rot().y -= DELTA * 2;
@@ -883,10 +987,11 @@ void Player::Walking()
     Vector3 PlayerSkyPos = destPos;
     PlayerSkyPos.y += 1000;
     Ray groundRay = Ray(PlayerSkyPos, Vector3(0.f,-1.f,0.f));
-    if (!OnColliderFloor(destFeedBackPos)) // 문턱올라가기 때문에 다시 살림
-    {
-        TerainComputePicking(destFeedBackPos, groundRay);
-    }
+
+        if (!OnColliderFloor(destFeedBackPos)) // 문턱올라가기 때문에 다시 살림
+        {
+            TerainComputePicking(destFeedBackPos, groundRay);
+        }
 
     //destFeedBackPos : 목적지 터레인Pos
     //feedBackPos : 현재 터레인Pos
@@ -899,21 +1004,21 @@ void Player::Walking()
     //????
     float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
 
-
-    if (!isPushed
-        && (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y
+    if (!isPushed && 
+       (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y
             || destFeedBackPos.y - feedBackPos.y < 0.5f) // 바닥 올라가게 하기위해 추가함
-        ) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????
+        ) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????sad wad  
     {
         if (!KEY_PRESS(VK_LSHIFT))
             Pos() += direction * moveSpeed1 * DELTA * -1; // ??? ????
         else
             Pos() += direction * moveSpeed2 * DELTA * -1; // ??? ????
-        feedBackPos.y = destFeedBackPos.y;
+
+            feedBackPos.y = destFeedBackPos.y;
     }
 
     //???????°? ????? ???? ???? ????? ???? ????
-    if (curState != JUMP1 && curState != JUMP2 && curState != JUMP3 && curState != CLIMBING_JUMP_D)
+    if (jumpVel <= 0.0f && curState != JUMP1 && curState != JUMP2 && curState != JUMP3 && curState != CLIMBING_JUMP_D)
         Pos().y = feedBackPos.y;    //여기 체크
 }
 
@@ -922,9 +1027,20 @@ void Player::Jump()
     jumpVel = force1;
 }
 
-void Player::AfterJumpAnimation()
+void Player::JumpSetting()
 {
-    SetState(JUMP2);
+    if (curState == JUMP1)
+    {
+        SetState(JUMP2);
+    }
+    else if (curState == JUMP3)
+    {
+        SetState(IDLE);
+    }
+    else if (curState == JUMP4)
+    {
+        SetState(IDLE);
+    }
 }
 
 void Player::Jumping()
@@ -932,7 +1048,7 @@ void Player::Jumping()
     if (heightLevel < feedBackPos.y)
         heightLevel = feedBackPos.y;
 
-    if (isCeiling)
+    if (headCrash)
     {
         jumpVel = -20;
         isCeiling = false;
@@ -941,12 +1057,12 @@ void Player::Jumping()
     float tempJumpVel;
     float tempY;
 
-    if (curState != JUMP1 && curState != JUMP2 && preHeight - heightLevel > 5.0f)
+    if (curState != HIT && curState != JUMP1 && curState != JUMP2 && preHeight - heightLevel > 5.0f)
     {
         jumpVel = -1;
 
         tempJumpVel = jumpVel - 9.8f * gravityMult * DELTA;
-        tempY = preHeight + jumpVel * DELTA * jumpSpeed;
+        tempY = preHeight + tempJumpVel * DELTA * jumpSpeed;
     }
     else
     {
@@ -958,7 +1074,7 @@ void Player::Jumping()
 
             climbJ_y = -1.0f;
         }
-        tempY = Pos().y + jumpVel * DELTA * jumpSpeed;
+        tempY = Pos().y + tempJumpVel * DELTA * jumpSpeed;
     }
 
     if (tempY <= heightLevel)
@@ -967,8 +1083,15 @@ void Player::Jumping()
         tempJumpVel = 0.0f;
 
         if (curState == JUMP2) {
-            //landing = landingT;   //?????? ????? ???? ????? ????? ??????
-            SetState(JUMP3);
+            if (fallingT >= 0.45f)
+            {
+                SetState(JUMP4);
+                Hit(fallingT * 10.0f);
+            }
+            else
+                SetState(JUMP3);
+
+            jumpparticle->Play(Pos());
         }
     }
 
@@ -976,7 +1099,12 @@ void Player::Jumping()
     jumpVel = tempJumpVel;
 
     if (jumpVel < 0.0f)
+    {
         SetState(JUMP2);
+        fallingT += DELTA;
+    }
+    else
+        fallingT = 0.0f;
 
     preHeight = heightLevel;
 }
@@ -1003,11 +1131,28 @@ void Player::Targeting()
         offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
         MonsterManager::Get()->ActiveSpecialKey(Pos(), offset);
     }
+    if(boss){
+        boss->OnOutLineByRay(mouseRay);
+        offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
+        boss->ActiveSpecialKey(Pos(), offset);
+    }
+
+
+
 
     {
         ArrowManager::Get()->OnOutLineByRay(mouseRay);
         offset = (CAM->Right() * 1.5f) + (CAM->Up() * 3.f);
-        ArrowManager::Get()->ActiveSpecialKey(Pos(), offset);
+        bool bTRUE = false;
+        if (BowInstallation)
+        {
+            if (!BowInstallation->Active())return;
+            if (Distance(BowInstallation->GlobalPos(), GlobalPos()) < 6.f) {
+                bTRUE = true;
+            }
+        }
+
+        ArrowManager::Get()->ActiveSpecialKey(Pos(), offset, bTRUE);
     }
 
     {
@@ -1074,7 +1219,11 @@ void Player::EndHit()
 {
     isHit = false;
     collider->SetActive(true);
-    SetState(IDLE);
+
+    if (isClimb)
+        isClimb = false;
+
+    SetIdle();
 }
 
 bool Player::OnColliderFloor(Vector3& feedback)
@@ -1165,11 +1314,12 @@ float Player::GetDamage()
 
 void Player::Hit(float damage)
 {
+    if (isHit)
+        int a = 0;
     if (!isHit)
     {
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
-        collider->SetActive(false);
         hiteffect->Play(particlepos);
 
         if (destHP <= 0)
@@ -1179,11 +1329,18 @@ void Player::Hit(float damage)
             isDying = true;
             return;
         }
-        SetState(HIT, 0.8f);
+
+        if(curState != JUMP4)
+            SetState(HIT, 0.8f);
+
+        preState = curState;
+        if(!dohitanimation && curState != JUMP4)
+            SetState(HIT, 0.8f);
+        dohitanimation = true;
 
         isHit = true;
     }
-
+  
 }
 
 void Player::Hit(float damage, bool camerashake)
@@ -1192,7 +1349,6 @@ void Player::Hit(float damage, bool camerashake)
     {
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
-        collider->SetActive(false);
         CAM->DoShake();
         if (destHP <= 0)
         {
@@ -1201,8 +1357,9 @@ void Player::Hit(float damage, bool camerashake)
             isDying = true;
             return;
         }
-        SetState(HIT, 0.8f);
-
+        if (!dohitanimation)
+            SetState(HIT, 0.8f);
+        dohitanimation = true;
         isHit = true;
     }
 
@@ -1233,7 +1390,6 @@ void Player::ShootArrow()
 {
     //ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos));
     SetState(B_IDLE);
-
 }
 
 void Player::SetState(State state, float scale, float takeTime)
@@ -1251,12 +1407,26 @@ void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 �
 
     if (weaponState == DAGGER)
     {
-        if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;
+        if (curState == JUMP1 || curState == JUMP3 || curState == JUMP4 || Pos().y > heightLevel) 
+            return;
 
         if (curState == HIT || curState == KICK || curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3)
             return;
 
-        if (velocity.z > 0.01f && velocity.x < -0.1f)
+
+        if (KEY_PRESS(VK_LSHIFT)) {
+            if (velocity.z > 0.1f)
+                SetState(B_C_F);
+            else if (velocity.z < -0.1f)
+                SetState(B_C_B);
+            else if (velocity.x > 0.1f)
+                SetState(B_C_R);
+            else if (velocity.x < -0.1f)
+                SetState(B_C_L);
+            else
+                SetState(B_C_IDLE);
+        }
+        else if (velocity.z > 0.01f && velocity.x < -0.1f)
             SetState(RUN_DL);
         else if (velocity.z > 0.01f && velocity.x > 0.1f)
             SetState(RUN_DR);
@@ -1274,7 +1444,6 @@ void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 �
     else if (weaponState == BOW)
     {
         if (curState == JUMP1 || curState == JUMP3 || Pos().y > heightLevel) return;
-
 
         if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM || curState == B_RECOIL)
         {
@@ -1327,30 +1496,20 @@ void Player::SetBowAnim()
 
 void Player::SetIdle()
 {
-
-    if (curState == TO_COVER) {
-        Pos() = targetTransform->Pos();
-        Rot() = targetTransform->Rot();
-
-        SetState(C_IDLE);
-
-        //toCover = false;
-    }
-    //else if(curState == DAGGER1 && KEY_PRESS(VK_LBUTTON))
-    //    SetState(IDLE);
-    else
-        SetState(IDLE);
+    SetState(IDLE); 
+    dohitanimation = false;
+    jumpparticle->Play(Pos());
 }
 
 void Player::SetCameraPos()
 {
-    if (curState == CLIMBING_DOWN)
+    if (isClimb)
     {
-        CAM->SetTarget(saveT);
+        CAM->SetTarget(tempCam);
     }
     else if (curState == CLIMBING3)
     {
-        CAM->SetTarget(nullptr);
+        CAM->SetTarget(this);
         CAM->Pos().y += 2.0f * DELTA;
     }
     else if (curState == B_AIM || curState == B_DRAW || curState == B_ODRAW)

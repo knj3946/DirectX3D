@@ -13,16 +13,22 @@ ProgressBar::ProgressBar(wstring frontImageFile, wstring backImageFile)
     valueBuffer->Get()[0] = fillAmount; // valueBuffer->Get() : 현 프레임워크의 버퍼 호출 인터페이스
                                         // [0] : 버퍼의 첫 번째 값
                                         // fillAmount : 버퍼에 대입할 데이터
+
+
+    valueBuffer2 = new FloatValueBuffer(); //  알파값
+    valueBuffer2->Get()[0] = Alpha; 
 }
 
 ProgressBar::~ProgressBar()
 {
     delete valueBuffer;
+    delete valueBuffer2;
 }
 
 void ProgressBar::Render()
 {
     valueBuffer->SetPS(10); // GPU가 연산하도록 지시 + 슬롯(출력우선순위) 10
+    valueBuffer2->SetPS(11);
     backImage->PSSet(10);   // 후면 이미지 데이터도 픽셀 셰이더에 준비
 
     Quad::Render(); //쿼드 렌더

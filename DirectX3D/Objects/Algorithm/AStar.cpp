@@ -8,6 +8,10 @@ AStar::AStar(UINT width, UINT height)
 
     //SetNode(); //기본 노드 세팅이 있다면 여기서 나중에 호출
                  //지금은 지형에 대응시킬 거라서 생성자에서는 노드 설치 안 함
+
+    //computeShader = Shader::AddCS(L"Compute/AstarObstacleCollision.hlsl");
+
+    //rayBuffer = new RayBuffer();
 }
 
 AStar::~AStar()
@@ -15,6 +19,9 @@ AStar::~AStar()
     for (Node* node : nodes)
         delete node;
     delete heap;
+
+    //delete rayBuffer;
+    //delete structuredBuffer;
 }
 
 void AStar::Update()
@@ -73,11 +80,13 @@ void AStar::SetNode(LevelData* terrain)
 
             // 높이에 변화가 있을 경우, 이 밑에 코드를 추가하면 된다
             // 샘플 시나리오 : 높은 곳은 곧 장애물이다
+            /*
             if (pos.y > 5)
             {
                 nodes.back()->SetState(Node::OBSTACLE); //장애물로 설정하고
                 AddObstacle(nodes.back()); //장애물 추가 함수 호출
             }
+            */
         }
     }
     // 여기까지 오면 가로세로 번갈아 가면서 노드 설치가 끝난다
@@ -113,13 +122,15 @@ int AStar::FindRandomPos(Vector3 pos, float range)
     for (Node* node : nodes)
     {
         float distance = Distance(pos, node->GlobalPos());
+        if (node->Pos().y > 1.f)continue;
         if (distance < range) findNodes.push_back(node); // 범위 내 노드 벡터에 추가하기
     }
     //여기까지 오면 범위 안의 모든 노드를 벡터로 받는다
     //여기서 아무거나 랜덤으로 하나 뽑기
 
+    if (findNodes.size() == 0) { return 0; }
     Node* findNode = findNodes[Random(0, findNodes.size())];
-
+ 
     return findNode->index; // 랜덤으로 나온 노드의 인덱스
 }
 
@@ -203,7 +214,7 @@ void AStar::MakeDirectionPath(IN Vector3 start, IN Vector3 end, OUT vector<Vecto
 
     Ray ray;
     ray.pos = start; //광원을 출발지로 일단 지정
-
+    
     FOR(path.size()) //경로를 검사해서
     {
         if (!IsCollisionObstacle(start, path[i])) // 장애물을 해당 경로의 i번째까지 안 봤다면
@@ -215,7 +226,6 @@ void AStar::MakeDirectionPath(IN Vector3 start, IN Vector3 end, OUT vector<Vecto
             //-> 장애물이 처음부터 있었으면 다 자름
         }
     }
-
     //위 반복문에서 찾아낸 cutNodeNum을 이용해서 장애물에 해당되는 노드를 지워버린다
     // 만약 위 조건문이 참을 가리는 거였으면 장애물을 안 만난다는 노드를 자른다
 
@@ -228,6 +238,7 @@ void AStar::MakeDirectionPath(IN Vector3 start, IN Vector3 end, OUT vector<Vecto
     cutNodeNum = 0;
     ray.pos = end; // 광원은 이제 종점
 
+    
     FOR(path.size()) // 여기까지 계산에서 줄어들었을지도 모르는 경로 개수만큼 다시 반복
     {
         if (!IsCollisionObstacle(end, path[path.size() - i - 1])) //벡터의 뒤에서부터 검사
@@ -236,6 +247,7 @@ void AStar::MakeDirectionPath(IN Vector3 start, IN Vector3 end, OUT vector<Vecto
             break;
         }
     }
+   
 
     FOR(cutNodeNum)
     {
@@ -264,6 +276,7 @@ bool AStar::IsCollisionObstacle(Vector3 start, Vector3 end)
 
     Contact contact; //접점 정보
 
+    /*
     for (Collider* obstacle : obstacles) // 등록된 장애물을 처음부터 검사해서
     {
         if (obstacle->IsRayCollision(ray, &contact)) // 광선이 장애물에 부딪쳤다면
@@ -275,10 +288,106 @@ bool AStar::IsCollisionObstacle(Vector3 start, Vector3 end)
             }
         }
     }
+    */
+
+    for (Collider* obstacle : ColliderManager::Get()->GetObstacles())
+    {
+        if (obstacle->IsRayCollision(ray, &contact)) // 광선이 장애물에 부딪쳤다면
+        {
+            //접점과 광선의 거리를 또 내어보고
+            if (contact.distance < distance) // 광원과 접점까지의 거리가, 두 위치 사이 거리보다 짧으면
+            {
+                return true; // 직선으로 가는 도중에 장애물을 만났다는 이야기가 된다
+            }
+        }
+    }
+
     // 반복문 끝날 때까지 그런 충돌이 없었으면
     return false; // 아무 일도.... 없었다!
 }
+/*
+bool AStar::IsCollisionObstacleCompute(Vector3 start, Vector3 end)
+{
+    if (!structuredBuffer)
+    {
+        structuredBuffer = new StructuredBuffer(
+            inputs.data(), sizeof(InputDesc), obstacles.size(),
+            sizeof(OutputDesc), obstacles.size());
+    }
 
+    if (obstacles.size() > 0)
+    {
+        inputs.resize(obstacles.size());
+        outputs.resize(obstacles.size());
+
+        for (UINT i = 0; i < obstacles.size(); i++)
+        {
+
+            Vector3 min = obstacles[i]->GetHalfSize() * -1.f;
+            Vector3 max = obstacles[i]->GetHalfSize();
+
+            Vector3 boxPos = obstacles[i]->GlobalPos();
+
+            Vector3 axisX = obstacles[i]->Right();
+            Vector3 axisY = obstacles[i]->Up();
+            Vector3 axisZ = obstacles[i]->Forward();
+
+            inputs[i].min = min;
+            inputs[i].max = max;
+
+            inputs[i].boxPos = boxPos;
+
+            inputs[i].axisX = axisX;
+            inputs[i].axisY = axisY;
+            inputs[i].axisZ = axisZ;
+        }
+
+        Ray ray(start, (end - start).GetNormalized());
+
+        rayBuffer->Get().pos = ray.pos;
+        rayBuffer->Get().dir = ray.dir;
+        rayBuffer->Get().distance = Distance(start, end);
+        rayBuffer->Get().obstacleSize = obstacles.size();
+
+        rayBuffer->SetCS(0);
+
+        DC->CSSetShaderResources(0, 1, &structuredBuffer->GetSRV());
+        DC->CSSetUnorderedAccessViews(0, 1, &structuredBuffer->GetUAV(), nullptr);
+
+        computeShader->Set();
+
+        UINT x = ceil((float)obstacles.size() / 1.0f);
+
+        DC->Dispatch(x, 1, 1);
+
+        structuredBuffer->Copy(outputs.data(), sizeof(OutputDesc) * obstacles.size());
+
+        float minDistance = FLT_MAX;
+        int minIndex = -1;
+
+        UINT index = 0;
+        for (OutputDesc output : outputs)
+        {
+            if (output.flag)
+            {
+                if (minDistance > output.distance)
+                {
+                    minDistance = output.distance;
+                    minIndex = index;
+                }
+            }
+            index++;
+        }
+
+        if (minIndex >= 0)
+        {
+            return true;
+        }
+    }
+    
+    return false;
+}
+*/
 void AStar::AddObstacle(Collider* collider)
 {
     obstacles.push_back(collider);

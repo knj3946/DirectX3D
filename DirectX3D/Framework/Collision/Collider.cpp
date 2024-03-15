@@ -11,7 +11,10 @@ Collider::Collider() : GameObject(L"Basic/Collider.hlsl")
 
 Collider::~Collider()
 {
-    delete mesh;
+    if (nullptr != mesh) {
+        delete mesh;
+        mesh = nullptr;
+    }
 }
 
 void Collider::Render()

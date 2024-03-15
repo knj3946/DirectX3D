@@ -5,12 +5,19 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     //클립 생성해두기 
     string modelName = "Orc";
 
-    //충돌체
-    collider = new CapsuleCollider(50, 120);
+    //히트 충돌체
+    collider = new CapsuleCollider(40, 120);
     collider->SetParent(transform);
     //collider->Rot().z = XM_PIDIV2 - 0.2f;
     collider->Pos() = { -15, 80, 0 };
     collider->SetActive(false); //spawn 할때 활성화
+
+    //이동 충돌체
+    moveCollider = new CapsuleCollider(5, 120);
+    moveCollider->SetParent(transform);
+    //moveCollider->Rot().z = XM_PIDIV2 - 0.2f;
+    moveCollider->Pos() = { -15, 80, 0 };
+    moveCollider->SetActive(false); //spawn 할때 활성화
 
     // 무기 충돌체
     leftHand = new Transform();
@@ -35,6 +42,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     eventIters.resize(instancing->GetClipSize());
 
     //이벤트 세팅
+    SetEvent(ATTACK, bind(&Orc::StartAttack, this), 0.3f);
     SetEvent(ATTACK, bind(&Orc::EndAttack, this), 0.99f);
     SetEvent(THROW, bind(&Orc::Throw, this), 0.59f);
     SetEvent(HIT, bind(&Orc::EndHit, this), 0.99f);
@@ -81,10 +89,16 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     rangeBar = new ProgressBar(L"Textures/UI/Range_bar.png", L"Textures/UI/Range_bar_BG.png");
     rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
     rangeBar->SetParent(transform);
+    rangeBar->SetAlpha(0.5f);
 
     rangeBar->Rot() = { XMConvertToRadians(90.f),0,XMConvertToRadians(-90.f) };
     rangeBar->Pos() = { -15.f,2.f,-650.f };
 
+    Audio::Get();
+    Audio::Get()->Add("hit", "Sounds/hit.wav");
+
+    particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
+   
     particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
 }
 
@@ -97,18 +111,17 @@ Orc::~Orc()
     delete collider;
     //delete terrain;
    // delete aStar;
-    delete instancing;
-    delete motion;
+   
+ 
     //delete root;
     delete exclamationMark;
     delete questionMark;
     delete rangeBar;
     delete hpBar;
-    for (Collider* wcollider : weaponColliders)
-        delete wcollider;
-    
+  
     delete particleHit;
-    delete transform;
+    delete rayBuffer;
+    delete structuredBuffer;
 }
 
 void Orc::SetType(NPC_TYPE _type) {
@@ -116,11 +129,11 @@ void Orc::SetType(NPC_TYPE _type) {
     switch (_type)
     {
     case Orc::NPC_TYPE::ATTACK:// 오크 타입에 따라 탐지 범위 지정 (현재 임시)
-        informrange = 50;
+        informrange = 40;
         type = NPC_TYPE::ATTACK;
         break;
     case Orc::NPC_TYPE::INFORM:
-        informrange = 100;
+        informrange = 70;
         type = NPC_TYPE::INFORM;
         break;
     default:
@@ -133,7 +146,7 @@ void Orc::Update()
     if (!transform->Active()) return; //활성화 객체가 아니면 리턴
 
     
-    if (curState != DYING || curState != ASSASSINATED)
+    if (curState != DYING && curState != ASSASSINATED)
     {
         Direction();// 방향지정 함수
         CalculateEyeSight(); //시야에 발각됬는지 확인하는 함수 (bDetection 설정)
@@ -143,7 +156,7 @@ void Orc::Update()
     }
     
     TimeCalculator(); //공격 간격을 두기 위한 설정
-    ParticleUpdate(); //파티클이펙트 업데이트
+    //ParticleUpdate(); //파티클이펙트 업데이트
     UpdateUI(); //UI 업데이트
     ExecuteEvent(); //이벤트 있으면 실행
 
@@ -153,7 +166,8 @@ void Orc::Update()
     PartsUpdate(); //모델 각 파츠 업데이트
     StateRevision(); //애니메이션 중간에 끊겨서 변경안된 값들 보정
     
-    particleHit->Update();
+    ParticleUpdate(); //파티클이펙트 업데이트
+    CoolDown();
     //====================== 이동관련==============================
     if (CalculateHit()) return; //맞는 중이면 리턴 (이 아래는 이동과 관련된 것인데 맞는중에는 필요없음)
     if (!GetDutyFlag()) //해야할일(움직임)이 생겼는지 확인
@@ -168,9 +182,6 @@ void Orc::Update()
     Control(); // 경로설정등 오크가 움직이기 위한 정보들 계산
     Move(); //실제 움직임
     RotationRestore();
-
-    CoolDown();
-    
 }
 
 void Orc::Render()
@@ -296,6 +307,12 @@ void Orc::Throw()
     SetState(IDLE);
 }
 
+void Orc::StartAttack()
+{
+    leftWeaponCollider->SetActive(true);
+    rightWeaponCollider->SetActive(true);
+}
+
 bool Orc::GetDutyFlag()
 {
     if (isTracking == false && path.empty())
@@ -418,7 +435,7 @@ float Orc::GetDamage()
     return r;
 }
 
-void Orc::Hit(float damage,Vector3 collisionPos)
+void Orc::Hit(float damage,Vector3 collisionPos, bool _btrue)
 {
     if (!isHit)
     {
@@ -446,7 +463,7 @@ void Orc::Hit(float damage,Vector3 collisionPos)
         isHit = true;
 
     
-
+        if(_btrue)
         particleHit->Play(collider->GetCollisionPoint()); // 해당위치에서 파티클 재생
     }
 
@@ -463,6 +480,9 @@ void Orc::Spawn(Vector3 pos)
 
     transform->SetActive(true); //비활성화였다면 활성화 시작
     collider->SetActive(true);
+    moveCollider->SetActive(true);
+    //leftWeaponCollider->SetActive(true);
+    //rightWeaponCollider->SetActive(true);
 }
 
 void Orc::AttackTarget()
@@ -478,7 +498,7 @@ void Orc::AttackTarget()
 }
 
 
-void Orc::Findrange()
+void Orc::Findrange(float startCool)
 {
     if (curState == ATTACK)return;
     // 탐지시 범위에 닿은 애에게 설정
@@ -486,6 +506,8 @@ void Orc::Findrange()
     DetectionStartTime = DetectionEndTime;
     isTracking = true;
     SetState(RUN);
+
+    /*
     if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos()))// 중간에 장애물이 있으면
     {
         SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
@@ -495,7 +517,11 @@ void Orc::Findrange()
         path.clear(); // 굳이 장애물없는데 길찾기 필요 x
         path.push_back(target->GlobalPos()); // 가야할 곳만 경로에 집어넣기
     }
+    */
+
     behaviorstate = NPC_BehaviorState::DETECT;
+
+    searchStartCoolDown = startCool;
 }
 
 void Orc::Assassinated(Vector3 collisionPos,Transform* attackerTrf)
@@ -541,7 +567,7 @@ void Orc::Control()
     if (behaviorstate == NPC_BehaviorState::CHECK)return;
     if (behaviorstate == NPC_BehaviorState::SOUNDCHECK)return;
     if (curState == DYING)return;
-    if (searchCoolDown > 1)
+    if (searchCoolDown > 1 && searchStartCoolDown <= 0)
     {
         Vector3 dist = target->Pos() - transform->GlobalPos();
 
@@ -605,26 +631,24 @@ void Orc::Control()
             {
                 // 가장 최근 보였던 곳으로 이동
                 // 놔두면 자동으로 최근까지 이동한다. 
-                if (path.empty())
+                /*
+                if (aStar->IsCollisionObstacle(transform->GlobalPos(), restorePos))// 중간에 장애물이 있으면
                 {
-                    // 경로가 비었다면 가장 최근 target 위치까지 이동한 것.
-                    
-                    if (!missTargetTrigger)
-                    {
-                        missTargetTrigger = true;
-                        DetectionStartTime = 2.0f;
-                    }
-
+                    SetPath(restorePos); // 구체적인 경로 내어서 가기
                 }
+                else
+                {
+                    path.clear(); // 굳이 장애물없는데 길찾기 필요 x
+                    path.push_back(restorePos); // 가야할 곳만 경로에 집어넣기
+                }
+                */
+
+                //직선레이에 장애물이 탐지되지 않아도 몸통 콜라이더가 걸려서 못갈수도 있기 때문에 항상 경로 내기
+                SetPath(restorePos); // 구체적인 경로 내어서 가기
             }
             else
             {
-                //if (!missTargetTrigger)
-             //   {
-             //       missTargetTrigger = true;
-             ////       DetectionStartTime = 2.0f;
-             //       //path.clear();
-             //   }
+         
 
 
                 //직선레이에 장애물이 탐지되지 않아도 몸통 콜라이더가 걸려서 못갈수도 있기 때문에 항상 경로 내기
@@ -642,6 +666,11 @@ void Orc::Control()
     }
     else
         searchCoolDown += DELTA;
+
+    if (searchStartCoolDown > 0.f)
+        searchStartCoolDown -= DELTA;
+    else
+        searchStartCoolDown = 0.f;
 }
 
 void Orc::Move()
@@ -757,6 +786,18 @@ void Orc::IdleAIMove()
 
     if (behaviorstate == NPC_BehaviorState::CHECK)return;
   
+    if (returntoPatrol) {
+        if (IsStartPos()) {
+            returntoPatrol = false;
+       }
+
+        if (curState == WALK)
+        {
+            transform->Rot().y = atan2(velocity.x, velocity.z) + XM_PI;
+            transform->Pos() += DELTA * walkSpeed * transform->Back();
+        }
+        return;
+    }
      Patrol();
      if (PatrolChange) {
          if (WaitTime >= 2.f) {
@@ -868,6 +909,7 @@ void Orc::TimeCalculator()
 
 
 
+
 void Orc::SetState(State state, float scale, float takeTime)
 {
     if (state == curState) return; // 이미 그 상태라면 굳이 변환 필요 없음
@@ -939,13 +981,12 @@ void Orc::SetState(State state, float scale, float takeTime)
 
 void Orc::SetPath(Vector3 targetPos)
 {
+    
     int startIndex = aStar->FindCloseNode(transform->GlobalPos());
     int endIndex = aStar->FindCloseNode(targetPos); // 헤더에서(+업데이트에서) 정해진 목적지
-
-    aStar->GetPath(startIndex, endIndex, path); // 길을 낸 다음 path 벡터에 저장
     
+    aStar->GetPath(startIndex, endIndex, path); // 길을 낸 다음 path 벡터에 저장
     aStar->MakeDirectionPath(transform->GlobalPos(), targetPos, path); // 장애물을 지우고 path에 덮어씌우기
-
     UINT pathSize = path.size(); // 처음 나온 경로 벡터 크기를 저장
 
     while (path.size() > 2) // "남겨진" 경로 노드가 1군데 이하가 될 때까지
@@ -976,8 +1017,6 @@ void Orc::SetPath(Vector3 targetPos)
 
     // 다시 조정된, 내가 갈 수 있는 경로에, 최종 목적지를 다시 한번 추가한다
     path.insert(path.begin(), targetPos);
-
-
     //직선거리일때 한칸한칸이동할 필요가 없다 -> 장애물 전까지는 하나의 벡터로 가도 된다 ->MakeDirectionPath를 쓰는이유
 }
 
@@ -1006,6 +1045,7 @@ void Orc::EndAttack()
 {
     isAttackable = false;
     SetState(IDLE);
+    battacktarget = false;
     //SetState(ATTACK);
 }
 
@@ -1060,8 +1100,11 @@ void Orc::EndDying()
 
 void Orc::CalculateEyeSight()
 {
-    //bDetection = true;
-    //return;
+    if (targetStateInfo->isCloaking)
+    {
+        bDetection = false;
+        return;
+    }
 
     float rad = XMConvertToRadians(eyeSightangle);
     Vector3 front = Vector3(transform->Forward().x, 0, transform->Forward().z).GetNormalized();
@@ -1104,18 +1147,17 @@ void Orc::CalculateEyeSight()
     if (Enemytothisangle < 0) {
         Enemytothisangle += 360;
     }
-
-    if ((Distance(target->GlobalPos(), transform->GlobalPos()) < eyeSightRange)) 
+     DetectionRange =(Distance(target->GlobalPos(), transform->GlobalPos()));
+    if (DetectionRange < eyeSightRange)
     {
         SetEyePos(); //눈 위치만 설정
 
         if (!EyesRayToDetectTarget(targetCollider, eyesPos)) //리턴 값 false면 가려서 안보이는 것
         {
             if (bDetection) {
-                bDetection = false;
-                //DetectionStartTime = 0.001f;
-                //missTargetTrigger = true;
+                restorePos = target->GlobalPos();
             }
+             bDetection = false;
             return;
         }
         // 가려서 안보이는건 아니니까 발견상태유지
@@ -1128,6 +1170,9 @@ void Orc::CalculateEyeSight()
         if (leftdir1 > 270 && rightdir1 < 90) {
             if (!((leftdir1 <= Enemytothisangle && rightdir1 + 360 >= Enemytothisangle) || (leftdir1 <= Enemytothisangle + 360 && rightdir1 >= Enemytothisangle)))
             {
+                if (bDetection) {
+                    restorePos = target->GlobalPos();
+                }
                 bDetection = false;
                 return;
             }
@@ -1135,6 +1180,9 @@ void Orc::CalculateEyeSight()
         else {
             if (!(leftdir1 <= Enemytothisangle && rightdir1 >= Enemytothisangle))
             {
+                if (bDetection) {
+                    restorePos = target->GlobalPos();
+                }
                 bDetection = false;
                 return;
             }
@@ -1189,23 +1237,27 @@ void Orc::Detection()
 {
 
     if (bDetection) {
-        if (!bFind)
-            DetectionStartTime += DELTA;
+        if (!bFind) {
+            float value = eyeSightRange / DetectionRange;
+
+            DetectionStartTime += DELTA*value;
+        }
     }
     else {
-        if (DetectionStartTime > 0.f && path.empty()) {
-            DetectionStartTime -= DELTA * 2;
+        if (DetectionStartTime > 0.f ) {
+            DetectionStartTime -= DELTA * 0.5f;
             
         
             if (DetectionStartTime <= 0.f) {
                 DetectionStartTime = 0.f;
+                path.clear();
                 bFind = false;
                 if (behaviorstate != NPC_BehaviorState::CHECK)
                     rangeDegree = XMConvertToDegrees(transform->Rot().y);
                 behaviorstate = NPC_BehaviorState::CHECK;
                 SetState(IDLE);
                 missTargetTrigger = false;
-
+                restorePos = {};
             }
         }
     }
@@ -1225,6 +1277,7 @@ void Orc::Detection()
         MonsterManager::Get()->CalculateDistance();
         if (curState == IDLE)
             SetState(RUN);
+        returntoPatrol = false;
     }
 
 
@@ -1353,6 +1406,17 @@ void Orc::RangeCheck()
         rangeDegree = 0.f   ;
         bFind = false;
         path.clear();
+        returntoPatrol = true;
+
+        if (aStar->IsCollisionObstacle(transform->GlobalPos(), PatrolPos[nextPatrol]))// 중간에 장애물이 있으면
+        {
+            SetPath(PatrolPos[nextPatrol]); // 구체적인 경로 내어서 가기
+        }
+        else
+        {
+            path.clear(); // 굳이 장애물없는데 길찾기 필요 x
+            path.push_back(PatrolPos[nextPatrol]); // 가야할 곳만 경로에 집어넣기
+        }
     }
 
 }

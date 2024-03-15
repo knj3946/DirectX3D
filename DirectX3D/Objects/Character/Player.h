@@ -4,23 +4,23 @@ class Player : public ModelAnimator
 private:
     enum State
     {
-        IDLE,                                   //0
-        RUN_F, RUN_B, RUN_L, RUN_R,             //1 ~ 4
-        RUN_DL, RUN_DR,                         //5 ~ 6
-        JUMP1, JUMP2, JUMP3,                    //7 ~ 9
-        TO_COVER, C_IDLE, C_R, C_L, TO_STAND,   //10 ~ 14
-        HIT,                                    //15
-        CLIMBING1, CLIMBING2, CLIMBING3,        //16 ~ 18
-        CLIMBING_JUMP_L, CLIMBING_JUMP_R, CLIMBING_DOWN,        //16 ~ 18
+        IDLE,
+        RUN_F, RUN_B, RUN_L, RUN_R,
+        RUN_DL, RUN_DR,
+        JUMP1, JUMP2, JUMP3, JUMP4,
+        TO_COVER, C_IDLE, C_R, C_L, TO_STAND,
+        HIT,
+        CLIMBING1, CLIMBING2, CLIMBING3,
+        CLIMBING_JUMP_L, CLIMBING_JUMP_R, CLIMBING_DOWN,
         CLIMBING_JUMP_D,
-        KICK,                                   //19
-        ASSASSINATION1, ASSASSINATION2,         //20 ~ 21
-        DAGGER1, DAGGER2, DAGGER3,              //22 ~ 24
-        B_IDLE,                                 //25
-        B_RUN_F, B_RUN_B, B_RUN_L, B_RUN_R,     //26 ~ 29
-        B_DRAW, B_ODRAW, B_AIM, B_RECOIL,       //30 ~ 33
-        B_S_TO_C, B_C_TO_S, B_C_IDLE,           //34 ~ 36
-        B_C_F, B_C_B, B_C_L, B_C_R              //37 ~ 40
+        KICK,
+        ASSASSINATION1, ASSASSINATION2,
+        DAGGER1, DAGGER2, DAGGER3,
+        B_IDLE,
+        B_RUN_F, B_RUN_B, B_RUN_L, B_RUN_R,
+        B_DRAW, B_ODRAW, B_AIM, B_RECOIL,
+        B_S_TO_C, B_C_TO_S, B_C_IDLE,
+        B_C_F, B_C_B, B_C_L, B_C_R
     };
 
     enum WeaponState
@@ -65,21 +65,27 @@ private:
     typedef TerrainEditor LevelData;
     typedef VertexUVNormalTangentAlpha VertexType;
 
+
+
 public:
+    static  bool modeld;
     Player();
     ~Player();
 
     void Update();
+    void PreRender();
     void Render();
     void PostRender();
     void GUIRender();
+    void TextRender();
 
     void SetMoveSpeed(float speed) { this->moveSpeed1 = speed; }
     void SetHeightLevel(float heightLevel) { this->heightLevel = heightLevel; }
 
     Vector3 GetVelocity() { return velocity; }
     CapsuleCollider* GetCollider() { return collider; }
-
+    StateInfo* GetStateInfo() { return stateInfo; }
+    bool IsCloaking() { return stateInfo->isCloaking; }
 
     vector<Collider*>& GetWeaponColliders() { return weaponColliders; }
 
@@ -89,33 +95,38 @@ public:
 
     float GetDamage();
     void Hit(float damage);
-    void Hit(float damage,bool camerashake);// 카메라쉐이크용
+    void Hit(float damage, bool camerashake);// 카메라쉐이크용
 
-
+    void SetHeadCrash(bool headCrash) { this->headCrash = headCrash; }
+    void SetBow(Transform* _transform) { BowInstallation = _transform; }
 
     void SetIsPushed(bool value) { isPushed = value; }
     void SetIsCeiling(bool value) { isCeiling = value; }
 
     void Assassination();
 
-    void Climb(Collider* col,Vector3 climbPos);
+    void Climb(Collider* col, Vector3 climbPos);
 
     void SetClimbAnim();
 
     void Climbing();
 
     void SetHitEffectPos(Vector3& _pos) { particlepos = _pos; }
+
+    void SetBoss(class Boss* _boss) { boss = _boss; }
+
+    void Respawn(Vector3 pos = {0,0,0});
 private:
-    void CameraMove(); // 벽에 가려지는 플레이어 현상 해결을 위한 함수
 
     void Control();
     void Move();
     void UpdateUI();
 
+    void Cloaking();
     void Rotate();
     void Walking();
     void Jump();
-    void AfterJumpAnimation();
+    void JumpSetting();
     void Jumping();
     void Cover();
 
@@ -137,6 +148,7 @@ private:
     void SetDaggerAnim();
     void EndAssassination(UINT num);
     void EndHit();
+ 
     void EndClimbing();
 
     bool OnColliderFloor(Vector3& feedback);
@@ -150,7 +162,10 @@ private:
 
 
 private:
-
+    class Boss* boss;
+    Transform* BowInstallation;
+    bool bgetBow = false;
+    bool DrawSpecialkeyBowUI = false;
     POINT clientCenterPos = { WIN_WIDTH / 2, WIN_HEIGHT >> 1 }; //<- �����ڴ� ���� 
 
     State curState = IDLE;
@@ -189,7 +204,7 @@ private:
 
     float teleport = 110.000f;
 
-    bool camera = true;
+    bool cameraHold = true;
 
     LevelData* terrain;
 
@@ -253,18 +268,33 @@ private:
     bool isRayToDetectTarget = false;
 
     ParticleSystem* jumpparticle;
-public: //임시
+
+    //투명화
+    StateInfo* stateInfo;
+    wstring residualCloakingTime = L"";
+    BlendState* blendState[2];
+
     bool headCrash;
+
     Transform* aimT;
+    const Vector3 aimStartPos = { -40.0f, -15.0f, 0.0f };
     Quad* crosshair;
+    const float initSpeed = 20.0f;
+    const float maxSpeed = 800.0f;
+    const float chargetVal = 300.0f;
+    float chargingT = initSpeed;
 
     bool canClimbControl = false;
     Vector3 climbVel;
     Vector3 climbArrivePos;
-    bool playedClimb2 = false;
-
-    Transform* saveT;
-    bool TSaved;
-
     float climbJ_y;
+
+    Transform* tempCam;
+
+    State preState = IDLE;
+    bool dohitanimation = false;
+
+    float fallingT = 0.0f;
+
+public: //임시
 };

@@ -22,6 +22,11 @@ ModelInstancing::~ModelInstancing()
 
     for (Transform* transform : transforms)
         delete transform;
+    FOR(2)
+    {
+        delete depthStencilState[i];
+        delete blendState[i];
+    }
 }
 
 void ModelInstancing::Update()

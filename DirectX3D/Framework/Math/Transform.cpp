@@ -111,7 +111,7 @@ void Transform::Load()
 {
     BinaryReader* reader = new BinaryReader("TextData/Transforms/" + tag + ".srt");
 
-    if (reader->IsFailed()) return;
+    if (reader->IsFailed()) { delete reader; return;}
 
     localPosition.x = reader->Float();
     localPosition.y = reader->Float();
@@ -126,4 +126,5 @@ void Transform::Load()
     localScale.z = reader->Float();
 
     delete reader;
+
 }

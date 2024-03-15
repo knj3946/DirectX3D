@@ -18,7 +18,7 @@ ColliderManager::ColliderManager()
         quad->GetMaterial()->SetShader(L"Basic/Texture.hlsl");
         quad->GetMaterial()->SetDiffuseMap(L"Textures/UI/SpecialKeyUI_climb.png");
         sk.name = "climb";
-        sk.key = 'H';
+        sk.key = 'F';
         sk.quad = quad;
         sk.active = false;
         specialKeyUI.insert(make_pair(sk.name, sk));
@@ -38,6 +38,21 @@ ColliderManager::ColliderManager()
 
 ColliderManager::~ColliderManager()
 {
+    for (pair<string, SpecialKeyUI> key : specialKeyUI)
+    {
+        delete key.second.quad;
+    }
+    delete footRay;
+    delete headRay;
+
+    for (int i = 0; i <vecCol[ColliderManager::WALL].size(); ++i) {
+        if (nullptr != vecCol[ColliderManager::WALL][i]) {
+            delete vecCol[ColliderManager::WALL][i];
+            vecCol[ColliderManager::WALL][i] = nullptr;
+        }
+    }
+
+
 }
 
 void ColliderManager::SetObstacles(Collider* obstacle)
@@ -58,10 +73,9 @@ void ColliderManager::PushPlayer()
     {
         if (obstacle->Role() == Collider::BLOCK)
         {
-            if (obstacle != onBlock && obstacle->PushCollision(playerCollider) && !isPushed)
+            if (obstacle != onBlock && obstacle->PushCollision(playerCollider))
             {
                 isPushed = true;
-                break;
             }
         }
     }
@@ -77,7 +91,7 @@ void ColliderManager::SetHeight()
 
     Contact maxHeadPoint;
     float maxHeadHeight = 99999.f;
-    player->headCrash = false;
+    player->SetHeadCrash(false);
 
     Contact underObj;
     maxHeight = 0.0f;
@@ -88,7 +102,7 @@ void ColliderManager::SetHeight()
         //위 물체의 높이가 너무 낮으면 스페이스 입력을 무시할지말지 결정하는 법도 고려
         if (obstacle->IsRayCollision(*headRay, &maxHeadPoint) && maxHeadPoint.distance < FLT_EPSILON)
         {
-            player->headCrash = true;
+            player->SetHeadCrash(true);
         }
         else if (obstacle->IsRayCollision(*footRay, &underObj) && underObj.hitPoint.y > maxHeight)
         {
@@ -190,12 +204,13 @@ bool ColliderManager::CompareDistanceObstacleandPlayer(Ray ray)
 		Contact con;
 		if (ob->IsRayCollision(ray, &con))
 		{
+            
 			tmpCol = ob;
 			break;
 		}
 	}
 	if (!tmpCol)
-		return false;
+		return true;
 
 	if (CloseRayCollisionColliderDistance(ray, tmpCol) >= CloseRayCollisionColliderDistance(ray, vecCol[Collision_Type::PLAYER][0])) {
 		return true;
@@ -478,6 +493,7 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
     model->Pos() = mPos;
     model->Rot() = mRot;
     model->UpdateWorld();
+    model->SetShader(L"Light/Shadow.hlsl");
 
     FOR(colCount)
     {

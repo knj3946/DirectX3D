@@ -28,7 +28,7 @@ public:
 		UINT frameRow,		//프레임의 행 = 세로의 개수
 		bool isAdditive = false //화소누적 투명인가?
 	);
-	~Sprite();
+	virtual ~Sprite();
 
 	void Update();
 	void Render();

@@ -4,6 +4,7 @@
 MonsterManager::MonsterManager()
 {
     orcInstancing = new ModelAnimatorInstancing("character1");
+    Player::modeld = true;
     orcInstancing->ReadClip("Orc_Idle");
     //orcInstancing->ReadClip("Orc_Walk");
     orcInstancing->ReadClip("character1@walk3");
@@ -20,7 +21,7 @@ MonsterManager::MonsterManager()
 
     orcInstancing->ReadClip("Orc_Death"); // 기본 죽음
     orcInstancing->ReadClip("character1@death3");  // 암살 죽음
-
+    Player::modeld = false;
     // 몬스터 생성
     FOR(SIZE)
     {
@@ -40,21 +41,37 @@ MonsterManager::MonsterManager()
         specialKeyUI.insert(make_pair(sk.name, sk));
     }
     
-    FOR(2) blendState[i] = new BlendState();
-    FOR(2) depthState[i] = new DepthStencilState();
     FOR(2) rasterizerState[i] = new RasterizerState();
-    blendState[1]->AlphaToCoverage(true); //투명색 적용 + 배경색 처리가 있으면 역시 적용
+    FOR(2) blendState[i]        = new BlendState();
+    FOR(2) depthState[i]        = new DepthStencilState();
+    blendState[1]->Additive(); //투명색 적용 + 배경색 처리가 있으면 역시 적용
     depthState[1]->DepthWriteMask(D3D11_DEPTH_WRITE_MASK_ALL);  // 다 가리기
     rasterizerState[1]->CullMode(D3D11_CULL_NONE);
+
+    shadow = new Shadow();
 
 }
 
 MonsterManager::~MonsterManager()
 {
     delete orcInstancing;
-
-    for (pair<int,OrcInfo> item : orcs)
+    orcInstancing = nullptr;
+    for (pair<int, OrcInfo> item : orcs)
+    {
         delete item.second.orc;
+        item.second.orc = nullptr;
+    }
+    for (pair<string, SpecialKeyUI> key : specialKeyUI)
+    {
+        delete key.second.quad;
+        key.second.quad = nullptr;
+    }
+    delete shadow;
+    FOR(2) {
+       delete rasterizerState[i]  ;
+       delete     blendState[i]   ;
+       delete     depthState[i]   ;
+    }
 }
 
 void MonsterManager::CreateOrc()
@@ -98,18 +115,7 @@ void MonsterManager::Update()
             MonsterManager::Get()->DieOrc(item.first);
     }
 
-    //orcs[0]->Update();
-    //orcs[1].orc->Update();
-  //  for (Orc* orc : orcs)
-  //  {
-  //
-  //
-  //
-  //      
-  //      orc->Update();
-  //      i++;
-  //  }
-
+ 
     for (const pair<int, OrcInfo>& item : orcs)
     {
         if (item.second.orc->IsFindTarget()) // 오크가 발견상태라면
@@ -130,11 +136,12 @@ void MonsterManager::Update()
     }
     orcInstancing->Update();
     vecDetectionPos.clear();
+
 }
 
-void MonsterManager::Render()
+void MonsterManager::Render(bool exceptOutLine)
 {
-    orcInstancing->Render();
+    orcInstancing->Render(exceptOutLine);
 
     blendState[1]->SetState();
     rasterizerState[1]->SetState();
@@ -173,6 +180,12 @@ void MonsterManager::SetTargetCollider(CapsuleCollider* collider)
 {
     for (const pair<int, OrcInfo>& item : orcs)
         item.second.orc->SetTargetCollider(collider);
+}
+
+void MonsterManager::SetTargetStateInfo(StateInfo* stateInfo)
+{
+    for (const pair<int, OrcInfo>& item : orcs)
+        item.second.orc->SetTargetStateInfo(stateInfo);
 }
 
 bool MonsterManager::IsCollision(Ray ray, Vector3& hitPoint)
@@ -240,9 +253,9 @@ void MonsterManager::Blocking(Collider* collider)
     {
         if (collider->Role() == Collider::Collider_Role::BLOCK)
         {
-            if (collider->IsCollision(item.second.orc->GetCollider()))
+            if (collider->IsCollision(item.second.orc->GetMoveCollider()))
             {
-                Vector3 dir = item.second.orc->GetCollider()->GlobalPos() - collider->GlobalPos();
+                Vector3 dir = item.second.orc->GetMoveCollider()->GlobalPos() - collider->GlobalPos();
 
                 int maxIndex = 0;
                 float maxValue = -99999.0f;
@@ -316,6 +329,14 @@ void MonsterManager::Fight(Player* player)
                 }
             }
         }
+        if (collider) {
+            collider->ResetCollisionPoint();
+            if (collider->Active() && collider->IsCapsuleCollision((CapsuleCollider*)boss->GetCollider())) //손 충돌체가 타겟이랑 겹칠때
+            {
+                boss->Hit(player->GetDamage(), collider->GlobalPos());
+            }
+
+        }
     }
     // bow 콜리전담기
 
@@ -332,6 +353,7 @@ void MonsterManager::Fight(Player* player)
                     Vector3 pos=collider->GetCollisionPoint();
                     player->SetHitEffectPos(pos);
                     player->Hit(item.second.orc->GetDamage());
+                    collider->SetActive(false);
                 }
             }
         }   
@@ -353,11 +375,12 @@ void MonsterManager::CalculateDistance()
                 pos.y = vecDetectionPos[i].y;
                 pos.z = vecDetectionPos[i].z;
                 if (Distance(pos, item.second.orc->GetTransform()->GlobalPos()) <= vecDetectionPos[i].w) {
-                    item.second.orc->Findrange();
+                    item.second.orc->Findrange((i+1)*0.2f);
                 }
             }
         }
     }
+    
 }
 
 void MonsterManager::OnOutLineByRay(Ray ray)
@@ -429,6 +452,22 @@ void MonsterManager::SetOrcGround()
         if (item.second.isActive)
         {
             item.second.orc->SetGroundPos();
+        }
+    }
+}
+
+void MonsterManager::SetShader(wstring file)
+{
+    orcInstancing->SetShader(file);
+}
+
+void MonsterManager::Respawn()
+{
+    for (const pair<int, OrcInfo>& item : orcs)
+    {
+        if (item.second.isActive)
+        {
+            item.second.orc->Spawn();
         }
     }
 }

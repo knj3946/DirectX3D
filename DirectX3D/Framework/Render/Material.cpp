@@ -31,6 +31,7 @@ Material::Material(wstring shaderFile)
 Material::~Material()
 {
     delete buffer;
+
 }
 
 void Material::Set()

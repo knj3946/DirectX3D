@@ -43,7 +43,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -144,12 +144,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Framework\Utilities\Format.h" />
+    <ClInclude Include="Framework\Model\ObjInfo.h" />
+    <ClInclude Include="Scenes\GameSmallMapScene.h" />
+    <ClInclude Include="Objects\Items\Weapons\Bow.h" />
     <ClInclude Include="Manager\MenuManager.h" />
     <ClInclude Include="Objects\UI\GameMenu.h" />
     <ClInclude Include="Manager\InteractManager.h" />
     <ClInclude Include="Objects\Character\Boss.h" />
     <ClInclude Include="Objects\Items\Weapons\Arrow.h" />
     <ClInclude Include="Objects\Manager\ArrowManager.h" />
+    <ClInclude Include="Scenes\OnlyBossScene.h" />
     <ClInclude Include="Scenes\BuildingScene.h" />
     <ClInclude Include="Objects\Items\Weapons\Dagger.h" />
     <ClInclude Include="Manager\ColliderManager.h" />
@@ -243,19 +248,23 @@
     <ClInclude Include="Framework\Environment\Shadow.h" />
     <ClInclude Include="Objects\Particle\Spark.h" />
     <ClInclude Include="Objects\Particle\Sprite.h" />
-    <ClInclude Include="Manager\SoundManager.h" />
+    <ClInclude Include="Scenes\ShadowScene.h" />
+    <ClInclude Include="SoundManager.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Objects\Particle\Trail.h" />
     <ClInclude Include="Objects\Landscape\TerrainData.h" />
     <ClInclude Include="Scenes\TestNpcScene.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scenes\GameSmallMapScene.cpp" />
+    <ClCompile Include="Objects\Items\Weapons\Bow.cpp" />
     <ClCompile Include="Manager\MenuManager.cpp" />
     <ClCompile Include="Objects\UI\GameMenu.cpp" />
     <ClCompile Include="Manager\InteractManager.cpp" />
     <ClCompile Include="Objects\Character\Boss.cpp" />
     <ClCompile Include="Objects\Items\Weapons\Arrow.cpp" />
     <ClCompile Include="Objects\Manager\ArrowManager.cpp" />
+    <ClCompile Include="Scenes\OnlyBossScene.cpp" />
     <ClCompile Include="Scenes\BuildingScene.cpp" />
     <ClCompile Include="Objects\Items\Weapons\Dagger.cpp" />
     <ClCompile Include="Manager\ColliderManager.cpp" />
@@ -344,6 +353,7 @@
     <ClCompile Include="Objects\Particle\Sprite.cpp" />
     <ClCompile Include="Objects\Particle\Trail.cpp" />
     <ClCompile Include="Objects\Landscape\TerrainData.cpp" />
+    <ClCompile Include="Scenes\ShadowScene.cpp" />
     <ClCompile Include="Scenes\TestNpcScene.cpp" />
     <ClCompile Include="Manager\SoundManager.cpp" />
   </ItemGroup>
@@ -374,6 +384,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\Compute\AstarObstacleCollision.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CS</EntryPointName>
     </FxCompile>
     <FxCompile Include="Shaders\Compute\ByteAddress.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
@@ -469,6 +483,9 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
+    <FxCompile Include="Shaders\Light\DepthMapInstancing.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+    </FxCompile>
     <FxCompile Include="Shaders\Light\DiffuseLight.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
@@ -501,6 +518,9 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
+    <FxCompile Include="Shaders\Light\ShadowInstancing.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+    </FxCompile>
     <FxCompile Include="Shaders\Light\SpecularLight.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
@@ -519,6 +539,9 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\Model\ModelAnimationInstancingOutline.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="Shaders\Model\ModelInstancing.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>

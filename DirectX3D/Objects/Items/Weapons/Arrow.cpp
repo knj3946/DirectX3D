@@ -21,22 +21,22 @@ Arrow::Arrow(Transform* transform, int id,bool isDropItem)
 	endEdge->Pos() = transform->Pos();
 	startEdge->UpdateWorld();
 	endEdge->UpdateWorld();
-	//trail = new Trail(L"Textures/Effect/Trail.png", startEdge, endEdge, 5, 5);
 	trail = new Trail(L"Textures/Effect/wind.jpg", startEdge, endEdge, 3, 3);
 	trail->Init();
 	trail->SetActive(false);
-	HitEffect = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
+	HitEffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
 	Wallparticle = new ParticleSystem("TextData/Particles/WallEffect.fx");
 }
 
 Arrow::~Arrow()
 {
 	delete collider;
-	delete Wallparticle;
 	delete trail;
 	delete startEdge;
-	delete HitEffect;
 	delete endEdge;
+
+	delete HitEffect;
+	delete Wallparticle;
 }
 
 void Arrow::Update()
@@ -59,7 +59,14 @@ void Arrow::Update()
 		transform->Pos() += direction * speed * DELTA;
 	else
 	{
-		transform->Pos() += direction * speed * DELTA;
+		transform->Pos() += direction * DELTA;
+		direction.y -= 9.8f * DELTA * 2.f;
+
+		Vector3 front = { direction.x, 0.0f, direction.z};
+		if(direction.y >= 0.0f)
+			transform->Rot().x = acos(front.Length() / direction.Length());
+		else
+			transform->Rot().x = -acos(front.Length() / direction.Length());
 	}
 	HitEffect->Update();
 	Wallparticle->Update();
@@ -111,6 +118,35 @@ void Arrow::Throw(Vector3 pos, Vector3 dir)
 
 //transform->Rot().y = atan2(dir.x, dir.z) - XMConvertToRadians(90);
 // XMConvertToRadians 는 각도를 호도로 바꿔주는 함수 - 추천 x
+
+	time = 0; // 경과시간 리셋
+}
+
+void Arrow::Throw(Vector3 pos, Vector3 dir, float chargingT)
+{
+	// 활성화
+	transform->SetActive(true);
+	collider->SetActive(true);
+	transform->Pos() = pos;
+
+	direction = dir * chargingT;
+
+	startEdge->Pos() = transform->Pos();
+	endEdge->Pos() = transform->Pos();
+	startEdge->UpdateWorld();
+	endEdge->UpdateWorld();
+	trail->Init();
+	trail->SetActive(true);
+
+	// 방향에 맞게 모델(=트랜스폼) 회전 적용
+	transform->Rot().y = atan2(dir.x, dir.z) - XM_PI; // 방향 적용 + 모델 정면에 따른 보정
+	// 쿠나이 모델은 90도 돌아가 있었음
+
+//transform->Rot().y = atan2(dir.x, dir.z) - XMConvertToRadians(90);
+// XMConvertToRadians 는 각도를 호도로 바꿔주는 함수 - 추천 x
+
+	speed = chargingT;
+	//데미지 바꾸는것도 고려하기
 
 	time = 0; // 경과시간 리셋
 }

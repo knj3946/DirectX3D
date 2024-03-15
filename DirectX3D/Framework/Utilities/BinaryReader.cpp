@@ -15,6 +15,20 @@ BinaryReader::BinaryReader(wstring filePath)
 BinaryReader::~BinaryReader()
 {
     CloseHandle(file);
+    for(int i = 0; i < vectemp.size(); ++i) {   
+        if (nullptr != vectemp[i])
+        {
+            delete[] vectemp[i];
+            vectemp[i] = nullptr;
+        }
+    }
+    for (int i = 0; i < vecwchartemp.size(); ++i) {
+        if (nullptr != vecwchartemp[i])
+        {
+            delete[] vecwchartemp[i];
+            vecwchartemp[i] = nullptr;
+        }
+    }
 }
 
 int BinaryReader::Int()
@@ -48,7 +62,7 @@ string BinaryReader::String()
     char* temp = new char[strSize + 1];
     ReadFile(file, temp, sizeof(char) * strSize, &size, nullptr);
     temp[strSize] = '\0';
-
+    vectemp.push_back(temp);
     return temp;
 }
 
@@ -59,7 +73,7 @@ wstring BinaryReader::WString()
     WCHAR* temp = new WCHAR[strSize + 1];
     ReadFile(file, temp, sizeof(WCHAR) * strSize, &size, nullptr);
     temp[strSize] = '\0';
-
+    vecwchartemp.push_back(temp);
     return temp;
 }
 

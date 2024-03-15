@@ -40,7 +40,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     }
 
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_DIRECTX3D));
-
     MSG msg = {};
 
     GameManager* gameManager = new GameManager();
@@ -62,7 +61,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         }
     }
 
+
     delete gameManager;
+
+    
 
     return (int) msg.wParam;
 }
