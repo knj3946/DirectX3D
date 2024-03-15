@@ -1282,7 +1282,7 @@ void Orc::CalculateEarSight()
 
     if (distance == -1.f)return;
 
-    if (distance < earRange * volume * 0.1) {
+    if (distance < earRange ) { // * volume * 0.1 볼륨 조절 시 게임 플레이 요소가 변경되는게 이상함
         SetState(WALK);
         behaviorstate = NPC_BehaviorState::SOUNDCHECK;
         CheckPoint = pos;
