@@ -171,7 +171,7 @@ private:
     Vector3 velocity;
     Vector3 targetPos;
 
-    float moveSpeed1 = 50;
+    float moveSpeed1 = 25;
     float moveSpeed2 = 15;
     float rotSpeed = 0.3;
     float deceleration = 10; //����
@@ -281,12 +281,11 @@ private:
     const float chargetVal = 300.0f;
     float chargingT = initSpeed;
 
+    Transform* climbCam;
     bool canClimbControl = false;
     Vector3 climbVel;
     Vector3 climbArrivePos;
     float climbJ_y;
-
-    Transform* tempCam;
 
     State preState = IDLE;
     bool dohitanimation = false;

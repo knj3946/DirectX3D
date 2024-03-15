@@ -3,7 +3,27 @@
 
 GameMapScene::GameMapScene()
 {
+	testCol1 = new BoxCollider();
+	testCol2 = new BoxCollider();
+	testCol3 = new BoxCollider();
+	testCol4 = new BoxCollider();
 
+	testCol1->Pos() = { 70, 5, 116 };
+	testCol4->Pos() = { 70, 5, 136 };
+
+	testCol2->Pos() = { 60, 5, 126 };
+	testCol3->Pos() = { 80, 5, 126 };
+
+	testCol1->Scale() = { 20.1, 9.5, 1 };
+	testCol4->Scale() = { 20.1, 9.5, 1 };
+
+	testCol2->Scale() = { 1, 9.5, 20.1 };
+	testCol3->Scale() = { 1, 9.5, 20.1 };
+
+	ColliderManager::Get()->SetObstacles(testCol1);
+	ColliderManager::Get()->SetObstacles(testCol2);
+	ColliderManager::Get()->SetObstacles(testCol3);
+	ColliderManager::Get()->SetObstacles(testCol4);
 
 	MenuManager::Get(); //기본 메뉴 생성
 }
@@ -35,6 +55,11 @@ GameMapScene::~GameMapScene()
 
 void GameMapScene::Update()
 {
+	testCol1->UpdateWorld();
+	testCol2->UpdateWorld();
+	testCol3->UpdateWorld();
+	testCol4->UpdateWorld();
+
 	MenuManager::Get()->FirstLoading(bind(&GameMapScene::FirstLoading, this));
 
 	if (!MenuManager::Get()->IsPickGameMenu())
@@ -125,6 +150,10 @@ void GameMapScene::PreRender()
 
 void GameMapScene::Render()
 {
+	testCol1->Render();
+	testCol2->Render();
+	testCol3->Render();
+	testCol4->Render();
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
 		//순서 중요!
@@ -172,13 +201,16 @@ void GameMapScene::PostRender()
 
 void GameMapScene::GUIRender()
 {
-	
+	testCol1->GUIRender();
+	testCol2->GUIRender();
+	testCol3->GUIRender();
+	testCol4->GUIRender();
 	//MenuManager::Get()->GUIRender();
-	/*
-	player->GUIRender();
-	*/
+	
+
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
+		player->GUIRender();
 		/*
 		for (ColliderModel* cm : colliderModels)
 		{
@@ -374,21 +406,21 @@ void GameMapScene::FirstLoading()
 		InteractManager::Get()->SetPlayer(player);
 		MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(150.f, 0.f, 175.f));
 		MonsterManager::Get()->SetPatrolPos(0, Vector3(150.f, 0.f, 210.f));
-		MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185));
-		MonsterManager::Get()->SetPatrolPos(1, Vector3(50.f, 0.f, 185.f));
-		MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(85, 0, 120));
-		MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 120.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 70.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(85.f, 0.f, 70.f));
-		MonsterManager::Get()->SetOrcSRT(3, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(62, 0, 40));
-		MonsterManager::Get()->SetPatrolPos(3, Vector3(62.f, 0.f, 65.f));
-		MonsterManager::Get()->SetOrcSRT(4, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(110, 0, 80));
-		MonsterManager::Get()->SetPatrolPos(4, Vector3(110.f, 0.f, 40.f));
-		MonsterManager::Get()->SetOrcSRT(5, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(170, 0, 40));
-		MonsterManager::Get()->SetPatrolPos(5, Vector3(170.f, 0.f, 80.f)); MonsterManager::Get()->SetPatrolPos(5, Vector3(120.f, 0.f, 80.f));   MonsterManager::Get()->SetPatrolPos(5, Vector3(170.f, 0.f, 80.f));
-		MonsterManager::Get()->SetOrcSRT(6, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(160, 0, 120));
-		MonsterManager::Get()->SetPatrolPos(6, Vector3(170.f, 0.f, 120.f));
-		MonsterManager::Get()->SetOrcSRT(7, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(50, 0, 135));
-		MonsterManager::Get()->SetPatrolPos(7, Vector3(100.f, 0.f, 135.f));
-		MonsterManager::Get()->SetType(7,1);// 1이 알리는애
+		//MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185));
+		//MonsterManager::Get()->SetPatrolPos(1, Vector3(50.f, 0.f, 185.f));
+		//MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(85, 0, 120));
+		//MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 120.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 70.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(85.f, 0.f, 70.f));
+		//MonsterManager::Get()->SetOrcSRT(3, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(62, 0, 40));
+		//MonsterManager::Get()->SetPatrolPos(3, Vector3(62.f, 0.f, 65.f));
+		//MonsterManager::Get()->SetOrcSRT(4, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(110, 0, 80));
+		//MonsterManager::Get()->SetPatrolPos(4, Vector3(110.f, 0.f, 40.f));
+		//MonsterManager::Get()->SetOrcSRT(5, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(170, 0, 40));
+		//MonsterManager::Get()->SetPatrolPos(5, Vector3(170.f, 0.f, 80.f)); MonsterManager::Get()->SetPatrolPos(5, Vector3(120.f, 0.f, 80.f));   MonsterManager::Get()->SetPatrolPos(5, Vector3(170.f, 0.f, 80.f));
+		//MonsterManager::Get()->SetOrcSRT(6, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(160, 0, 120));
+		//MonsterManager::Get()->SetPatrolPos(6, Vector3(170.f, 0.f, 120.f));
+		//MonsterManager::Get()->SetOrcSRT(7, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(50, 0, 135));
+		//MonsterManager::Get()->SetPatrolPos(7, Vector3(100.f, 0.f, 135.f));
+		//MonsterManager::Get()->SetType(7,1);// 1이 알리는애
 		MonsterManager::Get()->SetTerrain(terrain);
 		MonsterManager::Get()->SetAStar(aStar);
 		MonsterManager::Get()->SetTarget(player);

@@ -31,5 +31,11 @@ private:
 	Shadow* shadow;
 
 	float waitSettingTime = 0.0f;
+
+public:
+	BoxCollider* testCol1;
+	BoxCollider* testCol2;
+	BoxCollider* testCol3;
+	BoxCollider* testCol4;
 };
 

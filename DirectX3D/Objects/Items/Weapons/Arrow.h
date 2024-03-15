@@ -6,7 +6,7 @@ class Arrow
 
 private:
 	// 열람시 필요한 주요 데이터
-	float LIFE_SPAN = 100.f; // life span : 생성 후 비활성화까지 걸리는 시간
+	float LIFE_SPAN = 20.f; // life span : 생성 후 비활성화까지 걸리는 시간
 
 
 

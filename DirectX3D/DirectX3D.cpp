@@ -41,7 +41,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
     
   //  _CrtDumpMemoryLeaks();
-    _CrtSetBreakAlloc(1067070);
+    //_CrtSetBreakAlloc(1067070);
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_DIRECTX3D));
     MSG msg = {};
 

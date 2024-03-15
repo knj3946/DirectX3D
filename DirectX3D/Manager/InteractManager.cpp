@@ -41,15 +41,16 @@ void InteractManager::AssassinationBoss(Boss* boss)
 
 void InteractManager::Climb(Collider* col)
 {
-	player->Climb(col,col->GetPickContact().hitPoint);
+    player->Climb(col, col->GetPickContact().hitPoint);
 
-	Vector3 v1 = player->GlobalPos();
-	Vector3 v2 = col->GlobalPos();
+    Vector3 v1 = player->GlobalPos();
+    Vector3 v2 = col->GlobalPos();
 
-	Vector3 v2m1 = v2 - v1;
+    Vector3 v2m1 = v2 - v1;
 
     int maxIndex = -1;
     float maxValue = -99999.0f;
+    float maxVal = 0.0f;
 
     for (int i = 0; i < 3; ++i)
     {
@@ -59,24 +60,24 @@ void InteractManager::Climb(Collider* col)
 
         switch (i)
         {
-            case 0:
-            {
-                Vector3 tempv = col->Right();
-                Val = Dot(v2m1, tempv);
-                break;
-            }
-            case 1:
-            {
-                Vector3 tempv = col->Up();
-                Val = Dot(v2m1, tempv);
-                break;
-            }
-            case 2:
-            {
-                Vector3 tempv = col->Forward();
-                Val = Dot(v2m1, tempv);
-                break;
-            }
+        case 0:
+        {
+            Vector3 tempv = col->Right();
+            Val = Dot(v2m1, tempv);
+            break;
+        }
+        case 1:
+        {
+            Vector3 tempv = col->Up();
+            Val = Dot(v2m1, tempv);
+            break;
+        }
+        case 2:
+        {
+            Vector3 tempv = col->Forward();
+            Val = Dot(v2m1, tempv);
+            break;
+        }
         }
 
         if (i != 1)
@@ -85,12 +86,36 @@ void InteractManager::Climb(Collider* col)
             {
                 maxIndex = i;
                 maxValue = abs(Val) - abs(halfSize[i]);
+                maxVal = Val;
             }
         }
     }
     if (maxIndex > -1)
     {
-        float rotY = asin(maxValue/v2m1.Length());
-        player->Rot().y = rotY;
+        float rotY = asin(maxValue / v2m1.Length());
+
+        if (maxIndex == 0) //x축일경우
+        {
+            if (maxVal >= 0) //방향
+            {
+                player->Rot().y = rotY + XM_PIDIV2 + XM_PI; //270도
+            }
+            else
+            {
+                player->Rot().y = rotY + XM_PIDIV2; //90도
+            }
+        }
+        else if (maxIndex == 2) //z축일경우
+        {
+            if (maxVal >= 0) //방향
+            {
+                player->Rot().y = rotY + XM_PI; // 180도
+            }
+            else
+            {
+                player->Rot().y = rotY;
+            }
+        }
+
     }
 }
