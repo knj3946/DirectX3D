@@ -58,6 +58,7 @@ public:
     virtual bool IsCapsuleCollision(class CapsuleCollider* collider) = 0;
 
     bool PushCollision(Collider* collider);
+    bool PushCollision(Collider* collider, vector<Vector3>* dirs);
     
     void SetColor(Float4 color) { material->GetData().diffuse = color; }
     void SetColor(float r, float g, float b)

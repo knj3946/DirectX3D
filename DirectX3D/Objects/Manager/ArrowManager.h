@@ -3,7 +3,7 @@ class ArrowManager : public Singleton<ArrowManager>
 {
 private:
 	friend class Singleton;
-	UINT SIZE = 10; // 동시에 출력 가능한 쿠나이 최대 개수
+	UINT SIZE = 20; // 동시에 출력 가능한 쿠나이 최대 개수
 
 	struct SpecialKeyUI
 	{
@@ -47,7 +47,7 @@ private:
 	vector<Collider*> wallColiders;
 	int count = 0; // 인덱스를 위함
 	Transform* bow;
-	int playerArrowCount = 10; // 처음에 3개 가지고 시작
+	int playerArrowCount = 50; // 처음에 3개 가지고 시작
 
 	map<string, SpecialKeyUI> specialKeyUI;
 };

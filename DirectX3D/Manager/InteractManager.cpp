@@ -41,12 +41,12 @@ void InteractManager::AssassinationBoss(Boss* boss)
 
 void InteractManager::Climb(Collider* col)
 {
-	player->Climb(col,col->GetPickContact().hitPoint);
+    player->Climb(col, col->GetPickContact().hitPoint);
 
-	Vector3 v1 = player->GlobalPos();
-	Vector3 v2 = col->GlobalPos();
+    Vector3 v1 = player->GlobalPos();
+    Vector3 v2 = col->GlobalPos();
 
-	Vector3 v2m1 = v2 - v1;
+    Vector3 v2m1 = v2 - v1;
 
     int maxIndex = -1;
     float maxValue = -99999.0f;
@@ -60,24 +60,24 @@ void InteractManager::Climb(Collider* col)
 
         switch (i)
         {
-            case 0:
-            {
-                Vector3 tempv = col->Right();
-                Val = Dot(v2m1, tempv);
-                break;
-            }
-            case 1:
-            {
-                Vector3 tempv = col->Up();
-                Val = Dot(v2m1, tempv);
-                break;
-            }
-            case 2:
-            {
-                Vector3 tempv = col->Forward();
-                Val = Dot(v2m1, tempv);
-                break;
-            }
+        case 0:
+        {
+            Vector3 tempv = col->Right();
+            Val = Dot(v2m1, tempv);
+            break;
+        }
+        case 1:
+        {
+            Vector3 tempv = col->Up();
+            Val = Dot(v2m1, tempv);
+            break;
+        }
+        case 2:
+        {
+            Vector3 tempv = col->Forward();
+            Val = Dot(v2m1, tempv);
+            break;
+        }
         }
 
         if (i != 1)
@@ -92,7 +92,11 @@ void InteractManager::Climb(Collider* col)
     }
     if (maxIndex > -1)
     {
+<<<<<<< HEAD
+        float rotY = asin(maxValue / v2m1.Length());
+=======
         float rotY = asin(maxValue/v2m1.Length());
+>>>>>>> 9e7772b5e3e0e03446cb5c86eb06a70d8719cbbe
 
         if (maxIndex == 0) //x축일경우
         {
@@ -116,6 +120,10 @@ void InteractManager::Climb(Collider* col)
                 player->Rot().y = rotY;
             }
         }
+<<<<<<< HEAD
+
+=======
         
+>>>>>>> 9e7772b5e3e0e03446cb5c86eb06a70d8719cbbe
     }
 }

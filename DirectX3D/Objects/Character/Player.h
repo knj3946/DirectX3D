@@ -308,12 +308,11 @@ private:
     const float chargetVal = 300.0f;
     float chargingT = initSpeed;
 
+    Transform* climbCam;
     bool canClimbControl = false;
     Vector3 climbVel;
     Vector3 climbArrivePos;
     float climbJ_y;
-
-    Transform* tempCam;
 
     State preState = IDLE;
     bool dohitanimation = false;
