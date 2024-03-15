@@ -211,7 +211,7 @@ Player::Player()
         form->UpdateWorld();
     }
 
-    tempCam = new Transform();
+    climbCam = new Transform();
 
     hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
     jumpparticle=new ParticleSystem("TextData/Particles/JumpSmoke.fx");
@@ -295,7 +295,7 @@ Player::~Player()
 
     delete aimT;
     delete crosshair;
-    delete tempCam;
+    delete climbCam;
 }
 
 void Player::Update()
@@ -520,6 +520,7 @@ void Player::Assassination()
 void Player::Climb(Collider* col, Vector3 climbPos)
 {
     Pos() = { climbPos.x, Pos().y, climbPos.z};
+    Pos() += Forward() * 1.2f;
     isClimb = true;
     UpdateWorld();
 
@@ -528,23 +529,13 @@ void Player::Climb(Collider* col, Vector3 climbPos)
     canClimbControl = true;
     SetState(CLIMBING1);
 
-    tempCam->Pos() = Pos();
-    tempCam->Rot() = Rot();
+    climbCam->Pos() = Pos();
+    climbCam->Rot() = Rot();
 }
 
 void Player::SetClimbAnim()
 {
-    if (curState == CLIMBING_JUMP_D)
-    {
-        Pos().y = climbJ_y;
-        Pos() += Back() * 3.0f;
-        velocity = Back();
-        this->UpdateWorld();
-        SetState(JUMP2);
-
-        isClimb = false;
-    }
-    else if (curState == CLIMBING_DOWN || curState == CLIMBING2 || curState == CLIMBING_JUMP_R || curState == CLIMBING_JUMP_L)
+    if (curState == CLIMBING_DOWN || curState == CLIMBING2 || curState == CLIMBING_JUMP_R || curState == CLIMBING_JUMP_L)
     {
         SetState(CLIMBING1);
         canClimbControl = true;
@@ -556,6 +547,16 @@ void Player::SetClimbAnim()
         collider->UpdateWorld();
 
         SetState(IDLE);
+        isClimb = false;
+    }
+    else if (curState == CLIMBING_JUMP_D)
+    {
+        Pos().y = climbJ_y;
+        Pos() += Back() * 3.0f;
+        velocity = Back();
+        this->UpdateWorld();
+        SetState(JUMP2);
+
         isClimb = false;
     }
 }
@@ -623,7 +624,7 @@ void Player::Climbing()
         {
             if (obstacle->IsRayCollision(headForwardRay, &con)/* && con.distance < 10.0f*/)
             {
-                if (con.distance < 1.0f) 
+                if (con.distance < 1.4f) 
                 {
                     emptySpace = false;
                     climbArrivePos = con.hitPoint;
@@ -662,7 +663,7 @@ void Player::Climbing()
         {
             climbVel = 0;
 
-            Pos() = tempCam->Pos();
+            Pos() = climbCam->Pos();
             Pos().y = heightLevel + 0.01f;   //heightLevel이 갱신되는지 확인해야 함, 현재는 건물 밑에 바닥밖에 없어서 상F관x
 
             if (Pos().y < 0.0f)
@@ -680,10 +681,10 @@ void Player::Climbing()
     }
 
 
-    tempCam->Pos() = Pos();
-    tempCam->Pos().y += 8.0f;
+    climbCam->Pos() = Pos();
+    climbCam->Pos().y += 8.0f;
 
-    tempCam->UpdateWorld();
+    climbCam->UpdateWorld();
 }
 
 void Player::Respawn(Vector3 pos)
@@ -968,7 +969,7 @@ void Player::Rotate()
     if (!isClimb)
         Rot().y += delta.x * rotSpeed * DELTA;
     else
-        tempCam->Rot().y += delta.x * rotSpeed * DELTA;
+        climbCam->Rot().y += delta.x * rotSpeed * DELTA;
 
     CAM->Rot().x -= delta.y * rotSpeed * DELTA; //벽 타는 중에도 위아래로 카메라 회전 가능
 
@@ -1087,26 +1088,24 @@ void Player::Walking()
 
     Vector3 PlayerSkyPos = destPos;
     PlayerSkyPos.y += 1000;
-    Ray groundRay = Ray(PlayerSkyPos, Vector3(0.f,-1.f,0.f));
+    Ray groundRay = Ray(PlayerSkyPos, Vector3(0.f, -1.f, 0.f));
 
-        if (!OnColliderFloor(destFeedBackPos)) // 문턱올라가기 때문에 다시 살림
-        {
-            TerainComputePicking(destFeedBackPos, groundRay);
-        }
+    if (!OnColliderFloor(destFeedBackPos)) // 문턱올라가기 때문에 다시 살림
+    {
+        TerainComputePicking(destFeedBackPos, groundRay);
+    }
 
     //destFeedBackPos : 목적지 터레인Pos
     //feedBackPos : 현재 터레인Pos
 
-    //???????? ???? ?????
     Vector3 destDir = destFeedBackPos - feedBackPos;
     Vector3 destDirXZ = destDir;
     destDirXZ.y = 0;
 
-    //????
     float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
 
-    if (!isPushed && 
-       (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y
+    if (!isPushed &&
+        (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y
             || destFeedBackPos.y - feedBackPos.y < 0.5f) // 바닥 올라가게 하기위해 추가함
         ) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????sad wad  
     {
@@ -1115,7 +1114,7 @@ void Player::Walking()
         else
             Pos() += direction * moveSpeed2 * DELTA * -1; // ??? ????
 
-            feedBackPos.y = destFeedBackPos.y;
+        feedBackPos.y = destFeedBackPos.y;
     }
 
     //???????°? ????? ???? ???? ????? ???? ????
@@ -1184,7 +1183,7 @@ void Player::Jumping()
         tempJumpVel = 0.0f;
 
         if (curState == JUMP2) {
-            if (fallingT >= 0.45f)
+            if (fallingT >= 0.5f)
             {
                 SetState(JUMP4);
                 Hit(fallingT * 10.0f);
@@ -1609,7 +1608,7 @@ void Player::SetCameraPos()
 {
     if (isClimb)
     {
-        CAM->SetTarget(tempCam);
+        CAM->SetTarget(climbCam);
     }
     else if (curState == CLIMBING3)
     {

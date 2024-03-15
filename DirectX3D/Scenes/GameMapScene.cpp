@@ -3,7 +3,27 @@
 
 GameMapScene::GameMapScene()
 {
+	testCol1 = new BoxCollider();
+	testCol2 = new BoxCollider();
+	testCol3 = new BoxCollider();
+	testCol4 = new BoxCollider();
 
+	testCol1->Pos() = { 70, 5, 116 };
+	testCol4->Pos() = { 70, 5, 136 };
+
+	testCol2->Pos() = { 60, 5, 126 };
+	testCol3->Pos() = { 80, 5, 126 };
+
+	testCol1->Scale() = { 20.1, 9.5, 1 };
+	testCol4->Scale() = { 20.1, 9.5, 1 };
+
+	testCol2->Scale() = { 1, 9.5, 20.1 };
+	testCol3->Scale() = { 1, 9.5, 20.1 };
+
+	ColliderManager::Get()->SetObstacles(testCol1);
+	ColliderManager::Get()->SetObstacles(testCol2);
+	ColliderManager::Get()->SetObstacles(testCol3);
+	ColliderManager::Get()->SetObstacles(testCol4);
 
 	MenuManager::Get(); //기본 메뉴 생성
 }
@@ -35,6 +55,11 @@ GameMapScene::~GameMapScene()
 
 void GameMapScene::Update()
 {
+	testCol1->UpdateWorld();
+	testCol2->UpdateWorld();
+	testCol3->UpdateWorld();
+	testCol4->UpdateWorld();
+
 	MenuManager::Get()->FirstLoading(bind(&GameMapScene::FirstLoading, this));
 
 	if (!MenuManager::Get()->IsPickGameMenu())
@@ -165,6 +190,10 @@ void GameMapScene::PreRender()
 
 void GameMapScene::Render()
 {
+	testCol1->Render();
+	testCol2->Render();
+	testCol3->Render();
+	testCol4->Render();
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
 		//순서 중요!
@@ -214,11 +243,13 @@ void GameMapScene::PostRender()
 
 void GameMapScene::GUIRender()
 {
-	
+	testCol1->GUIRender();
+	testCol2->GUIRender();
+	testCol3->GUIRender();
+	testCol4->GUIRender();
 	//MenuManager::Get()->GUIRender();
-	/*
-	player->GUIRender();
-	*/
+	
+
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
 		ImGui::Text("volume : %f", VOLUME);
