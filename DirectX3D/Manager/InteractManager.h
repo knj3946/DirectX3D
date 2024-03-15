@@ -21,11 +21,13 @@ public:
 
     vector<Skill> GetActiveSkills() { return activeSkills; }
 
-
     void Assassination(Orc* orc);
     void AssassinationBoss(Boss* boss);
     void Climb(Collider* col);
+    Vector3 GetPartilcePos() { return ParticlePos; }
+    void SetParticlePos(Vector3 _pos) { ParticlePos = _pos; };
 private:
+    Vector3 ParticlePos;
     Player* player;
     vector<Skill> activeSkills;
 };

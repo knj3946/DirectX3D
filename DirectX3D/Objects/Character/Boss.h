@@ -1,6 +1,6 @@
   #pragma once
 
-class Boss 
+class Boss
 {
 private:
     enum class BOSS_STATE {
@@ -76,9 +76,10 @@ private:
 
     UINT index;
 
-    BOSS_STATE state =BOSS_STATE::IDLE;
+    BOSS_STATE state = BOSS_STATE::IDLE;
     STATE curState;
     CapsuleCollider* collider;
+    CapsuleCollider* moveCollider;
 
     float moveSpeed = 25;
     float runSpeed = 30;
@@ -88,14 +89,14 @@ private:
     float destHP;
     Transform* leftHand;
     CapsuleCollider* leftCollider;
-    
+
 
     ProgressBar* hpBar;
     vector<map<float, Event>> totalEvent;
     vector<map<float, Event>::iterator> eventIters;
 
     Transform* target;
-    UINT count=0;
+    UINT count = 0;
     LevelData* terrain;
     AStar* aStar;
 
@@ -123,7 +124,7 @@ private:
     UINT currunparticle = 0;
 
     Ray ray;
-  
+
 
     ComputeShader* computeShader;
 
@@ -133,17 +134,17 @@ private:
     float eyeSightRange = 40.f;
     float eyeSightangle = 45.f;
     bool bDetection = false;
-    
+
     vector<Vector3> PatrolPos; //보스 왔다갔다 위치.
-    UINT curPatrol=0;
+    UINT curPatrol = 0;
 
     bool bWait = false;
-    float WaitTime=0.f;
+    float WaitTime = 0.f;
 
     float totargetlength;// 타겟과의 거리
     Vector3 dir;//가는 방향
 
-  
+
     float AttackRange = 5.f;
     float RoarRange = 10.f;
     float RoarCoolTime = 0.f;
@@ -159,7 +160,7 @@ private:
     float Roardamage = 40.f;
 
     Vector3 feedBackPos;
-    float curRayCoolTime=0.f;
+    float curRayCoolTime = 0.f;
     DepthStencilState* depthState[2];
     BlendState* blendState[2];
     bool outLine = false;
@@ -170,7 +171,14 @@ private:
     bool isAssassinated = false;
     float DetectionRange;
     bool IsPlayer = false;
+    bool bRotate = false;// 한번은 무조건회전
+    bool isRayToDetectTarget = false;
+    Vector3 eyesPos;
 private:
+    void SetEyePos() {
+        eyesPos = transform->GlobalPos();
+        eyesPos.y += 5.f;
+    }
     void CoolDown()
     {
         if (curRayCoolTime <= 0.0f)
@@ -241,6 +249,7 @@ public:
     void SetPatrolPos(Vector3 _pos) { PatrolPos.push_back(_pos); if (1 == PatrolPos.size()) transform->Pos() = _pos; }
     void SetTargetCollider(CapsuleCollider* collider) { targetCollider = collider; }
     Collider* GetCollider() { return collider; }
+    Collider* GetMoveCollider() { return moveCollider; }
     void Render();
     void Update();
     void PostRender();
@@ -253,6 +262,6 @@ public:
     void CalculateEarSight();//귀
     bool IsOutLine() { return outLine; };
     void Assassinated(Vector3 collisionPos, Transform* attackerTrf);
-
+    bool EyesRayToDetectTarget(Collider* targetCol, Vector3 orcEyesPos);
 };
 

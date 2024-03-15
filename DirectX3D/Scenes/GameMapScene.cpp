@@ -3,7 +3,27 @@
 
 GameMapScene::GameMapScene()
 {
+	testCol1 = new BoxCollider();
+	testCol2 = new BoxCollider();
+	testCol3 = new BoxCollider();
+	testCol4 = new BoxCollider();
 
+	testCol1->Pos() = { 70, 5, 116 };
+	testCol4->Pos() = { 70, 5, 136 };
+
+	testCol2->Pos() = { 60, 5, 126 };
+	testCol3->Pos() = { 80, 5, 126 };
+
+	testCol1->Scale() = { 20.1, 9.5, 1 };
+	testCol4->Scale() = { 20.1, 9.5, 1 };
+
+	testCol2->Scale() = { 1, 9.5, 20.1 };
+	testCol3->Scale() = { 1, 9.5, 20.1 };
+
+	ColliderManager::Get()->SetObstacles(testCol1);
+	ColliderManager::Get()->SetObstacles(testCol2);
+	ColliderManager::Get()->SetObstacles(testCol3);
+	ColliderManager::Get()->SetObstacles(testCol4);
 
 	MenuManager::Get(); //기본 메뉴 생성
 }
@@ -35,6 +55,11 @@ GameMapScene::~GameMapScene()
 
 void GameMapScene::Update()
 {
+	testCol1->UpdateWorld();
+	testCol2->UpdateWorld();
+	testCol3->UpdateWorld();
+	testCol4->UpdateWorld();
+
 	MenuManager::Get()->FirstLoading(bind(&GameMapScene::FirstLoading, this));
 
 	if (!MenuManager::Get()->IsPickGameMenu())
@@ -98,33 +123,33 @@ void GameMapScene::Update()
 		{
 			cm->UpdateWorld();
 		}
-		Audio::Get()->Update();
+		SoundManager::Get()->Update();
 
 		if (KEY_UP('7')) // 123456 은 플레이어 조작에 써야되서 바꿈
 		{
-			if (Audio::Get()->IsPlaySound("bgm1")) // 1번사운드가 플레이 중이라면
+			if (PLAYERSOUND()->IsPlaySound("bgm1")) // 1번사운드가 플레이 중이라면
 			{
-				Audio::Get()->Stop("bgm1"); // 플레이 중지
+				PLAYERSOUND()->Stop("bgm1"); // 플레이 중지
 			}
 			else
 			{
-				Audio::Get()->Play("bgm1", 2.0f); // 1번사운드 플레이
+				PLAYERSOUND()->Play("bgm1", 2.0f); // 1번사운드 플레이
 			}
 		}
 
 		if (KEY_UP('P'))
 		{
-			if (Audio::Get()->IsPlaySound("bgm1"))
+			if (PLAYERSOUND()->IsPlaySound("bgm1"))
 			{
-				Audio::Get()->Pause("bgm1"); // 일시정지
+				PLAYERSOUND()->Pause("bgm1"); // 일시정지
 			}
 		}
 
 		if (KEY_UP('R'))
 		{
-			if (Audio::Get()->IsPlaySound("bgm1"))
+			if (PLAYERSOUND()->IsPlaySound("bgm1"))
 			{
-				Audio::Get()->Resume("bgm1"); // 일시정지된 지점부터 다시 재생
+				PLAYERSOUND()->Resume("bgm1"); // 일시정지된 지점부터 다시 재생
 			}
 		}
 
@@ -141,8 +166,12 @@ void GameMapScene::Update()
 			{
 				MonsterManager::Get()->Blocking(collider);
 			}
+			
 		}
+		FOR(6) {
+			MonsterManager::Get()->Blocking(HeightCollider[i]);
 
+		}
 		if (waitSettingTime >= 1)
 		{
 			MonsterManager::Get()->Fight(player);
@@ -165,6 +194,10 @@ void GameMapScene::PreRender()
 
 void GameMapScene::Render()
 {
+	testCol1->Render();
+	testCol2->Render();
+	testCol3->Render();
+	testCol4->Render();
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
 		//순서 중요!
@@ -214,13 +247,17 @@ void GameMapScene::PostRender()
 
 void GameMapScene::GUIRender()
 {
-	
+	testCol1->GUIRender();
+	testCol2->GUIRender();
+	testCol3->GUIRender();
+	testCol4->GUIRender();
 	//MenuManager::Get()->GUIRender();
-	/*
-	player->GUIRender();
-	*/
+	
+
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
+		ImGui::Text("volume : %f", VOLUME);
+		//player->GUIRender();
 		/*
 		for (ColliderModel* cm : colliderModels)
 		{
@@ -231,13 +268,9 @@ void GameMapScene::GUIRender()
 		//MonsterManager::Get()->GUIRender();
 		//KunaiManager::Get()->GUIRender();
 
-		Timer::Get()->GUIRender();
-		/*
-		if (bow->Active())
-			bow->GUIRender();
-			*/
-	}
+		//Timer::Get()->GUIRender();
 
+	}
 }
 
 void GameMapScene::FirstLoading()
@@ -388,10 +421,34 @@ void GameMapScene::FirstLoading()
 
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(55.f);
+		FOR(6)
+			HeightCollider[i] = new BoxCollider;
+
+		HeightCollider[0]->Pos() = {128.f,25.f,18.f};
+		HeightCollider[0]->Scale() = {256.f,50.f,30.f};
+		HeightCollider[1]->Pos() = { 128.f,25.f, 246.5f };
+		HeightCollider[1]->Scale() = { 256.f,50.f,30.f };
+		HeightCollider[2]->Pos() = { 239.f,25.f,128.f };
+		HeightCollider[2]->Scale() = { 30.f,50.f,256.f };
+		HeightCollider[3]->Pos() = { 13.7f,25.f, 128.f };
+		HeightCollider[3]->Scale() = { 30.f,50.f,256.f };
+		HeightCollider[4]->Pos() = { 128.f,15.f,129.f };
+		HeightCollider[4]->Rot() = { 0.f,21.f,0.f };
+		HeightCollider[4]->Scale() = { 14.7f,22.4f,59.4f };
+		HeightCollider[5]->Pos() = { 183.f,15.f, 152.7f };
+		HeightCollider[5]->Rot() = { 0.f,0.f,0.f };
+		HeightCollider[5]->Scale() = {110.f,30.f,14.1f };
+		FOR(6) {
+			HeightCollider[i]->Role() = Collider::Collider_Role::BLOCK;
+			HeightCollider[i]->UpdateWorld();
+			ColliderManager::Get()->SetObstacles(HeightCollider[i]);
+		}
+
 	}
 	else if (MenuManager::Get()->GetLoadingSequence() == 3)
 	{
-		Audio::Get()->Add("bgm1", "Sounds/dramatic-choir.wav", true, true, false);
+		// 사운드매니저에서 
+		//Audio::Get()->Add("bgm1", "Sounds/dramatic-choir.wav", true, true, false);
 
 		player = new Player();
 		player->Scale() = { 0.03f,0.03f,0.03f };
@@ -406,6 +463,9 @@ void GameMapScene::FirstLoading()
 		CAM->TargetOptionLoad("GameMapScenePlayer");
 		CAM->LookAtTarget();
 
+		// 사운드 추가
+		SoundManager::Get()->PlayerCreate(player);
+
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(75.f);
 
@@ -414,11 +474,19 @@ void GameMapScene::FirstLoading()
 	else if (MenuManager::Get()->GetLoadingSequence() == 4)
 	{
 		InteractManager::Get()->SetPlayer(player);
-		MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(150.f, 0.f, 175.f));
-		MonsterManager::Get()->SetPatrolPos(0, Vector3(150.f, 0.f, 210.f));
-		MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185));
-		MonsterManager::Get()->SetPatrolPos(1, Vector3(50.f, 0.f, 185.f));
-		MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(85, 0, 120));
+
+		FOR(MonsterManager::Get()->GetSIZE())
+		{
+			MonsterManager::Get()->SetOrcSRT(i, srt[i][0],srt[i][1],srt[i][2]);
+			MonsterManager::Get()->SetPatrolPos(i, patrolPos[i]);
+		}
+		/*MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(150.f, 0.f, 175.f));
+		MonsterManager::Get()->SetPatrolPos(0, Vector3(150.f, 0.f, 210.f));*/
+		//MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185));
+		//MonsterManager::Get()->SetPatrolPos(1, Vector3(50.f, 0.f, 185.f));
+		//MonsterManager::Get()->GetOrc(0)->SetSpeed(8);
+		//MonsterManager::Get()->GetOrc(1)->SetSpeed(6);
+		/*MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(85, 0, 120));
 		MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 120.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 70.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(85.f, 0.f, 70.f));
 		MonsterManager::Get()->SetOrcSRT(3, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(62, 0, 40));
 		MonsterManager::Get()->SetPatrolPos(3, Vector3(62.f, 0.f, 65.f));
@@ -429,8 +497,8 @@ void GameMapScene::FirstLoading()
 		MonsterManager::Get()->SetOrcSRT(6, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(160, 0, 120));
 		MonsterManager::Get()->SetPatrolPos(6, Vector3(170.f, 0.f, 120.f));
 		MonsterManager::Get()->SetOrcSRT(7, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(50, 0, 135));
-		MonsterManager::Get()->SetPatrolPos(7, Vector3(100.f, 0.f, 135.f));
-		MonsterManager::Get()->SetType(7,1);// 1이 알리는애
+		MonsterManager::Get()->SetPatrolPos(7, Vector3(100.f, 0.f, 135.f));*/
+		//MonsterManager::Get()->SetType(7,1);// 1이 알리는애
 		MonsterManager::Get()->SetTerrain(terrain);
 		MonsterManager::Get()->SetAStar(aStar);
 		MonsterManager::Get()->SetTarget(player);
@@ -439,6 +507,7 @@ void GameMapScene::FirstLoading()
 
 		boss = new Boss;
 		boss->SetTarget(player);
+		boss->SetTargetCollider(player->GetCollider());
 		boss->SetTerrain(terrain);
 		boss->SetAStar(aStar);
 		boss->GetCollider()->UpdateWorld();

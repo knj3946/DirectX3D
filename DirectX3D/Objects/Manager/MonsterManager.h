@@ -46,7 +46,7 @@ public:
     void SetType(int index, UINT _type);
     void SetPatrolPos(UINT idx,Vector3 Pos);
 
-
+    UINT GetSIZE() { return SIZE; }
 
     void AddOrcObstacleObj(Collider* collider);
     void SetTerrain(LevelData* terrain);

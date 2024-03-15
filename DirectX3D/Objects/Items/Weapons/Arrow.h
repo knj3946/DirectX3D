@@ -6,7 +6,7 @@ class Arrow
 
 private:
 	// 열람시 필요한 주요 데이터
-	float LIFE_SPAN = 100.f; // life span : 생성 후 비활성화까지 걸리는 시간
+	float LIFE_SPAN = 20.f; // life span : 생성 후 비활성화까지 걸리는 시간
 
 
 
@@ -47,7 +47,7 @@ private:
 	Transform* transform; // 인스턴싱을 전제로 하기 때문에 transform을 변수로 받음
 	SphereCollider* collider;
 
-	float speed = 30;
+	float speed = 60;
 	float time = 0; // 생성된 시간
 	float damage = 30; // 임시 데미지값 설정
 

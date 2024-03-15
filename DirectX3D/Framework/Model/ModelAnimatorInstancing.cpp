@@ -174,6 +174,8 @@ void ModelAnimatorInstancing::SetOutLine(UINT index,bool flag)
 
 void ModelAnimatorInstancing::UpdateFrame(UINT instanceID, Motion& motion)
 {
+    // 여기서 오크 모델 움직이는거 
+    if (GameControlManager::Get()->PauseGame())return;
     {
         ModelClip* clip = clips[motion.cur.clip];
 

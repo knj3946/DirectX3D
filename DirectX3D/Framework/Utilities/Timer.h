@@ -14,6 +14,7 @@ public:
 	void Update();	
 	void GUIRender();
 
+	void SetTimeScale(float value) { timeScale = value; }
 	void SetDeltaScale(float value) { deltaScale = value; }
 	void SetLockFPS(int value) { lockFPS = value; }
 
