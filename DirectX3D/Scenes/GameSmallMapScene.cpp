@@ -159,7 +159,7 @@ void GameSmallMapScene::GUIRender()
 {
 
 	MenuManager::Get()->GUIRender();
-	player->GUIRender();
+	//player->GUIRender();
 
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
@@ -209,7 +209,7 @@ void GameSmallMapScene::FirstLoading()
 		terrain->GetMaterial()->SetDiffuseMap(L"Textures/Landscape/Sand.png");
 		terrain->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
 		terrain->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
-		//terrain->SetHeightMap(L"Textures/HeightMaps/SamepleHeightMap02.png");
+		terrain->SetHeightMap(L"Textures/HeightMaps/SamepleHeightMap02.png");
 		terrain->GetMaterial()->SetShader(L"Light/Shadow.hlsl");
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(25.f);

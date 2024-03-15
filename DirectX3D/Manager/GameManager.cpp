@@ -8,30 +8,33 @@
 #include "Scenes/BuildingScene.h"
 #include "Scenes/ShadowScene.h"
 #include "Scenes/OnlyBossScene.h"
+#include "Scenes/EndingCreditScene.h"
 
 GameManager::GameManager()
 {
     Create();
    
     //SceneManager::Get()->Create("ModelAnimation", new ModelAnimationScene());
-    SceneManager::Get()->Create("GameMap", new GameMapScene());
+    //SceneManager::Get()->Create("GameMap", new GameMapScene());
     //SceneManager::Get()->Create("GameSmallMap", new GameSmallMapScene());
     //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
     //SceneManager::Get()->Create("Building", new BuildingScene());
     //SceneManager::Get()->Create("Shadow", new ShadowScene());
     //SceneManager::Get()->Create("OnlyBoss", new OnlyBossScene());
+    SceneManager::Get()->Create("EndingCredit", new EndingCreditScene());
 
     //SceneManager::Get()->Add("Grid");
 
     // È° À§Ä¡ 130 0.5 190
 
     //SceneManager::Get()->Add("ModelAnimation");
-    SceneManager::Get()->Add("GameMap");
+    //SceneManager::Get()->Add("GameMap");
     //SceneManager::Get()->Add("GameSmallMap");
     //SceneManager::Get()->Add("TestNpcScene");
     //SceneManager::Get()->Add("Building");
     //SceneManager::Get()->Add("Shadow");
     //SceneManager::Get()->Add("OnlyBoss");
+    SceneManager::Get()->Add("EndingCredit");
 }
 
 GameManager::~GameManager()
@@ -111,6 +114,8 @@ void GameManager::Create()
    ImGui_ImplDX11_Init(DEVICE, DC);
 
     srand((unsigned int)time(NULL));
+
+    VideoTexture::createAPI();
 }
 
 void GameManager::Delete()
@@ -131,4 +136,5 @@ void GameManager::Delete()
   
 
    ImGui::DestroyContext();
+   VideoTexture::destroyAPI();
 }

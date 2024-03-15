@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scenes\EndingCreditScene.h" />
     <ClInclude Include="Framework\Utilities\Format.h" />
     <ClInclude Include="Framework\Model\ObjInfo.h" />
     <ClInclude Include="Scenes\GameSmallMapScene.h" />
@@ -254,8 +255,11 @@
     <ClInclude Include="Objects\Particle\Trail.h" />
     <ClInclude Include="Objects\Landscape\TerrainData.h" />
     <ClInclude Include="Scenes\TestNpcScene.h" />
+    <ClInclude Include="Objects\Video\VideoPlayer.h" />
+    <ClInclude Include="Framework\Render\VideoTexture.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scenes\EndingCreditScene.cpp" />
     <ClCompile Include="Scenes\GameSmallMapScene.cpp" />
     <ClCompile Include="Objects\Items\Weapons\Bow.cpp" />
     <ClCompile Include="Manager\MenuManager.cpp" />
@@ -356,6 +360,8 @@
     <ClCompile Include="Scenes\ShadowScene.cpp" />
     <ClCompile Include="Scenes\TestNpcScene.cpp" />
     <ClCompile Include="SoundManager.cpp" />
+    <ClCompile Include="Objects\Video\VideoPlayer.cpp" />
+    <ClCompile Include="Framework\Render\VideoTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX3D.rc" />
