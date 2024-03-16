@@ -86,7 +86,16 @@ void GameMapScene::Update()
 
 		if (MenuManager::Get()->GetEndFlag())
 		{
-			//SoundManager::Get()->GetPlayerAudio()->AllStop();
+			if (videoPlayer->GetPlayTime() == 0.f)
+			{
+				SoundManager::Get()->GetPlayerAudio()->AllStop();
+				SoundManager::Get()->GetBossAudio()->AllStop();
+				FOR(MonsterManager::Get()->GetSIZE())
+				{
+					SoundManager::Get()->GetOrcAudio(i)->AllStop();
+				}
+				SoundManager::Get()->GetPlayerAudio()->Play("bgm4", 0.1f * VOLUME);
+			}
 
 			endingCredit->Pos().y += DELTA * 50;
 			endingCredit->UpdateWorld();
@@ -96,8 +105,8 @@ void GameMapScene::Update()
 			if (videoPlayer->GetPlayTime() >= 20.f)
 			{
 				GameManager::ReserveRestart();
+				SoundManager::Get()->GetPlayerAudio()->AllStop();
 			}
-
 			return;
 		}
 

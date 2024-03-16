@@ -67,6 +67,10 @@ void SoundManager::PlayerCreate(Transform* t)
 
 	// 배경음
 	audio->Add("bgm1", "Sounds/BGM/dramatic-choir.wav", true, true, false);
+	audio->Add("bgm2", "Sounds/BGM/epic-fantasy-music-ambience-orchestral-amp-choir.mp3", true, true, false);
+	audio->Add("bgm3", "Sounds/BGM/piano-are-in-my-heart-inspiring-piano.mp3", true, true, false);
+	audio->Add("bgm4", "Sounds/BGM/smell-of-travel.mp3", true, true, false);
+	audio->Add("bgm5", "Sounds/BGM/voice-of-nature.mp3", true, true, false);
 	audio->Play("bgm1", 0.1f * VOLUME); // 조절필요
 
 	// 플레이어 사운드
