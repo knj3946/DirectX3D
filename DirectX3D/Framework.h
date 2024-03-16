@@ -34,7 +34,7 @@
 #define VOLUME SoundManager::Get()->GetVolume()
 
 #define DIALOG ImGuiFileDialog::Instance()
-#define SAFE_DELETE(p)if(nullptr!= p){delete p p=nullptr;}
+#define SAFE_DELETE(p)if(nullptr!= p){delete p ;p=nullptr;}
 #define SAFE_RELEASE(x) if(x) { (x)->Release(); x = nullptr; }
 
 #define FOR(n) for(int i = 0; i < n ; i++)

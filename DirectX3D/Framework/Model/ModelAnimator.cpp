@@ -18,20 +18,7 @@ ModelAnimator::~ModelAnimator()
         delete clip;
         clip = nullptr;
     }
-    for (int i = 0; i < vecKey.size(); ++i) {
-        if (vecKey[i]->transforms.size() == 0)
-        {
-            vecKey[i] = nullptr;
-            continue;
-        }
-
-        if (nullptr != vecKey[i])
-        {
-            delete vecKey[i];
-            vecKey[i] = nullptr;
-        }
-    }
-    vecKey.clear();
+  
     
     delete frameBuffer;
 
@@ -93,8 +80,7 @@ void ModelAnimator::ReadClip(string clipName, UINT clipNum, string lockBone)
        
         KeyFrame* keyFrame = new KeyFrame();
         keyFrame->boneName = reader->String();
-     if(Player::modeld)
-         vecKey.push_back(keyFrame);
+     
         UINT size = reader->UInt();
         if (size > 0)
         {
@@ -103,7 +89,11 @@ void ModelAnimator::ReadClip(string clipName, UINT clipNum, string lockBone)
             void* ptr = (void*)keyFrame->transforms.data();
             reader->Byte(&ptr, sizeof(KeyTransform) * size);
         }
-        clip->keyFrames[keyFrame->boneName] = keyFrame;        
+        if (nullptr == clip->keyFrames[keyFrame->boneName])
+            clip->keyFrames[keyFrame->boneName] = keyFrame;
+        else
+            delete keyFrame;
+
     }
 
     clips.push_back(clip);

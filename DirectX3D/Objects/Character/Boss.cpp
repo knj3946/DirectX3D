@@ -90,8 +90,6 @@ Boss::Boss()
 	rangeBar->Scale() = { 1.f / transform->Scale().x,1.f / transform->Scale().y,1.f / transform->Scale().z};
 	rangeBar->Scale() *= (eyeSightRange / 100);
 
-	hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
-
 	/*BOSSSOUND()->Add("Boss_Roar", "Sounds/Roar.mp3",false,false,true);
 	BOSSSOUND()->Add("Boss_Splash", "Sounds/BossSplash.mp3", false, false, true);
 	BOSSSOUND()->Add("Boss_Run", "Sounds/Bossfootstep.mp3", false, false, true);
@@ -123,9 +121,10 @@ Boss::Boss()
 
 Boss::~Boss()
 {
-	delete hiteffect;
-	delete leftHand;
-	delete leftCollider;
+	SAFE_DELETE(hiteffect);
+	SAFE_DELETE(leftHand);
+	SAFE_DELETE(leftCollider);
+
 	delete collider;
 	delete moveCollider;
 	
@@ -268,14 +267,9 @@ void Boss::CalculateEyeSight()
 	DetectionRange = (Distance(target->GlobalPos(), transform->GlobalPos()));
 	if (DetectionRange < eyeSightRange)
 	{
-		SetEyePos(); //눈 위치만 설정
+		SetRay(); //눈 위치만 설정
 
-		if (!EyesRayToDetectTarget(targetCollider, eyesPos)) //리턴 값 false면 가려서 안보이는 것
-		{
-			
-			bDetection = false;
-			return;
-		}
+	
 	
 		if (leftdir1 > 270 && rightdir1 < 90) {
 			if (!((leftdir1 <= Enemytothisangle && rightdir1 + 360 >= Enemytothisangle) || (leftdir1 <= Enemytothisangle + 360 && rightdir1 >= Enemytothisangle)))
@@ -292,6 +286,13 @@ void Boss::CalculateEyeSight()
 				bDetection = false;
 				return;
 			}
+		}
+
+		if (ColliderManager::Get()->CompareDistanceObstacleandPlayer(ray)) //리턴 값 false면 가려서 안보이는 것
+		{
+
+			bDetection = false;
+			return;
 		}
 
 		// 추후 오크매니저에서 씬에 깔린 모든 벽들 체크해서 ray충돌페크
@@ -1040,9 +1041,9 @@ void Boss::Run()
 void Boss::SetRay()
 {
 	ray.pos = transform->GlobalPos();
-	ray.pos.y += 10;
+	ray.pos.y += 5;
 	Vector3 vtarget = target->GlobalPos();
-	vtarget.y += 10;
+	vtarget.y += 5;
 	Vector3 vtrasnform = transform->GlobalPos();
 	vtrasnform.y += 10;
 	Vector3 dir = vtarget - vtrasnform;

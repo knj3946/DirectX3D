@@ -13,10 +13,12 @@ Particle::Particle()
 
 Particle::~Particle()
 {
-    delete material;
-    delete vertexBuffer;
-    FOR(2) delete blendState[i];
-    FOR(2) delete depthState[i];
+    SAFE_DELETE( material);
+    SAFE_DELETE( vertexBuffer);
+    FOR(2) {
+        SAFE_DELETE( blendState[i]);
+        SAFE_DELETE(depthState[i]);
+    }
 }
 
 void Particle::Render()

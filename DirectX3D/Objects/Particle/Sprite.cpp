@@ -22,8 +22,8 @@ Sprite::Sprite(wstring imageFile, float width, float height, UINT frameCol, UINT
 
 Sprite::~Sprite()
 {
+	SAFE_DELETE(buffer);
 
-	delete buffer;
 }
 
 
