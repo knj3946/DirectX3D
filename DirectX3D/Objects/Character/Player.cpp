@@ -689,7 +689,6 @@ void Player::Climbing()
 
 void Player::Respawn(Vector3 pos)
 {
-
     SetState(IDLE);
 
     curHP = maxHp;
@@ -697,6 +696,7 @@ void Player::Respawn(Vector3 pos)
 
     collider->SetActive(true);
     isDying = false;
+    isHit = false;
 
     Pos() = pos;
 }

@@ -11,6 +11,8 @@ public:
 	void PostRender();
 	void GUIRender();
 
+	float GetPlayTime() { return playTime; }
+
 private:
 	Quad* quad;
 
@@ -19,6 +21,8 @@ private:
 
 	float curCutTime = 1.0f;
 	float cutCool = 5.f;
+
+	float playTime = 0.f;
 
 	float alpha = 1.f;
 

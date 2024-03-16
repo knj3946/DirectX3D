@@ -16,6 +16,7 @@ EndingCreditScene::EndingCreditScene()
 EndingCreditScene::~EndingCreditScene()
 {
 	delete endingCredit;
+	delete videoPlayer;
 }
 
 void EndingCreditScene::Update()

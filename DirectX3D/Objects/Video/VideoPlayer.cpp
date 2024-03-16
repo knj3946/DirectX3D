@@ -52,6 +52,8 @@ void VideoPlayer::Update()
 		curCutTime -= DELTA;
 	}
 	quad->GetMaterial()->GetData().diffuse.w = alpha;
+
+	playTime += DELTA;
 }
 
 void VideoPlayer::PreRender()
