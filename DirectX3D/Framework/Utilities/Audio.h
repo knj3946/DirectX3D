@@ -2,12 +2,12 @@
 
 using namespace FMOD;
 
-class Audio : public Singleton<Audio>
+class Audio// : public Singleton<Audio>
 {
 private:
-    friend class Singleton;
+    //friend class Singleton;
 
-    const int MAX_CHANNEL = 20;
+    //const int MAX_CHANNEL = 20;
 
     struct SoundInfo
     {
@@ -20,10 +20,14 @@ private:
         }
     };
 
+    
+
+public:
     Audio();
     ~Audio();
 
-public:
+    void SetTarget(class Transform* t) { target = t; }
+
     void Update();
 
     void Add(string key, string file,
@@ -32,12 +36,14 @@ public:
     void Play(string key, float valume = 1.0f);
     void Play(string key, Float3 position, float valume = 1.0f);
     void Stop(string key);
+    void AllStop();
     void Pause(string key);
     void Resume(string key);
 
     bool IsPlaySound(string key);
     SoundInfo* GetSounds(string key) { return sounds[key]; }
     float GetVolume(string key) { float volume; sounds[key]->channel->getVolume(&volume); return volume; }
+    void SetVolume(string key, float volume) { sounds[key]->channel->setVolume(volume); }
     FMOD_VECTOR GetSoundPos(string key) {
         FMOD_VECTOR pos; FMOD_VECTOR vel; sounds[key]->channel->get3DAttributes(&pos, &vel); return pos;
     }
@@ -45,9 +51,11 @@ public:
         FMOD_VECTOR pos; FMOD_VECTOR vel; sounds[key]->channel->get3DAttributes(&pos, &vel); return vel;
     }
 private:
-    System* soundSystem;
+    //System* soundSystem;
 
     unordered_map<string, SoundInfo*> sounds;
 
     FMOD_VECTOR listenerPos;
+
+    class Transform* target;
 };

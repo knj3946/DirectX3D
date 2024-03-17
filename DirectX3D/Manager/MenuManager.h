@@ -32,6 +32,7 @@ public:
     void SetEndFlag(bool flag) { this->endFlag = flag; }
 
     bool GetFailFlag() { return failFlag; }
+    bool GetEndFlag() { return endFlag; }
 private:
     GameMenu* gameMenu;
     GameMenu* failMenu;

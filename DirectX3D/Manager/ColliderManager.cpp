@@ -224,8 +224,6 @@ bool ColliderManager::CompareDistanceObstacleandPlayer(Ray ray)
         return true;
     }
     return false;
-
-
 }
 
 ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, Vector3 mScale, Vector3 mRot, Vector3 mPos)

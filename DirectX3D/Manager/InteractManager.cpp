@@ -28,6 +28,11 @@ void InteractManager::Assassination(Orc* orc)
 
 	Vector3 pos = orc->GetTransform()->Pos();
 	pos.y += 5.0f;
+    player->GetWeaponColliders()[0]->ResetCollisionPoint();
+    player->GetWeaponColliders()[0]->IsCapsuleCollision((CapsuleCollider*)orc->GetCollider());
+
+    InteractManager::Get()->SetParticlePos(player->GetWeaponColliders()[0]->GetCollisionPoint());
+
 	orc->Assassinated(pos,player);
 }
 
@@ -36,6 +41,10 @@ void InteractManager::AssassinationBoss(Boss* boss)
     player->Assassination();
     Vector3 pos = boss->GetTransform()->Pos();
     pos.y += 5.0f;
+    player->GetWeaponColliders()[0]->ResetCollisionPoint();
+    player->GetWeaponColliders()[0]->IsCapsuleCollision((CapsuleCollider*)boss->GetCollider());
+   
+    InteractManager::Get()->SetParticlePos(player->GetWeaponColliders()[0]->GetCollisionPoint());
     boss->Assassinated(pos,player);
 }
 

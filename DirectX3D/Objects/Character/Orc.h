@@ -6,7 +6,7 @@ private:
     enum State
     {
         IDLE, WALK
-        , RUN, HIT, ASSASSINATED, ATTACK, THROW, DYING
+        , RUN, HIT, ASSASSINATED, ATTACK1,ATTACK2,ATTACK3, THROW, DYING
     };// throw 는 attack16 클립
     
 
@@ -55,7 +55,7 @@ private:
     
     typedef TerrainEditor LevelData;
     //typedef Terrain LevelData;
-
+   
 public:
     enum class NPC_TYPE {
         ATTACK,
@@ -123,12 +123,19 @@ public:
     void CoolDown();
     void SetGroundPos();
 
+    // 테스트함수
+    void SetSpeed(float s) { moveSpeed = s; runSpeed = s; }
+
     void SetStartCoolDown(float cool) { this->searchStartCoolDown = cool; }
 private:
     void Control();
     void Move();
     void IdleAIMove();      
     void UpdateUI();
+
+    void SoundControl();
+
+    void SetAttackState();
 
     void TimeCalculator(); // 시간 계산하는 것들은 여기서 한번에 관리하는게 편할거같아서 추가해본 함수
 
@@ -167,12 +174,28 @@ private:
     void StateRevision();
     void ParticleUpdate();
     bool GetTargetAttack() { return battacktarget; }
+
 private:
+
+    // 디버그 변수
+    float lastVolume=0;
+    float lastRunVolume = 0;
+    float lastWalkVolume = 0;
+    float walkVolumeS = 0;
+    bool isAnim = false; // 애니메이션 실행 중에는 true
+    
+    float lastDist = 0;
+
+    float attackVolume = 1.0f;
+    float throwVolume = 1.f;
+    float dieVolume = 1.0f;
+
+    int a = 300;
     Ray ray;// 레이
     Vector3 StorePos;// 소리난 곳 가기 전 위치 저장
     Vector3 CheckPoint;// 소리난 곳 저장
     Vector3 eyesPos;
-    float earRange = 1000.f;// 듣는 범위
+    float earRange = 50.f;// 듣는 범위 -> 오크가 쿠나이 던지는 거리가 9
     bool bSound = false;// 소리 체크
     bool NearFind = false;
     bool bSensor = false;
@@ -186,8 +209,8 @@ private:
 
     State curState = IDLE;
 
-    float moveSpeed = 25;
-    float runSpeed = 25;
+    float moveSpeed = 25; 
+    float runSpeed = 25;  
     float walkSpeed = 10;
     float rotSpeed = 10;
 
@@ -232,8 +255,9 @@ private:
     bool isAssassinated = false;
     //HitState hitState = HitState::NONE;
 
-    float curRange = 0.f, maxRange = 40.f;
-    float destRange;
+    // 사용안해서 주석처리
+    //float curRange = 0.f, maxRange = 180.f;// 원래 40, 테스트를 위해 수치변경 
+    //float destRange;
 
     Quad* questionMark;
     Quad* exclamationMark;
@@ -243,7 +267,7 @@ private:
     CapsuleCollider* leftWeaponCollider;
     CapsuleCollider* rightWeaponCollider;
 
-    float eyeSightRange = 40.f;
+    float eyeSightRange = 60.f;
     float eyeSightangle = 45.f;
     bool bDetection = false;
     bool bFind = false;
