@@ -45,7 +45,7 @@ ColliderManager::~ColliderManager()
     delete footRay;
     delete headRay;
 
-    for (int i = 0; i <vecCol[ColliderManager::WALL].size(); ++i) {
+    for (int i = 0; i < vecCol[ColliderManager::WALL].size(); ++i) {
         if (nullptr != vecCol[ColliderManager::WALL][i]) {
             delete vecCol[ColliderManager::WALL][i];
             vecCol[ColliderManager::WALL][i] = nullptr;
@@ -109,10 +109,10 @@ void ColliderManager::SetHeight()
         //위 물체의 높이가 너무 낮으면 스페이스 입력을 무시할지말지 결정하는 법도 고려
         if (obstacle->IsRayCollision(*headRay, &maxHeadPoint) && maxHeadPoint.distance < FLT_EPSILON)
         {
-            if(maxHeadPoint.distance < FLT_EPSILON)
+            if (maxHeadPoint.distance < FLT_EPSILON)
                 player->SetHeadCrash(true);
         }
-        else if (obstacle->IsRayCollision(*footRay, &underObj) && underObj.hitPoint.y > maxHeight)
+        else if (obstacle->IsRayCollision(*footRay, &underObj) && underObj.hitPoint.y > maxHeight && player->GetJumpVel() <= 0.0f)
         {
             maxHeight = underObj.hitPoint.y;
             onBlock = obstacle;
@@ -191,39 +191,39 @@ bool ColliderManager::CloseRayCollisionColliderContact(Ray ray, Contact& con)
 
 float ColliderManager::CloseRayCollisionColliderDistance(Ray ray, Collider* _pCollider)
 {
-	float minDistance = FLT_MAX;
-	
-	Contact con;
-	_pCollider->IsRayCollision(ray, &con);
+    float minDistance = FLT_MAX;
 
-	float hitDistance = Distance(con.hitPoint, ray.pos);
-	if (minDistance > hitDistance)
-		minDistance = hitDistance;
-	
+    Contact con;
+    _pCollider->IsRayCollision(ray, &con);
 
-	return minDistance;
+    float hitDistance = Distance(con.hitPoint, ray.pos);
+    if (minDistance > hitDistance)
+        minDistance = hitDistance;
+
+
+    return minDistance;
 }
 
 bool ColliderManager::CompareDistanceObstacleandPlayer(Ray ray)
 {
-	Collider* tmpCol=nullptr;
-	for (Collider* ob : vecCol[WALL])
-	{
-		Contact con;
-		if (ob->IsRayCollision(ray, &con))
-		{
-            
-			tmpCol = ob;
-			break;
-		}
-	}
-	if (!tmpCol)
-		return true;
+    Collider* tmpCol = nullptr;
+    for (Collider* ob : vecCol[WALL])
+    {
+        Contact con;
+        if (ob->IsRayCollision(ray, &con))
+        {
 
-	if (CloseRayCollisionColliderDistance(ray, tmpCol) >= CloseRayCollisionColliderDistance(ray, vecCol[Collision_Type::PLAYER][0])) {
-		return true;
-	}
-	return false;
+            tmpCol = ob;
+            break;
+        }
+    }
+    if (!tmpCol)
+        return true;
+
+    if (CloseRayCollisionColliderDistance(ray, tmpCol) >= CloseRayCollisionColliderDistance(ray, vecCol[Collision_Type::PLAYER][0])) {
+        return true;
+    }
+    return false;
 
 
 }
@@ -357,7 +357,7 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
         colRots.push_back(Vector3(0.f, 0.f, 0.f)); //바닥 콜라이더
         colRots.push_back(Vector3(0.f, 0.f, 0.f)); //바닥 콜라이더
 
-	
+
         colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
         colScales.push_back(Vector3(0.4f, 1.9f, 3.f));
         colScales.push_back(Vector3(8.5f, 5.1f, 0.9f)); //바닥 콜라이더

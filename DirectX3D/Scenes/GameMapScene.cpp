@@ -14,11 +14,11 @@ GameMapScene::GameMapScene()
 	testCol2->Pos() = { 60, 5, 126 };
 	testCol3->Pos() = { 80, 5, 126 };
 
-	testCol1->Scale() = { 20.1, 9.5, 1 };
-	testCol4->Scale() = { 20.1, 9.5, 1 };
+	testCol1->Scale() = { 21, 9.5, 1 };
+	testCol4->Scale() = { 21, 9.5, 1 };
 
-	testCol2->Scale() = { 1, 9.5, 20.1 };
-	testCol3->Scale() = { 1, 9.5, 20.1 };
+	testCol2->Scale() = { 1, 9.5, 21 };
+	testCol3->Scale() = { 1, 9.5, 21 };
 
 	ColliderManager::Get()->SetObstacles(testCol1);
 	ColliderManager::Get()->SetObstacles(testCol2);

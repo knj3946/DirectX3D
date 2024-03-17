@@ -116,6 +116,9 @@ public:
     void SetBoss(class Boss* _boss) { boss = _boss; }
 
     void Respawn(Vector3 pos = {0,0,0});
+
+    float GetJumpVel() { return jumpVel; }
+
 private:
 
     void Control();
@@ -288,6 +291,7 @@ private:
     Vector3 climbVel;
     Vector3 climbArrivePos;
     float climbJ_y;
+    Vector3 startClimbPos, destClimbPos;
 
     State preState = IDLE;
     bool dohitanimation = false;

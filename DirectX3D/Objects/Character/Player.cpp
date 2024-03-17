@@ -384,6 +384,7 @@ void Player::GUIRender()
     CAM->GUIRender();
 
     ImGui::Text("curState : %d", curState);
+    ImGui::Text("jumpVel : %lf", jumpVel);
 
     ColliderManager::Get()->GuiRender();
 }
@@ -429,7 +430,6 @@ void Player::Assassination()
 void Player::Climb(Collider* col, Vector3 climbPos)
 {
     Pos() = { climbPos.x, Pos().y, climbPos.z};
-    Pos() += Forward() * 1.2f;
     isClimb = true;
     UpdateWorld();
 
@@ -440,6 +440,8 @@ void Player::Climb(Collider* col, Vector3 climbPos)
 
     climbCam->Pos() = Pos();
     climbCam->Rot() = Rot();
+
+    Pos() += Forward() * 1.2f;
 }
 
 void Player::SetClimbAnim()
@@ -517,6 +519,9 @@ void Player::Climbing()
             SetState(CLIMBING_JUMP_R);
             canClimbControl = false;
         }
+
+        startClimbPos = Pos();
+        destClimbPos = climbVel * 10.0f + startClimbPos;
     }
     else
     {
@@ -586,7 +591,8 @@ void Player::Climbing()
             return;
         }
 
-        Pos() += climbVel * DELTA * 4.0f;
+        Pos() = SLerp(Pos(), destClimbPos, 10.0f * DELTA);
+        //Pos() += climbVel * DELTA * 4.0f;
     }
 
 
@@ -740,13 +746,14 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
     {
         //플레이어의 위에서 레이를 쏴서 현재 terrain 위치와 높이를 구함
 
-        if (!OnColliderFloor(feedBackPos)) // 문턱올라가기 때문에 다시 살림
-        {
-            Vector3 PlayerSkyPos = Pos();
-            PlayerSkyPos.y += 1000;
-            Ray groundRay = Ray(PlayerSkyPos, Vector3(0.f, -1.f, 0.f));
-            TerainComputePicking(feedBackPos, groundRay);
-        }
+        if(jumpVel <= 0.0f)
+            if (!OnColliderFloor(feedBackPos)) // 문턱올라가기 때문에 다시 살림
+            {
+                Vector3 PlayerSkyPos = Pos();
+                PlayerSkyPos.y += 1000;
+                Ray groundRay = Ray(PlayerSkyPos, Vector3(0.f, -1.f, 0.f));
+                TerainComputePicking(feedBackPos, groundRay);
+            }
 
         Walking();
     }
@@ -908,10 +915,11 @@ void Player::Walking()
     PlayerSkyPos.y += 1000;
     Ray groundRay = Ray(PlayerSkyPos, Vector3(0.f, -1.f, 0.f));
 
-    if (!OnColliderFloor(destFeedBackPos)) // 문턱올라가기 때문에 다시 살림
-    {
-        TerainComputePicking(destFeedBackPos, groundRay);
-    }
+    if(jumpVel <= 0.0f)
+        if (!OnColliderFloor(destFeedBackPos)) // 문턱올라가기 때문에 다시 살림
+        {
+            TerainComputePicking(destFeedBackPos, groundRay);
+        }
 
     //destFeedBackPos : 목적지 터레인Pos
     //feedBackPos : 현재 터레인Pos
@@ -935,14 +943,18 @@ void Player::Walking()
         feedBackPos.y = destFeedBackPos.y;
     }
 
+    float test = feedBackPos.y;
     //???????°? ????? ???? ???? ????? ???? ????
-    if (jumpVel <= 0.0f && curState != JUMP1 && curState != JUMP2 && curState != JUMP3 && curState != CLIMBING_JUMP_D)
+    if (jumpVel == 0.0f && curState != JUMP1 && curState != JUMP2 && curState != JUMP3 && curState != CLIMBING_JUMP_D)
         Pos().y = feedBackPos.y;    //여기 체크
 }
 
 void Player::Jump()
 {
-    jumpVel = force1;
+    if(jumpVel == 0.0f)
+        jumpVel = force1;
+    else
+        SetState(JUMP3);
 }
 
 void Player::JumpSetting()
@@ -975,7 +987,7 @@ void Player::Jumping()
     float tempJumpVel;
     float tempY;
 
-    if (curState != HIT && curState != JUMP1 && curState != JUMP2 && preHeight - heightLevel > 5.0f)
+    if (curState != HIT && curState != JUMP1 /*&& curState != JUMP2 */&& preHeight - heightLevel > 1.0f)
     {
         jumpVel = -1;
 
@@ -1016,7 +1028,7 @@ void Player::Jumping()
     Pos().y = tempY;
     jumpVel = tempJumpVel;
 
-    if (jumpVel < 0.0f)
+    if (jumpVel < 0.0f && curState != JUMP1)
     {
         SetState(JUMP2);
         fallingT += DELTA;
@@ -1147,6 +1159,7 @@ bool Player::OnColliderFloor(Vector3& feedback)
     if (ColliderManager::Get()->CloseRayCollisionColliderContact(groundRay, con))
     {
         feedback = con.hitPoint;
+        float asdf = feedback.y;
         //feedback.y += 0.1f; //살짝 띄움으로서 충돌 방지
         return true;
     }
