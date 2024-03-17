@@ -17,12 +17,6 @@ public:
 	
 
 private:
-
-	BoxCollider* testCol1;
-	BoxCollider* testCol2;
-	BoxCollider* testCol3;
-	BoxCollider* testCol4;
-
 	// 임시로 여기서
 	bool isPauseGame = false;
 
@@ -41,6 +35,8 @@ private:
 
 	Shadow* shadow;
 
+	BoxCollider* HeightCollider[6];
+
 	float waitSettingTime = 0.0f;
 
 	// 몬스터 위치 세팅 데이터
@@ -48,7 +44,12 @@ private:
 	{
 		{Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(150.f, 0.f, 175.f)},
 		{Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185)},
-		//{Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(85, 0, 120)},
+		{Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(85, 0, 120)},
+		{Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(62, 0, 40)},
+		{Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(110, 0, 80)},
+		{Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(170, 0, 40)},
+		{Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(160, 0, 120)},
+		{Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(50, 0, 135)}
 
 	};
 
@@ -56,9 +57,15 @@ private:
 	{
 		Vector3(150.f, 0.f, 210.f),
 		Vector3(50.f, 0.f, 185.f),
-		//Vector3(40.f, 0.f, 120.f),
-
+		Vector3(40.f, 0.f, 120.f),
+		Vector3(62.f, 0.f, 65.f),
+		Vector3(110.f, 0.f, 40.f),
+		Vector3(170.f, 0.f, 80.f),
+		Vector3(170.f, 0.f, 120.f),
+		Vector3(100.f, 0.f, 135.f)
 	};
 
+	Quad* endingCredit;
+	VideoPlayer* videoPlayer;
 };
 

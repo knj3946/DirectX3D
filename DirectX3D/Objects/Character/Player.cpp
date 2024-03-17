@@ -1,6 +1,6 @@
 ﻿#include "Framework.h"
 #include "Player.h"
-bool Player::modeld = false;
+
 Player::Player()
     : ModelAnimator("akai")
 {
@@ -214,6 +214,7 @@ Player::Player()
     climbCam = new Transform();
 
     hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
+    hiteffect->Stop();
     jumpparticle=new ParticleSystem("TextData/Particles/JumpSmoke.fx");
 
     // 사운드 UI 관련
@@ -348,8 +349,7 @@ void Player::Update()
     if(!isClimb)
         ColliderManager::Get()->PushPlayer();
 
-    if (KEY_DOWN('O'))
-        Hit(1);
+  
 
     SetCameraPos();
 
@@ -690,7 +690,6 @@ void Player::Climbing()
 
 void Player::Respawn(Vector3 pos)
 {
-
     SetState(IDLE);
 
     curHP = maxHp;
@@ -698,6 +697,7 @@ void Player::Respawn(Vector3 pos)
 
     collider->SetActive(true);
     isDying = false;
+    isHit = false;
 
     Pos() = pos;
 }
@@ -1371,10 +1371,7 @@ float Player::GetDamage()
 
 void Player::Hit(float damage)
 {
-    if (isHit)
-        int a = 0;
-    // 임시로 데미지 1로
-    damage = 1;
+   
     if (!isHit)
     {
         isHit = true;

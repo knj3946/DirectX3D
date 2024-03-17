@@ -21,6 +21,7 @@ PixelInput VS(VertexUV input)
 
 float4 PS(PixelInput input) : SV_TARGET
 {
-
-	return diffuseMap.Sample(samp, input.uv);
+    float4 rt = diffuseMap.Sample(samp, input.uv);
+    rt.w *= mDiffuse.w;
+    return rt;
 }

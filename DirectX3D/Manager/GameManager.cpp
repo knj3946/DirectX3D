@@ -7,30 +7,14 @@
 #include "Scenes/BuildingScene.h"
 #include "Scenes/ShadowScene.h"
 #include "Scenes/OnlyBossScene.h"
+#include "Scenes/EndingCreditScene.h"
+
+bool GameManager::restartFlag = false;
 
 GameManager::GameManager()
 {
     Create();
-   
-    //SceneManager::Get()->Create("ModelAnimation", new ModelAnimationScene());
-    SceneManager::Get()->Create("GameMap", new GameMapScene());
-    //SceneManager::Get()->Create("GameSmallMap", new GameSmallMapScene());
-    //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
-    //SceneManager::Get()->Create("Building", new BuildingScene());
-    //SceneManager::Get()->Create("Shadow", new ShadowScene());
-    //SceneManager::Get()->Create("OnlyBoss", new OnlyBossScene());
-
-    //SceneManager::Get()->Add("Grid");
-
-    // 활 위치 130 0.5 190
-
-    //SceneManager::Get()->Add("ModelAnimation");
-    SceneManager::Get()->Add("GameMap");
-    //SceneManager::Get()->Add("GameSmallMap");
-    //SceneManager::Get()->Add("TestNpcScene");
-    //SceneManager::Get()->Add("Building");
-    //SceneManager::Get()->Add("Shadow");
-    //SceneManager::Get()->Add("OnlyBoss");
+    Start();
 }
 
 GameManager::~GameManager()
@@ -84,6 +68,41 @@ void GameManager::Render()
     Font::Get()->GetDC()->EndDraw();
 
     Device::Get()->Present();
+
+    if (GameManager::restartFlag)
+    {
+        SceneManager::Delete();
+        Environment::Delete();
+        SceneManager::Get();
+        Environment::Get();
+        Start();
+        GameManager::restartFlag = false;
+    }
+}
+
+void GameManager::Start()
+{
+    //SceneManager::Get()->Create("ModelAnimation", new ModelAnimationScene());
+    SceneManager::Get()->Create("GameMap", new GameMapScene());
+    //SceneManager::Get()->Create("GameSmallMap", new GameSmallMapScene());
+    //SceneManager::Get()->Create("TestNpcScene", new TestNpcScene());
+    //SceneManager::Get()->Create("Building", new BuildingScene());
+    //SceneManager::Get()->Create("Shadow", new ShadowScene());
+    //SceneManager::Get()->Create("OnlyBoss", new OnlyBossScene());
+//    SceneManager::Get()->Create("EndingCredit", new EndingCreditScene());
+
+    //SceneManager::Get()->Add("Grid");
+
+    // 활 위치 130 0.5 190
+
+    //SceneManager::Get()->Add("ModelAnimation");
+    SceneManager::Get()->Add("GameMap");
+    //SceneManager::Get()->Add("GameSmallMap");
+    //SceneManager::Get()->Add("TestNpcScene");
+    //SceneManager::Get()->Add("Building");
+    //SceneManager::Get()->Add("Shadow");
+    //SceneManager::Get()->Add("OnlyBoss");
+   // SceneManager::Get()->Add("EndingCredit");
 }
 
 void GameManager::Create()
@@ -111,6 +130,8 @@ void GameManager::Create()
    ImGui_ImplDX11_Init(DEVICE, DC);
 
     srand((unsigned int)time(NULL));
+
+    VideoTexture::createAPI();
 }
 
 void GameManager::Delete()
@@ -120,6 +141,7 @@ void GameManager::Delete()
     SceneManager::Delete();
     Device::Delete();
     Shader::Delete();
+    SoundManager::Delete();
     Texture::Delete();
     Environment::Delete();
     Observer::Delete();
@@ -131,4 +153,5 @@ void GameManager::Delete()
   
 
    ImGui::DestroyContext();
+   VideoTexture::destroyAPI();
 }

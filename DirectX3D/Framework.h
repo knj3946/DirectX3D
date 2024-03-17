@@ -1,4 +1,5 @@
 ﻿#pragma once
+#define _CRT_SECURE_NO_WARNINGS
 
 #include "targetver.h"
 #define WIN32_LEAN_AND_MEAN
@@ -33,9 +34,31 @@
 #define VOLUME SoundManager::Get()->GetVolume()
 
 #define DIALOG ImGuiFileDialog::Instance()
-#define SAFE_DELETE(p)if(nullptr!= p){delete p p=nullptr;}
+#define SAFE_DELETE(p)if(nullptr!= p){delete p ;p=nullptr;}
+#define SAFE_RELEASE(x) if(x) { (x)->Release(); x = nullptr; }
 
 #define FOR(n) for(int i = 0; i < n ; i++)
+#define CHECK_HR(x, msg) hr = x; if( hr != S_OK ) { dbg(msg); return false; }
+
+//#define SHOW_DEBUG        1
+#if SHOW_DEBUG
+static void dbg(const char* format, ...) {
+	va_list argptr;
+	va_start(argptr, format);
+	char dest[1024 * 4];
+	int n = _vsnprintf(dest, sizeof(dest), format, argptr);
+	assert(n < sizeof(dest));
+	dest[n] = 0x00;
+	va_end(argptr);
+	::OutputDebugString(dest);
+}
+#else
+#define dbg(...)
+#endif
+
+#ifndef IF_EQUAL_RETURN
+#define IF_EQUAL_RETURN(param, val) if(val == param) return #val
+#endif
 
 #include <windows.h>
 #include <string>
@@ -65,6 +88,11 @@
 #include <dsound.h>
 #include <dxgi.h>
 #include <crtdbg.h>	
+#include <mfapi.h>
+#include <mfplay.h>
+#include <mfreadwrite.h>
+#include <mferror.h>
+#include <wmcodecdsp.h>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -77,6 +105,12 @@
 #pragma comment(lib, "fmod_vc.lib")
 #pragma comment(lib, "dsound.lib")
 #pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "mf.lib")
+#pragma comment(lib, "mfplat.lib")
+#pragma comment(lib, "mfplay.lib")
+#pragma comment(lib, "mfreadwrite.lib")
+#pragma comment(lib, "mfuuid.lib")
+#pragma comment(lib, "wmcodecdspuuid.lib")
 
 using namespace std;
 using namespace DirectX;
@@ -141,6 +175,7 @@ using namespace Utility;
 #include "Framework/Render/Mesh.h"
 #include "Framework/Render/DepthStencil.h"
 #include "Framework/Render/RenderTarget.h"
+#include "Framework/Render/VideoTexture.h"
 
 #include "Framework/Collision/Collider.h"
 #include "Framework/Collision/BoxCollider.h"
@@ -209,6 +244,7 @@ using namespace GameMath;
 #include "Objects/Manager/MonsterManager.h"
 #include "Objects/Manager/ArrowManager.h"
 
+#include "Objects/Video/VideoPlayer.h"
 
 //Scene Header
 #include "Scenes/Scene.h"

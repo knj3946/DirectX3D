@@ -122,9 +122,9 @@ bool CapsuleCollider::IsBoxCollision(BoxCollider* collider)
 
 
     //이 접점 후보가 캡슐의 반지름 안에 들어와 있으면 충돌
-    return distance <= Radius();
 
     CollisionPoint = pointOnLine;
+    return distance <= Radius();
     return false;
 }
 

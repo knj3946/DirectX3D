@@ -217,12 +217,12 @@ bool ColliderManager::CompareDistanceObstacleandPlayer(Ray ray)
 			break;
 		}
 	}
-	if (!tmpCol)
-		return true;
-
-	if (CloseRayCollisionColliderDistance(ray, tmpCol) >= CloseRayCollisionColliderDistance(ray, vecCol[Collision_Type::PLAYER][0])) {
-		return true;
-	}
+    if (tmpCol)
+    {
+        if (CloseRayCollisionColliderDistance(ray, tmpCol) <= CloseRayCollisionColliderDistance(ray, vecCol[Collision_Type::PLAYER][0])) {
+            return true;
+        }
+    }
 	return false;
 
 

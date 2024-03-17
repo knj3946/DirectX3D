@@ -61,6 +61,8 @@ MenuManager::MenuManager()
 MenuManager::~MenuManager()
 {
 	delete gameStartScreen;
+	delete gameFailScreen;
+	delete gameEndScreen;
 	delete loadingBar;
 	delete gameMenu;
 	delete failMenu;

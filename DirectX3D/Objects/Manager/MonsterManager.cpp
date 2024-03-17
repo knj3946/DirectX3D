@@ -4,7 +4,7 @@
 MonsterManager::MonsterManager()
 {
     orcInstancing = new ModelAnimatorInstancing("character1");
-    Player::modeld = true;
+   
     orcInstancing->ReadClip("Orc_Idle");
     orcInstancing->ReadClip("character1@walk3");
     orcInstancing->ReadClip("Orc_Run");
@@ -20,8 +20,7 @@ MonsterManager::MonsterManager()
 
     orcInstancing->ReadClip("Orc_Death"); // 기본 죽음
     orcInstancing->ReadClip("character1@death3");  // 암살 죽음
-    Player::modeld = false;
-    // 몬스터 생성
+  // 몬스터 생성
     FOR(SIZE)
     {
         CreateOrc();
@@ -314,7 +313,66 @@ void MonsterManager::Blocking(Collider* collider)
             }
         }
     }
+    {
+        //보스
+        if (collider->Role() == Collider::Collider_Role::BLOCK)
+        {
+            if (collider->IsCollision(boss->GetMoveCollider()))
+            {
+                Vector3 dir = boss->GetMoveCollider()->GlobalPos() - collider->GlobalPos();
 
+                int maxIndex = 0;
+                float maxValue = -99999.0f;
+
+                for (int i = 0; i < 3; ++i)
+                {
+
+                    Vector3 halfSize = ((BoxCollider*)collider)->GetHalfSize();
+
+                    if (i != 1)
+                    {
+                        if (abs(dir[i]) - abs(halfSize[i]) > maxValue)
+                        {
+                            maxIndex = i;
+                            maxValue = abs(dir[i]) - abs(halfSize[i]);
+                        }
+                    }
+                }
+
+                switch (maxIndex)
+                {
+                case 0: // x
+                    dir.x = dir.x > 0 ? 1.0f : -1.0f;
+                    dir.y = 0;
+                    dir.z = 0;
+                    break;
+
+                case 1: // y
+                    dir.x = 0;
+                    dir.y = dir.y > 0 ? 1.0f : -1.0f;;
+                    dir.z = 0;
+                    break;
+
+                case 2: // z
+                    dir.x = 0;
+                    dir.y = 0;
+                    dir.z = dir.z > 0 ? 1.0f : -1.0f;;
+                    break;
+                }
+
+                dir.y = 0;
+
+                // --- 이하 샘플 코드 : 대상은 블록으로부터 밀림 ---
+
+                if (NearlyEqual(dir.y, 1.0f)) return; // 법선이 밑인 경우
+
+                boss->GetTransform()->Pos() += dir * 50.0f * DELTA;
+
+            }
+        }
+
+    }
+    
 }
 
 void MonsterManager::Fight(Player* player)
@@ -331,7 +389,7 @@ void MonsterManager::Fight(Player* player)
                 collider->ResetCollisionPoint();
                 if (collider->Active() && collider->IsCapsuleCollision(item.second.orc->GetCollider())) //손 충돌체가 타겟이랑 겹칠때
                 {
-
+                    InteractManager::Get()->SetParticlePos(collider->GetCollisionPoint());
                     item.second.orc->Hit(player->GetDamage(), collider->GlobalPos());
                 }
             }
@@ -340,6 +398,7 @@ void MonsterManager::Fight(Player* player)
             collider->ResetCollisionPoint();
             if (collider->Active() && collider->IsCapsuleCollision((CapsuleCollider*)boss->GetCollider())) //손 충돌체가 타겟이랑 겹칠때
             {
+                InteractManager::Get()->SetParticlePos(collider->GetCollisionPoint());
                 boss->Hit(player->GetDamage(), collider->GlobalPos());
             }
 
