@@ -121,6 +121,9 @@ void Arrow::Throw(Vector3 pos, Vector3 dir)
 // XMConvertToRadians 는 각도를 호도로 바꿔주는 함수 - 추천 x
 
 	time = 0; // 경과시간 리셋
+
+	collider->UpdateWorld();
+	this->transform->UpdateWorld();
 }
 
 void Arrow::Throw(Vector3 pos, Vector3 dir, float chargingT)

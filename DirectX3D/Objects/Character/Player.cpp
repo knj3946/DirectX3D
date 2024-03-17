@@ -1105,7 +1105,7 @@ void Player::Walking()
 
     float test = feedBackPos.y;
     //???????°? ????? ???? ???? ????? ???? ????
-    if (jumpVel == 0.0f && curState != JUMP1 && curState != JUMP2 && curState != JUMP3 && curState != CLIMBING_JUMP_D)
+    if (jumpVel == 0.0f && curState != JUMP1 && curState != JUMP2 /*&& curState != JUMP3*/ && curState != CLIMBING_JUMP_D)
         Pos().y = feedBackPos.y;    //여기 체크
 }
 
@@ -1113,8 +1113,6 @@ void Player::Jump()
 {
     if(jumpVel == 0.0f)
         jumpVel = force1;
-    else
-        SetState(JUMP3);
 }
 
 void Player::JumpSetting()
