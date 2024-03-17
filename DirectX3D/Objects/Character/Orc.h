@@ -187,6 +187,7 @@ private:
     float lastDist = 0;
 
     float attackVolume = 1.0f;
+    float throwVolume = 1.f;
     float dieVolume = 1.0f;
 
     int a = 300;

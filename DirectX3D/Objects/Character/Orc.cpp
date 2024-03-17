@@ -340,6 +340,10 @@ void Orc::Throw()
     Vector3 dir = target->Pos() - transform->Pos();
     dir = dir.GetNormalized();
     KunaiManager::Get()->Throw(transform->Pos()+Vector3(0,3,0), dir);
+    
+    // 거리에 따라 이것도 사운드 조절
+    ORCSOUND(index)->Play("ORC_Throw", throwVolume * VOLUME);
+
     SetState(IDLE);
 }
 
@@ -462,10 +466,10 @@ void Orc::SoundControl()
         if (bFind && ORCSOUND(index)->IsPlaySound("Orc_Walk") && curState == WALK)
         {
             float distance = Distance(target->Pos(), transform->Pos());
-            distance = (distance > 50) ? 50 : distance;
-            ORCSOUND(index)->SetVolume("Orc_Walk", (50 - distance) / 10.0f * VOLUME);
+            distance = (distance > 40) ? 40 : distance;
+            ORCSOUND(index)->SetVolume("Orc_Walk", (40 - distance) / 30.0f * VOLUME);
+            lastWalkVolume = (40 - distance) / 30.0f * VOLUME;
             lastDist = distance;
-            lastRunVolume = (50 - distance) / 10.0f * VOLUME;
         }
         else
         {

@@ -57,6 +57,7 @@ void SoundManager::OrcCreate(int id, Transform* t)
 	audio->Add("Orc_Walk", "Sounds/Orc/Orc_Walk.mp3", false, false, true);
 	audio->Add("Orc_Run", "Sounds/Orc/Orc_Run.wav", false, false, true);
 	audio->Add("Orc_Die", "Sounds/Orc/Die.mp3", false, false, true);
+	audio->Add("ORC_Throw", "Sounds/Orc/throw.mp3", false, false, true);
 
 	orcAudios.insert({ id,audio });
 }

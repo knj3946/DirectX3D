@@ -306,6 +306,7 @@ void Player::Update()
         // 게임을 멈추고 마우스 고정 해제
         //Timer::Get()->SetTimeScale(0);
         GameControlManager::Get()->SetPauseGame(true);
+        PLAYERSOUND()->Stop("bgm1");
     }
     else if (KEY_DOWN('2'))
     {

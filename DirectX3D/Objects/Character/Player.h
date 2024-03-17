@@ -176,7 +176,7 @@ private:
     float attackVolume = 1.f;
     float hitVolume = 3.f;
     float landVolume = 1.f;
-    float hideVolume = 1.f;
+    float hideVolume = 5.f;
 
     // 임시로 여기에 추가 -> 사운드 관련 UI
     Quad* soundUI;
