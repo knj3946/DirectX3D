@@ -158,6 +158,7 @@ Player::Player()
 
     GetClip(CLIMBING1)->SetEvent(bind(&Player::SetClimbAnim, this), 0.7f);
     GetClip(CLIMBING2)->SetEvent(bind(&Player::SetClimbAnim, this), 0.85f);
+    GetClip(CLIMBING3)->SetEvent(bind(&Player::SetClimbAnim, this), 0.5f);
     GetClip(CLIMBING3)->SetEvent(bind(&Player::SetClimbAnim, this), 0.9f);
     GetClip(CLIMBING_JUMP_R)->SetEvent(bind(&Player::SetClimbAnim, this), 0.8f);
     GetClip(CLIMBING_JUMP_L)->SetEvent(bind(&Player::SetClimbAnim, this), 0.8f);
@@ -353,11 +354,26 @@ void Player::Update()
 
     SetCameraPos();
 
-    if (collider->GetParent() == this)
+    if (collider->GetParent() == this && curState != CLIMBING3)
     {
+        collider->Pos() = { 0, 0, 0 };
         collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
         collider->UpdateWorld();
     }
+    else if (curState == CLIMBING3)
+    {
+        if (climb3_isUp)
+        {
+            collider->Pos().y += 80.0f * DELTA;
+            collider->UpdateWorld();
+        }
+        else
+        {
+            collider->Pos() += climb3_Forward * 80.0f * DELTA;
+            collider->UpdateWorld();
+        }
+    }
+
 
     if (isDying) return;
 
@@ -545,6 +561,12 @@ void Player::SetClimbAnim()
     }
     else if (curState == CLIMBING3)
     {
+        if (climb3_isUp)
+        {
+            climb3_isUp = false;
+            return;
+        }
+
         Pos() = climbArrivePos;
         this->UpdateWorld();
         collider->UpdateWorld();
@@ -566,7 +588,7 @@ void Player::SetClimbAnim()
 
 void Player::Climbing()
 {
-    if (curState == CLIMBING3 || curState == CLIMBING_JUMP_D)
+    if (curState == CLIMBING_JUMP_D)
         return;
 
     if (canClimbControl)
@@ -575,8 +597,8 @@ void Player::Climbing()
         {
             canClimbControl = false;
             SetState(CLIMBING_JUMP_D);
-            climbJ_y = Pos().y;
 
+            climbJ_y = Pos().y;
             velocity = Back();
 
             isClimb = false;
@@ -643,6 +665,8 @@ void Player::Climbing()
         {
             if (curState == CLIMBING2) {
                 climbArrivePos += Back() * 2.0f;
+                climb3_isUp = true;
+                climb3_Forward = Left();
                 SetState(CLIMBING3);
                 return;
             }

@@ -317,6 +317,8 @@ private:
     Vector3 climbArrivePos;
     float climbJ_y;
     Vector3 startClimbPos, destClimbPos;
+    bool climb3_isUp = false;
+    Vector3 climb3_Forward;
 
     State preState = IDLE;
     bool dohitanimation = false;
