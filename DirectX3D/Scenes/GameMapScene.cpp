@@ -256,7 +256,8 @@ void GameMapScene::GUIRender()
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
 		ImGui::Text("volume : %f", VOLUME);
-		//player->GUIRender();
+		ColliderManager::Get()->GuiRender();
+		player->GUIRender();
 		/*
 		for (ColliderModel* cm : colliderModels)
 		{

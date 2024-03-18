@@ -492,8 +492,7 @@ void Player::GUIRender()
 
     ImGui::Text("curState : %d", curState);
     ImGui::Text("jumpVel : %lf", jumpVel);
-
-    ColliderManager::Get()->GuiRender();
+    ImGui::Text("jumpVel : %lf %lf %lf", Pos().x, Pos().y,  Pos().z);
 }
 
 void Player::TextRender()
@@ -1136,10 +1135,10 @@ void Player::Jumping()
     if (heightLevel < feedBackPos.y)
         heightLevel = feedBackPos.y;
 
-    if (headCrash)
+    if (Pos().y + 6.2f >= ceilingHeight)
     {
+        Pos().y = ceilingHeight - 6.2f;
         jumpVel = -20;
-        isCeiling = false;
     }
 
     float tempJumpVel;
@@ -1184,6 +1183,12 @@ void Player::Jumping()
 
             jumpparticle->Play(Pos());
         }
+    }
+
+    if (tempY + 6.2f >= ceilingHeight)  //천장을 한번 더 체크
+    {
+        tempY = ceilingHeight - 6.2f;
+        tempJumpVel = -20;
     }
 
     Pos().y = tempY;

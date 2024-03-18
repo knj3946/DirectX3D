@@ -69,6 +69,7 @@ public:
 
     void SetBoss(Boss* _boss) { boss = _boss; }
     Boss* GetBoss() { return boss; }
+
 private:
     Player* player;
     CapsuleCollider* playerCollider;
@@ -88,5 +89,7 @@ private:
     Boss* boss;
 
     map<string, SpecialKeyUI> specialKeyUI;
+
+    float height;
 
 };

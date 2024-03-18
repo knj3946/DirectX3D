@@ -81,6 +81,7 @@ public:
 
     void SetMoveSpeed(float speed) { this->moveSpeed1 = speed; }
     void SetHeightLevel(float heightLevel) { this->heightLevel = heightLevel; }
+    void SetCeiling(float ceilingHeight) { this->ceilingHeight = ceilingHeight; }
 
     Vector3 GetVelocity() { return velocity; }
     CapsuleCollider* GetCollider() { return collider; }
@@ -207,6 +208,7 @@ private:
     float deceleration = 10; //����
 
     float heightLevel = 0.0f;
+    float ceilingHeight = 0.0f;
 
     float jumpVel = 0;
     int jumpN = 0;

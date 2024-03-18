@@ -96,9 +96,8 @@ void ColliderManager::SetHeight()
     headRay->pos.y = player->Pos().y + 6.2f;
     footRay->pos = playerCollider->GlobalPos();
 
-    Contact maxHeadPoint;
-    float maxHeadHeight = 99999.f;
-    player->SetHeadCrash(false);
+    Contact minHeadPoint;
+    float minHeadHeight = 99999.f;
 
     Contact underObj;
     maxHeight = 0.0f;
@@ -107,10 +106,9 @@ void ColliderManager::SetHeight()
     for (Collider* obstacle : GetObstacles())
     {
         //위 물체의 높이가 너무 낮으면 스페이스 입력을 무시할지말지 결정하는 법도 고려
-        if (obstacle->IsRayCollision(*headRay, &maxHeadPoint) && maxHeadPoint.distance < FLT_EPSILON)
+        if (obstacle->IsRayCollision(*headRay, &minHeadPoint) && minHeadPoint.hitPoint.y < minHeadHeight)
         {
-            if (maxHeadPoint.distance < FLT_EPSILON)
-                player->SetHeadCrash(true);
+            minHeadHeight = minHeadPoint.hitPoint.y;
         }
         else if (obstacle->IsRayCollision(*footRay, &underObj) && underObj.hitPoint.y > maxHeight && player->GetJumpVel() <= 0.0f)
         {
@@ -119,6 +117,7 @@ void ColliderManager::SetHeight()
         }
     }
 
+    player->SetCeiling(minHeadHeight);
     player->SetHeightLevel(maxHeight);
 }
 
@@ -141,9 +140,7 @@ void ColliderManager::PostRender()
 
 void ColliderManager::GuiRender()
 {
-    //ImGui::DragFloat3("fds", (float*)&rayHeight, 0.5f);
-    ImGui::DragFloat3("fds", (float*)&headRay->pos, 0.5f);
-    ImGui::Value("CamDistance", Distance(CAM->GlobalPos(), player->Pos()));
+     ImGui::Text("height : %lf", height);
 }
 
 float ColliderManager::CloseRayCollisionColliderDistance(Ray ray)
