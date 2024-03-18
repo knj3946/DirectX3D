@@ -97,12 +97,12 @@ void GameMapScene::Update()
 				SoundManager::Get()->GetPlayerAudio()->Play("bgm4", 0.1f * VOLUME);
 			}
 
-			endingCredit->Pos().y += DELTA * 50;
+			endingCredit->Pos().y += DELTA * 30;
 			endingCredit->UpdateWorld();
 
 			videoPlayer->Update();
 
-			if (videoPlayer->GetPlayTime() >= 20.f)
+			if (videoPlayer->GetPlayTime() >= 115.f)
 			{
 				GameManager::ReserveRestart();
 				SoundManager::Get()->GetPlayerAudio()->AllStop();
@@ -255,9 +255,9 @@ void GameMapScene::GUIRender()
 
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
-		ImGui::Text("volume : %f", VOLUME);
-		ColliderManager::Get()->GuiRender();
-		player->GUIRender();
+		//ImGui::Text("volume : %f", VOLUME);
+		//ColliderManager::Get()->GuiRender();
+		//player->GUIRender();
 		/*
 		for (ColliderModel* cm : colliderModels)
 		{

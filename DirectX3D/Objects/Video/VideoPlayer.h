@@ -17,10 +17,10 @@ private:
 	Quad* quad;
 
 	UINT picCount = 0;
-	UINT picMaxCount = 3;
+	UINT picMaxCount = 13;
 
 	float curCutTime = 1.0f;
-	float cutCool = 5.f;
+	float cutCool = 8.f;
 
 	float playTime = 0.f;
 
