@@ -1,6 +1,6 @@
 #include "Framework.h"
 #include "MonsterManager.h"
-
+bool MonsterManager::check = false;
 MonsterManager::MonsterManager()
 {
     orcInstancing = new ModelAnimatorInstancing("character1");
@@ -114,13 +114,14 @@ void MonsterManager::Update()
             item.second.orc->Update();
         }      
     }
-    
+    bool b =check;
+
     for (pair<int, OrcInfo>item : orcs)
     {
         if(item.second.orc->GetIsDelete())
             MonsterManager::Get()->DieOrc(item.first);
     }
-
+    b = check;
  
     for (const pair<int, OrcInfo>& item : orcs)
     {
@@ -140,6 +141,7 @@ void MonsterManager::Update()
             }
         }
     }
+     b = check;
     orcInstancing->Update();
     vecDetectionPos.clear();
 
@@ -154,6 +156,7 @@ void MonsterManager::Render(bool exceptOutLine)
     for (const pair<int, OrcInfo>& item : orcs) item.second.orc->Render();
     blendState[0]->SetState();
     rasterizerState[0]->SetState();
+    bool b = check;
 }
 
 void MonsterManager::PostRender()
@@ -168,6 +171,7 @@ void MonsterManager::PostRender()
             iter.second.quad->Render();
         }
     }
+    bool b = check;
 }
 
 void MonsterManager::GUIRender()

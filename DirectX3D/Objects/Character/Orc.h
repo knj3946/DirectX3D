@@ -199,7 +199,7 @@ private:
     bool bSound = false;// 소리 체크
     bool NearFind = false;
     bool bSensor = false;
-
+    
     float informrange;// 탐지범위
     NPC_TYPE type= NPC_TYPE::ATTACK;//
     vector<Vector3> PatrolPos;// 순찰지
@@ -277,7 +277,8 @@ private:
 
     bool isTracking = false;
     float wateTime = 0;
-
+    float ErrorCheckTime = 0.f;
+    bool bErrorCheck = false;
 
     RayBuffer* rayBuffer;
     StructuredBuffer* structuredBuffer;

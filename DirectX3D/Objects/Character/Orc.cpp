@@ -1,4 +1,5 @@
 #include "Framework.h"
+ 
 Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     :transform(transform), instancing(instancing), index(index)
 {
@@ -117,7 +118,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     rangeBar->SetAlpha(0.5f);
 
     rangeBar->Rot() = { XMConvertToRadians(90.f),0,XMConvertToRadians(-90.f) };
-    rangeBar->Pos() = { -15.f,2.f,-1000.f };
+    rangeBar->Pos() = { -15.f,2.f,-650.f };
 
     particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
     particleHit->Stop();
@@ -1408,7 +1409,9 @@ void Orc::Detection()
         }
     }
     else {
-
+        if (ErrorCheckTime >= 6.f) {
+            DetectionStartTime = DELTA * 0.5f;
+        }
         if (DetectionStartTime > 0.f) {
             DetectionStartTime -= DELTA * 0.5f;
             if (bFind) {
@@ -1449,6 +1452,13 @@ void Orc::Detection()
                 SetState(RUN);
             returntoPatrol = false;
         }
+        if (bFind&&!bDetection) {
+            ErrorCheckTime += DELTA;
+        }
+        else {
+            ErrorCheckTime = 0.f;
+        }
+
     }
 }
 
@@ -1547,12 +1557,12 @@ void Orc::RangeCheck()
 
     if (m_uiRangeCheck % 2 == 0) {
         transform->Rot().y += DELTA*1.5f;
-        Basedegree += DELTA * 1.5f;
+        Basedegree +=XMConvertToDegrees( DELTA * 1.5f);
        
     }
     else {
         transform->Rot().y -= DELTA * 1.5f;
-        Basedegree -= DELTA * 1.5f;
+        Basedegree -= XMConvertToDegrees(DELTA * 1.5f);
 
     }
 

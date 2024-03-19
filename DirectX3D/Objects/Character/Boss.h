@@ -137,7 +137,7 @@ private:
 
     vector<Vector3> PatrolPos; //보스 왔다갔다 위치.
     UINT curPatrol = 0;
-
+  
     bool bWait = false;
     float WaitTime = 0.f;
 
