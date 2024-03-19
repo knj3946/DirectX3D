@@ -117,7 +117,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     rangeBar->SetAlpha(0.5f);
 
     rangeBar->Rot() = { XMConvertToRadians(90.f),0,XMConvertToRadians(-90.f) };
-    rangeBar->Pos() = { -15.f,2.f,-650.f };
+    rangeBar->Pos() = { -15.f,2.f,-1000.f };
 
     particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
     particleHit->Stop();
@@ -274,14 +274,20 @@ void Orc::SetSRT(Vector3 scale, Vector3 rot, Vector3 pos)
 
 void Orc::GUIRender()
 {
+    ImGui::Text("curState : %d", curState);
+
+    ImGui::Text("bFind : %d", bFind);
+    ImGui::Text("bDetection : %d", bDetection);
+    ImGui::Text("isTracking : %d", isTracking);
+    ImGui::Text("path.empty() : %d", path.empty());
+    ImGui::Text("missTargetTrigger : %d", missTargetTrigger);
+    ImGui::Text("NPC_BehaviorState : %d", behaviorstate);
+
     ImGui::Text("OrcRunVolume : %f", lastRunVolume);
     ImGui::Text("OrcWalkVolume : %f", lastWalkVolume);
     ImGui::Text("OrcHitVolume : %f",lastVolume);
     ImGui::Text("earCal : %d", bSound);
     ImGui::Text("lastDist : %f", lastDist);
-
-    ImGui::Text("curState : %d", curState);
-
 
     //ImGui::SliderFloat("OrcMoveSound", &volume, 0, 10);
 
@@ -1324,6 +1330,7 @@ void Orc::CalculateEyeSight()
 
 void Orc::CalculateEarSight()
 {
+    SoundPositionCheck(); //소리가 들렸다면 소리의 위치 확인하는 함수
     if (behaviorstate != NPC_BehaviorState::IDLE)return;
     Vector3 pos;
     float volume = -1.f;
@@ -1365,7 +1372,7 @@ void Orc::CalculateEarSight()
     }
     
 
-    SoundPositionCheck(); //소리가 들렸다면 소리의 위치 확인하는 함수
+   
 }
 
 void Orc::Detection()
@@ -1374,6 +1381,27 @@ void Orc::Detection()
     {
         if (!bFind)
         {
+            if (behaviorstate == NPC_BehaviorState::SOUNDCHECK) {
+                DetectionStartTime = DetectionEndTime;
+                rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
+
+                if (DetectionEndTime <= DetectionStartTime) {
+                    if (bFind)return;
+                    bFind = true;
+                    isTracking = true;
+                    Float4 pos;
+                    behaviorstate = NPC_BehaviorState::DETECT;
+                    pos.x = transform->GlobalPos().x;
+                    pos.y = transform->GlobalPos().y;
+                    pos.z = transform->GlobalPos().z;
+                    pos.w = informrange;
+                    MonsterManager::Get()->PushPosition(pos);
+                    MonsterManager::Get()->CalculateDistance();
+                    if (curState == IDLE)
+                        SetState(RUN);
+                    returntoPatrol = false;
+                }
+            }
             float value = eyeSightRange / DetectionRange;
 
             DetectionStartTime += DELTA * value;
@@ -1383,8 +1411,13 @@ void Orc::Detection()
 
         if (DetectionStartTime > 0.f) {
             DetectionStartTime -= DELTA * 0.5f;
+            if (bFind) {
+                if (DetectionStartTime <= DELTA * 0.5f) {
+                    DetectionStartTime = 0.f;
+                    bFind = false;
+                }
 
-
+            }
             if (DetectionStartTime <= 0.f) {
                     DetectionStartTime = 0.f;
                     path.clear();
@@ -1484,53 +1517,44 @@ void Orc::RangeCheck()
     float curdegree = XMConvertToDegrees(transform->Rot().y);//
     if (0 == m_uiRangeCheck)
     {
-        float vlaue = rangeDegree + 45.f;
-        if (vlaue > 180.f) {
-            vlaue -= 180.f;
-            vlaue = -180.f + vlaue;
-
-        }
-        if (vlaue < curdegree) {// 플레이어를 놓친 후 각도에서 왼쪽으로 45 넘을시
+     
+        if (Basedegree >=45.f) {// 플레이어를 놓친 후 각도에서 왼쪽으로 45 넘을시
             m_uiRangeCheck++;
+            Basedegree = 0.f;
         }
     }
     else if (1 == m_uiRangeCheck)
     {
 
-        float vlaue = rangeDegree - 45.f;
+       
 
-        if (vlaue < -180.f) {
-            vlaue += 180.f;
-            vlaue = 180.f + vlaue;
-
-        }
-
-
-        if (vlaue > curdegree) {// 플레이어를 놓친 후 각도에서 왼쪽으로 45 넘을시
+        if (Basedegree <= -90.f) {// 플레이어를 놓친 후 각도에서 왼쪽으로 45 넘을시
             m_uiRangeCheck++;
+            Basedegree = 0.f;
         }
     }
     else if (2 == m_uiRangeCheck) //원래보고있던 각도로 복귀
     {
-        float vlaue = rangeDegree;
-        if (vlaue > 180.f) {
-            vlaue -= 180.f;
-            vlaue = -180.f + vlaue;
-
-        }
-        if (vlaue < curdegree) {
+  
+        if (Basedegree >=45.f) {
             m_uiRangeCheck++;
+            Basedegree = 0.f;
         }
+    
     }
 
     
 
     if (m_uiRangeCheck % 2 == 0) {
         transform->Rot().y += DELTA*1.5f;
+        Basedegree += DELTA * 1.5f;
+       
     }
-    else
-        transform->Rot().y -= DELTA*1.5f;
-    
+    else {
+        transform->Rot().y -= DELTA * 1.5f;
+        Basedegree -= DELTA * 1.5f;
+
+    }
 
     if (m_uiRangeCheck == 3)
     {

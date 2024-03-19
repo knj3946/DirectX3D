@@ -258,6 +258,7 @@
     <ClInclude Include="Scenes\TestNpcScene.h" />
     <ClInclude Include="Objects\Video\VideoPlayer.h" />
     <ClInclude Include="Framework\Render\VideoTexture.h" />
+    <ClInclude Include="Scenes\TerrainScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scenes\EndingCreditScene.cpp" />
@@ -364,6 +365,7 @@
     <ClCompile Include="Manager\SoundManager.cpp" />
     <ClCompile Include="Objects\Video\VideoPlayer.cpp" />
     <ClCompile Include="Framework\Render\VideoTexture.cpp" />
+    <ClCompile Include="Scenes\TerrainScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX3D.rc" />

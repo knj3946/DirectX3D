@@ -313,6 +313,7 @@ void MonsterManager::Blocking(Collider* collider)
             }
         }
     }
+    
     {
         //º¸½º
         if (collider->Role() == Collider::Collider_Role::BLOCK)
@@ -372,6 +373,7 @@ void MonsterManager::Blocking(Collider* collider)
         }
 
     }
+    
     
 }
 

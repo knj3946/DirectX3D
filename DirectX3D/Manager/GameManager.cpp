@@ -8,6 +8,7 @@
 #include "Scenes/ShadowScene.h"
 #include "Scenes/OnlyBossScene.h"
 #include "Scenes/EndingCreditScene.h"
+#include "Scenes/TerrainScene.h"
 
 bool GameManager::restartFlag = false;
 
@@ -45,9 +46,9 @@ void GameManager::Render()
     Environment::Get()->PostSet();
     SceneManager::Get()->PostRender();
 
-   //ImGui_ImplDX11_NewFrame();
-   //ImGui_ImplWin32_NewFrame();
-   //ImGui::NewFrame();
+   ImGui_ImplDX11_NewFrame();
+   ImGui_ImplWin32_NewFrame();
+   ImGui::NewFrame();
 
     string fps = "FPS : " + to_string(Timer::Get()->GetFPS());
     Font::Get()->RenderText(fps, { 100, WIN_HEIGHT - 10 });
@@ -56,14 +57,14 @@ void GameManager::Render()
 
     if (isActive)
     {
-        //ImGui::Begin("Inspector", &isActive);
-        //Environment::Get()->GUIRender();
-        //SceneManager::Get()->GUIRender();
-        //ImGui::End();
+        ImGui::Begin("Inspector", &isActive);
+        Environment::Get()->GUIRender();
+        SceneManager::Get()->GUIRender();
+        ImGui::End();
     }
  
-    //ImGui::Render();
-    //ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    ImGui::Render();
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     Font::Get()->GetDC()->EndDraw();
 
@@ -90,6 +91,7 @@ void GameManager::Start()
     //SceneManager::Get()->Create("Shadow", new ShadowScene());
     //SceneManager::Get()->Create("OnlyBoss", new OnlyBossScene());
 //    SceneManager::Get()->Create("EndingCredit", new EndingCreditScene());
+    //SceneManager::Get()->Create("Terrain", new TerrainScene());
 
     //SceneManager::Get()->Add("Grid");
 
@@ -103,6 +105,7 @@ void GameManager::Start()
     //SceneManager::Get()->Add("Shadow");
     //SceneManager::Get()->Add("OnlyBoss");
    // SceneManager::Get()->Add("EndingCredit");
+    //SceneManager::Get()->Add("Terrain");
 }
 
 void GameManager::Create()
@@ -123,11 +126,11 @@ void GameManager::Create()
 
     Texture::Add(L"Textures/Color/White.png");
 
-   //ImGui::CreateContext();
-   //ImGui::StyleColorsDark();
+   ImGui::CreateContext();
+   ImGui::StyleColorsDark();
  
-   //ImGui_ImplWin32_Init(hWnd);
-   //ImGui_ImplDX11_Init(DEVICE, DC);
+   ImGui_ImplWin32_Init(hWnd);
+   ImGui_ImplDX11_Init(DEVICE, DC);
 
     srand((unsigned int)time(NULL));
 
@@ -148,10 +151,10 @@ void GameManager::Delete()
     Font::Delete();
     //Audio::Delete();
 
-   //ImGui_ImplDX11_Shutdown();
-   //ImGui_ImplWin32_Shutdown();
+   ImGui_ImplDX11_Shutdown();
+   ImGui_ImplWin32_Shutdown();
   
 
-   //ImGui::DestroyContext();
+   ImGui::DestroyContext();
    VideoTexture::destroyAPI();
 }

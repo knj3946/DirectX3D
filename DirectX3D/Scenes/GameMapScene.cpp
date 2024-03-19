@@ -208,6 +208,11 @@ void GameMapScene::Render()
 		{
 			cm->Render();
 		}
+		bc1->Render();
+		bc2->Render();
+
+		FOR(6)
+			HeightCollider[i]->Render();
 
 		player->Render();
 		MonsterManager::Get()->Render();
@@ -265,7 +270,7 @@ void GameMapScene::GUIRender()
 		}
 		*/
 
-		//MonsterManager::Get()->GUIRender();
+		MonsterManager::Get()->GUIRender();
 		//KunaiManager::Get()->GUIRender();
 
 		//Timer::Get()->GUIRender();
@@ -403,8 +408,8 @@ void GameMapScene::FirstLoading()
 			colliderModels.push_back(cm);
 		}
 
-		BoxCollider* bc1 = new BoxCollider;
-		BoxCollider* bc2 = new BoxCollider;
+		bc1 = new BoxCollider;
+		bc2 = new BoxCollider;
 		bc1->Pos() = { 164.4f,7.5f,168.4f };
 		bc2->Pos() = { 164.4f,7.5f,214.8f };
 		bc1->Scale() = { 5.f,15.f,27.f };
@@ -433,7 +438,7 @@ void GameMapScene::FirstLoading()
 		HeightCollider[3]->Pos() = { 13.7f,25.f, 128.f };
 		HeightCollider[3]->Scale() = { 30.f,50.f,256.f };
 		HeightCollider[4]->Pos() = { 128.f,15.f,129.f };
-		HeightCollider[4]->Rot() = { 0.f,21.f,0.f };
+		HeightCollider[4]->Rot() = { 0.f,XMConvertToRadians(21),0.f };
 		HeightCollider[4]->Scale() = { 14.7f,22.4f,59.4f };
 		HeightCollider[5]->Pos() = { 183.f,15.f, 152.7f };
 		HeightCollider[5]->Rot() = { 0.f,0.f,0.f };
