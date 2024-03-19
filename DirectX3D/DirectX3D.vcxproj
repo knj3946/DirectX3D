@@ -144,6 +144,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Manager\SoundManager.h" />
     <ClInclude Include="Scenes\EndingCreditScene.h" />
     <ClInclude Include="Framework\Utilities\Format.h" />
     <ClInclude Include="Framework\Model\ObjInfo.h" />

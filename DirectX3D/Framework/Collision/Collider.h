@@ -39,7 +39,9 @@ public:
     enum Collider_Special {
         NONE,
         TYPE_Z_OVER, //Z축기준 콜라이더 포지션보다 큰 부분에서만 등반 가능
-        TYPE_Z_UNDER //Z축기준 콜라이더 포지션보다 작은 부분에서만 등반 가능
+        TYPE_Z_UNDER, //Z축기준 콜라이더 포지션보다 작은 부분에서만 등반 가능
+        TYPE_X_OVER,
+        TYPE_X_UNDER
     };
 
     const float PUSH_SPEED = 5.0f;

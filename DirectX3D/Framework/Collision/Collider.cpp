@@ -166,6 +166,12 @@ bool Collider::IsTrustedRelation(Vector3 playPos)
             }
             break;
         }   
+        case TYPE_X_UNDER:
+            if (GlobalPos().x > playPos.x)
+            {
+                r = true;
+            }
+            break;
         default:
             r = false;
     }

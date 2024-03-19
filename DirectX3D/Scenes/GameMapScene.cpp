@@ -302,7 +302,7 @@ void GameMapScene::FirstLoading()
 		terrain->GetMaterial()->SetDiffuseMap(L"Textures/Landscape/Sand.png");
 		terrain->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
 		terrain->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
-		terrain->SetHeightMap(L"Textures/HeightMaps/SamepleHeightMap02.png");
+		terrain->SetHeightMap(L"Textures/HeightMaps/SamepleHeightMap04.png");
 		terrain->GetMaterial()->SetShader(L"Light/Shadow.hlsl");
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(25.f);
@@ -380,7 +380,7 @@ void GameMapScene::FirstLoading()
 			string mTag = "model7";
 			Vector3 mScale = { 3,3,3 };
 			Vector3 mRot = { 0,0,0 };
-			Vector3 mPos = { 203.4f,9.5f,185.1f };
+			Vector3 mPos = { 205.4f,12.5f,185.1f };
 
 			ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 			colliderModels.push_back(cm);
@@ -489,8 +489,8 @@ void GameMapScene::FirstLoading()
 		//MonsterManager::Get()->SetPatrolPos(0, Vector3(150.f, 0.f, 210.f));
 		//MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185));
 		//MonsterManager::Get()->SetPatrolPos(1, Vector3(50.f, 0.f, 185.f));
-		MonsterManager::Get()->GetOrc(0)->SetSpeed(8);
-		MonsterManager::Get()->GetOrc(1)->SetSpeed(6);
+		//MonsterManager::Get()->GetOrc(0)->SetSpeed(8);
+		//MonsterManager::Get()->GetOrc(1)->SetSpeed(6);
 		//MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(85, 0, 120));
 		//MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 120.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 70.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(85.f, 0.f, 70.f));
 		//MonsterManager::Get()->SetOrcSRT(3, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(62, 0, 40));

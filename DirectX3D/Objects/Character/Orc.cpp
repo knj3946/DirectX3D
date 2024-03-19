@@ -870,10 +870,14 @@ void Orc::Move()
     {
         // 가야할 곳이 있다
      
-        if(behaviorstate!=NPC_BehaviorState::SOUNDCHECK&&!bSound)
+        if(behaviorstate!=NPC_BehaviorState::SOUNDCHECK
+            //&&!bSound
+            )
             SetState(RUN);  // 움직이기 + 달리는 동작 실행
         else
             SetState(WALK);
+
+
         //벡터로 들어온 경로를 하나씩 찾아가면서 움직이기
 
         Vector3 dest = path.back(); // 나에게 이르는 경로의 마지막

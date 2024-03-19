@@ -7,7 +7,7 @@ TerrainScene::TerrainScene()
 	terrain->GetMaterial()->SetDiffuseMap(L"Textures/Landscape/Sand.png");
 	terrain->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
 	terrain->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
-	terrain->SetHeightMap(L"Textures/HeightMaps/SamepleHeightMap02.png");
+	terrain->SetHeightMap(L"Textures/HeightMaps/SamepleHeightMap04.png");
 	terrain->GetMaterial()->SetShader(L"Light/Shadow.hlsl");
 
 	FOR(6)
@@ -40,7 +40,7 @@ TerrainScene::~TerrainScene()
 
 void TerrainScene::Update()
 {
-	terrain->UpdateWorld();
+	terrain->Update();
 }
 
 void TerrainScene::PreRender()
@@ -60,4 +60,5 @@ void TerrainScene::PostRender()
 
 void TerrainScene::GUIRender()
 {
+	terrain->GUIRender();
 }
