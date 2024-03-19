@@ -77,19 +77,19 @@ void InteractManager::Climb(Collider* col)
         }
         case 1:
         {
-            Vector3 tempv = col->Up();
+            Vector3 tempv = col->Forward();
             Val = Dot(v2m1, tempv);
             break;
         }
         case 2:
         {
-            Vector3 tempv = col->Forward();
+            Vector3 tempv = col->Up(); //콜라이더 로컬좌표는 z가 위쪽이다
             Val = Dot(v2m1, tempv);
             break;
         }
         }
 
-        if (i != 1)
+        if (i != 2) //콜라이더 로컬좌표는 z가 위쪽이다
         {
             if (abs(Val) - abs(halfSize[i]) > maxValue)
             {
