@@ -14,7 +14,7 @@ public:
 	float GetDamaged() { return damage; }
 private:
 	CapsuleCollider* collider;
-	float damage = 100.0f;
+	float damage = 20.0f;
 
 	class Trail* trail; // 궤적 파티클
 	Transform* startEdge; // 궤적이 시작될 곳

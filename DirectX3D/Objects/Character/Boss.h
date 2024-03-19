@@ -84,8 +84,8 @@ private:
     float moveSpeed = 25;
     float runSpeed = 30;
     float walkSpeed = 10;
-    float curHP = 20;
-    float maxHP = 20;
+    float curHP = 200;
+    float maxHP = 200;
     float destHP;
     Transform* leftHand;
     CapsuleCollider* leftCollider;
