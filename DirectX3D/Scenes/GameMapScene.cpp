@@ -181,8 +181,8 @@ void GameMapScene::PreRender()
 	{
 		shadow->SetRenderTarget();
 		player->SetShader(L"Light/DepthMap.hlsl");
-		player->Render();
-		MonsterManager::Get()->Render(true);
+		//player->Render(); // 그림자 비활성화
+		//MonsterManager::Get()->Render(true); // 그림자 비활성화
 	}
 
 	if (MenuManager::Get()->GetEndFlag())
@@ -208,12 +208,13 @@ void GameMapScene::Render()
 		{
 			cm->Render();
 		}
-		bc1->Render();
-		bc2->Render();
+		//bc1->Render();
+		//bc2->Render();
 
+		/*
 		FOR(6)
 			HeightCollider[i]->Render();
-
+		*/
 		player->Render();
 		MonsterManager::Get()->Render();
 		KunaiManager::Get()->Render();
@@ -270,7 +271,7 @@ void GameMapScene::GUIRender()
 		}
 		*/
 
-		MonsterManager::Get()->GUIRender();
+		//MonsterManager::Get()->GUIRender();
 		//KunaiManager::Get()->GUIRender();
 
 		//Timer::Get()->GUIRender();
@@ -282,6 +283,8 @@ void GameMapScene::FirstLoading()
 {
 	if (MenuManager::Get()->GetLoadingSequence() == 0)
 	{
+		ShowCursor(false);
+
 		skyBox = new SkyBox(L"Textures/Landscape/BlueSky.dds");
 
 		FOR(2)

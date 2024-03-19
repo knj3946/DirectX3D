@@ -212,9 +212,9 @@ void Orc::Update()
 
 void Orc::Render()
 {
-    collider->Render();
-    leftWeaponCollider->Render();
-    rightWeaponCollider->Render();
+    //collider->Render();
+    //leftWeaponCollider->Render();
+    //rightWeaponCollider->Render();
     hpBar->Render();
     if(behaviorstate != NPC_BehaviorState::DETECT&& !isDying) // Á×À¸¸é ¹Ù·Î ·»´õ¾ÈÇÏ°Ô
         rangeBar->Render();

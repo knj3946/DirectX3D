@@ -40,7 +40,7 @@ void ColliderModel::Render()
 
     for (Collider* collider : colliders)
     {
-        collider->Render();
+        //collider->Render();
     }
 }
 
