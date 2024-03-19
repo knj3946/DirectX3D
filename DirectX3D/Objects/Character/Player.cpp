@@ -1110,7 +1110,7 @@ void Player::Walking()
 
 void Player::Jump()
 {
-    if(jumpVel == 0.0f)
+    if(Pos().y == heightLevel)
         jumpVel = force1;
 }
 

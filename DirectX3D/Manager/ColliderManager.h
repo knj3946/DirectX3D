@@ -34,6 +34,7 @@ public:
     void PushPlayer();
     void SetCameraPos();
     void SetHeight();
+    bool IsOnBlock() { return onBlock != nullptr; }
 
     void Render();
     void PostRender();
