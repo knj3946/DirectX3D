@@ -1343,7 +1343,7 @@ void Orc::CalculateEarSight()
 
     // 현재 시프트 누르면 이동속도를 낮춘다. 
     // 나중에 느리게 걷기 사운드를 추가한다면 변경하기
-    if ((PLAYERSOUND()->IsPlaySound("Player_Move") && ColliderManager::Get()->GetPlayer()->GetMoveSpeed() > 40)
+    if ((PLAYERSOUND()->IsPlaySound("Player_Move") && ColliderManager::Get()->GetPlayer()->GetMoveSpeed() > 20)
         || (PLAYERSOUND()->IsPlaySound("Player_Land"))) {
         
         pos.x = target->Pos().x;
