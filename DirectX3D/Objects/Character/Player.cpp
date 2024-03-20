@@ -180,9 +180,9 @@ Player::Player()
     GetClip(DAGGER3)->SetEvent(bind(&Player::SetDaggerAnim, this), 0.15f);
 
 
-    GetClip(DAGGER1)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), false), 0.3f); //콜라이더 꺼지는 시점 설정
-    GetClip(DAGGER2)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), false), 0.45f); //콜라이더 꺼지는 시점 설정
-    GetClip(DAGGER3)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), false), 0.35f); //콜라이더 꺼지는 시점 설정
+    GetClip(DAGGER1)->SetEvent(bind(&Dagger::SetInteraction, dagger, false), 0.3f); //콜라이더 꺼지는 시점 설정
+    GetClip(DAGGER2)->SetEvent(bind(&Dagger::SetInteraction, dagger, false), 0.45f); //콜라이더 꺼지는 시점 설정
+    GetClip(DAGGER3)->SetEvent(bind(&Dagger::SetInteraction, dagger, false), 0.35f); //콜라이더 꺼지는 시점 설정
 
 
 
@@ -491,11 +491,11 @@ void Player::GUIRender()
 {
     ImGui::Text("playerArrowCount : %d", ArrowManager::Get()->GetPlayerArrowCount());
 
-    CAM->GUIRender();
-
     ImGui::Text("curState : %d", curState);
     ImGui::Text("jumpVel : %lf", jumpVel);
-    ImGui::Text("jumpVel : %lf %lf %lf", Pos().x, Pos().y, Pos().z);
+    ImGui::Text("Pos : %lf %lf %lf", Pos().x, Pos().y, Pos().z);
+    
+    dagger->GUIRender();
 }
 
 void Player::TextRender()
@@ -838,13 +838,13 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             {
                 stateInfo->isCloaking = true;
                 PLAYERSOUND()->Play("Player_Hide", hideVolume * VOLUME);
-
-                Vector3 particlePos = Pos();
-                particlePos.y += 3.2f;
-                cloakParticle->Play(particlePos);
             }
             else
                 stateInfo->isCloaking = false;
+
+            Vector3 particlePos = Pos();
+            particlePos.y += 3.2f;
+            cloakParticle->Play(particlePos);
         }
     }
 
@@ -1298,7 +1298,7 @@ bool Player::InTheAir() {
 
 void Player::SetDaggerAnim()
 {
-    dagger->GetCollider()->SetActive(true);
+    dagger->SetTrailActive(true);
     PLAYERSOUND()->Play("Player_Attack", attackVolume * VOLUME);
 }
 
@@ -1603,11 +1603,11 @@ void Player::SetBowAnim()
 
 void Player::SetIdle()
 {
-    SetState(IDLE);
-    dohitanimation = false;
-
     if (curState == JUMP3)
         jumpparticle->Play(Pos());
+    
+    SetState(IDLE);
+    dohitanimation = false;;
 }
 
 void Player::SetCameraPos()
