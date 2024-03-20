@@ -12,9 +12,19 @@ public:
 
 	CapsuleCollider* GetCollider() { return collider; }
 	float GetDamaged() { return damage; }
+
+	void SetTrailActive(bool val) { trail->Init();  trail->SetActive(val); }
+
+	void SetInteraction(bool val) { collider->SetActive(val);  trail->Init();  trail->SetActive(val); }
+
 private:
 	CapsuleCollider* collider;
-	float damage = 50.0f; // 데미지 테스트를 위해 50으로
+
+#if _DEBUG
+	float damage = 100.0f;
+#else
+	float damage = 20.0f;
+#endif
 
 	class Trail* trail; // 궤적 파티클
 	Transform* startEdge; // 궤적이 시작될 곳

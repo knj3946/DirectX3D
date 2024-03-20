@@ -259,9 +259,10 @@ void GameMapScene::GUIRender()
 
 	if (MenuManager::Get()->GetSelectGameMenu() == 1)
 	{
+		
 		//ImGui::Text("volume : %f", VOLUME);
 		//ColliderManager::Get()->GuiRender();
-		//player->GUIRender();
+		player->GUIRender();
 		/*
 		for (ColliderModel* cm : colliderModels)
 		{
@@ -546,6 +547,8 @@ void GameMapScene::FirstLoading()
 
 		MonsterManager::Get()->SetOrcGround();
 
+
+
 		//리소스 불러오기 용으로 한번 호출
 		skyBox->Render();
 		terrain->Render();
@@ -554,7 +557,8 @@ void GameMapScene::FirstLoading()
 		{
 			cm->Render();
 		}
-
+		FOR(6)
+			HeightCollider[i]->Render();
 		player->PreRender();
 		player->Render();
 		MonsterManager::Get()->Render();

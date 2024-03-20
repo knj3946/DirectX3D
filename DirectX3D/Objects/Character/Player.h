@@ -297,6 +297,7 @@ private:
     bool isRayToDetectTarget = false;
 
     ParticleSystem* jumpparticle;
+    ParticleSystem* cloakParticle;
 
     //투명화
     StateInfo* stateInfo;
@@ -327,5 +328,6 @@ private:
 
     float fallingT = 0.0f;
 
+    bool isSlowMove = false;
 public: //임시
 };

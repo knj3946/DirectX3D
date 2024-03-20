@@ -42,7 +42,7 @@ Boss::Boss()
 	Roarparticle->GetQuad()->Scale() = { 25.f,36.f,42.f };
 	for (int i = 0; i < 3; ++i) {
 		Runparticle[i] = new ParticleSystem("TextData/Particles/Smoke.fx");
-		
+		Runparticle[i]->SetBillbaord();
 	}
 	leftHand = new Transform;
 	leftCollider = new CapsuleCollider(10, 10);
@@ -61,7 +61,7 @@ Boss::Boss()
 
 
 	SetEvent(ATTACK, bind(&Boss::StartAttack, this), 0.f);
-	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.75f);
+	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.9f);
 	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, true), 0.5f); //콜라이더 켜는 시점 설정
 	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, false), 0.78f); //콜라이더 꺼지는 시점 설정
 	
@@ -98,7 +98,7 @@ Boss::Boss()
 	SoundManager::Get()->BossCreate(transform);
 
 	hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 50, 50, 5, 2, false);
-	hiteffect->Stop();
+	//hiteffect->Stop();
 	leftCollider->SetActive(false);
 	FOR(2) blendState[i] = new BlendState();
 	FOR(2) depthState[i] = new DepthStencilState();
@@ -288,15 +288,13 @@ void Boss::CalculateEyeSight()
 			}
 		}
 
-		if (ColliderManager::Get()->CompareDistanceObstacleandPlayer(ray)) //리턴 값 false면 가려서 안보이는 것
+		if (!ColliderManager::Get()->CompareDistanceObstacleandPlayer(ray)) //리턴 값 false면 가려서 안보이는 것
 		{
 
 			bDetection = false;
 			return;
 		}
 
-		// 추후 오크매니저에서 씬에 깔린 모든 벽들 체크해서 ray충돌페크
-		// behaviorstate = NPC_BehaviorState::DETECT;
 		bDetection = true;
 	}
 	else
@@ -486,8 +484,8 @@ void Boss::Roar()
 	BOSSSOUND()->Play("Boss_Roar", 1.f * VOLUME);
 	RoarCollider->SetActive(true);
 	Roarparticle->Play();
-	bRotate = true;
-	IsHit = false;
+	
+	isAttack = false;
 }
 
 
@@ -540,7 +538,7 @@ void Boss::Find()
 
 void Boss::Rotate()
 {
-	if (bRotate)return;
+	
 	 if (!path.empty()) {
 		Vector3 dest = path.back();
 
@@ -556,6 +554,18 @@ void Boss::Rotate()
 		dir = direction.GetNormalized();
 	//	transform->Rot().y = atan2(dir.x, dir.z) + XM_PI; // XY좌표 방향 + 전후반전(문워크 방지)
 	}
+	 if (curState == ROAR) {
+		
+		 return;
+	 }
+	 if (curState == ATTACK) {
+		 if (prevState == RUN) {
+			 prevState = ATTACK;
+
+		 }
+		 else
+			 return;
+	 }
 	transform->Rot().y = atan2(dir.x, dir.z) + XM_PI; // XY좌표 방향 + 전후반전(문워크 방지)
 
 	float value = XMConvertToDegrees(transform->Rot().y);
@@ -765,8 +775,9 @@ void Boss::EndAttack()
 	velocity = target->GlobalPos() - transform->GlobalPos();
 	totargetlength = velocity.Length();
 	moveSpeed = runSpeed;
-	bRotate = false;
+	
 	dir = velocity.GetNormalized();
+	prevState = RUN;
 	if (totargetlength > AttackRange) {
 		SetState(RUN);
 		bWait = false;
@@ -795,8 +806,8 @@ void Boss::EndHit()
 {
 	bWait = false;
 	SetState(RUN);
-	IsHit = false;
-	collider->SetActive(true);
+	isHit = false;
+//	collider->SetActive(true);
 }
 
 void Boss::EndDying()
@@ -827,8 +838,8 @@ void Boss::EndDying()
 void Boss::StartAttack()
 {
 	bWait = true;
-	bRotate = true;
-	IsHit = false;
+	
+	isAttack = false;
 }
 
 void Boss::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
@@ -873,8 +884,7 @@ void Boss::OnOutLineByRay(Ray ray)
 	}
 	instancing->SetOutLine(index, false);
 	outLine=false;
-	bRotate = false;
-
+	
 }
 
 
@@ -1074,7 +1084,7 @@ void Boss::SetPosY()
 void Boss::CollisionCheck()
 {
 	if (!leftCollider->Active() && !RoarCollider->Active())return;
-	if (IsHit)return;
+	if (isAttack)return;
 	Player* player = dynamic_cast<Player*>(target);
 	if (!player)return;
 	if (leftCollider->Active())
@@ -1085,7 +1095,7 @@ void Boss::CollisionCheck()
 			Vector3 pos = leftCollider->GetCollisionPoint();
 			player->SetHitEffectPos(pos);
 			player->Hit(attackdamage);
-			IsHit = true;
+			isAttack = true;
 		}
 
 	}
@@ -1093,7 +1103,7 @@ void Boss::CollisionCheck()
 		if (RoarCollider->IsCollision(player->GetCollider()))
 		{
 			player->Hit(Roardamage, true);
-			IsHit = true;
+			isAttack = true;
 		}
 	}
 		
@@ -1183,6 +1193,11 @@ void Boss::Hit(float damage, Vector3 collisionPos,bool _btrue)
 		//Audio::Get()->Play("hit", transform->Pos()); // 크기조절
 
 		destHP = (curHP - damage > 0) ? curHP - damage : 0;
+		
+		hiteffect->Play(InteractManager::Get()->GetPartilcePos()); // 해당위치에서 파티클 재생
+		InteractManager::Get()->SetParticlePos({});
+		
+
 		if (destHP <= 0)
 		{
 			isDying = true;
@@ -1193,11 +1208,7 @@ void Boss::Hit(float damage, Vector3 collisionPos,bool _btrue)
 		SetState(HIT);
 		isHit = true;
 		bWait = true;
-		if (_btrue)
-		{
-			hiteffect->Play(InteractManager::Get()->GetPartilcePos()); // 해당위치에서 파티클 재생
-			InteractManager::Get()->SetParticlePos({});
-		}
+	
 	}
 
 }

@@ -14,7 +14,7 @@ Player::Player()
     ClientToScreen(hWnd, &clientCenterPos);
     SetCursorPos(clientCenterPos.x, clientCenterPos.y);
 
-    collider = new CapsuleCollider(25.0f, 140);
+    collider = new CapsuleCollider(25.0f, 140.f);
     collider->SetParent(this);
     collider->Pos().y += 20;
 
@@ -180,9 +180,9 @@ Player::Player()
     GetClip(DAGGER3)->SetEvent(bind(&Player::SetDaggerAnim, this), 0.15f);
 
 
-    GetClip(DAGGER1)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), false), 0.3f); //콜라이더 꺼지는 시점 설정
-    GetClip(DAGGER2)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), false), 0.45f); //콜라이더 꺼지는 시점 설정
-    GetClip(DAGGER3)->SetEvent(bind(&Collider::SetActive, dagger->GetCollider(), false), 0.35f); //콜라이더 꺼지는 시점 설정
+    GetClip(DAGGER1)->SetEvent(bind(&Dagger::SetInteraction, dagger, false), 0.3f); //콜라이더 꺼지는 시점 설정
+    GetClip(DAGGER2)->SetEvent(bind(&Dagger::SetInteraction, dagger, false), 0.45f); //콜라이더 꺼지는 시점 설정
+    GetClip(DAGGER3)->SetEvent(bind(&Dagger::SetInteraction, dagger, false), 0.35f); //콜라이더 꺼지는 시점 설정
 
 
 
@@ -217,6 +217,7 @@ Player::Player()
     hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
     hiteffect->Stop();
     jumpparticle = new ParticleSystem("TextData/Particles/JumpSmoke.fx");
+    cloakParticle = new ParticleSystem("TextData/Particles/Smoke.fx");
 
     // 사운드 UI 관련
     settingBG = new Quad(Vector2(450, 200));
@@ -356,8 +357,16 @@ void Player::Update()
 
     if (collider->GetParent() == this && curState != CLIMBING3)
     {
-        collider->Pos() = { 0, 0, 0 };
-        collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
+        if (isSlowMove)
+        {
+            collider->Pos() = { 0, 0, 0 };
+            collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f + 7.f;
+        }
+        else
+        {
+            collider->Pos() = { 0, 0, 0 };
+            collider->Pos().y = collider->Height() * 0.5f * 33.3f + collider->Radius() * 33.3f;
+        }
         collider->UpdateWorld();
     }
     else if (curState == CLIMBING3)
@@ -407,6 +416,7 @@ void Player::Update()
 
     hiteffect->Update();
     jumpparticle->Update();
+    cloakParticle->Update();
     crosshair->UpdateWorld();
 
     CoolDown();
@@ -452,6 +462,7 @@ void Player::Render()
     //collider->Render();
     hiteffect->Render();
     jumpparticle->Render();
+    cloakParticle->Render();
 
     //leftFootCollider->Render();
     //rightFootCollider->Render();
@@ -488,11 +499,11 @@ void Player::GUIRender()
 {
     ImGui::Text("playerArrowCount : %d", ArrowManager::Get()->GetPlayerArrowCount());
 
-    CAM->GUIRender();
-
     ImGui::Text("curState : %d", curState);
     ImGui::Text("jumpVel : %lf", jumpVel);
-    ImGui::Text("jumpVel : %lf %lf %lf", Pos().x, Pos().y, Pos().z);
+    ImGui::Text("Pos : %lf %lf %lf", Pos().x, Pos().y, Pos().z);
+    
+    dagger->GUIRender();
 }
 
 void Player::TextRender()
@@ -838,6 +849,10 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             }
             else
                 stateInfo->isCloaking = false;
+
+            Vector3 particlePos = Pos();
+            particlePos.y += 3.2f;
+            cloakParticle->Play(particlePos);
         }
     }
 
@@ -928,6 +943,10 @@ void Player::Cloaking()
         if (stateInfo->possibleCloakingTime <= stateInfo->curCloakingTime)
         {
             stateInfo->isCloaking = false;
+
+            Vector3 particlePos = Pos();
+            particlePos.y += 3.2f;
+            cloakParticle->Play(particlePos);
             return;
         }
         stateInfo->curCloakingTime += DELTA;
@@ -1040,34 +1059,43 @@ void Player::Walking()
             PLAYERSOUND()->SetVolume("Player_Move", 0.4);
         }
     }*/
-    if (KEY_UP(VK_LSHIFT))
+    if (KEY_DOWN(VK_LSHIFT))
     {
-        if (PLAYERSOUND()->IsPlaySound("Player_Move"))
+        if (isSlowMove)
         {
-            PLAYERSOUND()->SetVolume("Player_Move", moveVolume * VOLUME);
+            if (PLAYERSOUND()->IsPlaySound("Player_Move"))
+            {
+                PLAYERSOUND()->SetVolume("Player_Move", moveVolume * VOLUME);
+            }
+
+            isSlowMove = false;
+            collider->SetHeight(140.f);
+            collider->UpdateWorld();
+        }
+        else
+        {
+            if (PLAYERSOUND()->IsPlaySound("Player_Move"))
+            {
+                PLAYERSOUND()->SetVolume("Player_Move", q_moveVolume * VOLUME);
+            }
+            isSlowMove = true;
+            collider->SetHeight(90.f);
+            collider->UpdateWorld();
         }
     }
 
-    if (!KEY_PRESS(VK_LSHIFT))// 그냥 걷기
+    if (isSlowMove)
     {
-        moveSpeed = moveSpeed1;
-        destPos = Pos() + direction * moveSpeed1 * DELTA * -1;
-
-
-    }
-
-    else// 조용히 걷기
-    {
-        if (PLAYERSOUND()->IsPlaySound("Player_Move"))
-        {
-            PLAYERSOUND()->SetVolume("Player_Move", q_moveVolume * VOLUME);
-        }
+        // 조용히 걷기
         moveSpeed = moveSpeed2;
         destPos = Pos() + direction * moveSpeed2 * DELTA * -1;
     }
-
-
-
+    else
+    {
+        // 그냥 걷기
+        moveSpeed = moveSpeed1;
+        destPos = Pos() + direction * moveSpeed1 * DELTA * -1;
+    }
 
     Vector3 PlayerSkyPos = destPos;
     PlayerSkyPos.y += 1000;
@@ -1093,7 +1121,7 @@ void Player::Walking()
             || destFeedBackPos.y - feedBackPos.y < 0.5f) // 바닥 올라가게 하기위해 추가함
         ) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????sad wad  
     {
-        if (!KEY_PRESS(VK_LSHIFT))
+        if (!isSlowMove)
             Pos() += direction * moveSpeed1 * DELTA * -1; // ??? ????
         else
             Pos() += direction * moveSpeed2 * DELTA * -1; // ??? ????
@@ -1232,9 +1260,6 @@ void Player::Targeting()
         boss->ActiveSpecialKey(Pos(), offset);
     }
 
-
-
-
     {
         ArrowManager::Get()->OnOutLineByRay(mouseRay);
         offset = (CAM->Right() * 1.5f) + (CAM->Up() * 3.f);
@@ -1290,7 +1315,7 @@ bool Player::InTheAir() {
 
 void Player::SetDaggerAnim()
 {
-    dagger->GetCollider()->SetActive(true);
+    dagger->SetTrailActive(true);
     PLAYERSOUND()->Play("Player_Attack", attackVolume * VOLUME);
 }
 
@@ -1513,7 +1538,7 @@ void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 �
             return;
 
 
-        if (KEY_PRESS(VK_LSHIFT)) {
+        if (isSlowMove) {
             if (velocity.z > 0.1f)
                 SetState(B_C_F);
             else if (velocity.z < -0.1f)
@@ -1553,7 +1578,7 @@ void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 �
             return;
         }
 
-        if (KEY_PRESS(VK_LSHIFT)) {
+        if (isSlowMove) {
             if (velocity.z > 0.1f)
                 SetState(B_C_F);
             else if (velocity.z < -0.1f)
@@ -1595,9 +1620,11 @@ void Player::SetBowAnim()
 
 void Player::SetIdle()
 {
+    if (curState == JUMP3)
+        jumpparticle->Play(Pos());
+    
     SetState(IDLE);
-    dohitanimation = false;
-    jumpparticle->Play(Pos());
+    dohitanimation = false;;
 }
 
 void Player::SetCameraPos()

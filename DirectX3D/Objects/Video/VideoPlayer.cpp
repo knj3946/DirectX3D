@@ -16,6 +16,8 @@ VideoPlayer::VideoPlayer(UINT width,UINT height)
 VideoPlayer::~VideoPlayer()
 {
 	delete quad;
+	FOR(2)
+		delete blendState[i];
 }
 
 void VideoPlayer::Update()

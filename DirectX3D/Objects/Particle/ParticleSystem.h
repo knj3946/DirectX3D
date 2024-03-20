@@ -85,6 +85,7 @@ public:
 	bool IsActive() { return quad->Active(); } // 쿼드의 활성화 여부에서 파티클의 활성화를 판단
 	Quad* GetQuad() { return quad; }
 	ParticleData GetData() { return data; }
+	void SetBillbaord() { data.isBillboard = true; }
 private:
 	void UpdatePhysical(); // 물리적 대상 = 정점 등을 업데이트
 	void UpdateColor(); // 색상 업데이트

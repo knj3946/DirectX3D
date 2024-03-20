@@ -1,6 +1,6 @@
 <Material Name="dagger_material">
     <Shader Vertex="" Pixel=""/>
-    <Texture Diffuse="Textures/Color/White.png" Specular="Textures/Color/White.png" Normal="Textures/Color/White.png"/>
+    <Texture Diffuse="Textures/Model/dagger/steeldagger_1024_AlbedoTransparency.png" Specular="Textures/Model/dagger/steeldagger_1024_MetallicSmoothness.png" Normal="Textures/Model/dagger/steeldagger_1024_Normal.png"/>
     <Property Shininess="20" HasNormalMap="0">
         <Diffuse R="0.80000001" G="0.80000001" B="0.80000001" A="1"/>
         <Specular R="0.2" G="0.2" B="0.2" A="1"/>

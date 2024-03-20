@@ -66,10 +66,11 @@ MonsterManager::~MonsterManager()
     }
     delete shadow;
     FOR(2) {
-       delete rasterizerState[i]  ;
-       delete     blendState[i]   ;
-       delete     depthState[i]   ;
+        delete rasterizerState[i];
+        delete     blendState[i];
+        delete     depthState[i];
     }
+
 }
 
 void MonsterManager::CreateOrc()
@@ -79,7 +80,7 @@ void MonsterManager::CreateOrc()
     transform->SetActive(false);
     Orc* orc = new Orc(transform, orcInstancing, orcIndex);
     orcInstancing->AddModelInfo(transform, orcIndex);
-
+  
     ColliderManager::Get()->PushCollision(ColliderManager::ORC, orc->GetCollider());
 
     orcInfo.orc = orc;
@@ -122,7 +123,7 @@ void MonsterManager::Update()
             MonsterManager::Get()->DieOrc(item.first);
     }
     b = check;
- 
+    /*
     for (const pair<int, OrcInfo>& item : orcs)
     {
         if (item.second.orc->IsFindTarget()) // 오크가 발견상태라면
@@ -141,7 +142,8 @@ void MonsterManager::Update()
             }
         }
     }
-     b = check;
+    */
+    b = check;
     orcInstancing->Update();
     vecDetectionPos.clear();
 
