@@ -155,7 +155,7 @@ private:
     bool MarkActiveTime = 0.f;
 
     Particle* hiteffect;
-    bool IsHit = false;// 플레이어를 가격했는지 체크
+    bool isAttack = false;// 플레이어를 가격했는지 체크
     float attackdamage = 20.f;
     float Roardamage = 40.f;
 
@@ -236,7 +236,7 @@ private:
 
     void ProcessHpBar();
 public:
-    bool GetIsHit() { return IsHit; }
+    bool GetIsAttack() { return IsAttack; }
     void Hit(float damage, Vector3 collisionPos,bool _btrue=true);
     bool GetIsDying() { return isDying; }
     void ActiveSpecialKey(Vector3 playPos, Vector3 offset);

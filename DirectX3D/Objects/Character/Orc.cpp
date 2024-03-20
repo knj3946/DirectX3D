@@ -1468,7 +1468,6 @@ void Orc::Detection()
     }
     rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
 
-    }
 }
 
 void Orc::SetRay(Vector3 _pos)

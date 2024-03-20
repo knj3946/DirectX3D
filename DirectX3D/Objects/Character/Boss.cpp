@@ -485,7 +485,7 @@ void Boss::Roar()
 	RoarCollider->SetActive(true);
 	Roarparticle->Play();
 	
-	IsHit = false;
+	isAttack = false;
 }
 
 
@@ -806,7 +806,7 @@ void Boss::EndHit()
 {
 	bWait = false;
 	SetState(RUN);
-	IsHit = false;
+	isHit = false;
 //	collider->SetActive(true);
 }
 
@@ -839,7 +839,7 @@ void Boss::StartAttack()
 {
 	bWait = true;
 	
-	IsHit = false;
+	isAttack = false;
 }
 
 void Boss::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
@@ -1080,7 +1080,7 @@ void Boss::SetPosY()
 void Boss::CollisionCheck()
 {
 	if (!leftCollider->Active() && !RoarCollider->Active())return;
-	if (IsHit)return;
+	if (isAttack)return;
 	Player* player = dynamic_cast<Player*>(target);
 	if (!player)return;
 	if (leftCollider->Active())
@@ -1091,7 +1091,7 @@ void Boss::CollisionCheck()
 			Vector3 pos = leftCollider->GetCollisionPoint();
 			player->SetHitEffectPos(pos);
 			player->Hit(attackdamage);
-			IsHit = true;
+			isAttack = true;
 		}
 
 	}
@@ -1099,7 +1099,7 @@ void Boss::CollisionCheck()
 		if (RoarCollider->IsCollision(player->GetCollider()))
 		{
 			player->Hit(Roardamage, true);
-			IsHit = true;
+			isAttack = true;
 		}
 	}
 		
