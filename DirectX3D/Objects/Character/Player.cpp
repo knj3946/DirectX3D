@@ -217,6 +217,7 @@ Player::Player()
     hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
     hiteffect->Stop();
     jumpparticle = new ParticleSystem("TextData/Particles/JumpSmoke.fx");
+    cloakParticle = new ParticleSystem("TextData/Particles/Smoke.fx");
 
     // 사운드 UI 관련
     settingBG = new Quad(Vector2(450, 200));
@@ -407,6 +408,7 @@ void Player::Update()
 
     hiteffect->Update();
     jumpparticle->Update();
+    cloakParticle->Update();
     crosshair->UpdateWorld();
 
     CoolDown();
@@ -452,6 +454,7 @@ void Player::Render()
     //collider->Render();
     hiteffect->Render();
     jumpparticle->Render();
+    cloakParticle->Render();
 
     //leftFootCollider->Render();
     //rightFootCollider->Render();
@@ -835,6 +838,10 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
             {
                 stateInfo->isCloaking = true;
                 PLAYERSOUND()->Play("Player_Hide", hideVolume * VOLUME);
+
+                Vector3 particlePos = Pos();
+                particlePos.y += 3.2f;
+                cloakParticle->Play(particlePos);
             }
             else
                 stateInfo->isCloaking = false;
@@ -928,6 +935,10 @@ void Player::Cloaking()
         if (stateInfo->possibleCloakingTime <= stateInfo->curCloakingTime)
         {
             stateInfo->isCloaking = false;
+
+            Vector3 particlePos = Pos();
+            particlePos.y += 3.2f;
+            cloakParticle->Play(particlePos);
             return;
         }
         stateInfo->curCloakingTime += DELTA;
@@ -1231,9 +1242,6 @@ void Player::Targeting()
         offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
         boss->ActiveSpecialKey(Pos(), offset);
     }
-
-
-
 
     {
         ArrowManager::Get()->OnOutLineByRay(mouseRay);
@@ -1597,7 +1605,9 @@ void Player::SetIdle()
 {
     SetState(IDLE);
     dohitanimation = false;
-    jumpparticle->Play(Pos());
+
+    if (curState == JUMP3)
+        jumpparticle->Play(Pos());
 }
 
 void Player::SetCameraPos()

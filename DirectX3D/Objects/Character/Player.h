@@ -297,6 +297,7 @@ private:
     bool isRayToDetectTarget = false;
 
     ParticleSystem* jumpparticle;
+    ParticleSystem* cloakParticle;
 
     //투명화
     StateInfo* stateInfo;
