@@ -71,7 +71,6 @@ void GameMapScene::Update()
 
 			MenuManager::Get()->SetFailFlag(false);
 			MenuManager::Get()->SetSelectFailMenu(0);
-
 		}
 		if (MenuManager::Get()->GetSelectFailMenu() == 2)
 		{
@@ -224,7 +223,6 @@ void GameMapScene::Render()
 		bow->Render();
 
 		//aStar->Render();
-
 	}
 }
 

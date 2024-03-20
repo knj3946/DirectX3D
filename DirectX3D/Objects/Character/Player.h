@@ -205,7 +205,7 @@ private:
     float moveSpeed1 = 30;
     float moveSpeed2 = 15;
     float rotSpeed = 0.3;
-    float deceleration = 10; //����
+    float deceleration = 20; //����
 
     float heightLevel = 0.0f;
     float ceilingHeight = 0.0f;
@@ -297,6 +297,7 @@ private:
     bool isRayToDetectTarget = false;
 
     ParticleSystem* jumpparticle;
+    ParticleSystem* cloakParticle;
 
     //투명화
     StateInfo* stateInfo;
@@ -309,8 +310,8 @@ private:
     const Vector3 aimStartPos = { -40.0f, -15.0f, 0.0f };
     Quad* crosshair;
     const float initSpeed = 20.0f;
-    const float maxSpeed = 800.0f;
-    const float chargetVal = 300.0f;
+    const float maxSpeed = 250.0f;
+    const float chargetVal = 100.0f;
     float chargingT = initSpeed;
 
     Transform* climbCam;

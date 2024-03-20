@@ -1,4 +1,4 @@
-    #include "Framework.h"
+#include "Framework.h"
 
 CapsuleCollider::CapsuleCollider(float radius, float height, UINT stackCount, UINT sliceCount)
     : radius(radius), height(height), stackCount(stackCount), sliceCount(sliceCount)
@@ -67,7 +67,7 @@ bool CapsuleCollider::IsRayCollision(IN Ray ray, OUT Contact* contact)
         //광원에서 캡슐의 위와 가깝냐 아래에 가깝냐 -> 해다 옆면 경계와 광원의 거리를 다시 구한 것
         b = Dot(rd, oc);
         c = Dot(oc, oc) - r * r;
-        
+
         h = b * b - c;
 
         if (h > 0) // 아래쪽(-) 벡터 비교 중인데 휴리스틱값은 +면...
@@ -91,7 +91,7 @@ bool CapsuleCollider::IsRayCollision(IN Ray ray, OUT Contact* contact)
 }
 
 bool CapsuleCollider::IsBoxCollision(BoxCollider* collider)
-{  
+{
     //구체 vs 박스처럼, 박스 입장에서 캡슐로 가기 위한 가장 가까운 접점 혹은 접점 후보를 찾는다
 
     //박스의 상황 기록
@@ -122,9 +122,9 @@ bool CapsuleCollider::IsBoxCollision(BoxCollider* collider)
 
 
     //이 접점 후보가 캡슐의 반지름 안에 들어와 있으면 충돌
+    return distance <= Radius();
 
     CollisionPoint = pointOnLine;
-    return distance <= Radius();
     return false;
 }
 
@@ -249,7 +249,7 @@ void CapsuleCollider::MakeMesh()
             // Y축 정점 높이에 추가 보정을 가한다 (= 구체를 위아래로 쪼갠다)
             if (vertex.pos.y > 0)
                 vertex.pos.y += height * 0.5f;
-            else if(vertex.pos.y < 0)
+            else if (vertex.pos.y < 0)
                 vertex.pos.y -= height * 0.5f;
 
             // 위아래로 쪼개진 구체의 정점을 정점 벡터에 담고...
