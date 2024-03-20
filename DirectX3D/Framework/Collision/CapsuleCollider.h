@@ -15,6 +15,9 @@ public:
     float Radius() { return radius * max(GlobalScale().x, max(GlobalScale().y, GlobalScale().z)); }
     float Height() { return height * GlobalScale().y; }
 
+    void SetHeight(float h);
+    void SetRadius(float r);
+
 private:
     virtual void MakeMesh() override;
 

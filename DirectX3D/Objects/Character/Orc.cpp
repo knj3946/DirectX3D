@@ -1438,24 +1438,7 @@ void Orc::Detection()
                     restorePos = {};
                 }
         }
-        rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
-
-        if (DetectionEndTime <= DetectionStartTime) {
-            if (bFind)return;
-            bFind = true;
-            isTracking = true;
-            Float4 pos;
-            behaviorstate = NPC_BehaviorState::DETECT;
-            pos.x = transform->GlobalPos().x;
-            pos.y = transform->GlobalPos().y;
-            pos.z = transform->GlobalPos().z;
-            pos.w = informrange;
-            MonsterManager::Get()->PushPosition(pos);
-            MonsterManager::Get()->CalculateDistance();
-            if (curState == IDLE)
-                SetState(RUN);
-            returntoPatrol = false;
-        }
+        
         if (bFind&&!bDetection) {
             ErrorCheckTime += DELTA;
         }
@@ -1464,6 +1447,25 @@ void Orc::Detection()
         }
 
     }
+
+    if (DetectionEndTime <= DetectionStartTime) {
+        if (bFind)return;
+        bFind = true;
+        isTracking = true;
+        Float4 pos;
+        behaviorstate = NPC_BehaviorState::DETECT;
+        pos.x = transform->GlobalPos().x;
+        pos.y = transform->GlobalPos().y;
+        pos.z = transform->GlobalPos().z;
+        pos.w = informrange;
+        MonsterManager::Get()->PushPosition(pos);
+        MonsterManager::Get()->CalculateDistance();
+        if (curState == IDLE)
+            SetState(RUN);
+        returntoPatrol = false;
+    }
+
+    rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
 }
 
 void Orc::SetRay(Vector3 _pos)
