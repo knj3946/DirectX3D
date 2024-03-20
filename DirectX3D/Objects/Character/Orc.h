@@ -315,4 +315,12 @@ private:
     bool battacktarget = false;
     bool returntoPatrol = false;
     Vector3 restorePos;
+
+    Trail* weaponTrailL;
+    Transform* startEdgeTrailL; // 궤적이 시작될 곳
+    Transform* endEdgeTrailL;
+
+    Trail* weaponTrailR;
+    Transform* startEdgeTrailR; // 궤적이 시작될 곳
+    Transform* endEdgeTrailR;
 };

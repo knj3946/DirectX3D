@@ -1116,7 +1116,17 @@ void Player::Walking()
 
     float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
 
-    if (!isPushed &&
+
+    Vector3 calVec;
+
+    Ray terrainRay = Ray(Pos() - direction.GetNormalized(), { 0,-1,0 });
+    terrainRay.pos.y += 1000.0f;
+
+    TerainComputePicking(calVec, terrainRay);
+
+    float  heightLim = calVec.y - Pos().y;
+
+    if (!isPushed && heightLim < 2.0f &&
         (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y
             || destFeedBackPos.y - feedBackPos.y < 0.5f) // 바닥 올라가게 하기위해 추가함
         ) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????sad wad  
@@ -1315,7 +1325,7 @@ bool Player::InTheAir() {
 
 void Player::SetDaggerAnim()
 {
-    dagger->SetTrailActive(true);
+    dagger->SetInteraction(true);
     PLAYERSOUND()->Play("Player_Attack", attackVolume * VOLUME);
 }
 

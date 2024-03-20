@@ -55,7 +55,7 @@ void Dagger::Update()
 void Dagger::Render()
 {
 	Model::Render();
-	//collider->Render();
+	collider->Render();
 
 	if (trail != nullptr)
 		trail->Render();
