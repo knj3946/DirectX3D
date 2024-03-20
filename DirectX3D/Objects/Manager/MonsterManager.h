@@ -23,6 +23,7 @@ private:
     typedef TerrainEditor LevelData;
     //typedef Terrain LevelData;
     UINT SIZE = 8;
+  
 public:
     static bool check;
     MonsterManager();

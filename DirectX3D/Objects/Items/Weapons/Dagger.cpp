@@ -7,6 +7,13 @@ Dagger::Dagger(Transform* parent) : Model("dagger")
 
 	Scale() *= 100;
 	Pos() = { 6.1, 10, -2.1 };
+#if _DEBUG
+	damage = 100.f;
+#else
+	damage = 20.f;
+
+#endif
+
 	Rot().z = -1.5f;
 
 	collider = new CapsuleCollider(.1, .5);

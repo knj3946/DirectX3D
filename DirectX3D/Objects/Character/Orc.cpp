@@ -121,11 +121,12 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     rangeBar->Pos() = { -15.f,2.f,-650.f };
 
     particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
-    particleHit->Stop();
+   // particleHit->Stop();
 }
 
 Orc::~Orc()
 {
+
     delete leftHand;
     delete rightHand;
     delete leftWeaponCollider;
@@ -185,6 +186,7 @@ void Orc::Update()
     //ParticleUpdate(); //파티클이펙트 업데이트
     UpdateUI(); //UI 업데이트
     ExecuteEvent(); //이벤트 있으면 실행
+    ParticleUpdate(); //파티클이펙트 업데이트
 
     if (curState == DYING || curState == ASSASSINATED)
         return;
@@ -192,7 +194,6 @@ void Orc::Update()
     PartsUpdate(); //모델 각 파츠 업데이트
     StateRevision(); //애니메이션 중간에 끊겨서 변경안된 값들 보정
     
-    ParticleUpdate(); //파티클이펙트 업데이트
     CoolDown();
     //====================== 이동관련==============================
     if (CalculateHit()) return; //맞는 중이면 리턴 (이 아래는 이동과 관련된 것인데 맞는중에는 필요없음)
@@ -587,6 +588,9 @@ void Orc::Hit(float damage,Vector3 collisionPos, bool _btrue)
         collider->SetActive(false);
         leftWeaponCollider->SetActive(false);
         rightWeaponCollider->SetActive(false);
+        particleHit->Play(InteractManager::Get()->GetPartilcePos()); // 해당위치에서 파티클 재생
+        InteractManager::Get()->SetParticlePos({});
+
         if (destHP <= 0)
         {
             
@@ -606,14 +610,8 @@ void Orc::Hit(float damage,Vector3 collisionPos, bool _btrue)
         SetState(HIT);
 
         isHit = true;
-
-    
-        if (_btrue)
-        {
-           
-            particleHit->Play(InteractManager::Get()->GetPartilcePos()); // 해당위치에서 파티클 재생
-            InteractManager::Get()->SetParticlePos({});
-        }
+       
+      
     }
 
 }
@@ -1441,7 +1439,8 @@ void Orc::Detection()
                     restorePos = {};
                 }
         }
-        
+     
+ 
         if (bFind&&!bDetection) {
             ErrorCheckTime += DELTA;
         }
@@ -1467,8 +1466,9 @@ void Orc::Detection()
             SetState(RUN);
         returntoPatrol = false;
     }
-
     rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
+
+    }
 }
 
 void Orc::SetRay(Vector3 _pos)

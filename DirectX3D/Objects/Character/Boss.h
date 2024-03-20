@@ -171,9 +171,10 @@ private:
     bool isAssassinated = false;
     float DetectionRange;
     bool IsPlayer = false;
-    bool bRotate = false;// 한번은 무조건회전
+  
     bool isRayToDetectTarget = false;
     Vector3 eyesPos;
+    STATE prevState;
 private:
     void SetEyePos() {
         eyesPos = transform->GlobalPos();

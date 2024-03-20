@@ -546,6 +546,8 @@ void GameMapScene::FirstLoading()
 
 		MonsterManager::Get()->SetOrcGround();
 
+
+
 		//리소스 불러오기 용으로 한번 호출
 		skyBox->Render();
 		terrain->Render();
@@ -554,7 +556,8 @@ void GameMapScene::FirstLoading()
 		{
 			cm->Render();
 		}
-
+		FOR(6)
+			HeightCollider[i]->Render();
 		player->PreRender();
 		player->Render();
 		MonsterManager::Get()->Render();
