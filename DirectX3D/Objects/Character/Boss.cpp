@@ -956,8 +956,12 @@ void Boss::IdleWalk()
 	totargetlength = velocity.Length();
 	moveSpeed = walkSpeed;
 	dir = velocity.GetNormalized();
+	
+	float distance = Distance(target->Pos(), transform->Pos());
+	distance = (distance > 50) ? 50 : distance;
 	if(!BOSSSOUND()->IsPlaySound("Boss_Walk"))
-		BOSSSOUND()->Play("Boss_Walk", 0.3f * VOLUME);
+		BOSSSOUND()->Play("Boss_Walk", (50-distance)/10 * VOLUME);
+
 }
 bool Boss::OnColliderFloor(Vector3& feedback)
 {

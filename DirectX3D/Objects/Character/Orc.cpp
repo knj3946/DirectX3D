@@ -178,10 +178,10 @@ void Orc::Update()
     }
 
     // 천장으로 올라갔을때 이 3가지 상태에서 고정되는거 강제로 해제
-    if (bFind && curState == RUN && path.empty())
+    /*if (bFind && curState == RUN && path.empty())
     {
         bFind = false;
-    }
+    }*/
 
     // 사운드 테스트
     SoundControl();
@@ -222,7 +222,7 @@ void Orc::Render()
     //leftWeaponCollider->Render();
     //rightWeaponCollider->Render();
     hpBar->Render();
-    if(behaviorstate != NPC_BehaviorState::DETECT&& !isDying) // 죽으면 바로 렌더안하게
+    if(behaviorstate != NPC_BehaviorState::DETECT || !isDying) // 죽으면 바로 렌더안하게 
         rangeBar->Render();
     //aStar->Render();
 
@@ -283,34 +283,34 @@ void Orc::GUIRender()
 {
     ImGui::Text("curState : %d", curState);
 
-    ImGui::Text("bFind : %d", bFind);
+    /*ImGui::Text("bFind : %d", bFind);
     ImGui::Text("bDetection : %d", bDetection);
     ImGui::Text("isTracking : %d", isTracking);
-    ImGui::Text("path.empty() : %d", path.empty());
-    ImGui::Text("missTargetTrigger : %d", missTargetTrigger);
-    ImGui::Text("NPC_BehaviorState : %d", behaviorstate);
-
+    ImGui::Text("path.empty() : %d", path.empty());*/
+    //ImGui::Text("missTargetTrigger : %d", missTargetTrigger);
+    //ImGui::Text("NPC_BehaviorState : %d", behaviorstate);
+    ImGui::Text("OrcIsWalk : %d", ORCSOUND(index)->IsPlaySound("Orc_Walk"));
+    ImGui::Text("earCal : %d", bSound);
     ImGui::Text("OrcRunVolume : %f", lastRunVolume);
     ImGui::Text("OrcWalkVolume : %f", lastWalkVolume);
     ImGui::Text("OrcHitVolume : %f",lastVolume);
-    ImGui::Text("earCal : %d", bSound);
     ImGui::Text("lastDist : %f", lastDist);
 
-    ImGui::Text("curState : %d", curState);
+    //ImGui::Text("curState : %d", curState);
 
 
     //ImGui::SliderFloat("OrcMoveSound", &volume, 0, 10);
 
     //ImGui::SliderFloat("OrcWalkSetVolume", &walkVolumeS, 0, 100);
 
-    ImGui::Text("y : %f", transform->GlobalPos().y);
+    /*ImGui::Text("y : %f", transform->GlobalPos().y);
     ImGui::Text("bFind : %d", bFind);
     ImGui::Text("bDetection : %d", bDetection);
     ImGui::Text("isTracking : %d", isTracking);
     ImGui::Text("path.empty() : %d", path.empty());
     ImGui::Text("missTargetTrigger : %d", missTargetTrigger);
     ImGui::Text("NPC_BehaviorState : %d", behaviorstate);
-    ImGui::Text("curState : %d", curState);
+    ImGui::Text("curState : %d", curState);*/
 
     //ImGui::Text("FeedbackPosY : %f", feedBackPos.y);
     //ImGui::Text("eyeSightRange : %f", eyeSightRange);
@@ -467,72 +467,45 @@ void Orc::SoundControl()
 {
     if (!isAnim)
     {
-        if (curState != RUN && curState != WALK)
-        {
-            // 달리거나 걷는 상태가 아니면 소리 멈추가ㅣ
-            ORCSOUND(index)->Stop("Orc_Run");
-            ORCSOUND(index)->Stop("Orc_Walk");
-            return;
-        }
+        // 오크가 걷거나 달릴 때 사운드 틀고 볼륨 조절
+        // 멈추면 사운드 다 멈추기
 
-        // 오크가 발견해서 쫓아올 때도 walk를 한다고 하면ㅁ 아래 코드 
-        if (bFind && !ORCSOUND(index)->IsPlaySound("Orc_Walk") && curState == WALK)
+        if (curState == RUN)
         {
-            ORCSOUND(index)->Play("Orc_Walk");
-        }
-        if (bFind && ORCSOUND(index)->IsPlaySound("Orc_Walk") && curState == WALK)
-        {
-            float distance = Distance(target->Pos(), transform->Pos());
-            distance = (distance > 40) ? 40 : distance;
-            ORCSOUND(index)->SetVolume("Orc_Walk", (40 - distance) / 30.0f * VOLUME);
-            lastWalkVolume = (40 - distance) / 30.0f * VOLUME;
-            lastDist = distance;
-        }
-        else
-        {
-            ORCSOUND(index)->Stop("Orc_Walk");
-        }
-        // -------------------------------------------------------------
-
-        if (bFind && !ORCSOUND(index)->IsPlaySound("Orc_Run") && curState == RUN)
-        {
-            ORCSOUND(index)->Play("Orc_Run");
-        }
-        if (bFind && ORCSOUND(index)->IsPlaySound("Orc_Run") && curState == RUN)
-        {
-            float distance = Distance(target->Pos(), transform->Pos());
-            distance = (distance > 50) ? 50 : distance;
-            ORCSOUND(index)->SetVolume("Orc_Run", (50 - distance) / 10.0f * VOLUME);
-            lastDist = distance;
-            lastRunVolume = (50 - distance) / 10.0f * VOLUME;
-        }
-        else
-        {
-            ORCSOUND(index)->Stop("Orc_Run");
-        }
-
-        if (behaviorstate == NPC_BehaviorState::IDLE)
-        {
-            if (curState == WALK)
+            if (curState == RUN && !ORCSOUND(index)->IsPlaySound("Orc_Run"))
             {
-                if (!ORCSOUND(index)->IsPlaySound("Orc_Walk"))
-                {
-                    ORCSOUND(index)->Play("Orc_Walk");
-                }
-                else
-                {
-                    float distance = Distance(target->Pos(), transform->Pos());
-                    distance = (distance > 40) ? 40 : distance;
-                    ORCSOUND(index)->SetVolume("Orc_Walk", (40 - distance) / 30.0f * VOLUME);
-                    lastWalkVolume = (40 - distance) / 30.0f * VOLUME;
-                    lastDist = distance;
-                }
+                ORCSOUND(index)->Play("Orc_Run");
             }
-            else
+            if (ORCSOUND(index)->IsPlaySound("Orc_Run"))
             {
+                float distance = Distance(target->Pos(), transform->Pos());
+                distance = (distance > 50) ? 50 : distance;
+                ORCSOUND(index)->SetVolume("Orc_Run", (50 - distance) / 10.0f * VOLUME);
+                lastRunVolume = ORCSOUND(index)->GetVolume("Orc_Run");
+                lastDist = distance;
+            }
+        }
+        else if (curState == WALK)
+        {
+            if (curState == WALK && !ORCSOUND(index)->IsPlaySound("Orc_Walk"))
+            {
+                ORCSOUND(index)->Play("Orc_Walk");
+            }
+            if (ORCSOUND(index)->IsPlaySound("Orc_Walk"))
+            {
+                float distance = Distance(target->Pos(), transform->Pos());
+                distance = (distance > 40) ? 40 : distance;
+                ORCSOUND(index)->SetVolume("Orc_Walk", (40 - distance) / 20.0f * VOLUME);
+                lastWalkVolume = ORCSOUND(index)->GetVolume("Orc_Walk");
+                lastDist = distance;
+            }
+        }
+        else
+        {
+            if(ORCSOUND(index)->IsPlaySound("Orc_Run"))
+                ORCSOUND(index)->Stop("Orc_Run");
+            if (ORCSOUND(index)->IsPlaySound("Orc_Walk"))
                 ORCSOUND(index)->Stop("Orc_Walk");
-            }
-
         }
     }
 }
@@ -609,7 +582,7 @@ void Orc::Hit(float damage,Vector3 collisionPos, bool _btrue)
         {
             float distance = Distance(target->Pos(), transform->Pos());
             distance = (distance > 40) ? 40 : distance;
-            ORCSOUND(index)->Play("Orc_Hit", (40 - distance) / 10.0f * VOLUME); // 크기조절 가까울수록 사운드 커지게
+            ORCSOUND(index)->Play("Orc_Hit",Clamp(0,100,40-distance)/ 10.0f * VOLUME); // 크기조절 가까울수록 사운드 커지게
             lastVolume = ORCSOUND(index)->GetVolume("Orc_Hit");
         }
 
@@ -1002,6 +975,7 @@ void Orc::UpdateUI()
 
     if (bDetection)
     {
+        if (targetStateInfo->isCloaking)return;
         if (bFind)
         {
             questionMark->SetActive(false);
@@ -1362,10 +1336,11 @@ void Orc::CalculateEarSight()
         || (PLAYERSOUND()->IsPlaySound("Player_Land"))) {
         
         pos.x = target->Pos().x;
-        if (PLAYERSOUND()->IsPlaySound("Player_Land"))
+        /*if (PLAYERSOUND()->IsPlaySound("Player_Land"))
             pos.y = 0;
         else
-            pos.y = target->Pos().y;
+            pos.y = target->Pos().y;*/
+        pos.y = target->Pos().y;
         pos.z = target->Pos().z;
         distance = Distance(transform->Pos(), pos);
         
@@ -1390,11 +1365,7 @@ void Orc::CalculateEarSight()
         path.clear();
         bSound = true;
         SetPath(CheckPoint);
-        
     }
-    
-
-   
 }
 
 void Orc::Detection()
@@ -1427,7 +1398,7 @@ void Orc::Detection()
             float value = eyeSightRange / DetectionRange;
 
             //DetectionStartTime += DELTA * value;
-            DetectionStartTime += DELTA*2;
+            DetectionStartTime += DELTA;
         }
     }
     else {
@@ -1615,7 +1586,7 @@ void Orc::RangeCheck()
 void Orc::SoundPositionCheck()
 {
     // 소리가 나면 해당위치로 setPath 설정 -> 해당 위치에 근접했다면 거기서 부터 탐지 시작
-    float d = 10.f;
+    float d = 2.f;
     if (behaviorstate == NPC_BehaviorState::SOUNDCHECK) {
         if (CheckPoint.x + d > transform->GlobalPos().x && CheckPoint.x - d < transform->GlobalPos().x &&
             CheckPoint.z + d > transform->GlobalPos().z && CheckPoint.z - d < transform->GlobalPos().z)
@@ -1626,7 +1597,7 @@ void Orc::SoundPositionCheck()
             SetPath(StorePos);
             SetState(IDLE);
             bSound = false;
-            bDetection = false;
+            //bDetection = false;
         }
     }
 }
