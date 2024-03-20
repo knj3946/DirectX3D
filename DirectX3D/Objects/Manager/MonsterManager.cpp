@@ -66,10 +66,11 @@ MonsterManager::~MonsterManager()
     }
     delete shadow;
     FOR(2) {
-       delete rasterizerState[i]  ;
-       delete     blendState[i]   ;
-       delete     depthState[i]   ;
+        delete rasterizerState[i];
+        delete     blendState[i];
+        delete     depthState[i];
     }
+
 }
 
 void MonsterManager::CreateOrc()
@@ -79,7 +80,7 @@ void MonsterManager::CreateOrc()
     transform->SetActive(false);
     Orc* orc = new Orc(transform, orcInstancing, orcIndex);
     orcInstancing->AddModelInfo(transform, orcIndex);
-
+  
     ColliderManager::Get()->PushCollision(ColliderManager::ORC, orc->GetCollider());
 
     orcInfo.orc = orc;

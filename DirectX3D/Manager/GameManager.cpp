@@ -46,9 +46,22 @@ void GameManager::Render()
     Environment::Get()->PostSet();
     SceneManager::Get()->PostRender();
 
-   ImGui_ImplDX11_NewFrame();
-   ImGui_ImplWin32_NewFrame();
-   ImGui::NewFrame();
+    //ImGui_ImplDX11_NewFrame();
+    //ImGui_ImplWin32_NewFrame();
+    //ImGui::NewFrame();
+
+    Timer::Get()->SaveFinishTime();
+
+    double dt = Timer::Get()->GetFinishTime() - Timer::Get()->GetStartTime();
+    double sleepTime = (820.0 / 60.0) - dt;
+
+    if (Timer::Get()->GetStartFlag())
+    {
+        if (sleepTime > 0)
+        {
+            Sleep((long)sleepTime);
+        }
+    }
 
     string fps = "FPS : " + to_string(Timer::Get()->GetFPS());
     Font::Get()->RenderText(fps, { 100, WIN_HEIGHT - 10 });
@@ -57,14 +70,14 @@ void GameManager::Render()
 
     if (isActive)
     {
-        ImGui::Begin("Inspector", &isActive);
+        //ImGui::Begin("Inspector", &isActive);
         //Environment::Get()->GUIRender();
-        SceneManager::Get()->GUIRender();
-        ImGui::End();
+        //SceneManager::Get()->GUIRender();
+        //ImGui::End();
     }
- 
-    ImGui::Render();
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+    //ImGui::Render();
+    //ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     Font::Get()->GetDC()->EndDraw();
 
