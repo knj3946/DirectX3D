@@ -794,7 +794,9 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
                 {
                     if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
                     {
-                        ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos), chargingT);
+                        Vector3 bowPos = bow->GlobalPos();
+                        bowPos.y = Pos().y + 4.65078163f;
+                        ArrowManager::Get()->Throw(bowPos, CAM->ScreenPointToRayDir(mousePos), chargingT);
                         PLAYERSOUND()->Play("Player_ShootArrow", shootArrowVolume * VOLUME);
                         chargingT = initSpeed;
                         SetState(B_RECOIL);
@@ -1048,9 +1050,6 @@ void Player::Walking()
 
     if (!KEY_PRESS(VK_LSHIFT))// 그냥 걷기
     {
-        /*if (curState == B_AIM || curState == B_DRAW || curState == B_ODRAW)
-            destPos = Pos() + direction * aimMoveSpeed * DELTA * -1;
-        else*/
         moveSpeed = moveSpeed1;
         destPos = Pos() + direction * moveSpeed1 * DELTA * -1;
 
