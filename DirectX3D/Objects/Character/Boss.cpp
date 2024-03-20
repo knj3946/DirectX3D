@@ -158,11 +158,11 @@ void Boss::Render()
 	instancing->Render();
 	hpBar->Render();
 	
-	leftCollider->Render();
+	//leftCollider->Render();
 	
-	RoarCollider->Render();
+	//RoarCollider->Render();
 	hiteffect->Render();
-	collider->Render();
+	//collider->Render();
 	Roarparticle->Render();
 	for (int i = 0; i < 3; ++i)
 		Runparticle[i]->Render();

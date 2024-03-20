@@ -181,8 +181,8 @@ void GameMapScene::PreRender()
 	{
 		shadow->SetRenderTarget();
 		player->SetShader(L"Light/DepthMap.hlsl");
-		player->Render();
-		MonsterManager::Get()->Render(true);
+		//player->Render(); // 그림자 비활성화
+		//MonsterManager::Get()->Render(true); // 그림자 비활성화
 	}
 
 	if (MenuManager::Get()->GetEndFlag())
@@ -208,7 +208,13 @@ void GameMapScene::Render()
 		{
 			cm->Render();
 		}
+		//bc1->Render();
+		//bc2->Render();
 
+		/*
+		FOR(6)
+			HeightCollider[i]->Render();
+		*/
 		player->Render();
 		MonsterManager::Get()->Render();
 		KunaiManager::Get()->Render();
@@ -277,6 +283,8 @@ void GameMapScene::FirstLoading()
 {
 	if (MenuManager::Get()->GetLoadingSequence() == 0)
 	{
+		ShowCursor(false);
+
 		skyBox = new SkyBox(L"Textures/Landscape/BlueSky.dds");
 
 		FOR(2)
@@ -297,7 +305,7 @@ void GameMapScene::FirstLoading()
 		terrain->GetMaterial()->SetDiffuseMap(L"Textures/Landscape/Sand.png");
 		terrain->GetMaterial()->SetSpecularMap(L"Textures/Color/Black.png");
 		terrain->GetMaterial()->SetNormalMap(L"Textures/Landscape/Sand_Normal.png");
-		terrain->SetHeightMap(L"Textures/HeightMaps/SamepleHeightMap02.png");
+		terrain->SetHeightMap(L"Textures/HeightMaps/SamepleHeightMap04.png");
 		terrain->GetMaterial()->SetShader(L"Light/Shadow.hlsl");
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(25.f);
@@ -375,7 +383,7 @@ void GameMapScene::FirstLoading()
 			string mTag = "model7";
 			Vector3 mScale = { 3,3,3 };
 			Vector3 mRot = { 0,0,0 };
-			Vector3 mPos = { 203.4f,9.5f,185.1f };
+			Vector3 mPos = { 205.4f,12.5f,185.1f };
 
 			ColliderModel* cm = ColliderManager::Get()->CreateColliderModel(mName, mTag, mScale, mRot, mPos);
 			colliderModels.push_back(cm);
@@ -403,8 +411,8 @@ void GameMapScene::FirstLoading()
 			colliderModels.push_back(cm);
 		}
 
-		BoxCollider* bc1 = new BoxCollider;
-		BoxCollider* bc2 = new BoxCollider;
+		bc1 = new BoxCollider;
+		bc2 = new BoxCollider;
 		bc1->Pos() = { 164.4f,7.5f,168.4f };
 		bc2->Pos() = { 164.4f,7.5f,214.8f };
 		bc1->Scale() = { 5.f,15.f,27.f };
@@ -433,7 +441,7 @@ void GameMapScene::FirstLoading()
 		HeightCollider[3]->Pos() = { 13.7f,25.f, 128.f };
 		HeightCollider[3]->Scale() = { 30.f,50.f,256.f };
 		HeightCollider[4]->Pos() = { 128.f,15.f,129.f };
-		HeightCollider[4]->Rot() = { 0.f,21.f,0.f };
+		HeightCollider[4]->Rot() = { 0.f,XMConvertToRadians(21),0.f };
 		HeightCollider[4]->Scale() = { 14.7f,22.4f,59.4f };
 		HeightCollider[5]->Pos() = { 183.f,15.f, 152.7f };
 		HeightCollider[5]->Rot() = { 0.f,0.f,0.f };
@@ -484,8 +492,8 @@ void GameMapScene::FirstLoading()
 		//MonsterManager::Get()->SetPatrolPos(0, Vector3(150.f, 0.f, 210.f));
 		//MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(100, 0, 185));
 		//MonsterManager::Get()->SetPatrolPos(1, Vector3(50.f, 0.f, 185.f));
-		MonsterManager::Get()->GetOrc(0)->SetSpeed(8);
-		MonsterManager::Get()->GetOrc(1)->SetSpeed(6);
+		//MonsterManager::Get()->GetOrc(0)->SetSpeed(8);
+		//MonsterManager::Get()->GetOrc(1)->SetSpeed(6);
 		//MonsterManager::Get()->SetOrcSRT(2, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(85, 0, 120));
 		//MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 120.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(40.f, 0.f, 70.f));   MonsterManager::Get()->SetPatrolPos(2, Vector3(85.f, 0.f, 70.f));
 		//MonsterManager::Get()->SetOrcSRT(3, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(62, 0, 40));

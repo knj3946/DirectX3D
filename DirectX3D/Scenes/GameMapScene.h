@@ -67,5 +67,10 @@ private:
 
 	Quad* endingCredit;
 	VideoPlayer* videoPlayer;
+
+
+
+	BoxCollider* bc1 = nullptr;
+	BoxCollider* bc2 = nullptr;
 };
 

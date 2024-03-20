@@ -202,7 +202,7 @@ private:
     Vector3 targetPos;
 
     float moveSpeed;
-    float moveSpeed1 = 50;
+    float moveSpeed1 = 30;
     float moveSpeed2 = 15;
     float rotSpeed = 0.3;
     float deceleration = 10; //����

@@ -190,16 +190,16 @@ private:
     float throwVolume = 1.f;
     float dieVolume = 1.0f;
 
-    int a = 300;
+    float Basedegree = 0.f;
     Ray ray;// 레이
     Vector3 StorePos;// 소리난 곳 가기 전 위치 저장
     Vector3 CheckPoint;// 소리난 곳 저장
     Vector3 eyesPos;
-    float earRange = 40.f;// 듣는 범위 -> 오크가 쿠나이 던지는 거리가 9
+    float earRange = 15.f;// 듣는 범위 -> 오크가 쿠나이 던지는 거리가 9
     bool bSound = false;// 소리 체크
     bool NearFind = false;
     bool bSensor = false;
-
+    
     float informrange;// 탐지범위
     NPC_TYPE type= NPC_TYPE::ATTACK;//
     vector<Vector3> PatrolPos;// 순찰지
@@ -267,7 +267,7 @@ private:
     CapsuleCollider* leftWeaponCollider;
     CapsuleCollider* rightWeaponCollider;
 
-    float eyeSightRange = 50.f;
+    float eyeSightRange = 40.f;
     float eyeSightangle = 45.f;
     bool bDetection = false;
     bool bFind = false;
@@ -277,7 +277,8 @@ private:
 
     bool isTracking = false;
     float wateTime = 0;
-
+    float ErrorCheckTime = 0.f;
+    bool bErrorCheck = false;
 
     RayBuffer* rayBuffer;
     StructuredBuffer* structuredBuffer;

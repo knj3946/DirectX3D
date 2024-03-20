@@ -449,7 +449,7 @@ void Player::Render()
     }
     blendState[0]->SetState();
 
-    collider->Render();
+    //collider->Render();
     hiteffect->Render();
     jumpparticle->Render();
     
@@ -1110,7 +1110,7 @@ void Player::Walking()
 
 void Player::Jump()
 {
-    if(jumpVel == 0.0f)
+    if(Pos().y == heightLevel)
         jumpVel = force1;
 }
 
