@@ -25,6 +25,8 @@ GameManager::~GameManager()
 
 void GameManager::Update()
 {
+    Timer::Get()->SaveStartTime();
+
     Keyboard::Get()->Update();
     //Audio::Get()->Update();
 
@@ -50,8 +52,21 @@ void GameManager::Render()
    //ImGui_ImplWin32_NewFrame();
    //ImGui::NewFrame();
 
-    //string fps = "FPS : " + to_string(Timer::Get()->GetFPS());
-    //Font::Get()->RenderText(fps, { 100, WIN_HEIGHT - 10 });
+    Timer::Get()->SaveFinishTime();
+
+    double dt = Timer::Get()->GetFinishTime() - Timer::Get()->GetStartTime();
+    double sleepTime = (820.0/60.0) - dt;
+
+    if (Timer::Get()->GetStartFlag())
+    {
+        if (sleepTime > 0)
+        {
+            Sleep((long)sleepTime);
+        }
+    }
+
+    string fps = "FPS : " + to_string(Timer::Get()->GetFPS());
+    Font::Get()->RenderText(fps, { 100, WIN_HEIGHT - 10 });
 
     static bool isActive = true;
 

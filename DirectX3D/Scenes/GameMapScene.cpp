@@ -575,5 +575,7 @@ void GameMapScene::FirstLoading()
 	if (MenuManager::Get()->GetLoadingSequence() == 6)
 	{
 		MenuManager::Get()->SetLoadingRate(100.f);
+
+		Timer::Get()->SetStartFlag(true);
 	}
 }

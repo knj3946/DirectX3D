@@ -25,6 +25,12 @@ public:
 	void SaveStartTime();
 	void SaveFinishTime();
 
+	double GetStartTime() { return startTime; }
+	double GetFinishTime() { return finishTime; }
+
+	void SetStartFlag(bool flag) { this->startFlag = flag; }
+	bool GetStartFlag() { return startFlag; }
+
 private:
 	float timeScale = 0.0f;
 	float elapsedTime = 0.0f;
@@ -41,4 +47,6 @@ private:
 
 	double startTime = 0.f;
 	double finishTime = 0.f;
+
+	bool startFlag = false;
 };
