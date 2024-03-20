@@ -122,7 +122,7 @@ void MonsterManager::Update()
             MonsterManager::Get()->DieOrc(item.first);
     }
     b = check;
- 
+    /*
     for (const pair<int, OrcInfo>& item : orcs)
     {
         if (item.second.orc->IsFindTarget()) // 오크가 발견상태라면
@@ -141,7 +141,8 @@ void MonsterManager::Update()
             }
         }
     }
-     b = check;
+    */
+    b = check;
     orcInstancing->Update();
     vecDetectionPos.clear();
 

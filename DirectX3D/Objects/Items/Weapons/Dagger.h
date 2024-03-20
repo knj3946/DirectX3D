@@ -19,7 +19,12 @@ public:
 
 private:
 	CapsuleCollider* collider;
+
+#if _DEBUG
+	float damage = 100.0f;
+#else
 	float damage = 20.0f;
+#endif
 
 	class Trail* trail; // 궤적 파티클
 	Transform* startEdge; // 궤적이 시작될 곳

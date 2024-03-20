@@ -328,5 +328,6 @@ private:
 
     float fallingT = 0.0f;
 
+    bool isSlowMove = false;
 public: //임시
 };

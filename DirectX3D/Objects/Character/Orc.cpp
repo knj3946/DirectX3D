@@ -636,6 +636,7 @@ void Orc::Spawn(Vector3 pos)
 
 void Orc::AttackTarget()
 {
+    if (curState == DYING) return;
     //return;//??
     if (!bFind)
     {
@@ -649,6 +650,8 @@ void Orc::AttackTarget()
 
 void Orc::Findrange(float startCool)
 {
+    if (curState == DYING) return;
+
     if (curState == ATTACK1 || curState == ATTACK2 || curState == ATTACK3)return;
     // 탐지시 범위에 닿은 애에게 설정
     bFind = true; bDetection = true;
@@ -1438,24 +1441,7 @@ void Orc::Detection()
                     restorePos = {};
                 }
         }
-        rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
-
-        if (DetectionEndTime <= DetectionStartTime) {
-            if (bFind)return;
-            bFind = true;
-            isTracking = true;
-            Float4 pos;
-            behaviorstate = NPC_BehaviorState::DETECT;
-            pos.x = transform->GlobalPos().x;
-            pos.y = transform->GlobalPos().y;
-            pos.z = transform->GlobalPos().z;
-            pos.w = informrange;
-            MonsterManager::Get()->PushPosition(pos);
-            MonsterManager::Get()->CalculateDistance();
-            if (curState == IDLE)
-                SetState(RUN);
-            returntoPatrol = false;
-        }
+        
         if (bFind&&!bDetection) {
             ErrorCheckTime += DELTA;
         }
@@ -1464,6 +1450,25 @@ void Orc::Detection()
         }
 
     }
+
+    if (DetectionEndTime <= DetectionStartTime) {
+        if (bFind)return;
+        bFind = true;
+        isTracking = true;
+        Float4 pos;
+        behaviorstate = NPC_BehaviorState::DETECT;
+        pos.x = transform->GlobalPos().x;
+        pos.y = transform->GlobalPos().y;
+        pos.z = transform->GlobalPos().z;
+        pos.w = informrange;
+        MonsterManager::Get()->PushPosition(pos);
+        MonsterManager::Get()->CalculateDistance();
+        if (curState == IDLE)
+            SetState(RUN);
+        returntoPatrol = false;
+    }
+
+    rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
 }
 
 void Orc::SetRay(Vector3 _pos)

@@ -199,6 +199,24 @@ bool CapsuleCollider::IsCapsuleCollision(CapsuleCollider* collider)
     return distance <= (Radius() + collider->Radius());
 }
 
+void CapsuleCollider::SetRadius(float r)
+{
+    this->radius = r;
+
+    MakeMesh();
+    mesh->UpdateVertex();
+    mesh->UpdateIndex();
+}
+
+void CapsuleCollider::SetHeight(float h)
+{
+    this->height = h;
+
+    MakeMesh();
+    mesh->UpdateVertex();
+    mesh->UpdateIndex();
+}
+
 void CapsuleCollider::MakeMesh()
 {
     // 캡슐의 모양 = 실린더의 옆면 + 구체의 위아래
@@ -210,6 +228,7 @@ void CapsuleCollider::MakeMesh()
     float phiStep = XM_PI / stackCount;
 
     vector<Vertex>& vertices = mesh->GetVertices();
+    vertices.clear();
     vertices.reserve((sliceCount + 1) * (stackCount + 1));
 
     // 구체 그리기.....
@@ -241,6 +260,7 @@ void CapsuleCollider::MakeMesh()
     //인덱스에서...
     vector<UINT>& indices = mesh->GetIndices();
 
+    indices.clear();
     indices.reserve(sliceCount * stackCount * 6);
 
     for (UINT i = 0; i < stackCount; i++)
