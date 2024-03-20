@@ -7,6 +7,13 @@ Dagger::Dagger(Transform* parent) : Model("dagger")
 
 	Scale() *= 100;
 	Pos() = { 6.1, 10, -2.1 };
+#if _DEBUG
+	damage = 100.f;
+#else
+	damage = 20.f;
+
+#endif
+
 	Rot().z = -1.5f;
 
 	collider = new CapsuleCollider(.1, .5);
@@ -19,7 +26,8 @@ Dagger::Dagger(Transform* parent) : Model("dagger")
 	endEdge->Pos() = Pos();
 	startEdge->UpdateWorld();
 	endEdge->UpdateWorld();
-	trail = new Trail(L"Textures/Effect/Trail.png", startEdge, endEdge, 100, 100);
+
+	trail = new Trail(L"Textures/Effect/wind.jpg", startEdge, endEdge, 100, 100);
 	trail->Init();
 	trail->SetActive(false);
 }
@@ -41,13 +49,12 @@ void Dagger::Update()
 
 	if (trail != nullptr)
 	{
-		startEdge->Pos() = GlobalPos() + Up() * 20.0f; // 20.0f : 10%크기 반영
-		endEdge->Pos() = GlobalPos() - Up() * 20.0f;
+		startEdge->Pos() = GlobalPos() + Up() * 0.5f; // 20.0f :모델크기반영
+		endEdge->Pos() = GlobalPos() + Down() * 0.5f; // 20.0f :모델크기반영
 
 		// 찾아낸 꼭지점 위치를 업데이트 
 		startEdge->UpdateWorld();
 		endEdge->UpdateWorld(); // 이러면 트랜스폼에 위치가 담긴다
-
 		trail->Update();
 	}
 }
@@ -67,5 +74,6 @@ void Dagger::PostRender()
 
 void Dagger::GUIRender()
 {
-
+	ImGui::InputFloat3("daggerPos", (float*)&Pos());
+	ImGui::InputFloat3("daggerRot", (float*)&Rot());
 }
