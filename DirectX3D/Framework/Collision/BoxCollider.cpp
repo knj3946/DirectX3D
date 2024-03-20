@@ -63,7 +63,7 @@ bool BoxCollider::IsBoxCollision(BoxCollider* collider)
     ObbDesc box1, box2;
     GetObb(box1);
     collider->GetObb(box2);
- 
+
     Vector3 D = box2.pos - box1.pos;
 
     for (UINT i = 0; i < 3; i++)
@@ -113,7 +113,7 @@ bool BoxCollider::IsSphereCollision(SphereCollider* collider)
     }
 
     float distance = Distance(collider->GlobalPos(), closestPointToSphere);
-    CollisionPoint = closestPointToSphere;      
+    CollisionPoint = closestPointToSphere;
 
     return distance <= collider->Radius();
 }

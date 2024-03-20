@@ -4,7 +4,7 @@ bool Collider::isRender = true;
 
 Collider::Collider() : GameObject(L"Basic/Collider.hlsl")
 {
-    mesh = new Mesh<Vertex>();   
+    mesh = new Mesh<Vertex>();
 
     SetColor(0, 1, 0);
 }
@@ -39,7 +39,7 @@ bool Collider::IsCollision(Collider* collider)
     case Collider::Type::SPHERE:
         return IsSphereCollision((SphereCollider*)collider);
     case Collider::Type::CAPSULE:
-        return IsCapsuleCollision((CapsuleCollider*)collider);    
+        return IsCapsuleCollision((CapsuleCollider*)collider);
     }
 
     return false;
@@ -52,7 +52,7 @@ bool Collider::PushCollision(Collider* collider)
     // 비스듬하게 가운데에 부딪혔을때 가장자리로 밀리는 현상 있어서 수정
     //Vector3 dir = (collider->GlobalPos() - GlobalPos()).GetNormalized();
     //collider->GetParent()->Pos() += dir * PUSH_SPEED * DELTA;
-    
+
     Vector3 dir = collider->GlobalPos() - GlobalPos();
 
     int maxIndex = 0;
@@ -93,7 +93,7 @@ bool Collider::PushCollision(Collider* collider)
         break;
     }
 
-    
+
     //collider->GetParent()->Pos() += dir * PUSH_SPEED * DELTA;
     collider->GetParent()->Pos() += dir;
 
@@ -106,7 +106,7 @@ bool Collider::PushCollision(Collider* collider, vector<Vector3>* dirs)
     // 비스듬하게 가운데에 부딪혔을때 가장자리로 밀리는 현상 있어서 수정
     //Vector3 dir = (collider->GlobalPos() - GlobalPos()).GetNormalized();
     //collider->GetParent()->Pos() += dir * PUSH_SPEED * DELTA;
-    
+
     Vector3 dir = collider->GlobalPos() - GlobalPos();
 
     int maxIndex = 0;
@@ -149,7 +149,7 @@ bool Collider::PushCollision(Collider* collider, vector<Vector3>* dirs)
         break;
     }
 
-    
+
     dirs->push_back(dir);
 
     return true;
@@ -167,7 +167,7 @@ bool Collider::IsTrustedRelation(Vector3 playPos)
                 r = true;
             }
             break;
-        }   
+        }
         case TYPE_X_UNDER:
             if (GlobalPos().x > playPos.x)
             {

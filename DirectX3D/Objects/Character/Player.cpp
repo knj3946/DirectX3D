@@ -5,7 +5,7 @@ Player::Player()
     : ModelAnimator("akai")
 {
     ArrowManager::Get();
-    
+
     targetTransform = new Transform();
     //straightRay = Ray(Pos(), Back());
 
@@ -27,7 +27,7 @@ Player::Player()
 
     bow = new Model("Elven Long Bow");
     bow->SetActive(true);
-    
+
     {
         bow->SetParent(leftHand);
         bow->Scale() *= 6.f;
@@ -70,7 +70,7 @@ Player::Player()
     hpBar->SetAmount(curHP / maxHp);
     hpBar->UpdateWorld();
 
-    string temp;  
+    string temp;
 
     ReadClip("Idle");
 
@@ -84,10 +84,10 @@ Player::Player()
 
     ReadClip("Jumping Up");
     ReadClip("IntheSky");
-    ReadClip("Falling To Landing"); 
-    ReadClip("Hard Landing"); 
+    ReadClip("Falling To Landing");
+    ReadClip("Hard Landing");
 
-    ReadClip("Stand To Cover"); 
+    ReadClip("Stand To Cover");
     ReadClip("Cover Idle");
     ReadClip("Crouched Sneaking Right");
     ReadClip("Crouched Sneaking Left");
@@ -151,7 +151,7 @@ Player::Player()
     GetClip(TO_COVER)->SetEvent(bind(&Player::SetIdle, this), 0.05f);   //????
 
     GetClip(HIT)->SetEvent(bind(&Player::EndHit, this), 0.34f); // ????? ??????
-   
+
     //GetClip(CLIMBING1)->SetEvent(bind(&Player::EndClimbing, this), 0.1f);
     //GetClip(CLIMBING2)->SetEvent(bind(&Player::EndClimbing, this), 0.32f);
     //GetClip(CLIMBING3)->SetEvent(bind(&Player::EndClimbing, this), 0.95f);
@@ -216,7 +216,7 @@ Player::Player()
 
     hiteffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
     hiteffect->Stop();
-    jumpparticle=new ParticleSystem("TextData/Particles/JumpSmoke.fx");
+    jumpparticle = new ParticleSystem("TextData/Particles/JumpSmoke.fx");
 
     // 사운드 UI 관련
     settingBG = new Quad(Vector2(450, 200));
@@ -273,7 +273,7 @@ Player::~Player()
     delete collider;
     delete portrait;
     delete form;
-   
+
     delete hpBar;
     delete hiteffect;
     delete jumpparticle;
@@ -347,10 +347,10 @@ void Player::Update()
     }
 
     ColliderManager::Get()->SetHeight();
-    if(!isClimb)
+    if (!isClimb)
         ColliderManager::Get()->PushPlayer();
 
-  
+
 
     SetCameraPos();
 
@@ -377,7 +377,7 @@ void Player::Update()
 
     if (isDying) return;
 
-    if(curState != JUMP4 && curState != CLIMBING3 && curState != ASSASSINATION1 && curState != ASSASSINATION2)
+    if (curState != JUMP4 && curState != CLIMBING3 && curState != ASSASSINATION1 && curState != ASSASSINATION2)
         Control();
     if (!isClimb)
         Jumping();
@@ -435,7 +435,7 @@ void Player::PreRender()
 
 void Player::Render()
 {
-    if(stateInfo->isCloaking)
+    if (stateInfo->isCloaking)
         blendState[1]->SetState();
     ModelAnimator::Render();
     switch (weaponState)
@@ -452,7 +452,7 @@ void Player::Render()
     //collider->Render();
     hiteffect->Render();
     jumpparticle->Render();
-    
+
     //leftFootCollider->Render();
     //rightFootCollider->Render();
 
@@ -470,10 +470,10 @@ void Player::PostRender()
         volumeControlUI->Render();
     }
     hpBar->Render();
-    
+
     portrait->Render();
     if (bow->Active())
-           form->Render();
+        form->Render();
     string str = to_string(ArrowManager::Get()->GetPlayerArrowCount());
 
     Vector3 tmp = form->Pos() + Vector3(60, 10, 0);
@@ -492,7 +492,7 @@ void Player::GUIRender()
 
     ImGui::Text("curState : %d", curState);
     ImGui::Text("jumpVel : %lf", jumpVel);
-    ImGui::Text("jumpVel : %lf %lf %lf", Pos().x, Pos().y,  Pos().z);
+    ImGui::Text("jumpVel : %lf %lf %lf", Pos().x, Pos().y, Pos().z);
 }
 
 void Player::TextRender()
@@ -536,7 +536,7 @@ void Player::Assassination()
 
 void Player::Climb(Collider* col, Vector3 climbPos)
 {
-    Pos() = { climbPos.x, Pos().y, climbPos.z};
+    Pos() = { climbPos.x, Pos().y, climbPos.z };
     isClimb = true;
     UpdateWorld();
 
@@ -651,7 +651,7 @@ void Player::Climbing()
         {
             if (obstacle->IsRayCollision(headForwardRay, &con)/* && con.distance < 10.0f*/)
             {
-                if (con.distance < 1.4f) 
+                if (con.distance < 1.4f)
                 {
                     emptySpace = false;
                     climbArrivePos = con.hitPoint;
@@ -794,7 +794,9 @@ void Player::Control()  //??????? ?????, ???콺 ??? ???
                 {
                     if (curState == B_DRAW || curState == B_ODRAW || curState == B_AIM)
                     {
-                        ArrowManager::Get()->Throw(bow->GlobalPos(), CAM->ScreenPointToRayDir(mousePos), chargingT);
+                        Vector3 bowPos = bow->GlobalPos();
+                        bowPos.y = Pos().y + 4.65078163f;
+                        ArrowManager::Get()->Throw(bowPos, CAM->ScreenPointToRayDir(mousePos), chargingT);
                         PLAYERSOUND()->Play("Player_ShootArrow", shootArrowVolume * VOLUME);
                         chargingT = initSpeed;
                         SetState(B_RECOIL);
@@ -867,7 +869,7 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
     {
         //플레이어의 위에서 레이를 쏴서 현재 terrain 위치와 높이를 구함
 
-        if(jumpVel <= 0.0f)
+        if (jumpVel <= 0.0f)
             if (!OnColliderFloor(feedBackPos)) // 문턱올라가기 때문에 다시 살림
             {
                 Vector3 PlayerSkyPos = Pos();
@@ -1013,7 +1015,7 @@ void Player::Walking()
     if (isMoveX || isMoveZ)
     {
         if (!PLAYERSOUND()->IsPlaySound("Player_Move"))
-            PLAYERSOUND()->Play("Player_Move",moveVolume*VOLUME);
+            PLAYERSOUND()->Play("Player_Move", moveVolume * VOLUME);
     }
     else
         PLAYERSOUND()->Stop("Player_Move");
@@ -1042,19 +1044,16 @@ void Player::Walking()
     {
         if (PLAYERSOUND()->IsPlaySound("Player_Move"))
         {
-            PLAYERSOUND()->SetVolume("Player_Move", moveVolume*VOLUME);
+            PLAYERSOUND()->SetVolume("Player_Move", moveVolume * VOLUME);
         }
     }
 
     if (!KEY_PRESS(VK_LSHIFT))// 그냥 걷기
     {
-        /*if (curState == B_AIM || curState == B_DRAW || curState == B_ODRAW)
-            destPos = Pos() + direction * aimMoveSpeed * DELTA * -1;
-        else*/
         moveSpeed = moveSpeed1;
         destPos = Pos() + direction * moveSpeed1 * DELTA * -1;
 
-        
+
     }
 
     else// 조용히 걷기
@@ -1074,7 +1073,7 @@ void Player::Walking()
     PlayerSkyPos.y += 1000;
     Ray groundRay = Ray(PlayerSkyPos, Vector3(0.f, -1.f, 0.f));
 
-    if(jumpVel <= 0.0f)
+    if (jumpVel <= 0.0f)
         if (!OnColliderFloor(destFeedBackPos)) // 문턱올라가기 때문에 다시 살림
         {
             TerainComputePicking(destFeedBackPos, groundRay);
@@ -1110,7 +1109,7 @@ void Player::Walking()
 
 void Player::Jump()
 {
-    if(Pos().y == heightLevel)
+    if (Pos().y == heightLevel)
         jumpVel = force1;
 }
 
@@ -1144,7 +1143,7 @@ void Player::Jumping()
     float tempJumpVel;
     float tempY;
 
-    if (curState != HIT && curState != JUMP1 /*&& curState != JUMP2 */&& preHeight - heightLevel > 1.0f)
+    if (curState != HIT && curState != JUMP1 /*&& curState != JUMP2 */ && preHeight - heightLevel > 1.0f)
     {
         jumpVel = -1;
 
@@ -1227,7 +1226,7 @@ void Player::Targeting()
         offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
         MonsterManager::Get()->ActiveSpecialKey(Pos(), offset);
     }
-    if(boss){
+    if (boss) {
         boss->OnOutLineByRay(mouseRay);
         offset = (CAM->Right() * 2.f) + (CAM->Up() * 6.f);
         boss->ActiveSpecialKey(Pos(), offset);
@@ -1292,7 +1291,7 @@ bool Player::InTheAir() {
 void Player::SetDaggerAnim()
 {
     dagger->GetCollider()->SetActive(true);
-    PLAYERSOUND()->Play("Player_Attack",attackVolume*VOLUME);
+    PLAYERSOUND()->Play("Player_Attack", attackVolume * VOLUME);
 }
 
 void Player::EndAssassination(UINT num)
@@ -1411,14 +1410,14 @@ float Player::GetDamage()
 
 void Player::Hit(float damage)
 {
-   
+
     if (!isHit)
     {
         isHit = true;
         destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
         hiteffect->Play(particlepos);
-        if(curState==JUMP4)
+        if (curState == JUMP4)
             PLAYERSOUND()->Play("Player_LandDamage", landVolume * VOLUME);
         else
             PLAYERSOUND()->Play("Player_Hit", hitVolume * VOLUME);
@@ -1430,17 +1429,17 @@ void Player::Hit(float damage)
             return;
         }
 
-        if(curState != JUMP4)
+        if (curState != JUMP4)
             SetState(HIT, 0.8f);
 
         preState = curState;
-        if(!dohitanimation && curState != JUMP4)
+        if (!dohitanimation && curState != JUMP4)
             SetState(HIT, 0.8f);
         dohitanimation = true;
 
-        
+
     }
-  
+
 }
 
 void Player::Hit(float damage, bool camerashake)
@@ -1507,7 +1506,7 @@ void Player::SetAnimation()     //bind로 매개변수 넣어줄수 있으면 �
 
     if (weaponState == DAGGER)
     {
-        if (curState == JUMP1 || curState == JUMP3 || curState == JUMP4 || Pos().y > heightLevel) 
+        if (curState == JUMP1 || curState == JUMP3 || curState == JUMP4 || Pos().y > heightLevel)
             return;
 
         if (curState == HIT || curState == KICK || curState == DAGGER1 || curState == DAGGER2 || curState == DAGGER3)
@@ -1596,7 +1595,7 @@ void Player::SetBowAnim()
 
 void Player::SetIdle()
 {
-    SetState(IDLE); 
+    SetState(IDLE);
     dohitanimation = false;
     jumpparticle->Play(Pos());
 }
