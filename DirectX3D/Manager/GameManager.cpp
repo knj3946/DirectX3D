@@ -25,7 +25,6 @@ GameManager::~GameManager()
 void GameManager::Update()
 {
     Keyboard::Get()->Update();
-    //Audio::Get()->Update();
 
     SceneManager::Get()->Update();
     Environment::Get()->Update();
@@ -45,9 +44,9 @@ void GameManager::Render()
     Environment::Get()->PostSet();
     SceneManager::Get()->PostRender();
 
-   //ImGui_ImplDX11_NewFrame();
-   //ImGui_ImplWin32_NewFrame();
-   //ImGui::NewFrame();
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
 
     string fps = "FPS : " + to_string(Timer::Get()->GetFPS());
     Font::Get()->RenderText(fps, { 100, WIN_HEIGHT - 10 });
@@ -56,14 +55,14 @@ void GameManager::Render()
 
     if (isActive)
     {
-        //ImGui::Begin("Inspector", &isActive);
-        //Environment::Get()->GUIRender();
-        //SceneManager::Get()->GUIRender();
-        //ImGui::End();
+        ImGui::Begin("Inspector", &isActive);
+        Environment::Get()->GUIRender();
+        SceneManager::Get()->GUIRender();
+        ImGui::End();
     }
  
-    //ImGui::Render();
-    //ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    ImGui::Render();
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     Font::Get()->GetDC()->EndDraw();
 
@@ -123,11 +122,11 @@ void GameManager::Create()
 
     Texture::Add(L"Textures/Color/White.png");
 
-   //ImGui::CreateContext();
-   //ImGui::StyleColorsDark();
+   ImGui::CreateContext();
+   ImGui::StyleColorsDark();
  
-   //ImGui_ImplWin32_Init(hWnd);
-   //ImGui_ImplDX11_Init(DEVICE, DC);
+   ImGui_ImplWin32_Init(hWnd);
+   ImGui_ImplDX11_Init(DEVICE, DC);
 
     srand((unsigned int)time(NULL));
 
@@ -148,10 +147,10 @@ void GameManager::Delete()
     Font::Delete();
     //Audio::Delete();
 
-   //ImGui_ImplDX11_Shutdown();
-   //ImGui_ImplWin32_Shutdown();
+   ImGui_ImplDX11_Shutdown();
+   ImGui_ImplWin32_Shutdown();
   
 
-   //ImGui::DestroyContext();
+   ImGui::DestroyContext();
    VideoTexture::destroyAPI();
 }
