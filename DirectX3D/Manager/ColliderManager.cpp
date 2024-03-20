@@ -140,7 +140,7 @@ void ColliderManager::PostRender()
 
 void ColliderManager::GuiRender()
 {
-     ImGui::Text("height : %lf", height);
+    ImGui::Text("height : %lf", height);
 }
 
 float ColliderManager::CloseRayCollisionColliderDistance(Ray ray)

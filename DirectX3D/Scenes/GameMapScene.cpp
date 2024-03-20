@@ -4,6 +4,28 @@
 GameMapScene::GameMapScene()
 {
 	MenuManager::Get(); //기본 메뉴 생성
+
+	testCol1 = new BoxCollider();
+	testCol2 = new BoxCollider();
+	testCol3 = new BoxCollider();
+	testCol4 = new BoxCollider();
+
+	testCol1->Pos() = { 70, 5, 116 };
+	testCol4->Pos() = { 70, 5, 136 };
+
+	testCol2->Pos() = { 60, 5, 126 };
+	testCol3->Pos() = { 80, 5, 126 };
+
+	testCol1->Scale() = { 20.1, 9.5, 1 };
+	testCol4->Scale() = { 20.1, 9.5, 1 };
+
+	testCol2->Scale() = { 1, 9.5, 20.1 };
+	testCol3->Scale() = { 1, 9.5, 20.1 };
+
+	ColliderManager::Get()->SetObstacles(testCol1);
+	ColliderManager::Get()->SetObstacles(testCol2);
+	ColliderManager::Get()->SetObstacles(testCol3);
+	ColliderManager::Get()->SetObstacles(testCol4);
 }
 
 GameMapScene::~GameMapScene()
@@ -32,6 +54,11 @@ GameMapScene::~GameMapScene()
 
 	delete endingCredit;
 	delete videoPlayer;
+
+	delete testCol1;
+	delete testCol2;
+	delete testCol3;
+	delete testCol4;
 }
 
 void GameMapScene::Update()
@@ -72,6 +99,10 @@ void GameMapScene::Update()
 			MenuManager::Get()->SetFailFlag(false);
 			MenuManager::Get()->SetSelectFailMenu(0);
 
+			testCol1->UpdateWorld();
+			testCol2->UpdateWorld();
+			testCol3->UpdateWorld();
+			testCol4->UpdateWorld();
 		}
 		if (MenuManager::Get()->GetSelectFailMenu() == 2)
 		{
@@ -219,6 +250,10 @@ void GameMapScene::Render()
 
 		//aStar->Render();
 
+		testCol1->Render();
+		testCol2->Render();
+		testCol3->Render();
+		testCol4->Render();
 	}
 }
 
