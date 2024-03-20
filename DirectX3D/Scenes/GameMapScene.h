@@ -68,9 +68,7 @@ private:
 	Quad* endingCredit;
 	VideoPlayer* videoPlayer;
 
-	BoxCollider* testCol1;
-	BoxCollider* testCol2;
-	BoxCollider* testCol3;
-	BoxCollider* testCol4;
+	BoxCollider* bc1 = nullptr;
+	BoxCollider* bc2 = nullptr;
 };
 

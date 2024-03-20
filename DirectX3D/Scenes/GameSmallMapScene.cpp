@@ -249,6 +249,9 @@ void GameSmallMapScene::FirstLoading()
 		CAM->TargetOptionLoad("GameMapScenePlayer");
 		CAM->LookAtTarget();
 
+		// 사운드 추가
+		SoundManager::Get()->PlayerCreate(player);
+
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(75.f);
 
@@ -259,6 +262,8 @@ void GameSmallMapScene::FirstLoading()
 		InteractManager::Get()->SetPlayer(player);
 		MonsterManager::Get()->SetOrcSRT(0, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(10.f, 0.f, 10.f));
 		MonsterManager::Get()->SetPatrolPos(0, Vector3(10.f, 0.f, 60.f));
+		MonsterManager::Get()->SetOrcSRT(1, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(20.f, 0.f, 20.f));
+		MonsterManager::Get()->SetPatrolPos(1, Vector3(20.f, 0.f, 50.f));
 		MonsterManager::Get()->SetTerrain(terrain);
 		MonsterManager::Get()->SetAStar(aStar);
 		MonsterManager::Get()->SetTarget(player);

@@ -398,7 +398,7 @@ ColliderModel* ColliderManager::CreateColliderModel(string mName, string mTag, V
         colSpecials.push_back(Collider::Collider_Special::NONE);
         colSpecials.push_back(Collider::Collider_Special::NONE);
         colSpecials.push_back(Collider::Collider_Special::NONE);
-        colSpecials.push_back(Collider::Collider_Special::NONE);
+        colSpecials.push_back(Collider::Collider_Special::TYPE_X_UNDER);
         colSpecials.push_back(Collider::Collider_Special::NONE);
         colSpecials.push_back(Collider::Collider_Special::NONE);
         colSpecials.push_back(Collider::Collider_Special::NONE);
@@ -591,7 +591,7 @@ void ColliderManager::ActiveSpecialKey(Vector3 playPos, Vector3 offset)
     for (Collider* col : GetObstacles())
     {
         float dis = Distance(col->GetPickContact().hitPoint, playPos);
-        if (col->IsPickFlag() &&/* col->IsTrustedRelation(playPos) &&*/ dis < 5.f)
+        if (col->IsPickFlag() && col->IsTrustedRelation(playPos) && dis < 5.f)
         {
             SpecialKeyUI& sk = specialKeyUI["climb"];
             sk.active = true;

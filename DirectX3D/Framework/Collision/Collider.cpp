@@ -118,10 +118,12 @@ bool Collider::PushCollision(Collider* collider, vector<Vector3>* dirs)
 
         if (i != 1)
         {
-            if (abs(dir[i]) - abs(halfSize[i]) > maxValue)
+            int convert_i = i == 2 ? 1 : (i == 1 ? 2 : 0); // 콜라이더의 y z 좌표계는 뒤바뀌어있음
+
+            if (abs(dir[i]) - abs(halfSize[convert_i]) > maxValue)
             {
                 maxIndex = i;
-                maxValue = abs(dir[i]) - abs(halfSize[i]);
+                maxValue = abs(dir[i]) - abs(halfSize[convert_i]);
             }
         }
     }
@@ -158,16 +160,22 @@ bool Collider::IsTrustedRelation(Vector3 playPos)
     bool r = false;
     switch (special)
     {
-    case TYPE_Z_OVER:
-    {
-        if (GlobalPos().z < playPos.z)
+        case TYPE_Z_OVER:
         {
-            r = true;
+            if (GlobalPos().z < playPos.z)
+            {
+                r = true;
+            }
+            break;
         }
-        break;
-    }
-    default:
-        r = false;
+        case TYPE_X_UNDER:
+            if (GlobalPos().x > playPos.x)
+            {
+                r = true;
+            }
+            break;
+        default:
+            r = false;
     }
     return r;
 }

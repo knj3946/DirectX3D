@@ -8,6 +8,7 @@
 #include "Scenes/ShadowScene.h"
 #include "Scenes/OnlyBossScene.h"
 #include "Scenes/EndingCreditScene.h"
+#include "Scenes/TerrainScene.h"
 
 bool GameManager::restartFlag = false;
 
@@ -49,8 +50,8 @@ void GameManager::Render()
    //ImGui_ImplWin32_NewFrame();
    //ImGui::NewFrame();
 
-    string fps = "FPS : " + to_string(Timer::Get()->GetFPS());
-    Font::Get()->RenderText(fps, { 100, WIN_HEIGHT - 10 });
+    //string fps = "FPS : " + to_string(Timer::Get()->GetFPS());
+    //Font::Get()->RenderText(fps, { 100, WIN_HEIGHT - 10 });
 
     static bool isActive = true;
 
@@ -90,6 +91,7 @@ void GameManager::Start()
     //SceneManager::Get()->Create("Shadow", new ShadowScene());
     //SceneManager::Get()->Create("OnlyBoss", new OnlyBossScene());
 //    SceneManager::Get()->Create("EndingCredit", new EndingCreditScene());
+    //SceneManager::Get()->Create("Terrain", new TerrainScene());
 
     //SceneManager::Get()->Add("Grid");
 
@@ -103,6 +105,7 @@ void GameManager::Start()
     //SceneManager::Get()->Add("Shadow");
     //SceneManager::Get()->Add("OnlyBoss");
    // SceneManager::Get()->Add("EndingCredit");
+    //SceneManager::Get()->Add("Terrain");
 }
 
 void GameManager::Create()
