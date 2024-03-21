@@ -213,8 +213,6 @@ void GameMapScene::Render()
 		//bc2->Render();
 
 		
-		FOR(7)
-			HeightCollider[i]->Render();
 		
 		player->Render();
 		MonsterManager::Get()->Render();
