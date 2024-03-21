@@ -26,7 +26,7 @@ Player::Player()
     weaponColliders.push_back(dagger->GetCollider());
 
     bow = new Model("Elven Long Bow");
-    bow->SetActive(true);
+    bow->SetActive(false);
 
     {
         bow->SetParent(leftHand);
@@ -267,6 +267,7 @@ Player::~Player()
     delete settingBG;
     delete title;
     delete volumeControlBG;
+    delete cloakParticle;
 
     FOR(2)
         delete blendState[i];
