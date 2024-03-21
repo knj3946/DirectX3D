@@ -323,4 +323,6 @@ private:
     Trail* weaponTrailR;
     Transform* startEdgeTrailR; // 궤적이 시작될 곳
     Transform* endEdgeTrailR;
+
+    bool trailToggle = false;
 };

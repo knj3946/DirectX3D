@@ -132,11 +132,8 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     endEdgeTrailL->SetParent(leftWeaponCollider);
     endEdgeTrailL->Pos() = leftWeaponCollider->Pos() + leftWeaponCollider->Pos().Down() * 0.5f / 0.03f; // 20.0f :모델크기반영
 
-    startEdgeTrailL->UpdateWorld();
-    endEdgeTrailL->UpdateWorld();
-
-    weaponTrailL = new Trail(L"Textures/Effect/wind.jpg", startEdgeTrailL, endEdgeTrailL, 100, 100);
-    weaponTrailL->SetActive(false);
+    weaponTrailL = new Trail(L"Textures/Effect/wind.jpg", startEdgeTrailL, endEdgeTrailL, 100, 120);
+    weaponTrailL->SetActive(true);
 
 
     startEdgeTrailR = new Transform();
@@ -147,11 +144,8 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     endEdgeTrailR->SetParent(rightWeaponCollider);
     endEdgeTrailR->Pos() = rightWeaponCollider->Pos() + rightWeaponCollider->Pos().Down() * 0.5f / 0.03f; // 20.0f :모델크기반영
 
-    startEdgeTrailR->UpdateWorld();
-    endEdgeTrailR->UpdateWorld();
-
-    weaponTrailR = new Trail(L"Textures/Effect/wind.jpg", startEdgeTrailR, endEdgeTrailR, 100, 100);
-    weaponTrailR->SetActive(false);
+    weaponTrailR = new Trail(L"Textures/Effect/wind.jpg", startEdgeTrailR, endEdgeTrailR, 100, 120);
+    weaponTrailR->SetActive(true);
    // particleHit->Stop();
 }
 
@@ -253,8 +247,8 @@ void Orc::Update()
 void Orc::Render()
 {
     //collider->Render();
-    leftWeaponCollider->Render();
-    rightWeaponCollider->Render();
+    //leftWeaponCollider->Render();
+    //rightWeaponCollider->Render();
     hpBar->Render();
     if(behaviorstate != NPC_BehaviorState::DETECT&& !isDying) // 죽으면 바로 렌더안하게
         rangeBar->Render();
@@ -262,10 +256,11 @@ void Orc::Render()
 
     particleHit->Render();
 
-    if (weaponTrailL != nullptr && leftWeaponCollider->Active())
+    if (trailToggle)
+    {
         weaponTrailL->Render();
-    if (weaponTrailR != nullptr  && rightWeaponCollider->Active())
         weaponTrailR->Render();
+    }
 }
 
 void Orc::PostRender()
@@ -400,13 +395,15 @@ void Orc::Throw()
 
 void Orc::StartAttack()
 {
+    trailToggle = true;
+
     leftWeaponCollider->SetActive(true);
-    weaponTrailL->Init();
-    weaponTrailL->SetActive(true);
+    leftWeaponCollider->UpdateWorld();
+    weaponTrailL->Init(leftWeaponCollider->GlobalPos());
 
     rightWeaponCollider->SetActive(true);
-    weaponTrailR->Init();
-    weaponTrailR->SetActive(true);
+    rightWeaponCollider->UpdateWorld();
+    weaponTrailR->Init(rightWeaponCollider->GlobalPos());
 }
 
 bool Orc::GetDutyFlag()
@@ -494,9 +491,8 @@ void Orc::StateRevision()
     if (curState != ATTACK1 && curState!=ATTACK2 && curState!=ATTACK3)
     {
         leftWeaponCollider->SetActive(false);
-        weaponTrailL->SetActive(false);
         rightWeaponCollider->SetActive(false);
-        weaponTrailR->SetActive(false);
+        trailToggle = false;
     }
 }
 
@@ -504,7 +500,7 @@ void Orc::ParticleUpdate()
 {
     particleHit->Update();
 
-    if (weaponTrailL != nullptr && leftWeaponCollider->Active())
+    if (trailToggle)
     {                
         startEdgeTrailL->Pos() = leftWeaponCollider->Pos() + leftWeaponCollider->Pos().Up() * 0.5f / 0.03f; // 20.0f :모델크기반영
         endEdgeTrailL->Pos() = leftWeaponCollider->Pos() + leftWeaponCollider->Pos().Down() * 0.5f / 0.03f; // 20.0f :모델크기반영
@@ -516,10 +512,7 @@ void Orc::ParticleUpdate()
         startEdgeTrailL->UpdateWorld();
         endEdgeTrailL->UpdateWorld(); // 이러면 트랜스폼에 위치가 담긴다
         weaponTrailL->Update();
-    }
 
-    if (weaponTrailR != nullptr && rightWeaponCollider->Active())
-    {                
         startEdgeTrailR->Pos() = rightWeaponCollider->Pos() + rightWeaponCollider->Pos().Up() * 0.5f / 0.03f; // 20.0f :모델크기반영
         endEdgeTrailR->Pos() = rightWeaponCollider->Pos() + rightWeaponCollider->Pos().Down() * 0.5f / 0.03f; // 20.0f :모델크기반영
 
@@ -666,8 +659,8 @@ void Orc::Hit(float damage,Vector3 collisionPos, bool _btrue)
 
         collider->SetActive(false);
         leftWeaponCollider->SetActive(false);
-        weaponTrailL->SetActive(false);
         rightWeaponCollider->SetActive(false);
+        trailToggle = false;
         if (destHP <= 0)
         {
             
@@ -1294,6 +1287,8 @@ void Orc::EndDying()
     leftWeaponCollider->SetActive(false);
     questionMark->SetActive(false);
     exclamationMark->SetActive(false);
+
+    trailToggle = false;
 
    // particleHit->Stop();
 

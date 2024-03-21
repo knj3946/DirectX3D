@@ -9,6 +9,7 @@ public:
 	~Trail();
 
 	void Init();
+	void Init(Vector3 offset);
 
 	void Update();
 	void Render();
