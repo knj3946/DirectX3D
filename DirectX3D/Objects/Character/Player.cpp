@@ -1222,9 +1222,9 @@ void Player::Jumping()
         }
     }
 
-    if (tempY + 6.2f >= ceilingHeight)  //천장을 한번 더 체크
+    if (tempY + 5.9f >= ceilingHeight)  //천장을 한번 더 체크
     {
-        tempY = ceilingHeight - 6.2f;
+        tempY = ceilingHeight - 5.9f;
         tempJumpVel = -20;
     }
 
