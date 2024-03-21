@@ -122,18 +122,39 @@ bool ArrowManager::IsCollision()
 	for (Arrow* arrow : arrows)
 	{
 		if (!arrow->GetTransform()->Active() || arrow->IsDropItem())continue;
+
+		for (int i = 0; i < MonsterManager::Get()->GetSIZE(); i++)
+		{
+			Orc* orc = MonsterManager::Get()->GetOrc(i);
+
+			if (orc->GetCollider()->IsSphereCollision(arrow->GetCollider()))
+			{
+				arrow->GetCollider()->SetActive(false);
+				//arrow->HitEffectActive();
+				orc->Hit(20, arrow->GetTransform()->GlobalPos());// 화살데미지 임시설정
+				arrow->GetTrail()->SetActive(false);
+				arrow->GetTransform()->SetActive(false);
+				return true;
+			}
+			
+		}
+		
+		/*
 		for(int i = 0; i < ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC).size(); i++)
 		{
 			if (ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC)[i]->IsSphereCollision(arrow->GetCollider()))
 			{
 				arrow->GetCollider()->SetActive(false);
 				//arrow->HitEffectActive();
+				ColliderManager::Get()->Getvector(ColliderManager::Collision_Type::ORC)[i]->GetParent()
+
 				MonsterManager::Get()->GetOrc(i)->Hit(20, arrow->GetTransform()->GlobalPos());// 화살데미지 임시설정
 				arrow->GetTrail()->SetActive(false);
 				arrow->GetTransform()->SetActive(false);
 				return true;
 			}
 		}
+		*/
 	}
 	for (Arrow* arrow : arrows)
 	{
