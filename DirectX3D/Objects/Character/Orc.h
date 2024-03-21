@@ -127,6 +127,8 @@ public:
     void SetSpeed(float s) { moveSpeed = s; runSpeed = s; }
 
     void SetStartCoolDown(float cool) { this->searchStartCoolDown = cool; }
+
+    void SetRestorePos(Vector3 pos) { this->restorePos = pos; }
 private:
     void Control();
     void Move();

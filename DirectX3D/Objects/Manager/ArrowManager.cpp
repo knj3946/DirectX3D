@@ -134,6 +134,9 @@ bool ArrowManager::IsCollision()
 				orc->Hit(20, arrow->GetTransform()->GlobalPos());// 화살데미지 임시설정
 				arrow->GetTrail()->SetActive(false);
 				arrow->GetTransform()->SetActive(false);
+
+				orc->SetRestorePos(ColliderManager::Get()->Getvector(ColliderManager::PLAYER)[0]->GlobalPos());
+
 				return true;
 			}
 			
