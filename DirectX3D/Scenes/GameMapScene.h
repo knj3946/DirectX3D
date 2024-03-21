@@ -35,7 +35,7 @@ private:
 
 	Shadow* shadow;
 
-	BoxCollider* HeightCollider[6];
+	BoxCollider* HeightCollider[7];
 
 	float waitSettingTime = 0.0f;
 

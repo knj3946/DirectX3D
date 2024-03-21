@@ -313,7 +313,7 @@ private:
     const float maxSpeed = 250.0f;
     const float chargetVal = 100.0f;
     float chargingT = initSpeed;
-
+    class Bow* bows;
     Transform* climbCam;
     bool canClimbControl = false;
     Vector3 climbVel;
