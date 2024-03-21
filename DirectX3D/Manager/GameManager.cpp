@@ -53,7 +53,7 @@ void GameManager::Render()
     Timer::Get()->SaveFinishTime();
 
     double dt = Timer::Get()->GetFinishTime() - Timer::Get()->GetStartTime();
-    double sleepTime = (820.0 / 60.0) - dt;
+    double sleepTime = (450.0 / 60.0) - dt;
 
     if (Timer::Get()->GetStartFlag())
     {

@@ -53,6 +53,8 @@ void GameMapScene::Update()
 
 	if (MenuManager::Get()->GetSelectGameMenu() == 1) //인게임
 	{
+		Timer::Get()->SaveStartTime();
+
 		if (MenuManager::Get()->GetSelectFailMenu() == 1)
 		{
 			//처음부터 시작하도록 로직작성
@@ -581,5 +583,6 @@ void GameMapScene::FirstLoading()
 	if (MenuManager::Get()->GetLoadingSequence() == 6)
 	{
 		MenuManager::Get()->SetLoadingRate(100.f);
+		Timer::Get()->SetStartFlag(true);
 	}
 }
