@@ -80,7 +80,7 @@ public:
     void SetPatrolPos(Vector3& _pos) { PatrolPos.push_back(_pos); };
     void Direction();
 
-
+    void WeaponTrailRender();
     void SetTerrain(LevelData* terrain);
     void SetAStar(AStar* aStar) { this->aStar = aStar; }
     void SetTarget(Transform* target) { this->target = target; }

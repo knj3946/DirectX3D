@@ -95,7 +95,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     hpBar->Rot().y = atan2(dir.x, dir.z);
     hpBar->UpdateWorld();
     hpBar->Render();
-
+  
     exclamationMark = new Quad(L"Textures/UI/Exclamationmark.png");
     questionMark = new Quad(L"Textures/UI/QuestionMark.png");
     exclamationMark->Scale() *= 0.1f;
@@ -256,11 +256,7 @@ void Orc::Render()
 
     particleHit->Render();
 
-    if (trailToggle)
-    {
-        weaponTrailL->Render();
-        weaponTrailR->Render();
-    }
+ 
 }
 
 void Orc::PostRender()
@@ -269,6 +265,15 @@ void Orc::PostRender()
     questionMark->Render();
     exclamationMark->Render();
 
+}
+
+void Orc::WeaponTrailRender()
+{
+    if (trailToggle)
+    {
+        weaponTrailL->Render();
+        weaponTrailR->Render();
+    }
 }
 
 void Orc::SetTerrain(LevelData* terrain)
@@ -423,7 +428,7 @@ void Orc::SetGroundPos()
 {
     if (!OnColliderFloor(feedBackPos)) // 문턱올라가기 때문
     {
-        if (curRayCoolTime <= 0.f)
+        if (curRayCoolTime <= 0.f)  
         {
             Vector3 OrcSkyPos = transform->Pos();
             OrcSkyPos.y += 100;
