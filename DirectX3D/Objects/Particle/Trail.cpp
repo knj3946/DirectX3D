@@ -42,6 +42,16 @@ void Trail::Init()
 	}
 }
 
+void Trail::Init(Vector3 offset)	// 콜라이더를 기준으로 출력할 때 사용
+{
+	vector<VertexUV>& vertices = mesh->GetVertices();
+	for (UINT i = 0; i <= width; i++)
+	{
+		vertices[i * 2 + 0].pos = offset;
+		vertices[i * 2 + 1].pos = offset;
+	}
+}
+
 void Trail::Update()
 {
 	if (!Active())return;
