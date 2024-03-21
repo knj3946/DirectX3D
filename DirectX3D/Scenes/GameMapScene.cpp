@@ -161,7 +161,7 @@ void GameMapScene::Update()
 			}
 			
 		}
-		FOR(6) {
+		FOR(7) {
 			MonsterManager::Get()->Blocking(HeightCollider[i]);
 
 		}
@@ -210,10 +210,10 @@ void GameMapScene::Render()
 		//bc1->Render();
 		//bc2->Render();
 
-		/*
-		FOR(6)
+		
+		FOR(7)
 			HeightCollider[i]->Render();
-		*/
+		
 		player->Render();
 		MonsterManager::Get()->Render();
 		KunaiManager::Get()->Render();
@@ -428,15 +428,15 @@ void GameMapScene::FirstLoading()
 
 		MenuManager::Get()->IncreaseLoadingSequence();
 		MenuManager::Get()->SetLoadingRate(55.f);
-		FOR(6)
+		FOR(7)
 			HeightCollider[i] = new BoxCollider;
 
 		HeightCollider[0]->Pos() = {128.f,25.f,18.f};
 		HeightCollider[0]->Scale() = {256.f,50.f,30.f};
 		HeightCollider[1]->Pos() = { 128.f,25.f, 246.5f };
 		HeightCollider[1]->Scale() = { 256.f,50.f,30.f };
-		HeightCollider[2]->Pos() = { 239.f,25.f,128.f };
-		HeightCollider[2]->Scale() = { 30.f,50.f,256.f };
+		HeightCollider[2]->Pos() = { 239.f,25.f,88.f };
+		HeightCollider[2]->Scale() = { 22.3f,50.f,145.f };
 		HeightCollider[3]->Pos() = { 13.7f,25.f, 128.f };
 		HeightCollider[3]->Scale() = { 30.f,50.f,256.f };
 		HeightCollider[4]->Pos() = { 128.f,15.f,129.f };
@@ -445,7 +445,9 @@ void GameMapScene::FirstLoading()
 		HeightCollider[5]->Pos() = { 183.f,15.f, 152.7f };
 		HeightCollider[5]->Rot() = { 0.f,0.f,0.f };
 		HeightCollider[5]->Scale() = {110.f,30.f,14.1f };
-		FOR(6) {
+		HeightCollider[6]->Pos() = { 246.f,25.f,203.f };
+		HeightCollider[6]->Scale() = { 9.7f,50.f,98.3f };
+		FOR(7) {
 			HeightCollider[i]->Role() = Collider::Collider_Role::BLOCK;
 			HeightCollider[i]->UpdateWorld();
 			ColliderManager::Get()->SetObstacles(HeightCollider[i]);
@@ -459,11 +461,14 @@ void GameMapScene::FirstLoading()
 
 		player = new Player();
 		player->Scale() = { 0.03f,0.03f,0.03f };
-		player->Pos() = { 60,0,90 };
+		player->Pos() = { 230,0,205 };
+		float c= XMConvertToDegrees(1.3);
+		player->Rot() = { 0,1.37f,0};
 		player->SetTerrain(terrain);
 		//player->SetMoveSpeed(50);
 		bow = new Bow;
 		bow->SetTarget(player);
+	
 		player->SetBow(bow->GetModel());
 		ArrowManager::Get()->SetBowTransform(bow->GetModel());
 		CAM->SetTarget(player);
