@@ -62,15 +62,13 @@ void GameMapScene::Update()
 
 			player->Respawn(Vector3(230, 0, 205));
 			MonsterManager::Get()->Respawn();
-
-
+			boss->RePlay();
 			FOR(MonsterManager::Get()->GetSIZE())
 			{
 				MonsterManager::Get()->SetOrcSRT(i, srt[i][0], srt[i][1], srt[i][2]);
 				MonsterManager::Get()->SetPatrolPos(i, patrolPos[i]);
 			}
-			MonsterManager::Get()->GetOrc(0)->SetSpeed(8);
-			MonsterManager::Get()->GetOrc(1)->SetSpeed(6);
+	
 
 			MenuManager::Get()->SetFailFlag(false);
 			MenuManager::Get()->SetSelectFailMenu(0);

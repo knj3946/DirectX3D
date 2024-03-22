@@ -426,6 +426,7 @@ void MonsterManager::Fight(Player* player)
                 if (player->GetCollider()->Active() && collider->Active() && collider->IsCapsuleCollision(player->GetCollider())) //¿ÀÅ©ÀÇ ¿þÆù Ãæµ¹Ã¼°¡ Å¸°ÙÀÌ¶û °ãÄ¥¶§
                 {
                     Vector3 pos=collider->GetCollisionPoint();
+                 
                     player->SetHitEffectPos(pos);
                     player->Hit(item.second.orc->GetDamage());
                     collider->SetActive(false);

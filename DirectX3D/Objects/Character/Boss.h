@@ -222,7 +222,8 @@ private:
     void StartAttack();
    
     void EndRoar();
-   
+
+  
     void EndDying();
  //   void EndJumpAttack();
     bool IsPatrolPos();
@@ -240,6 +241,8 @@ private:
 
     void ProcessHpBar();
 public:
+    void RePlay();
+
     bool GetIsAttack() { return isAttack; }
     void Hit(float damage, Vector3 collisionPos,bool _btrue=true);
     bool GetIsDying() { return isDying; }

@@ -686,6 +686,15 @@ void Orc::Spawn(Vector3 pos)
     transform->SetActive(true); //비활성화였다면 활성화 시작
     collider->SetActive(true);
     moveCollider->SetActive(true);
+    questionMark->SetActive(false);
+    exclamationMark->SetActive(false);
+    bFind = false;
+    bDetection = false;
+    DetectionStartTime = 0.f;
+    rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
+    hpBar->SetAmount(curHP / maxHp);
+
+
     //leftWeaponCollider->SetActive(true);
     //rightWeaponCollider->SetActive(true);
 }

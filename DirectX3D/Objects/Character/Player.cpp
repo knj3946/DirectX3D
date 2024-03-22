@@ -257,7 +257,7 @@ Player::Player()
     blendState[1]->Additive(); //투명색 적용 + 배경색 처리가 있으면 역시 적용
 
     stateInfo = new StateInfo();
-
+    destHP = curHP;
 }
 
 Player::~Player()
@@ -904,24 +904,26 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
 
 void Player::UpdateUI()
 {
-    if (isHit || isDying)
-    {
-        if (isHit)
-            curHP -= DELTA * 10 * 4; // 2 -> 4
-        else
-            curHP -= DELTA * 10 * 6;
-        State aa = curState;
+ 
+    
+      curHP -= DELTA * 10 * 4; // 2 -> 4
+        
+            // 
+     State aa = curState;
 
         if (curHP <= destHP)
         {
             curHP = destHP;
-            isHit = false;
         }
 
+     
         hpBar->SetAmount(curHP / maxHp);
-    }
+    
 
     /*
+    * 
+    * 30 39 38 3736
+    * 30 30
     Vector3 barPos = Pos() + Vector3(0, 6, 0);
 
     hpBar->UpdateWorld();
@@ -1435,6 +1437,7 @@ bool Player::TerainComputePicking(Vector3& feedback, Ray ray)
     return false;
 }
 
+
 float Player::GetDamage()
 {
     float r = 0.0f;
@@ -1451,15 +1454,13 @@ float Player::GetDamage()
 void Player::Hit(float damage)
 {
 
-    if (!isHit)
-    {
-        isHit = true;
-        destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
-        hiteffect->Play(particlepos);
-        if (curState == JUMP4)
-            PLAYERSOUND()->Play("Player_LandDamage", landVolume * VOLUME);
-        else
+       destHP = (curHP - damage > 0) ? curHP - damage : 0;
+
+       hiteffect->Play(particlepos);
+      if (curState == JUMP4)
+           PLAYERSOUND()->Play("Player_LandDamage", landVolume * VOLUME);
+      else
             PLAYERSOUND()->Play("Player_Hit", hitVolume * VOLUME);
         if (destHP <= 0)
         {
@@ -1478,7 +1479,7 @@ void Player::Hit(float damage)
         dohitanimation = true;
 
 
-    }
+    
 
 }
 

@@ -124,7 +124,23 @@ Boss::Boss()
 	}
 
 }
+void Boss::RePlay() {
 
+	curHP = maxHP;
+	hpBar->SetAmount(curHP / maxHP);
+	state = BOSS_STATE::IDLE;
+	SetState(IDLE);
+	transform->Pos() = PatrolPos[0];
+	curPatrol = 0;
+	bFind = false;
+	questionMark->SetActive(false);
+	exclamationMark->SetActive(false);
+	bDetection = false;
+	DetectionStartTime = 0.f;
+	path.clear();
+	rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
+	transform->Rot() = {};
+}
 Boss::~Boss()
 {
 	SAFE_DELETE(hiteffect);
