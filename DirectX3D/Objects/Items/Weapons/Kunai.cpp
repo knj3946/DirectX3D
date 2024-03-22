@@ -70,7 +70,8 @@ void Kunai::Update()
 void Kunai::Render()
 {
 	if (!transform->Active())return;
-	collider->Render();
+	
+	//collider->Render();
 
 	if (trail != nullptr)
 		trail->Render();

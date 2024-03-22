@@ -89,7 +89,7 @@ void Arrow::Update()
 
 void Arrow::Render()
 {
-	collider->Render();
+	//collider->Render();
 	HitEffect->Render();
 	Wallparticle->Render();
 	if (isDropItem)return;
