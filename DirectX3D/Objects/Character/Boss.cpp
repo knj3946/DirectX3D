@@ -62,8 +62,8 @@ Boss::Boss()
 
 	SetEvent(ATTACK, bind(&Boss::StartAttack, this), 0.f);
 	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.9f);
-	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, true), 0.5f); //콜라이더 켜는 시점 설정
-	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, false), 0.78f); //콜라이더 꺼지는 시점 설정
+	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, true), 0.35f); //콜라이더 켜는 시점 설정
+	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, false), 0.65f); //콜라이더 꺼지는 시점 설정
 	
 	SetEvent(HIT, bind(&Boss::EndHit, this), 0.98f); //콜라이더 꺼지는 시점 설정
 
@@ -153,8 +153,6 @@ Boss::~Boss()
 
 void Boss::Render()
 {
-
-
 	instancing->Render();
 	hpBar->Render();
 	
@@ -177,15 +175,18 @@ void Boss::Update()
 	if (GameControlManager::Get()->PauseGame())return;
 	instancing->Update();
 	ExecuteEvent();
-
+	UpdateUI();
 	if (curHP <= 0)return;
-	Idle();
-	Direction();
-	Control();
-	Find();
+	Idle(); // IDLE 일 때 실행
+	//Direction();
+	Control(); // DETECT 일 때 실행
+	Find();	// FIND , DETECT
 	CollisionCheck();
 	CoolTimeCheck();
 	MarkTimeCheck();
+
+	//if (CalculateHit()) return;
+	
 	Move();
 	Rotate();
 	
@@ -213,9 +214,6 @@ void Boss::Update()
 	for (int i = 0; i < 3; ++i)
 		Runparticle[i]->Update();
 
-
-	UpdateUI();
-
 	CoolDown();
 }
 
@@ -236,14 +234,19 @@ void Boss::PostRender()
 }
 
 void Boss::GUIRender() {
-	ImGui::DragInt("count",(int*)&count,1,0,15);
-
-	Roarparticle->GUIRender();
+	//ImGui::DragInt("count",(int*)&count,1,0,15);
+	ImGui::Text("isPlayer : %d", IsPlayer);
+	//ImGui::Text("isAssassinated : %d", isAssassinated);
+	ImGui::Text("bFind : %d", bFind);
+	ImGui::Text("bDetection : %d", bDetection);
+	//Roarparticle->GUIRender();
 }
 
 void Boss::CalculateEyeSight()
 {
-
+	if (dynamic_cast<Player*>(target)->IsCloaking()) {
+		bDetection = false; return;
+	}
 	Vector3 direction = target->GlobalPos() - transform->GlobalPos();
 	direction.Normalize();
 
@@ -303,6 +306,9 @@ void Boss::CalculateEyeSight()
 
 bool Boss::CalculateEyeSight(bool _bFind)
 {
+	if (dynamic_cast<Player*>(target)->IsCloaking()) {
+		bDetection = false; return false;
+	}
 	Vector3 direction = target->GlobalPos() - transform->GlobalPos();
 	direction.Normalize();
 
@@ -362,13 +368,14 @@ void Boss::Assassinated(Vector3 collisionPos, Transform* attackerTrf)
 	instancing->SetOutLine(index, false);
 	//MonsterManager::Get()->specialKeyUI["assassination"].active = false;
 	//MonsterManager::Get()->specialKeyUI["assassination"].quad->UpdateWorld();
-	SetState(HIT);
-	isAssassinated = true;
+	//SetState(HIT);
+	//isAssassinated = true;
+	//bDetection = true;
+	//bFind = true;
 	Vector3 pos = transform->GlobalPos();
 	pos.y += 5;
+	IsPlayer = true;
 	Hit(100, pos);
-
-	
 }
 
 void Boss::MarkTimeCheck()
@@ -405,9 +412,6 @@ void Boss::Idle()
 	if (state != BOSS_STATE::IDLE)return;
 	Detection();
 	CalculateEyeSight();
-
-
-
 }
 
 void Boss::Direction()
@@ -427,14 +431,12 @@ void Boss::Move()
 	case Boss::RUN:
 		Run();
 		break;
-
 	}
 	
-
+	if (CalculateHit()) return;
+	
 	if (bWait)
 		return;
-
-	if (CalculateHit()) return;
 
 	transform->Pos() += dir * moveSpeed * DELTA;
 }
@@ -451,7 +453,6 @@ void Boss::IdleMove() {
 
 	if (IsPatrolPos())
 	{
-		
 		if (!bWait)
 		{
 			bWait = true;
@@ -501,7 +502,6 @@ void Boss::Die()
 
 void Boss::Find()
 {
-	
 	if (state == BOSS_STATE::DETECT) {
 		if (dynamic_cast<Player*>(target)->IsCloaking()) {
 			state = BOSS_STATE::FIND;
@@ -530,10 +530,8 @@ void Boss::Find()
 			state = BOSS_STATE::DETECT;
 			questionMark->SetActive(false);
 			exclamationMark->SetActive(true);
-		
 		}
 	}
-	
 }
 
 void Boss::Rotate()
@@ -631,7 +629,6 @@ void Boss::UpdateUI()
 	questionMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 1, 0));
 	questionMark->UpdateWorld();
 }
-
 
 
 void Boss::SetState(STATE state, float scale, float takeTime)
@@ -765,9 +762,6 @@ void Boss::Detection()
 		SetState(RUN);
 	}
 	rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
-	
-
-
 }
 
 void Boss::EndAttack()
@@ -803,9 +797,10 @@ void Boss::EndAttack()
 void Boss::EndHit()
 {
 	bWait = false;
-	SetState(RUN);
 	isHit = false;
-//	collider->SetActive(true);
+	collider->SetActive(true);
+	leftCollider->SetActive(true);
+	SetState(RUN);
 }
 
 void Boss::EndDying()
@@ -1095,7 +1090,6 @@ void Boss::CollisionCheck()
 			player->Hit(attackdamage);
 			isAttack = true;
 		}
-
 	}
 	if (RoarCollider->Active()) {
 		if (RoarCollider->IsCollision(player->GetCollider()))
@@ -1206,7 +1200,7 @@ void Boss::Hit(float damage, Vector3 collisionPos,bool _btrue)
 		SetState(HIT);
 		isHit = true;
 		bWait = true;
-	
+		CalculateHit();
 	}
 
 }
@@ -1216,7 +1210,7 @@ bool Boss::CalculateHit()
 {
 	if (isHit)
 	{
-		SetState(HIT);
+		//SetState(HIT);
 
 		if (!bFind)
 		{
@@ -1232,13 +1226,13 @@ bool Boss::CalculateHit()
 			transform->UpdateWorld();
 		}
 
-		if (curHP <= destHP)
+		/*if (curHP <= destHP)
 		{
 			isHit = false;
 			collider->SetActive(true);
 			leftCollider->SetActive(true);
 			SetState(RUN);
-		}
+		}*/
 
 		return true;
 	}

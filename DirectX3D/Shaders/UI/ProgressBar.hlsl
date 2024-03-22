@@ -24,7 +24,7 @@ cbuffer ValueBuffer : register(b10)
 	float fillAmount;
 }
 
-cbuffer BlendAlpha : register(b11) {
+cbuffer BlendAlpha : register(b13) {
 	float Blend;
 }
 

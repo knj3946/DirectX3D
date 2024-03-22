@@ -13,9 +13,7 @@ public:
 	CapsuleCollider* GetCollider() { return collider; }
 	float GetDamaged() { return damage; }
 
-	void SetTrailActive(bool val) { trail->Init();  trail->SetActive(val); }
-
-	void SetInteraction(bool val) { collider->SetActive(val);  trail->Init();  trail->SetActive(val); }
+	void SetInteraction(bool val) { collider->SetActive(val);  if(val) trail->Init();  trail->SetActive(val); }
 
 private:
 	CapsuleCollider* collider;

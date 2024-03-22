@@ -26,7 +26,7 @@ Player::Player()
     weaponColliders.push_back(dagger->GetCollider());
 
     bow = new Model("Elven Long Bow");
-    bow->SetActive(true);
+    bow->SetActive(false);
 
     {
         bow->SetParent(leftHand);
@@ -267,6 +267,7 @@ Player::~Player()
     delete settingBG;
     delete title;
     delete volumeControlBG;
+    delete cloakParticle;
 
     FOR(2)
         delete blendState[i];
@@ -1116,7 +1117,17 @@ void Player::Walking()
 
     float radianHeightAngle = acos(abs(destDirXZ.Length()) / abs(destDir.Length()));
 
-    if (!isPushed &&
+
+    Vector3 calVec;
+
+    Ray terrainRay = Ray(Pos() - direction.GetNormalized(), { 0,-1,0 });
+    terrainRay.pos.y += 1000.0f;
+
+    TerainComputePicking(calVec, terrainRay);
+
+    float  heightLim = calVec.y - Pos().y;
+
+    if (!isPushed && heightLim < 2.0f &&
         (radianHeightAngle < XMConvertToRadians(60) || destFeedBackPos.y <= feedBackPos.y
             || destFeedBackPos.y - feedBackPos.y < 0.5f) // 바닥 올라가게 하기위해 추가함
         ) //???? 60?????? ???? ???, ??? ?????? ????? ?? ???????sad wad  
@@ -1212,9 +1223,9 @@ void Player::Jumping()
         }
     }
 
-    if (tempY + 6.2f >= ceilingHeight)  //천장을 한번 더 체크
+    if (tempY + 5.9f >= ceilingHeight)  //천장을 한번 더 체크
     {
-        tempY = ceilingHeight - 6.2f;
+        tempY = ceilingHeight - 5.9f;
         tempJumpVel = -20;
     }
 
@@ -1315,7 +1326,7 @@ bool Player::InTheAir() {
 
 void Player::SetDaggerAnim()
 {
-    dagger->SetTrailActive(true);
+    dagger->SetInteraction(true);
     PLAYERSOUND()->Play("Player_Attack", attackVolume * VOLUME);
 }
 

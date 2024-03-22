@@ -168,7 +168,7 @@ private:
     map<string, SpecialKeyUI> specialKeyUI;
     bool isHit = false;
     bool isDying = false;
-    bool isAssassinated = false;
+    //bool isAssassinated = false;
     float DetectionRange;
     bool IsPlayer = false;
   

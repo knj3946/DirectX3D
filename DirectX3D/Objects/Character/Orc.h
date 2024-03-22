@@ -80,7 +80,7 @@ public:
     void SetPatrolPos(Vector3& _pos) { PatrolPos.push_back(_pos); };
     void Direction();
 
-
+    void WeaponTrailRender();
     void SetTerrain(LevelData* terrain);
     void SetAStar(AStar* aStar) { this->aStar = aStar; }
     void SetTarget(Transform* target) { this->target = target; }
@@ -127,6 +127,8 @@ public:
     void SetSpeed(float s) { moveSpeed = s; runSpeed = s; }
 
     void SetStartCoolDown(float cool) { this->searchStartCoolDown = cool; }
+
+    void SetRestorePos(Vector3 pos) { this->restorePos = pos; }
 private:
     void Control();
     void Move();
@@ -315,4 +317,14 @@ private:
     bool battacktarget = false;
     bool returntoPatrol = false;
     Vector3 restorePos;
+
+    Trail* weaponTrailL;
+    Transform* startEdgeTrailL; // 궤적이 시작될 곳
+    Transform* endEdgeTrailL;
+
+    Trail* weaponTrailR;
+    Transform* startEdgeTrailR; // 궤적이 시작될 곳
+    Transform* endEdgeTrailR;
+
+    bool trailToggle = false;
 };

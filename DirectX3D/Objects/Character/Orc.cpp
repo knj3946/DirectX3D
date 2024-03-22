@@ -95,7 +95,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     hpBar->Rot().y = atan2(dir.x, dir.z);
     hpBar->UpdateWorld();
     hpBar->Render();
-
+  
     exclamationMark = new Quad(L"Textures/UI/Exclamationmark.png");
     questionMark = new Quad(L"Textures/UI/QuestionMark.png");
     exclamationMark->Scale() *= 0.1f;
@@ -121,6 +121,31 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     rangeBar->Pos() = { -15.f,2.f,-650.f };
 
     particleHit = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);
+    particleHit->Stop();
+    
+
+    startEdgeTrailL = new Transform();
+    startEdgeTrailL->SetParent(leftWeaponCollider);
+    startEdgeTrailL->Pos() = leftWeaponCollider->Pos() + leftWeaponCollider->Pos().Up() * 0.5f / 0.03f; // 20.0f :모델크기반영
+
+    endEdgeTrailL = new Transform();
+    endEdgeTrailL->SetParent(leftWeaponCollider);
+    endEdgeTrailL->Pos() = leftWeaponCollider->Pos() + leftWeaponCollider->Pos().Down() * 0.5f / 0.03f; // 20.0f :모델크기반영
+
+    weaponTrailL = new Trail(L"Textures/Effect/wind.jpg", startEdgeTrailL, endEdgeTrailL, 100, 120);
+    weaponTrailL->SetActive(true);
+
+
+    startEdgeTrailR = new Transform();
+    startEdgeTrailR->SetParent(rightWeaponCollider);
+    startEdgeTrailR->Pos() = leftWeaponCollider->Pos() + leftWeaponCollider->Pos().Up() * 0.5f / 0.03f; // 20.0f :모델크기반영
+
+    endEdgeTrailR = new Transform();
+    endEdgeTrailR->SetParent(rightWeaponCollider);
+    endEdgeTrailR->Pos() = rightWeaponCollider->Pos() + rightWeaponCollider->Pos().Down() * 0.5f / 0.03f; // 20.0f :모델크기반영
+
+    weaponTrailR = new Trail(L"Textures/Effect/wind.jpg", startEdgeTrailR, endEdgeTrailR, 100, 120);
+    weaponTrailR->SetActive(true);
    // particleHit->Stop();
 }
 
@@ -146,6 +171,14 @@ Orc::~Orc()
     delete particleHit;
     delete rayBuffer;
     delete structuredBuffer;
+
+    delete weaponTrailL;
+    delete startEdgeTrailL;
+    delete endEdgeTrailL;
+
+    delete weaponTrailR;
+    delete startEdgeTrailR;
+    delete endEdgeTrailR;
 }
 
 void Orc::SetType(NPC_TYPE _type) {
@@ -228,6 +261,8 @@ void Orc::Render()
     //aStar->Render();
 
     particleHit->Render();
+
+ 
 }
 
 void Orc::PostRender()
@@ -236,6 +271,15 @@ void Orc::PostRender()
     questionMark->Render();
     exclamationMark->Render();
 
+}
+
+void Orc::WeaponTrailRender()
+{
+    if (trailToggle)
+    {
+        weaponTrailL->Render();
+        weaponTrailR->Render();
+    }
 }
 
 void Orc::SetTerrain(LevelData* terrain)
@@ -366,8 +410,15 @@ void Orc::Throw()
 
 void Orc::StartAttack()
 {
+    trailToggle = true;
+
     leftWeaponCollider->SetActive(true);
+    leftWeaponCollider->UpdateWorld();
+    weaponTrailL->Init(leftWeaponCollider->GlobalPos());
+
     rightWeaponCollider->SetActive(true);
+    rightWeaponCollider->UpdateWorld();
+    weaponTrailR->Init(rightWeaponCollider->GlobalPos());
 }
 
 bool Orc::GetDutyFlag()
@@ -387,7 +438,7 @@ void Orc::SetGroundPos()
 {
     if (!OnColliderFloor(feedBackPos)) // 문턱올라가기 때문
     {
-        if (curRayCoolTime <= 0.f)
+        if (curRayCoolTime <= 0.f)  
         {
             Vector3 OrcSkyPos = transform->Pos();
             OrcSkyPos.y += 100;
@@ -456,12 +507,38 @@ void Orc::StateRevision()
     {
         leftWeaponCollider->SetActive(false);
         rightWeaponCollider->SetActive(false);
+        trailToggle = false;
     }
 }
 
 void Orc::ParticleUpdate()
 {
     particleHit->Update();
+
+    if (trailToggle)
+    {                
+        startEdgeTrailL->Pos() = leftWeaponCollider->Pos() + leftWeaponCollider->Pos().Up() * 0.5f / 0.03f; // 20.0f :모델크기반영
+        endEdgeTrailL->Pos() = leftWeaponCollider->Pos() + leftWeaponCollider->Pos().Down() * 0.5f / 0.03f; // 20.0f :모델크기반영
+
+        startEdgeTrailL->Pos().y -= 12.0f;
+        endEdgeTrailL->Pos().y -= 12.0f;
+
+        // 찾아낸 꼭지점 위치를 업데이트 
+        startEdgeTrailL->UpdateWorld();
+        endEdgeTrailL->UpdateWorld(); // 이러면 트랜스폼에 위치가 담긴다
+        weaponTrailL->Update();
+
+        startEdgeTrailR->Pos() = rightWeaponCollider->Pos() + rightWeaponCollider->Pos().Up() * 0.5f / 0.03f; // 20.0f :모델크기반영
+        endEdgeTrailR->Pos() = rightWeaponCollider->Pos() + rightWeaponCollider->Pos().Down() * 0.5f / 0.03f; // 20.0f :모델크기반영
+
+        startEdgeTrailR->Pos().y -= 12.0f;
+        endEdgeTrailR->Pos().y -= 12.0f;
+
+        // 찾아낸 꼭지점 위치를 업데이트 
+        startEdgeTrailR->UpdateWorld();
+        endEdgeTrailR->UpdateWorld(); // 이러면 트랜스폼에 위치가 담긴다
+        weaponTrailR->Update();
+    }
 }
 
 void Orc::SoundControl()
@@ -571,9 +648,7 @@ void Orc::Hit(float damage,Vector3 collisionPos, bool _btrue)
         collider->SetActive(false);
         leftWeaponCollider->SetActive(false);
         rightWeaponCollider->SetActive(false);
-        particleHit->Play(InteractManager::Get()->GetPartilcePos()); // 해당위치에서 파티클 재생
-        InteractManager::Get()->SetParticlePos({});
-
+        trailToggle = false;
         if (destHP <= 0)
         {
             
@@ -1208,6 +1283,8 @@ void Orc::EndDying()
     leftWeaponCollider->SetActive(false);
     questionMark->SetActive(false);
     exclamationMark->SetActive(false);
+
+    trailToggle = false;
 
    // particleHit->Stop();
 

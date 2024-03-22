@@ -28,7 +28,7 @@ ProgressBar::~ProgressBar()
 void ProgressBar::Render()
 {
     valueBuffer->SetPS(10); // GPU가 연산하도록 지시 + 슬롯(출력우선순위) 10
-    valueBuffer2->SetPS(11);
+    valueBuffer2->SetPS(13);
     backImage->PSSet(10);   // 후면 이미지 데이터도 픽셀 셰이더에 준비
 
     Quad::Render(); //쿼드 렌더
