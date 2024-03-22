@@ -430,11 +430,10 @@ void Boss::Move()
 
 	}
 	
+	if (CalculateHit()) return;
 
 	if (bWait)
 		return;
-
-	if (CalculateHit()) return;
 
 	transform->Pos() += dir * moveSpeed * DELTA;
 }

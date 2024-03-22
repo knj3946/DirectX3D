@@ -59,7 +59,7 @@ void GameMapScene::Update()
 		{
 			//처음부터 시작하도록 로직작성
 
-			player->Respawn(Vector3(60, 0, 90));
+			player->Respawn(Vector3(230, 0, 205));
 			MonsterManager::Get()->Respawn();
 
 
