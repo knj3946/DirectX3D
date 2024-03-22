@@ -105,6 +105,9 @@ private:
     ProgressBar* rangeBar;
     Quad* questionMark;
     Quad* exclamationMark;
+
+    Quad* sightMark;
+
     RayBuffer* rayBuffer;
     StructuredBuffer* structuredBuffer;
     vector<InputDesc> inputs;

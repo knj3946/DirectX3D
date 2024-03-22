@@ -59,6 +59,9 @@ Boss::Boss()
 	motion = instancing->GetMotion(index);
 	transform->Scale() *= 0.03f;
 
+	sightMark = new Quad(L"Textures/UI/sight.jpg");
+	sightMark->Scale() *= 0.1f;
+	sightMark->SetActive(false);
 
 	SetEvent(ATTACK, bind(&Boss::StartAttack, this), 0.f);
 	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.9f);
@@ -134,6 +137,7 @@ Boss::~Boss()
 	delete hpBar;
 	delete exclamationMark;
 	delete questionMark;
+	delete sightMark;
 	delete Mouth;
 	delete RoarCollider;
 	delete Roarparticle;
@@ -179,8 +183,16 @@ void Boss::Update()
 	if (curHP <= 0)return;
 	Idle(); // IDLE 일 때 실행
 	//Direction();
+	if ((bDetection || bFind) && (dynamic_cast<Player*>(target)->IsCloaking()))
+	{
+		sightMark->SetActive(true);
+	}
+	else
+	{
+		sightMark->SetActive(false);
+	}
 	Control(); // DETECT 일 때 실행
-	Find();	// FIND , DETECT
+	//Find();	// FIND , DETECT
 	CollisionCheck();
 	CoolTimeCheck();
 	MarkTimeCheck();
@@ -222,7 +234,7 @@ void Boss::PostRender()
 	if (!transform->Active())return;
 	questionMark->Render();
 	exclamationMark->Render();
-	
+	sightMark->Render();
 	//특수키 출력
 	for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
 
@@ -244,9 +256,9 @@ void Boss::GUIRender() {
 
 void Boss::CalculateEyeSight()
 {
-	if (dynamic_cast<Player*>(target)->IsCloaking()) {
+	/*if (dynamic_cast<Player*>(target)->IsCloaking()) {
 		bDetection = false; return;
-	}
+	}*/
 	Vector3 direction = target->GlobalPos() - transform->GlobalPos();
 	direction.Normalize();
 
@@ -306,9 +318,9 @@ void Boss::CalculateEyeSight()
 
 bool Boss::CalculateEyeSight(bool _bFind)
 {
-	if (dynamic_cast<Player*>(target)->IsCloaking()) {
+	/*if (dynamic_cast<Player*>(target)->IsCloaking()) {
 		bDetection = false; return false;
-	}
+	}*/
 	Vector3 direction = target->GlobalPos() - transform->GlobalPos();
 	direction.Normalize();
 
@@ -509,6 +521,7 @@ void Boss::Find()
 			path.clear();
 			exclamationMark->SetActive(false);
 			FindPos = aStar->FindPos(transform->GlobalPos(), 30.f);
+			path.clear();
 			if (aStar->IsCollisionObstacle(transform->GlobalPos(), FindPos)) // 중간에 장애물이 있으면
 			{
 				SetPath(FindPos); // 구체적인 경로 내어서 가기
@@ -536,7 +549,6 @@ void Boss::Find()
 
 void Boss::Rotate()
 {
-	
 	 if (!path.empty()) {
 		Vector3 dest = path.back();
 
@@ -612,7 +624,7 @@ void Boss::Control()
 
 void Boss::UpdateUI()
 {
-	if (!exclamationMark->Active() && !questionMark->Active())return;
+	if (!exclamationMark->Active() && !questionMark->Active()&&!sightMark->Active())return;
 
 	// 은신일때 물음표 마크 그리기
 	Vector3 barPos = transform->Pos() + Vector3(0, 6, 0);
@@ -628,6 +640,9 @@ void Boss::UpdateUI()
 
 	questionMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 1, 0));
 	questionMark->UpdateWorld();
+
+	sightMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 3, 0));
+	sightMark->UpdateWorld();
 }
 
 
@@ -747,6 +762,7 @@ void Boss::Detection()
 		IsPlayer = false;
 		exclamationMark->SetActive(true);
 		bWait = false;
+		path.clear();
 		if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos())) // 중간에 장애물이 있으면
 		{
 			SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
