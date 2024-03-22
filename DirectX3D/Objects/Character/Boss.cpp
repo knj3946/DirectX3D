@@ -649,8 +649,8 @@ void Boss::UpdateUI()
 	questionMark->UpdateWorld();
 
 	
-	sightMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 3, 0));
-	sightMark->UpdateWorld();
+	/*sightMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 3, 0));
+	sightMark->UpdateWorld();*/
 
 	sightMark2->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 3, 0));
 	sightMark2->UpdateWorld();
