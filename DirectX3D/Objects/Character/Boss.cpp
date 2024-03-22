@@ -798,8 +798,6 @@ void Boss::EndAttack()
 		SetState(RUN);
 		BOSSSOUND()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
 	}
-
-	
 }
 
 void Boss::EndHit()

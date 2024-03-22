@@ -236,7 +236,7 @@ private:
 
     void ProcessHpBar();
 public:
-    bool GetIsAttack() { return IsAttack; }
+    bool GetIsAttack() { return isAttack; }
     void Hit(float damage, Vector3 collisionPos,bool _btrue=true);
     bool GetIsDying() { return isDying; }
     void ActiveSpecialKey(Vector3 playPos, Vector3 offset);
