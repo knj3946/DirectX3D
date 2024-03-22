@@ -251,7 +251,7 @@ private:
     Vector3 feedBackPos;
 
     ProgressBar* hpBar;
-    float curHP = 100, maxHp = 100;
+    float curHP = 200, maxHp = 200;
     float destHP;
     bool isHit = false;
     bool isDying = false;

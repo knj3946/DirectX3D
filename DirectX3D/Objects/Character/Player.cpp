@@ -904,20 +904,17 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
 
 void Player::UpdateUI()
 {
+    if (destHP <= curHP)
+    {
+        curHP -= DELTA * 10 * 4; // 2 -> 4
+    }
+
+    if (curHP <= destHP)
+    {
+        curHP = destHP;
+    }
  
-    
-      curHP -= DELTA * 10 * 4; // 2 -> 4
-        
-            // 
-     State aa = curState;
-
-        if (curHP <= destHP)
-        {
-            curHP = destHP;
-        }
-
-     
-        hpBar->SetAmount(curHP / maxHp);
+    hpBar->SetAmount(curHP / maxHp);
     
 
     /*
@@ -1453,56 +1450,47 @@ float Player::GetDamage()
 
 void Player::Hit(float damage)
 {
+      destHP = (curHP - damage > 0) ? curHP - damage : 0;
+      hiteffect->Play(particlepos);
 
-
-       destHP = (curHP - damage > 0) ? curHP - damage : 0;
-
-       hiteffect->Play(particlepos);
       if (curState == JUMP4)
            PLAYERSOUND()->Play("Player_LandDamage", landVolume * VOLUME);
       else
-            PLAYERSOUND()->Play("Player_Hit", hitVolume * VOLUME);
-        if (destHP <= 0)
-        {
-            //SetState(DYING);
-            //???????
-            isDying = true;
-            return;
-        }
-
-        if (curState != JUMP4)
-            SetState(HIT, 0.8f);
-
-        preState = curState;
-        if (!dohitanimation && curState != JUMP4)
-            SetState(HIT, 0.8f);
-        dohitanimation = true;
-
-
+        PLAYERSOUND()->Play("Player_Hit", hitVolume * VOLUME);
     
+      if (destHP <= 0)
+      {
+        //SetState(DYING);
+        //???????
+        isDying = true;
+        return;
+      }
 
+      if (curState != JUMP4)
+          SetState(HIT, 0.8f);
+
+      preState = curState;
+      if (!dohitanimation && curState != JUMP4)
+          SetState(HIT, 0.8f);
+      dohitanimation = true;
 }
 
 void Player::Hit(float damage, bool camerashake)
 {
-    if (!isHit)
+    destHP = (curHP - damage > 0) ? curHP - damage : 0;
+
+    CAM->DoShake();
+    if (destHP <= 0)
     {
-        destHP = (curHP - damage > 0) ? curHP - damage : 0;
-
-        CAM->DoShake();
-        if (destHP <= 0)
-        {
-            //SetState(DYING);
-            //???????
-            isDying = true;
-            return;
-        }
-        if (!dohitanimation)
-            SetState(HIT, 0.8f);
-        dohitanimation = true;
-        isHit = true;
+        //SetState(DYING);
+        //???????
+        isDying = true;
+        return;
     }
-
+    if (!dohitanimation)
+        SetState(HIT, 0.8f);
+    dohitanimation = true;
+    isHit = true;
 }
 
 
@@ -1534,7 +1522,7 @@ void Player::ShootArrow()
 
 void Player::SetState(State state, float scale, float takeTime)
 {
-    if (state == curState) return;
+    if (state == curState && state != HIT) return;
 
     curState = state;
     PlayClip((int)state, scale, takeTime);
