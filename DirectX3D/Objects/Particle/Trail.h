@@ -11,6 +11,8 @@ public:
 	void Init();
 	void Init(Vector3 offset);
 
+	bool AfterEnableT();
+
 	void Update();
 	void Render();
 
@@ -33,5 +35,7 @@ private:
 	RasterizerState* rasterizerState[2];
 	BlendState* blendState[2];
 
+	const float INIT_DISABLE_T = 2.0f;
+	float disableT = 0.0f;
 };
 

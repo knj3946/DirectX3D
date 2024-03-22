@@ -40,6 +40,8 @@ void Trail::Init()
 		vertices[i * 2 + 0].pos = start->Pos();
 		vertices[i * 2 + 1].pos = end->Pos();
 	}
+
+	disableT = INIT_DISABLE_T;
 }
 
 void Trail::Init(Vector3 offset)	// 콜라이더를 기준으로 출력할 때 사용
@@ -50,11 +52,24 @@ void Trail::Init(Vector3 offset)	// 콜라이더를 기준으로 출력할 때 사용
 		vertices[i * 2 + 0].pos = offset;
 		vertices[i * 2 + 1].pos = offset;
 	}
+
+	disableT = INIT_DISABLE_T;
+}
+
+bool Trail::AfterEnableT()
+{
+	if (disableT > 0.0f)
+		disableT -= DELTA;
+	else disableT = 0.0f;
+
+	return disableT;
 }
 
 void Trail::Update()
 {
-	if (!Active())return;
+	if (!Active())
+		if (!AfterEnableT())
+			return;
 	// 이 코드를 주석하면 궤적이 안보이는 중이더라도 항상 정점 갱신을 진행함
 	// 최적화 문제가 생기지만 궤적이 항상 모델과 일치하는 효과를 얻는다.
 

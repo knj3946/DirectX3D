@@ -27,7 +27,7 @@ Dagger::Dagger(Transform* parent) : Model("dagger")
 	startEdge->UpdateWorld();
 	endEdge->UpdateWorld();
 
-	trail = new Trail(L"Textures/Effect/wind.jpg", startEdge, endEdge, 100, 100);
+	trail = new Trail(L"Textures/Effect/wind.jpg", startEdge, endEdge, 100, 90);
 	trail->Init();
 	trail->SetActive(false);
 }
