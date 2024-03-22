@@ -485,12 +485,16 @@ void Player::PostRender()
 
     portrait->Render();
     if (bow->Active())
+    {
         form->Render();
-    string str = to_string(ArrowManager::Get()->GetPlayerArrowCount());
+        string str = to_string(ArrowManager::Get()->GetPlayerArrowCount());
 
-    Vector3 tmp = form->Pos() + Vector3(60, 10, 0);
-    Font::Get()->RenderText("X ", { tmp.x, tmp.y }, Float2(12, 12));
-    Font::Get()->RenderText(str, { tmp.x + 30, tmp.y }, Float2(12, 12));
+        Vector3 tmp = form->Pos() + Vector3(60, 10, 0);
+        Font::Get()->RenderText("X ", { tmp.x, tmp.y }, Float2(12, 12));
+        Font::Get()->RenderText(str.substr(0, 1), { tmp.x + 30, tmp.y }, Float2(12, 12));
+        Font::Get()->RenderText(str.substr(1, 1), { tmp.x + 50, tmp.y }, Float2(12, 12));
+    }
+    
 
     if (crosshair->Active())
         crosshair->Render();
