@@ -16,6 +16,7 @@ GameMapScene::~GameMapScene()
 	MenuManager::Delete();
 	ColliderManager::Delete();
 	InteractManager::Delete();
+
 	delete bow;
 	delete model;
 	delete terrain;
@@ -29,7 +30,7 @@ GameMapScene::~GameMapScene()
 	KunaiManager::Delete();
 	FOR(2)
 		delete blendState[i];
-
+	GameControlManager::Delete();
 	delete endingCredit;
 	delete videoPlayer;
 }
