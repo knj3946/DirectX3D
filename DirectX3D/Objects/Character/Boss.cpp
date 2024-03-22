@@ -59,9 +59,12 @@ Boss::Boss()
 	motion = instancing->GetMotion(index);
 	transform->Scale() *= 0.03f;
 
-	sightMark = new Quad(L"Textures/UI/sight.jpg");
+	/*sightMark = new Quad(L"Textures/UI/Eye.png");
 	sightMark->Scale() *= 0.1f;
-	sightMark->SetActive(false);
+	sightMark->SetActive(false);*/
+	sightMark2 = new Quad(L"Textures/UI/Eye2.png");
+	sightMark2->Scale() *= 0.1f;
+	sightMark2->SetActive(false);
 
 	SetEvent(ATTACK, bind(&Boss::StartAttack, this), 0.f);
 	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.9f);
@@ -137,7 +140,8 @@ Boss::~Boss()
 	delete hpBar;
 	delete exclamationMark;
 	delete questionMark;
-	delete sightMark;
+	//delete sightMark;
+	delete sightMark2;
 	delete Mouth;
 	delete RoarCollider;
 	delete Roarparticle;
@@ -185,11 +189,13 @@ void Boss::Update()
 	//Direction();
 	if ((bDetection || bFind) && (dynamic_cast<Player*>(target)->IsCloaking()))
 	{
-		sightMark->SetActive(true);
+		//sightMark->SetActive(false);
+		sightMark2->SetActive(true);
 	}
 	else
 	{
-		sightMark->SetActive(false);
+		//sightMark->SetActive(true);
+		sightMark2->SetActive(false);
 	}
 	Control(); // DETECT 일 때 실행
 	//Find();	// FIND , DETECT
@@ -234,7 +240,8 @@ void Boss::PostRender()
 	if (!transform->Active())return;
 	questionMark->Render();
 	exclamationMark->Render();
-	sightMark->Render();
+	//sightMark->Render();
+	sightMark2->Render();
 	//특수키 출력
 	for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
 
@@ -624,7 +631,7 @@ void Boss::Control()
 
 void Boss::UpdateUI()
 {
-	if (!exclamationMark->Active() && !questionMark->Active()&&!sightMark->Active())return;
+	if (!exclamationMark->Active() && !questionMark->Active()&& !sightMark2->Active())return;
 
 	// 은신일때 물음표 마크 그리기
 	Vector3 barPos = transform->Pos() + Vector3(0, 6, 0);
@@ -641,8 +648,12 @@ void Boss::UpdateUI()
 	questionMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 1, 0));
 	questionMark->UpdateWorld();
 
+	
 	sightMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 3, 0));
 	sightMark->UpdateWorld();
+
+	sightMark2->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 3, 0));
+	sightMark2->UpdateWorld();
 }
 
 

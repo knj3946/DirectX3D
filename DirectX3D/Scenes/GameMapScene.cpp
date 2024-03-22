@@ -269,7 +269,7 @@ void GameMapScene::GUIRender()
 			//cm->GUIRender();
 		}
 		*/
-		boss->GUIRender();
+		//boss->GUIRender();
 		//MonsterManager::Get()->GUIRender();
 		//KunaiManager::Get()->GUIRender();
 
@@ -461,7 +461,7 @@ void GameMapScene::FirstLoading()
 
 		player = new Player();
 		player->Scale() = { 0.03f,0.03f,0.03f };
-		player->Pos() = {230,0,100};//{ 230,0,205 };
+		player->Pos() = {230,0,205};//{ 230,0,100 };
 		float c= XMConvertToDegrees(1.3);
 		player->Rot() = { 0,1.37f,0};
 		player->SetTerrain(terrain);

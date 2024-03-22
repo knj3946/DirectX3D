@@ -106,7 +106,8 @@ private:
     Quad* questionMark;
     Quad* exclamationMark;
 
-    Quad* sightMark;
+    //Quad* sightMark;
+    Quad* sightMark2;
 
     RayBuffer* rayBuffer;
     StructuredBuffer* structuredBuffer;
