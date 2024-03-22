@@ -22,7 +22,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
 
     // 무기 충돌체
     leftHand = new Transform();
-    leftWeaponCollider = new CapsuleCollider(8, 50);
+    leftWeaponCollider = new CapsuleCollider(8, 70);
     leftWeaponCollider->Pos().y += 20;
     leftWeaponCollider->SetParent(leftHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
     leftWeaponCollider->SetActive(false); //attack 할때 활성화
@@ -30,7 +30,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     weaponColliders.push_back(leftWeaponCollider);
 
     rightHand = new Transform();
-    rightWeaponCollider = new CapsuleCollider(6, 30);
+    rightWeaponCollider = new CapsuleCollider(6, 60);
     rightWeaponCollider->Pos().y += 20;
     rightWeaponCollider->SetParent(rightHand); // 임시로 만든 충돌체를 "손" 트랜스폼에 주기
     rightWeaponCollider->SetActive(false); //attack 할때 활성화
@@ -52,6 +52,10 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     SetEvent(ATTACK1, bind(&Orc::StartAttack, this), 0.3f);
     SetEvent(ATTACK2, bind(&Orc::StartAttack, this), 0.3f);
     SetEvent(ATTACK3, bind(&Orc::StartAttack, this), 0.3f);
+
+    SetEvent(ATTACK2, bind(&Collider::SetActive, rightWeaponCollider, true), 0.6f); // 오른손으로 두번 때리는 동작임
+    SetEvent(ATTACK3, bind(&Collider::SetActive, leftWeaponCollider, true), 0.7f); //왼손으로 두번 때리는 동작임
+
     SetEvent(ATTACK1, bind(&Orc::EndAttack, this), 0.99f);
     SetEvent(ATTACK2, bind(&Orc::EndAttack, this), 0.99f);
     SetEvent(ATTACK3, bind(&Orc::EndAttack, this), 0.99f);
@@ -412,11 +416,29 @@ void Orc::StartAttack()
 {
     trailToggle = true;
 
-    leftWeaponCollider->SetActive(true);
+    switch (curState)
+    {
+    case ATTACK1:
+        rightWeaponCollider->SetActive(true);
+        break;
+
+    case ATTACK2:
+        rightWeaponCollider->SetActive(true);
+        break;
+
+    case ATTACK3:
+        leftWeaponCollider->SetActive(true);
+        break;
+    
+    default:
+        leftWeaponCollider->SetActive(true);
+        rightWeaponCollider->SetActive(true);
+    }
+    
     leftWeaponCollider->UpdateWorld();
     weaponTrailL->Init(leftWeaponCollider->GlobalPos());
 
-    rightWeaponCollider->SetActive(true);
+    
     rightWeaponCollider->UpdateWorld();
     weaponTrailR->Init(rightWeaponCollider->GlobalPos());
 }
