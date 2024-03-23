@@ -738,6 +738,7 @@ void Player::Respawn(Vector3 pos)
     SetState(IDLE);
 
     curHP = maxHp;
+    destHP = curHP;
     hpBar->SetAmount(curHP / maxHp);
 
     collider->SetActive(true);
@@ -1480,7 +1481,7 @@ void Player::Hit(float damage, bool camerashake)
     destHP = (curHP - damage > 0) ? curHP - damage : 0;
 
     CAM->DoShake();
-    if (destHP <= 0)
+    if (destHP <= 0)    
     {
         //SetState(DYING);
         //???????
