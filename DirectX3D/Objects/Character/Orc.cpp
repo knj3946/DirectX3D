@@ -132,7 +132,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     endEdgeTrailL->SetParent(leftWeaponCollider);
     endEdgeTrailL->Pos() = leftWeaponCollider->Pos() + leftWeaponCollider->Pos().Down() * 0.5f / 0.03f; // 20.0f :모델크기반영
 
-    weaponTrailL = new Trail(L"Textures/Effect/wind.jpg", startEdgeTrailL, endEdgeTrailL, 100, 95);
+    weaponTrailL = new Trail(L"Textures/Effect/EnemySwordTrail1.png", startEdgeTrailL, endEdgeTrailL, 100, 95);
     weaponTrailL->SetActive(true);
 
 
@@ -144,7 +144,7 @@ Orc::Orc(Transform* transform, ModelAnimatorInstancing* instancing, UINT index)
     endEdgeTrailR->SetParent(rightWeaponCollider);
     endEdgeTrailR->Pos() = rightWeaponCollider->Pos() + rightWeaponCollider->Pos().Down() * 0.5f / 0.03f; // 20.0f :모델크기반영
 
-    weaponTrailR = new Trail(L"Textures/Effect/wind.jpg", startEdgeTrailR, endEdgeTrailR, 100, 95);
+    weaponTrailR = new Trail(L"Textures/Effect/EnemySwordTrail1.png", startEdgeTrailR, endEdgeTrailR, 100, 95);
     weaponTrailR->SetActive(true);
    // particleHit->Stop();
 }

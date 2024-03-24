@@ -22,7 +22,7 @@ Arrow::Arrow(Transform* transform, int id,bool isDropItem)
 	startEdge->UpdateWorld();
 	endEdge->UpdateWorld();
 	//trail = new Trail(L"Textures/Effect/Trail.png", startEdge, endEdge, 5, 5);
-	trail = new Trail(L"Textures/Effect/wind.jpg", startEdge, endEdge, 3, 6); // 스피드 임시로 6으로 설정
+	trail = new Trail(L"Textures/Effect/wind.jpg", startEdge, endEdge, 3, 15); // 스피드 임시로 6으로 설정
 	trail->Init();
 	trail->SetActive(false);
 	HitEffect = new Sprite(L"Textures/Effect/HitEffect.png", 15, 15, 5, 2, false);

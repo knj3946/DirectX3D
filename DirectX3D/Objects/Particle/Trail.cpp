@@ -8,7 +8,10 @@ Trail::Trail(wstring imageFile, Transform* start, Transform* end, UINT width, fl
 												// ->빌보드 옵션 등 활용 불가
 												// 
 
+	//material->SetShader(L"")
+
 	material->SetDiffuseMap(imageFile); // 
+	material->SetSpecularMap(L"Textures/Color/Red.png");
 
 	// 메쉬만들기
 	CreateMesh();

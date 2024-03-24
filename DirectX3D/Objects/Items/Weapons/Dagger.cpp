@@ -27,7 +27,7 @@ Dagger::Dagger(Transform* parent) : Model("dagger")
 	startEdge->UpdateWorld();
 	endEdge->UpdateWorld();
 
-	trail = new Trail(L"Textures/Effect/wind.jpg", startEdge, endEdge, 100, 90);
+	trail = new Trail(L"Textures/Effect/SwordTrail.jpg", startEdge, endEdge, 100, 95);
 	trail->Init();
 	trail->SetActive(false);
 }
@@ -49,7 +49,7 @@ void Dagger::Update()
 
 	if (trail != nullptr)
 	{
-		startEdge->Pos() = GlobalPos() + Up() * 0.5f; // 20.0f :모델크기반영
+		startEdge->Pos() = GlobalPos() + Up() * 1.f; // 20.0f :모델크기반영
 		endEdge->Pos() = GlobalPos() + Down() * 0.5f; // 20.0f :모델크기반영
 
 		// 찾아낸 꼭지점 위치를 업데이트 
