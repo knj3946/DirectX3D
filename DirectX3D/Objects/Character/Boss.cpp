@@ -59,11 +59,17 @@ Boss::Boss()
 	motion = instancing->GetMotion(index);
 	transform->Scale() *= 0.03f;
 
+	/*sightMark = new Quad(L"Textures/UI/Eye.png");
+	sightMark->Scale() *= 0.1f;
+	sightMark->SetActive(false);*/
+	sightMark2 = new Quad(L"Textures/UI/Eye2.png");
+	sightMark2->Scale() *= 0.1f;
+	sightMark2->SetActive(false);
 
 	SetEvent(ATTACK, bind(&Boss::StartAttack, this), 0.f);
 	SetEvent(ATTACK, bind(&Boss::EndAttack, this), 0.9f);
-	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, true), 0.5f); //콜라이더 켜는 시점 설정
-	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, false), 0.78f); //콜라이더 꺼지는 시점 설정
+	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, true), 0.35f); //콜라이더 켜는 시점 설정
+	SetEvent(ATTACK, bind(&Collider::SetActive, leftCollider, false), 0.65f); //콜라이더 꺼지는 시점 설정
 	
 	SetEvent(HIT, bind(&Boss::EndHit, this), 0.98f); //콜라이더 꺼지는 시점 설정
 
@@ -118,7 +124,23 @@ Boss::Boss()
 	}
 
 }
+void Boss::RePlay() {
 
+	curHP = maxHP;
+	hpBar->SetAmount(curHP / maxHP);
+	state = BOSS_STATE::IDLE;
+	SetState(IDLE);
+	transform->Pos() = PatrolPos[0];
+	curPatrol = 0;
+	bFind = false;
+	questionMark->SetActive(false);
+	exclamationMark->SetActive(false);
+	bDetection = false;
+	DetectionStartTime = 0.f;
+	path.clear();
+	rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
+	transform->Rot() = {};
+}
 Boss::~Boss()
 {
 	SAFE_DELETE(hiteffect);
@@ -134,6 +156,8 @@ Boss::~Boss()
 	delete hpBar;
 	delete exclamationMark;
 	delete questionMark;
+	//delete sightMark;
+	delete sightMark2;
 	delete Mouth;
 	delete RoarCollider;
 	delete Roarparticle;
@@ -153,8 +177,6 @@ Boss::~Boss()
 
 void Boss::Render()
 {
-
-
 	instancing->Render();
 	hpBar->Render();
 	
@@ -177,15 +199,28 @@ void Boss::Update()
 	if (GameControlManager::Get()->PauseGame())return;
 	instancing->Update();
 	ExecuteEvent();
-
+	UpdateUI();
 	if (curHP <= 0)return;
-	Idle();
-	Direction();
-	Control();
-	Find();
+	Idle(); // IDLE 일 때 실행
+	//Direction();
+	if ((bDetection || bFind) && (dynamic_cast<Player*>(target)->IsCloaking()))
+	{
+		//sightMark->SetActive(false);
+		sightMark2->SetActive(true);
+	}
+	else
+	{
+		//sightMark->SetActive(true);
+		sightMark2->SetActive(false);
+	}
+	Control(); // DETECT 일 때 실행
+	//Find();	// FIND , DETECT
 	CollisionCheck();
 	CoolTimeCheck();
 	MarkTimeCheck();
+
+	//if (CalculateHit()) return;
+	
 	Move();
 	Rotate();
 	
@@ -213,9 +248,6 @@ void Boss::Update()
 	for (int i = 0; i < 3; ++i)
 		Runparticle[i]->Update();
 
-
-	UpdateUI();
-
 	CoolDown();
 }
 
@@ -224,7 +256,8 @@ void Boss::PostRender()
 	if (!transform->Active())return;
 	questionMark->Render();
 	exclamationMark->Render();
-	
+	//sightMark->Render();
+	sightMark2->Render();
 	//특수키 출력
 	for (pair<const string, SpecialKeyUI>& iter : specialKeyUI) {
 
@@ -236,14 +269,19 @@ void Boss::PostRender()
 }
 
 void Boss::GUIRender() {
-	ImGui::DragInt("count",(int*)&count,1,0,15);
-
-	Roarparticle->GUIRender();
+	//ImGui::DragInt("count",(int*)&count,1,0,15);
+	ImGui::Text("isPlayer : %d", IsPlayer);
+	//ImGui::Text("isAssassinated : %d", isAssassinated);
+	ImGui::Text("bFind : %d", bFind);
+	ImGui::Text("bDetection : %d", bDetection);
+	//Roarparticle->GUIRender();
 }
 
 void Boss::CalculateEyeSight()
 {
-
+	/*if (dynamic_cast<Player*>(target)->IsCloaking()) {
+		bDetection = false; return;
+	}*/
 	Vector3 direction = target->GlobalPos() - transform->GlobalPos();
 	direction.Normalize();
 
@@ -303,6 +341,9 @@ void Boss::CalculateEyeSight()
 
 bool Boss::CalculateEyeSight(bool _bFind)
 {
+	/*if (dynamic_cast<Player*>(target)->IsCloaking()) {
+		bDetection = false; return false;
+	}*/
 	Vector3 direction = target->GlobalPos() - transform->GlobalPos();
 	direction.Normalize();
 
@@ -362,13 +403,14 @@ void Boss::Assassinated(Vector3 collisionPos, Transform* attackerTrf)
 	instancing->SetOutLine(index, false);
 	//MonsterManager::Get()->specialKeyUI["assassination"].active = false;
 	//MonsterManager::Get()->specialKeyUI["assassination"].quad->UpdateWorld();
-	SetState(HIT);
-	isAssassinated = true;
+	//SetState(HIT);
+	//isAssassinated = true;
+	//bDetection = true;
+	//bFind = true;
 	Vector3 pos = transform->GlobalPos();
 	pos.y += 5;
+	IsPlayer = true;
 	Hit(100, pos);
-
-	
 }
 
 void Boss::MarkTimeCheck()
@@ -405,9 +447,6 @@ void Boss::Idle()
 	if (state != BOSS_STATE::IDLE)return;
 	Detection();
 	CalculateEyeSight();
-
-
-
 }
 
 void Boss::Direction()
@@ -427,11 +466,10 @@ void Boss::Move()
 	case Boss::RUN:
 		Run();
 		break;
-
 	}
 	
 	if (CalculateHit()) return;
-
+	
 	if (bWait)
 		return;
 
@@ -450,7 +488,6 @@ void Boss::IdleMove() {
 
 	if (IsPatrolPos())
 	{
-		
 		if (!bWait)
 		{
 			bWait = true;
@@ -500,7 +537,6 @@ void Boss::Die()
 
 void Boss::Find()
 {
-	
 	if (state == BOSS_STATE::DETECT) {
 		if (dynamic_cast<Player*>(target)->IsCloaking()) {
 			state = BOSS_STATE::FIND;
@@ -508,6 +544,7 @@ void Boss::Find()
 			path.clear();
 			exclamationMark->SetActive(false);
 			FindPos = aStar->FindPos(transform->GlobalPos(), 30.f);
+			path.clear();
 			if (aStar->IsCollisionObstacle(transform->GlobalPos(), FindPos)) // 중간에 장애물이 있으면
 			{
 				SetPath(FindPos); // 구체적인 경로 내어서 가기
@@ -529,15 +566,12 @@ void Boss::Find()
 			state = BOSS_STATE::DETECT;
 			questionMark->SetActive(false);
 			exclamationMark->SetActive(true);
-		
 		}
 	}
-	
 }
 
 void Boss::Rotate()
 {
-	
 	 if (!path.empty()) {
 		Vector3 dest = path.back();
 
@@ -613,7 +647,7 @@ void Boss::Control()
 
 void Boss::UpdateUI()
 {
-	if (!exclamationMark->Active() && !questionMark->Active())return;
+	if (!exclamationMark->Active() && !questionMark->Active()&& !sightMark2->Active())return;
 
 	// 은신일때 물음표 마크 그리기
 	Vector3 barPos = transform->Pos() + Vector3(0, 6, 0);
@@ -629,8 +663,14 @@ void Boss::UpdateUI()
 
 	questionMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 1, 0));
 	questionMark->UpdateWorld();
-}
 
+	
+	/*sightMark->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 3, 0));
+	sightMark->UpdateWorld();*/
+
+	sightMark2->Pos() = CAM->WorldToScreen(barPos + Vector3(0, 3, 0));
+	sightMark2->UpdateWorld();
+}
 
 
 void Boss::SetState(STATE state, float scale, float takeTime)
@@ -749,6 +789,7 @@ void Boss::Detection()
 		IsPlayer = false;
 		exclamationMark->SetActive(true);
 		bWait = false;
+		path.clear();
 		if (aStar->IsCollisionObstacle(transform->GlobalPos(), target->GlobalPos())) // 중간에 장애물이 있으면
 		{
 			SetPath(target->GlobalPos()); // 구체적인 경로 내어서 가기
@@ -764,9 +805,6 @@ void Boss::Detection()
 		SetState(RUN);
 	}
 	rangeBar->SetAmount(DetectionStartTime / DetectionEndTime);
-	
-
-
 }
 
 void Boss::EndAttack()
@@ -797,16 +835,15 @@ void Boss::EndAttack()
 		SetState(RUN);
 		BOSSSOUND()->Play("Boss_Splash", transform->GlobalPos(), 1.f);
 	}
-
-	
 }
 
 void Boss::EndHit()
 {
 	bWait = false;
-	SetState(RUN);
 	isHit = false;
-//	collider->SetActive(true);
+	collider->SetActive(true);
+	leftCollider->SetActive(true);
+	SetState(RUN);
 }
 
 void Boss::EndDying()
@@ -965,8 +1002,12 @@ void Boss::IdleWalk()
 	totargetlength = velocity.Length();
 	moveSpeed = walkSpeed;
 	dir = velocity.GetNormalized();
+	
+	float distance = Distance(target->Pos(), transform->Pos());
+	distance = (distance > 50) ? 50 : distance;
 	if(!BOSSSOUND()->IsPlaySound("Boss_Walk"))
-		BOSSSOUND()->Play("Boss_Walk", 0.3f * VOLUME);
+		BOSSSOUND()->Play("Boss_Walk", (50-distance)/10 * VOLUME);
+
 }
 bool Boss::OnColliderFloor(Vector3& feedback)
 {
@@ -1092,7 +1133,6 @@ void Boss::CollisionCheck()
 			player->Hit(attackdamage);
 			isAttack = true;
 		}
-
 	}
 	if (RoarCollider->Active()) {
 		if (RoarCollider->IsCollision(player->GetCollider()))
@@ -1203,7 +1243,7 @@ void Boss::Hit(float damage, Vector3 collisionPos,bool _btrue)
 		SetState(HIT);
 		isHit = true;
 		bWait = true;
-	
+		CalculateHit();
 	}
 
 }
@@ -1213,7 +1253,7 @@ bool Boss::CalculateHit()
 {
 	if (isHit)
 	{
-		SetState(HIT);
+		//SetState(HIT);
 
 		if (!bFind)
 		{
@@ -1229,13 +1269,13 @@ bool Boss::CalculateHit()
 			transform->UpdateWorld();
 		}
 
-		if (curHP <= destHP)
+		/*if (curHP <= destHP)
 		{
 			isHit = false;
 			collider->SetActive(true);
 			leftCollider->SetActive(true);
 			SetState(RUN);
-		}
+		}*/
 
 		return true;
 	}

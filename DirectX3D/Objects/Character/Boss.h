@@ -105,6 +105,10 @@ private:
     ProgressBar* rangeBar;
     Quad* questionMark;
     Quad* exclamationMark;
+
+    //Quad* sightMark;
+    Quad* sightMark2;
+
     RayBuffer* rayBuffer;
     StructuredBuffer* structuredBuffer;
     vector<InputDesc> inputs;
@@ -168,7 +172,7 @@ private:
     map<string, SpecialKeyUI> specialKeyUI;
     bool isHit = false;
     bool isDying = false;
-    bool isAssassinated = false;
+    //bool isAssassinated = false;
     float DetectionRange;
     bool IsPlayer = false;
   
@@ -218,7 +222,8 @@ private:
     void StartAttack();
    
     void EndRoar();
-   
+
+  
     void EndDying();
  //   void EndJumpAttack();
     bool IsPatrolPos();
@@ -236,6 +241,8 @@ private:
 
     void ProcessHpBar();
 public:
+    void RePlay();
+
     bool GetIsAttack() { return isAttack; }
     void Hit(float damage, Vector3 collisionPos,bool _btrue=true);
     bool GetIsDying() { return isDying; }

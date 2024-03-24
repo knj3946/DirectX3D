@@ -31,6 +31,8 @@ TerrainScene::TerrainScene()
 	FOR(6)
 		HeightCollider[i]->UpdateWorld();
 
+	
+
 }
 
 TerrainScene::~TerrainScene()

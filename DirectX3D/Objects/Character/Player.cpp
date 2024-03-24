@@ -257,7 +257,7 @@ Player::Player()
     blendState[1]->Additive(); //투명색 적용 + 배경색 처리가 있으면 역시 적용
 
     stateInfo = new StateInfo();
-
+    destHP = curHP;
 }
 
 Player::~Player()
@@ -485,12 +485,16 @@ void Player::PostRender()
 
     portrait->Render();
     if (bow->Active())
+    {
         form->Render();
-    string str = to_string(ArrowManager::Get()->GetPlayerArrowCount());
+        string str = to_string(ArrowManager::Get()->GetPlayerArrowCount());
 
-    Vector3 tmp = form->Pos() + Vector3(60, 10, 0);
-    Font::Get()->RenderText("X ", { tmp.x, tmp.y }, Float2(12, 12));
-    Font::Get()->RenderText(str, { tmp.x + 30, tmp.y }, Float2(12, 12));
+        Vector3 tmp = form->Pos() + Vector3(60, 10, 0);
+        Font::Get()->RenderText("X ", { tmp.x, tmp.y }, Float2(12, 12));
+        Font::Get()->RenderText(str.substr(0, 1), { tmp.x + 30, tmp.y }, Float2(12, 12));
+        Font::Get()->RenderText(str.substr(1, 1), { tmp.x + 50, tmp.y }, Float2(12, 12));
+    }
+    
 
     if (crosshair->Active())
         crosshair->Render();
@@ -734,6 +738,7 @@ void Player::Respawn(Vector3 pos)
     SetState(IDLE);
 
     curHP = maxHp;
+    destHP = curHP;
     hpBar->SetAmount(curHP / maxHp);
 
     collider->SetActive(true);
@@ -900,24 +905,23 @@ void Player::Move() //??? ????(?? ???, ??? ???, ???? ?? ???????, ??? ???? ???? ?
 
 void Player::UpdateUI()
 {
-    if (isHit || isDying)
+    if (destHP <= curHP)
     {
-        if (isHit)
-            curHP -= DELTA * 10 * 4; // 2 -> 4
-        else
-            curHP -= DELTA * 10 * 6;
-        State aa = curState;
-
-        if (curHP <= destHP)
-        {
-            curHP = destHP;
-            isHit = false;
-        }
-
-        hpBar->SetAmount(curHP / maxHp);
+        curHP -= DELTA * 10 * 4; // 2 -> 4
     }
 
+    if (curHP <= destHP)
+    {
+        curHP = destHP;
+    }
+ 
+    hpBar->SetAmount(curHP / maxHp);
+    
+
     /*
+    * 
+    * 30 39 38 3736
+    * 30 30
     Vector3 barPos = Pos() + Vector3(0, 6, 0);
 
     hpBar->UpdateWorld();
@@ -1431,6 +1435,7 @@ bool Player::TerainComputePicking(Vector3& feedback, Ray ray)
     return false;
 }
 
+
 float Player::GetDamage()
 {
     float r = 0.0f;
@@ -1446,58 +1451,47 @@ float Player::GetDamage()
 
 void Player::Hit(float damage)
 {
+      destHP = (curHP - damage > 0) ? curHP - damage : 0;
+      hiteffect->Play(particlepos);
 
-    if (!isHit)
-    {
-        isHit = true;
-        destHP = (curHP - damage > 0) ? curHP - damage : 0;
+      if (curState == JUMP4)
+           PLAYERSOUND()->Play("Player_LandDamage", landVolume * VOLUME);
+      else
+        PLAYERSOUND()->Play("Player_Hit", hitVolume * VOLUME);
+    
+      if (destHP <= 0)
+      {
+        //SetState(DYING);
+        //???????
+        isDying = true;
+        return;
+      }
 
-        hiteffect->Play(particlepos);
-        if (curState == JUMP4)
-            PLAYERSOUND()->Play("Player_LandDamage", landVolume * VOLUME);
-        else
-            PLAYERSOUND()->Play("Player_Hit", hitVolume * VOLUME);
-        if (destHP <= 0)
-        {
-            //SetState(DYING);
-            //???????
-            isDying = true;
-            return;
-        }
+      if (curState != JUMP4)
+          SetState(HIT, 0.8f);
 
-        if (curState != JUMP4)
-            SetState(HIT, 0.8f);
-
-        preState = curState;
-        if (!dohitanimation && curState != JUMP4)
-            SetState(HIT, 0.8f);
-        dohitanimation = true;
-
-
-    }
-
+      preState = curState;
+      if (!dohitanimation && curState != JUMP4)
+          SetState(HIT, 0.8f);
+      dohitanimation = true;
 }
 
 void Player::Hit(float damage, bool camerashake)
 {
-    if (!isHit)
+    destHP = (curHP - damage > 0) ? curHP - damage : 0;
+
+    CAM->DoShake();
+    if (destHP <= 0)    
     {
-        destHP = (curHP - damage > 0) ? curHP - damage : 0;
-
-        CAM->DoShake();
-        if (destHP <= 0)
-        {
-            //SetState(DYING);
-            //???????
-            isDying = true;
-            return;
-        }
-        if (!dohitanimation)
-            SetState(HIT, 0.8f);
-        dohitanimation = true;
-        isHit = true;
+        //SetState(DYING);
+        //???????
+        isDying = true;
+        return;
     }
-
+    if (!dohitanimation)
+        SetState(HIT, 0.8f);
+    dohitanimation = true;
+    isHit = true;
 }
 
 
@@ -1529,7 +1523,7 @@ void Player::ShootArrow()
 
 void Player::SetState(State state, float scale, float takeTime)
 {
-    if (state == curState) return;
+    if (state == curState && state != HIT) return;
 
     curState = state;
     PlayClip((int)state, scale, takeTime);

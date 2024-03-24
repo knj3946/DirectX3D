@@ -16,6 +16,7 @@ GameMapScene::~GameMapScene()
 	MenuManager::Delete();
 	ColliderManager::Delete();
 	InteractManager::Delete();
+
 	delete bow;
 	delete model;
 	delete terrain;
@@ -29,7 +30,7 @@ GameMapScene::~GameMapScene()
 	KunaiManager::Delete();
 	FOR(2)
 		delete blendState[i];
-
+	GameControlManager::Delete();
 	delete endingCredit;
 	delete videoPlayer;
 }
@@ -61,15 +62,13 @@ void GameMapScene::Update()
 
 			player->Respawn(Vector3(230, 0, 205));
 			MonsterManager::Get()->Respawn();
-
-
+			boss->RePlay();
 			FOR(MonsterManager::Get()->GetSIZE())
 			{
 				MonsterManager::Get()->SetOrcSRT(i, srt[i][0], srt[i][1], srt[i][2]);
 				MonsterManager::Get()->SetPatrolPos(i, patrolPos[i]);
 			}
-			MonsterManager::Get()->GetOrc(0)->SetSpeed(8);
-			MonsterManager::Get()->GetOrc(1)->SetSpeed(6);
+	
 
 			MenuManager::Get()->SetFailFlag(false);
 			MenuManager::Get()->SetSelectFailMenu(0);
@@ -262,14 +261,14 @@ void GameMapScene::GUIRender()
 		
 		//ImGui::Text("volume : %f", VOLUME);
 		//ColliderManager::Get()->GuiRender();
-		player->GUIRender();
+		//player->GUIRender();
 		/*
 		for (ColliderModel* cm : colliderModels)
 		{
 			//cm->GUIRender();
 		}
 		*/
-
+		//boss->GUIRender();
 		//MonsterManager::Get()->GUIRender();
 		//KunaiManager::Get()->GUIRender();
 
@@ -461,7 +460,7 @@ void GameMapScene::FirstLoading()
 
 		player = new Player();
 		player->Scale() = { 0.03f,0.03f,0.03f };
-		player->Pos() = { 230,0,205 };
+		player->Pos() = {230,0,205};//{ 230,0,100 };
 		float c= XMConvertToDegrees(1.3);
 		player->Rot() = { 0,1.37f,0};
 		player->SetTerrain(terrain);
@@ -510,7 +509,8 @@ void GameMapScene::FirstLoading()
 		//MonsterManager::Get()->SetPatrolPos(6, Vector3(170.f, 0.f, 120.f));
 		//MonsterManager::Get()->SetOrcSRT(7, Vector3(0.03f, 0.03f, 0.03f), Vector3(0, 0, 0), Vector3(50, 0, 135));
 		//MonsterManager::Get()->SetPatrolPos(7, Vector3(100.f, 0.f, 135.f));
-		MonsterManager::Get()->SetType(7,1);// 1이 알리는애
+		//MonsterManager::Get()->SetType(7,1);// 1이 알리는애
+		MonsterManager::Get()->SetType(3,1);// 1이 알리는애
 		MonsterManager::Get()->SetTerrain(terrain);
 		MonsterManager::Get()->SetAStar(aStar);
 		MonsterManager::Get()->SetTarget(player);

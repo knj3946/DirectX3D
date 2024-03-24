@@ -173,13 +173,13 @@ bool ArrowManager::IsCollision()
 			}
 		}
 	}
-	return false;
+	
 	for (Arrow* arrow : arrows)
 	{
 		if (arrow->IsDropItem())continue;
 		if (ColliderManager::Get()->Getvector(ColliderManager::BOSS)[0]->IsSphereCollision(arrow->GetCollider())) {
 			arrow->GetCollider()->SetActive(false);
-			ColliderManager::Get()->GetBoss()->Hit(50,  arrow->GetTransform()->GlobalPos(),false);
+			ColliderManager::Get()->GetBoss()->Hit(20,  arrow->GetTransform()->GlobalPos(),false);
 			arrow->HitEffectActive();
 		
 		}

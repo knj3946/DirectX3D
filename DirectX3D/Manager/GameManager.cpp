@@ -26,11 +26,10 @@ GameManager::~GameManager()
 void GameManager::Update()
 {
     Keyboard::Get()->Update();
-    //Audio::Get()->Update();
+    Timer::Get()->Update();
 
     SceneManager::Get()->Update();
     Environment::Get()->Update();
-    Timer::Get()->Update();
 }
 
 void GameManager::Render()
@@ -46,9 +45,9 @@ void GameManager::Render()
     Environment::Get()->PostSet();
     SceneManager::Get()->PostRender();
 
-    //ImGui_ImplDX11_NewFrame();
-    //ImGui_ImplWin32_NewFrame();
-    //ImGui::NewFrame();
+    /*ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();*/
 
     Timer::Get()->SaveFinishTime();
 
@@ -68,16 +67,16 @@ void GameManager::Render()
 
     static bool isActive = true;
 
-    if (isActive)
+    /*if (isActive)
     {
-        //ImGui::Begin("Inspector", &isActive);
-        //Environment::Get()->GUIRender();
-        //SceneManager::Get()->GUIRender();
-        //ImGui::End();
+        ImGui::Begin("Inspector", &isActive);
+        Environment::Get()->GUIRender();
+        SceneManager::Get()->GUIRender();
+        ImGui::End();
     }
-
-    //ImGui::Render();
-    //ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+ 
+    ImGui::Render();
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());*/
 
     Font::Get()->GetDC()->EndDraw();
 
