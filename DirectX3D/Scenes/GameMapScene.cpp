@@ -86,6 +86,10 @@ void GameMapScene::Update()
 
 		if (MenuManager::Get()->GetEndFlag())
 		{
+
+			GameManager::ReserveRestart();
+			SoundManager::Get()->GetPlayerAudio()->AllStop();
+			return;
 			if (videoPlayer->GetPlayTime() == 0.f)
 			{
 				SoundManager::Get()->GetPlayerAudio()->AllStop();
@@ -104,8 +108,7 @@ void GameMapScene::Update()
 
 			if (videoPlayer->GetPlayTime() >= 115.f)
 			{
-				GameManager::ReserveRestart();
-				SoundManager::Get()->GetPlayerAudio()->AllStop();
+			
 			}
 			return;
 		}
@@ -187,6 +190,7 @@ void GameMapScene::PreRender()
 
 	if (MenuManager::Get()->GetEndFlag())
 	{
+		return;
 		videoPlayer->PreRender();
 	}
 }
@@ -229,6 +233,7 @@ void GameMapScene::PostRender()
 {
 	if (MenuManager::Get()->GetEndFlag())
 	{
+		return;
 		endingCredit->Render();
 		videoPlayer->PostRender();
 	}

@@ -20,7 +20,7 @@ public:
                                  // 자료는 벡터로 만들 거지만, 실제 관리는 (인덱스 배부)
                                  // 마치 이진 트리인 것처럼 사용할 거라서 (= 힙 흉내)
 
-    void Swap(int n1, int n2); // 매개변수로 받은 두 요소의 내용 교환
+    void Swap(int n1, int n2); // 매개변수로 받은 두 요소의 내  용 교환
 
     void Clear() { heap.clear(); } //벡터 기능 적용
     bool Empty() { return heap.empty(); } //벡터의 판별함수 적용
